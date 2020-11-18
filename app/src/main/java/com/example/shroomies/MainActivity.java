@@ -25,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     static BottomNavigationView btm_view;
     FragmentTransaction ft;
     FragmentManager fm;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,5 +82,5 @@ public class MainActivity extends AppCompatActivity {
         ft.addToBackStack(null);
         ft.replace(R.id.fragmentContainer, fragment);
         ft.commit();
-    }
+}
 }
