@@ -16,6 +16,7 @@ import android.view.View;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.database.FirebaseDatabase;
 
 public class MainActivity extends AppCompatActivity {
     DrawerLayout drawerLayout;
@@ -76,11 +77,12 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
-    private void getFragment (Fragment fragment){
+    private void getFragment (Fragment fragment) {
         fm = getSupportFragmentManager();
         ft = fm.beginTransaction();
         ft.addToBackStack(null);
         ft.replace(R.id.fragmentContainer, fragment);
         ft.commit();
-}
+    }
+
 }
