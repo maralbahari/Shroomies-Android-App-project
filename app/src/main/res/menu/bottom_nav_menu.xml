@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/find_roomie_menu"
+        android:icon="@drawable/ic_find_roommie_"
+        android:title="find roommate"
+
+
+ />
+    <item
+        android:id="@+id/publish_post_menu"
+        android:title="publish post"
+        android:icon="@drawable/ic_publish_post_"
+         />
+    <item
+        android:id="@+id/message_inbox_menu"
+        android:title="message inbox"
+        android:icon="@drawable/ic_message_inbox_"
+/>
+
+
+    <item
+        android:id="@+id/user_profile_menu"
+        android:title="view profile"
+        android:icon="@drawable/ic_user_profile_"
+       />
+
+</menu>
