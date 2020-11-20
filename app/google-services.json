@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "869729058596",
+    "firebase_url": "https://shroomies-e34d3.firebaseio.com",
+    "project_id": "shroomies-e34d3",
+    "storage_bucket": "shroomies-e34d3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:869729058596:android:63944ac304390ea7567db1",
+        "android_client_info": {
+          "package_name": "com.example.shroomies"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "869729058596-i5k1shovsa37kn4ig4b1cg83k1p6j43l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCF5NRNtEAcNX0QAXquDQ68yCYXsLhp2Ao"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "869729058596-i5k1shovsa37kn4ig4b1cg83k1p6j43l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
