@@ -101,9 +101,6 @@
         android:elevation="10dp"
         android:padding="10dp"
         android:shadowColor="@android:color/black"
-        android:shadowRadius="80dp"
-        android:shadowDx="10dp"
-        android:shadowDy="10dp"
         android:textColor="@android:color/black" />
 
 </RelativeLayout>
