@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
-android:shape = "rectangle">
-<solid android:color="@android:color/white"/>
-<<<<<<< HEAD
-=======
-    <size android:width="300dp" android:height="50dp"/>
->>>>>>> origin/master
+    android:shape = "rectangle">
+    <solid android:color="@android:color/white"/>
+    <size android:width="300dp" android:height="60dp"/>
     <corners android:radius="30dp"/>
 </shape>
