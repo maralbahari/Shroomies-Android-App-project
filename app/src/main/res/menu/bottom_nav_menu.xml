@@ -11,6 +11,8 @@
     <item
         android:id="@+id/publish_post_menu"
         android:title="publish post"
+
+
         android:icon="@drawable/ic_publish_post_"
          />
     <item
