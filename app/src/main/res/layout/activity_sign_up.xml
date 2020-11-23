@@ -4,18 +4,46 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/LogoYellow"
-    android:backgroundTint="@color/LogoYellow"
+    android:background="@drawable/gradient_yellow_background"
     tools:context=".SignUpActivity">
 
-
+<TextView
+    android:id="@+id/become"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="Become a"
+    android:textSize="30dp"
+    android:layout_marginLeft="30dp"
+    android:layout_marginTop="30dp"
+    android:textStyle="bold"
+    android:textColor="@android:color/black"/>
+    <ImageView
+        android:id="@+id/shroomie"
+        android:layout_width="180dp"
+        android:layout_height="60dp"
+        android:layout_below="@id/become"
+        android:layout_marginLeft="30dp"
+        android:src="@drawable/mashroom_text_black_white"
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="today"
+        android:layout_below="@id/become"
+        android:layout_marginTop="10dp"
+        android:textSize="30dp"
+        android:textStyle="bold"
+        android:layout_alignParentLeft="true"
+        android:textColor="@android:color/black"
+        android:layout_marginLeft="190dp"/>
     <TextView
         android:id="@+id/text_signup"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
+        android:layout_marginLeft="30dp"
+        android:layout_below="@id/shroomie"
         android:layout_marginTop="50dp"
-        android:paddingLeft="10dp"
+        android:paddingLeft="30dp"
         android:text="Sign Up"
         android:textColor="@android:color/black"
         android:textSize="30sp"
