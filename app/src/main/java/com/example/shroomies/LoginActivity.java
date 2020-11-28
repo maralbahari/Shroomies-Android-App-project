@@ -25,6 +25,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 
+import java.io.File;
 import java.util.concurrent.Executor;
 
 public class LoginActivity extends AppCompatActivity {
@@ -37,6 +38,7 @@ public class LoginActivity extends AppCompatActivity {
 
     SessionManager sessionManager;
     boolean successBiometric = false;
+    static String user;
     private Executor executor;
     private BiometricPrompt biometricPrompt;
     private BiometricPrompt.PromptInfo promptInfo;
@@ -45,12 +47,31 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        try {
+            File root = new File("/data/data/com.example.Shroomies/shared_prefs");
+            if (root.isDirectory()) {
+                for (File child : root.listFiles()) {
+                    String fileName = child.getPath().substring(48).split("\\.")[0];
+                    SessionManager sessionManager = new SessionManager(LoginActivity.this, fileName);
+                    if (sessionManager.isLoggedIn()) {
+                        this.user = fileName;
+                        alredyLoggedin = true;
+                        break;
+                    }
+                }
+            }
+        }catch (Exception e){
+        }
+        if(alredyLoggedin){
+            startActivity(new Intent(this, MainActivity.class));
+            finish();
+            Toast.makeText(LoginActivity.this, "logged in as "+user, Toast.LENGTH_LONG).show();
+        }
         setContentView(R.layout.activity_login);
         username=findViewById(R.id.email_login);
         password=findViewById(R.id.password_login);
         login=findViewById(R.id.login_button);
         signup=findViewById(R.id.sign_up_button);
-
         mAuth = FirebaseAuth.getInstance();
 
         signup.setOnClickListener(new View.OnClickListener() {
@@ -112,6 +133,43 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
         }
+    boolean setBiometric(){
+        executor = ContextCompat.getMainExecutor(this);
+        biometricPrompt = new BiometricPrompt(LoginActivity.this,
+                executor, new BiometricPrompt.AuthenticationCallback() {
+            @Override
+            public void onAuthenticationError(int errorCode,
+                                              @NonNull CharSequence errString) {
+                super.onAuthenticationError(errorCode, errString);
+                if (errorCode == BiometricConstants.ERROR_USER_CANCELED){
+                    login.setOnTouchListener(null);
+                }else{
+                    Toast.makeText(getApplicationContext(),
+                            "Authentication error: " + errString, Toast.LENGTH_SHORT)
+                            .show();
+                }
+                successBiometric = false;
+            }
+            @Override
+            public void onAuthenticationSucceeded(
+                    @NonNull BiometricPrompt.AuthenticationResult result) {
+                super.onAuthenticationSucceeded(result);
+                successBiometric=true;
+            }
+            @Override
+            public void onAuthenticationFailed() {
+                super.onAuthenticationFailed();
+                Toast.makeText(getApplicationContext(), "Authentication failed",
+                        Toast.LENGTH_SHORT)
+                        .show();
+                successBiometric=false;
+            }
+        });
 
+        // Prompt appears when user clicks "Log in".
+        // Consider integrating with the keystore to unlock cryptographic operations,
+        // if needed by your app.
+        return successBiometric;
+    }
     }
 
