@@ -62,15 +62,15 @@
         android:layout_marginTop="50dp"
         android:layout_marginEnd="156dp"
         android:gravity="center"
+        android:shadowColor="@android:color/black"
+        android:shadowDx="5"
+        android:shadowDy="5"
+        android:shadowRadius="5"
         android:text="Sign up"
         android:textAlignment="center"
         android:textSize="18sp"
         android:textStyle="bold"
-        android:shadowRadius="5"
-        android:shadowDy="5"
-        android:shadowDx="5"
         app:layout_constraintEnd_toEndOf="parent"
-        android:shadowColor="@android:color/black"
         app:layout_constraintTop_toBottomOf="@+id/google_sign_up" />
 
     <Button
@@ -114,5 +114,21 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/black_mashroom_logo"
         app:srcCompat="@drawable/mashroom_text_black_white" />
+
+    <TextView
+        android:id="@+id/forgot_password_login"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="131dp"
+        android:layout_marginTop="59dp"
+        android:layout_marginEnd="131dp"
+        android:text="Forgot Password"
+        android:textAlignment="center"
+        android:textColor="@android:color/holo_red_dark"
+        android:textSize="18sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/sign_up_button" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

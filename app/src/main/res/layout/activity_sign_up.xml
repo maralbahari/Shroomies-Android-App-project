@@ -115,6 +115,16 @@
         android:padding="10dp"
         android:paddingLeft="20dp" />
 
+    <Switch
+        android:id="@+id/enable_bio_signup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/confirmpw"
+        android:layout_marginTop="10dp"
+        android:showText="false"
+        android:text="Enable login biometric"
+        android:textAlignment="center" />
+
     <Button
         android:id="@+id/registerbt"
         style="@style/TextAppearance.AppCompat.Widget.Button.Colored"
