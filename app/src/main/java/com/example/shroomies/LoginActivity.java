@@ -19,6 +19,8 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 
 public class LoginActivity extends AppCompatActivity {
     EditText username;
@@ -81,9 +83,24 @@ public class LoginActivity extends AppCompatActivity {
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
-                Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                if (e instanceof FirebaseAuthInvalidCredentialsException) {
+                    Toast.makeText(LoginActivity.this, "Invalid password", Toast.LENGTH_SHORT).show();
+                } else if (e instanceof FirebaseAuthInvalidUserException) {
+
+                    String errorCode =
+                            ((FirebaseAuthInvalidUserException) e).getErrorCode();
+
+                    if (errorCode.equals("ERROR_USER_NOT_FOUND")) {
+                        Toast.makeText(LoginActivity.this, "The email does not belong to a registered account. Please proceed to Sign Up.", Toast.LENGTH_SHORT).show();
+                    } else if (errorCode.equals("ERROR_USER_DISABLED")) {
+                        Toast.makeText(LoginActivity.this, "User account has been disabled", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(LoginActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                    }
+
+                }
             }
         });
-
         }
     }
+
