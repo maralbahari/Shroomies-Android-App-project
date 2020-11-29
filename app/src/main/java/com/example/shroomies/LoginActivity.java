@@ -47,26 +47,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        try {
-            File root = new File("/data/data/com.example.Shroomies/shared_prefs");
-            if (root.isDirectory()) {
-                for (File child : root.listFiles()) {
-                    String fileName = child.getPath().substring(48).split("\\.")[0];
-                    SessionManager sessionManager = new SessionManager(LoginActivity.this, fileName);
-                    if (sessionManager.isLoggedIn()) {
-                        this.user = fileName;
-                        alredyLoggedin = true;
-                        break;
-                    }
-                }
-            }
-        }catch (Exception e){
-        }
-        if(alredyLoggedin){
-            startActivity(new Intent(this, MainActivity.class));
-            finish();
-            Toast.makeText(LoginActivity.this, "logged in as "+user, Toast.LENGTH_LONG).show();
-        }
+
         setContentView(R.layout.activity_login);
         username=findViewById(R.id.email_login);
         password=findViewById(R.id.password_login);
