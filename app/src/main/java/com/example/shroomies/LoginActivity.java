@@ -29,8 +29,8 @@ import java.io.File;
 import java.util.concurrent.Executor;
 
 public class LoginActivity extends AppCompatActivity {
-    EditText username;
-    EditText password;
+   protected EditText username;
+   protected EditText password;
     Button login;
     TextView signup;
 

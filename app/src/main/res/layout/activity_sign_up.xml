@@ -54,14 +54,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/text_signup"
-        android:elevation="10dp"
-        android:padding="10dp"
         android:layout_marginLeft="50dp"
         android:layout_marginTop="51dp"
         android:background="@drawable/textbox_round"
         android:drawableStart="@drawable/ic_name_edit_text"
-        android:hint="   Full Name"
+        android:elevation="10dp"
+        android:hint="   Username"
         android:inputType="textPersonName"
+        android:padding="10dp"
         android:paddingLeft="24dp"
 
 
@@ -120,9 +120,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/confirmpw"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="20dp"
         android:showText="false"
-        android:text="Enable login biometric"
+        android:layout_marginLeft="40dp"
+        android:layout_marginRight="50dp"
+        android:text="Enable login biometric on this device"
         android:textAlignment="center" />
 
     <Button

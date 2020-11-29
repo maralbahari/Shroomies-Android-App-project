@@ -13,10 +13,10 @@ import androidx.fragment.app.FragmentTransaction;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
-import com.google.firebase.database.FirebaseDatabase;
 
 public class MainActivity extends AppCompatActivity {
     DrawerLayout drawerLayout;
@@ -26,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
     static BottomNavigationView btm_view;
     FragmentTransaction ft;
     FragmentManager fm;
+    ImageView myShroomies;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,12 +49,12 @@ public class MainActivity extends AppCompatActivity {
                 if(menuItem.getItemId()==R.id.setting_menu){
                     getFragment(new PrivacySetting());
                 }if(menuItem.getItemId()==R.id.my_archive_menu){
-                    getFragment(new MyArchive());
+                    getFragment(new Archive());
                 }if(menuItem.getItemId()==R.id.my_favorite_menu){
-                    getFragment(new MyFavorite());
+                    getFragment(new Favorite());
 
                 }if(menuItem.getItemId()==R.id.my_requests_menu){
-                    getFragment(new MyRequests());
+                    getFragment(new Request());
                 }
                 return false;
             }
@@ -73,6 +74,13 @@ public class MainActivity extends AppCompatActivity {
                     getFragment(new UserProfile());
                 }
                 return true;
+            }
+        });
+        myShroomies=findViewById(R.id.logo_toolbar);
+        myShroomies.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getFragment(new MyShroomies());
             }
         });
 

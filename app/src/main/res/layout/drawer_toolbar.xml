@@ -31,26 +31,32 @@
                 android:id="@+id/logo_toolbar"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:layout_marginStart="30dp"
+                android:layout_marginStart="255dp"
                 android:layout_marginTop="10dp"
-                android:layout_marginEnd="100dp"
+                android:layout_marginEnd="10dp"
                 android:layout_marginBottom="10dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintVertical_bias="0.0"
                 app:srcCompat="@drawable/black_mushroom" />
 
-            <Button
-                android:id="@+id/shroomies_task_manager_button"
-                android:layout_width="36dp"
-                android:layout_height="40dp"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="15dp"
-                android:background="@drawable/ic_shroomie_house_"
+            <ImageView
+                android:id="@+id/logo"
+                android:layout_width="0dp"
+
+                android:layout_height="30dp"
+                android:layout_marginStart="50dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="120dp"
+                android:src="@drawable/shroomies_black_white_text2"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.appcompat.widget.Toolbar>
 

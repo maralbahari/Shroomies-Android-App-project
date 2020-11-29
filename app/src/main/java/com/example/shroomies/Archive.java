@@ -8,7 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-public class MyArchive extends Fragment {
+public class Archive extends Fragment {
    View v;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
