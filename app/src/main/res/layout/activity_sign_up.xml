@@ -17,6 +17,7 @@
     android:layout_marginTop="30dp"
     android:textStyle="bold"
     android:textColor="@android:color/black"/>
+
     <ImageView
         android:id="@+id/shroomie"
         android:layout_width="180dp"
@@ -36,6 +37,7 @@
         android:layout_alignParentLeft="true"
         android:textColor="@android:color/black"
         android:layout_marginLeft="190dp"/>
+
     <TextView
         android:id="@+id/text_signup"
         android:layout_width="300dp"
