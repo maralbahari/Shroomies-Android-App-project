@@ -35,6 +35,7 @@ public class SignUpActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     ProgressDialog pd;
     Switch enableBiometric;
+    SessionManager sessionManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,7 +89,7 @@ public class SignUpActivity extends AppCompatActivity {
 
 
 
-    private void registerUser(final String name, final String email, String password, String confirmpw,boolean isEnabled) {
+    private void registerUser(final String name, final String email, String password, String confirmpw, final boolean isEnabled) {
         pd.setMessage("Please wait");
         pd.show();
 
@@ -106,9 +107,12 @@ public class SignUpActivity extends AppCompatActivity {
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
                             pd.dismiss();
-                            Toast.makeText(SignUpActivity.this, "Your profile has been created", Toast.LENGTH_SHORT).show();
+                            sessionManager=new SessionManager(getApplicationContext(),name);
+                            sessionManager.createSession(name,email);
+                            sessionManager.setBiometricEnabled(isEnabled);
                             Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
                             startActivity(intent);
+                            Toast.makeText(SignUpActivity.this, name+", you are a shroomie now", Toast.LENGTH_SHORT).show();
                             finish();
 
 

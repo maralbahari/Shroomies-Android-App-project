@@ -14,6 +14,8 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
@@ -27,14 +29,23 @@ public class MainActivity extends AppCompatActivity {
     FragmentTransaction ft;
     FragmentManager fm;
     ImageView myShroomies;
+    TextView usernameDrawer;
+    SessionManager sessionManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        Bundle extras = getIntent().getExtras();
+        if(extras!=null){
+            String msg = extras.getString("USERNAME");
+            Toast.makeText(this,msg,Toast.LENGTH_LONG).show();
+        }
         btm_view = findViewById(R.id.bottomNavigationView);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
+        usernameDrawer=findViewById(R.id.drawer_nav_profile_name);
+
         setSupportActionBar(toolbar);
         getFragment(new FindRoommate());
         barDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open, R.string.close);
