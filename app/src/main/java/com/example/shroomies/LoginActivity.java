@@ -16,7 +16,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.biometric.BiometricConstants;
 import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.FragmentActivity;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -33,7 +32,6 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.firebase.database.core.Tag;
 
 import java.io.File;
 import java.util.concurrent.Executor;
@@ -41,7 +39,7 @@ import java.util.concurrent.Executor;
 public class LoginActivity extends AppCompatActivity {
     protected EditText username;
     protected EditText password;
-    Button login, google_signup;
+    Button login, google_sign;
     TextView signup;
 
     private final int RC_SIGN_IN = 7;
@@ -87,7 +85,7 @@ public class LoginActivity extends AppCompatActivity {
         password = findViewById(R.id.password_login);
         login = findViewById(R.id.login_button);
         signup = findViewById(R.id.sign_up_button);
-        google_signup = findViewById(R.id.google_sign_up);
+        google_sign = findViewById(R.id.google_sign_up);
         mAuth = FirebaseAuth.getInstance();
 
         signup.setOnClickListener(new View.OnClickListener() {
@@ -104,7 +102,7 @@ public class LoginActivity extends AppCompatActivity {
                 .build();
 
         mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
-        google_signup.setOnClickListener(new View.OnClickListener() {
+        google_sign.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 signIn();
