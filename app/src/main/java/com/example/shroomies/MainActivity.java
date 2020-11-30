@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -38,8 +39,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         Bundle extras = getIntent().getExtras();
         if(extras!=null){
-            String msg = extras.getString("USERNAME");
-            Toast.makeText(this,msg,Toast.LENGTH_LONG).show();
+            String username = extras.getString("USERNAME");
+            String email=extras.getString("EMAIL");
+            sessionManager=new SessionManager(getApplicationContext(),username);
+            sessionManager.createSession(username,email);
+            Toast.makeText(this,username,Toast.LENGTH_LONG).show();
         }
         btm_view = findViewById(R.id.bottomNavigationView);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
@@ -66,6 +70,14 @@ public class MainActivity extends AppCompatActivity {
 
                 }if(menuItem.getItemId()==R.id.my_requests_menu){
                     getFragment(new Request());
+                }if(menuItem.getItemId()==R.id.logout){
+                    finish();
+                    sessionManager.logout();
+                    Intent intent = new Intent(MainActivity.this , LoginActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    finish();
+                    startActivity(intent);
+                    finish();
                 }
                 return false;
             }

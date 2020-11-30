@@ -39,6 +39,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
+import com.google.firebase.auth.UserInfo;
 
 import java.io.File;
 import java.util.concurrent.Executor;
@@ -144,56 +145,81 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         });
-
+if(!successBiometric){
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-             String uname_txt = username.getText().toString();
-             String pw_txt = password.getText().toString();
-
-             if (TextUtils.isEmpty(uname_txt) || TextUtils.isEmpty(pw_txt)){
-                 Toast.makeText(LoginActivity.this, "Please fill in your details",Toast.LENGTH_SHORT).show();
-             }
-             else {
-                loginUser(uname_txt, pw_txt);
-             }
+             loginUser(successBiometric);
             }
         });
 
-    }
-    private void loginUser(String username, String password){
-        mAuth.signInWithEmailAndPassword(username, password). addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                if (task.isSuccessful()){
-                    Toast.makeText(LoginActivity.this, "Welcome to Shroomies!", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(intent);
-                    finish();
-                }
+    }}
+    private void loginUser(boolean biometricSuccessful){
+        final String uname_txt = username.getText().toString();
+        String pw_txt = password.getText().toString();
+
+        if (TextUtils.isEmpty(uname_txt) || TextUtils.isEmpty(pw_txt)){
+            Toast.makeText(LoginActivity.this, "Please fill in your details",Toast.LENGTH_SHORT).show();
+        }
+        else {
+            if(biometricSuccessful){
+                sessionManager=new SessionManager(getApplicationContext(),uname_txt);
+                // get name of the user
+                sessionManager.createSession(mAuth.getCurrentUser().getDisplayName().toString(),uname_txt);
+                Toast.makeText(LoginActivity.this, "Welcome to Shroomies!", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
+                finish();
             }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                if (e instanceof FirebaseAuthInvalidCredentialsException) {
-                    Toast.makeText(LoginActivity.this, "Invalid password", Toast.LENGTH_SHORT).show();
-                } else if (e instanceof FirebaseAuthInvalidUserException) {
 
-                    String errorCode =
-                            ((FirebaseAuthInvalidUserException) e).getErrorCode();
+            mAuth.signInWithEmailAndPassword(uname_txt, pw_txt). addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                @Override
+                public void onComplete(@NonNull Task<AuthResult> task) {
+                    if (task.isSuccessful()){
+                        FirebaseUser user = mAuth.getCurrentUser();
+                        if (user != null) {
+                            for (UserInfo profile : user.getProviderData()){
+                                String name = profile.getDisplayName();
+                                String email = profile.getEmail();
+//                                sessionManager=new SessionManager(getApplicationContext(),email);
+//                                sessionManager.createSession(name,email);
+                                Toast.makeText(LoginActivity.this, "Welcome to Shroomies! "+email, Toast.LENGTH_SHORT).show();
+                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                intent.putExtra("USERNAME",name);
+                                intent.putExtra("EMIAL",email);
+                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                startActivity(intent);
+                                finish();
+                            }
 
-                    if (errorCode.equals("ERROR_USER_NOT_FOUND")) {
-                        Toast.makeText(LoginActivity.this, "The email does not belong to a registered account. Please proceed to Sign Up.", Toast.LENGTH_SHORT).show();
-                    } else if (errorCode.equals("ERROR_USER_DISABLED")) {
-                        Toast.makeText(LoginActivity.this, "User account has been disabled", Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(LoginActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                        }
                     }
-
                 }
-            }
-        });
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    if (e instanceof FirebaseAuthInvalidCredentialsException) {
+                        Toast.makeText(LoginActivity.this, "Invalid password", Toast.LENGTH_SHORT).show();
+                    } else if (e instanceof FirebaseAuthInvalidUserException) {
+
+                        String errorCode =
+                                ((FirebaseAuthInvalidUserException) e).getErrorCode();
+
+                        if (errorCode.equals("ERROR_USER_NOT_FOUND")) {
+                            Toast.makeText(LoginActivity.this, "The email does not belong to a registered account. Please proceed to Sign Up.", Toast.LENGTH_SHORT).show();
+                        } else if (errorCode.equals("ERROR_USER_DISABLED")) {
+                            Toast.makeText(LoginActivity.this, "User account has been disabled", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(LoginActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                        }
+
+                    }
+                }
+            });
+        }
+
+
         }
     boolean setBiometric(){
         executor = ContextCompat.getMainExecutor(this);
@@ -217,6 +243,7 @@ public class LoginActivity extends AppCompatActivity {
                     @NonNull BiometricPrompt.AuthenticationResult result) {
                 super.onAuthenticationSucceeded(result);
                 successBiometric=true;
+                loginUser(successBiometric);
             }
             @Override
             public void onAuthenticationFailed() {
@@ -263,6 +290,10 @@ public class LoginActivity extends AppCompatActivity {
                 if (task.isSuccessful()){
                     Log.d("Login", "signInWithCredential:Success");
                     FirebaseUser user = mAuth.getCurrentUser();
+                    sessionManager=new SessionManager(getApplicationContext(),user.getEmail());
+                    sessionManager.createSession(user.getEmail(),user.getEmail());
+                    Intent intent= new Intent(getApplicationContext(),MainActivity.class);
+                    startActivity(intent);
 
                     Toast.makeText(LoginActivity.this, "User Signed In", Toast.LENGTH_SHORT).show();
                 }

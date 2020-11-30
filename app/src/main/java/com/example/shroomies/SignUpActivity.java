@@ -111,6 +111,8 @@ public class SignUpActivity extends AppCompatActivity {
                             sessionManager.createSession(name,email);
                             sessionManager.setBiometricEnabled(isEnabled);
                             Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
+                            intent.putExtra("USERNAME",name);
+                            intent.putExtra("EMAIL",email);
                             startActivity(intent);
                             Toast.makeText(SignUpActivity.this, name+", you are a shroomie now", Toast.LENGTH_SHORT).show();
                             finish();
