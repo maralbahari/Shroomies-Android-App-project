@@ -81,38 +81,38 @@ public class LoginActivity extends AppCompatActivity {
         signup=findViewById(R.id.sign_up_button);
         google_sign = findViewById(R.id.google_sign_up);
         forgotPassword=findViewById(R.id.forgot_password_login);
-        username.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                String typedUsername=username.getText().toString();
-                sessionManager=new SessionManager(getApplicationContext(),typedUsername);
-                if(sessionManager.biometricIsEnabled()){
-                    password.setOnTouchListener(new View.OnTouchListener() {
-                        @Override
-                        public boolean onTouch(View v, MotionEvent event) {
-                            setBiometric();
-                            promptInfo = new BiometricPrompt.PromptInfo.Builder()
-                                    .setTitle("Biometric login for my app")
-                                    .setSubtitle("Log in using your biometric credential")
-                                    .setNegativeButtonText("Use account password")
-                                    .build();
-                            biometricPrompt.authenticate(promptInfo);
-                            return false;
-                        }
-                    });
-                }
-            }
-        });
+//        username.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//
+//            }
+//
+//            @Override
+//            public void onTextChanged(CharSequence s, int start, int before, int count) {
+//
+//                sessionManager=new SessionManager();
+//                if(sessionManager.checkUserBiometric(s.toString())){
+//                    password.setOnTouchListener(new View.OnTouchListener() {
+//                        @Override
+//                        public boolean onTouch(View v, MotionEvent event) {
+//                            setBiometric();
+//                            promptInfo = new BiometricPrompt.PromptInfo.Builder()
+//                                    .setTitle("Biometric login for my app")
+//                                    .setSubtitle("Log in using your biometric credential")
+//                                    .setNegativeButtonText("Use account password")
+//                                    .build();
+//                            biometricPrompt.authenticate(promptInfo);
+//                            return false;
+//                        }
+//                    });
+//                }
+//            }
+//
+//            @Override
+//            public void afterTextChanged(Editable s) {
+//
+//            }
+//        });
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
@@ -145,7 +145,7 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         });
-if(!successBiometric){
+
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -153,8 +153,8 @@ if(!successBiometric){
             }
         });
 
-    }}
-    private void loginUser(boolean biometricSuccessful){
+    }
+    private void loginUser(final boolean biometricSuccessful){
         final String uname_txt = username.getText().toString();
         String pw_txt = password.getText().toString();
 
@@ -162,16 +162,16 @@ if(!successBiometric){
             Toast.makeText(LoginActivity.this, "Please fill in your details",Toast.LENGTH_SHORT).show();
         }
         else {
-            if(biometricSuccessful){
-                sessionManager=new SessionManager(getApplicationContext(),uname_txt);
-                // get name of the user
-                sessionManager.createSession(mAuth.getCurrentUser().getDisplayName().toString(),uname_txt);
-                Toast.makeText(LoginActivity.this, "Welcome to Shroomies!", Toast.LENGTH_SHORT).show();
-                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
-                finish();
-            }
+//            if(biometricSuccessful){
+//                sessionManager=new SessionManager(getApplicationContext(),uname_txt);
+//                // get name of the user
+//                sessionManager.createSession(mAuth.getCurrentUser().getDisplayName().toString(),uname_txt);
+//                Toast.makeText(LoginActivity.this, "Welcome to Shroomies!", Toast.LENGTH_SHORT).show();
+//                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+//                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//                startActivity(intent);
+//                finish();
+//            }
 
             mAuth.signInWithEmailAndPassword(uname_txt, pw_txt). addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
@@ -182,8 +182,8 @@ if(!successBiometric){
                             for (UserInfo profile : user.getProviderData()){
                                 String name = profile.getDisplayName();
                                 String email = profile.getEmail();
-//                                sessionManager=new SessionManager(getApplicationContext(),email);
-//                                sessionManager.createSession(name,email);
+                                sessionManager=new SessionManager(getApplicationContext(),email);
+                                sessionManager.createSession(name,email);
                                 Toast.makeText(LoginActivity.this, "Welcome to Shroomies! "+email, Toast.LENGTH_SHORT).show();
                                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                                 intent.putExtra("USERNAME",name);
@@ -218,7 +218,6 @@ if(!successBiometric){
                 }
             });
         }
-
 
         }
     boolean setBiometric(){

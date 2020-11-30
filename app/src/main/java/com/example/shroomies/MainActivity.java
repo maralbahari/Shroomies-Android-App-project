@@ -42,6 +42,11 @@ public class MainActivity extends AppCompatActivity {
             String username = extras.getString("USERNAME");
             String email=extras.getString("EMAIL");
             sessionManager=new SessionManager(getApplicationContext(),username);
+            if(!sessionManager.isLoggedIn()){
+                Intent intent = new Intent(getApplicationContext(),LoginActivity.class);
+                startActivity(intent);
+                finish();
+            }
             sessionManager.createSession(username,email);
             Toast.makeText(this,username,Toast.LENGTH_LONG).show();
         }
@@ -71,11 +76,9 @@ public class MainActivity extends AppCompatActivity {
                 }if(menuItem.getItemId()==R.id.my_requests_menu){
                     getFragment(new Request());
                 }if(menuItem.getItemId()==R.id.logout){
-                    finish();
                     sessionManager.logout();
                     Intent intent = new Intent(MainActivity.this , LoginActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    finish();
                     startActivity(intent);
                     finish();
                 }
