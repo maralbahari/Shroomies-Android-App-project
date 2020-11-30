@@ -44,7 +44,6 @@ public class LoginActivity extends AppCompatActivity {
 
     private final int RC_SIGN_IN = 7;
     GoogleSignInClient mGoogleSignInClient;
-
     FirebaseAuth mAuth;
 
     SessionManager sessionManager;
@@ -54,7 +53,6 @@ public class LoginActivity extends AppCompatActivity {
     private BiometricPrompt biometricPrompt;
     private BiometricPrompt.PromptInfo promptInfo;
     boolean alredyLoggedin = false;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,7 +120,6 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
-
     }
 
     private void loginUser(String username, String password) {
@@ -204,7 +201,6 @@ public class LoginActivity extends AppCompatActivity {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
     }
-
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -240,7 +236,6 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
-
     }
 }
 
