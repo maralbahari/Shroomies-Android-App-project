@@ -189,7 +189,6 @@ public class LoginActivity extends AppCompatActivity {
             public void onAuthenticationSucceeded(
                     @NonNull BiometricPrompt.AuthenticationResult result) {
                 super.onAuthenticationSucceeded(result);
-//                loginUser();
                 successBiometric=true;
             }
             @Override
