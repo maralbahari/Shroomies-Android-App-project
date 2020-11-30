@@ -65,15 +65,6 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        sessionManager=new SessionManager();
-        user=sessionManager.checkUsersLoggedIn(getApplicationContext());
-        if(user!=null){
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            intent.putExtra("USERNAME",user);
-            startActivity(intent);
-            finish();
-        }
         setContentView(R.layout.activity_login);
         username=findViewById(R.id.email_login);
         password=findViewById(R.id.password_login);
@@ -177,23 +168,11 @@ public class LoginActivity extends AppCompatActivity {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if (task.isSuccessful()){
-                        FirebaseUser user = mAuth.getCurrentUser();
-                        if (user != null) {
-                            for (UserInfo profile : user.getProviderData()){
-                                String name = profile.getDisplayName();
-                                String email = profile.getEmail();
-                                sessionManager=new SessionManager(getApplicationContext(),email);
-                                sessionManager.createSession(name,email);
-                                Toast.makeText(LoginActivity.this, "Welcome to Shroomies! "+email, Toast.LENGTH_SHORT).show();
+                                Toast.makeText(LoginActivity.this, "Welcome to Shroomies! ", Toast.LENGTH_SHORT).show();
                                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                intent.putExtra("USERNAME",name);
-                                intent.putExtra("EMIAL",email);
                                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                                 startActivity(intent);
                                 finish();
-                            }
-
-                        }
                     }
                 }
             }).addOnFailureListener(new OnFailureListener() {

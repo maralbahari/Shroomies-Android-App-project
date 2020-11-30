@@ -101,23 +101,17 @@ public class SignUpActivity extends AppCompatActivity {
                 userDetails.put("name", name);
                 userDetails.put("email", email);
                 userDetails.put("ID", mAuth.getCurrentUser().getUid());
+                userDetails.put("biometricEnabled",isEnabled);
 
                 mRootref.child("Users").child(mAuth.getCurrentUser().getUid()).setValue(userDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
                             pd.dismiss();
-                            sessionManager=new SessionManager(getApplicationContext(),name);
-                            sessionManager.createSession(name,email);
-                            sessionManager.setBiometricEnabled(isEnabled);
                             Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
-                            intent.putExtra("USERNAME",name);
-                            intent.putExtra("EMAIL",email);
                             startActivity(intent);
                             Toast.makeText(SignUpActivity.this, name+", you are a shroomie now", Toast.LENGTH_SHORT).show();
                             finish();
-
-
                         }
                     }
                 });

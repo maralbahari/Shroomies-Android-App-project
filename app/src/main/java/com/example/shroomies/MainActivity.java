@@ -20,6 +20,9 @@ import android.widget.Toast;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.UserInfo;
 
 public class MainActivity extends AppCompatActivity {
     DrawerLayout drawerLayout;
@@ -32,29 +35,24 @@ public class MainActivity extends AppCompatActivity {
     ImageView myShroomies;
     TextView usernameDrawer;
     SessionManager sessionManager;
+    FirebaseUser user;
+    FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Bundle extras = getIntent().getExtras();
-        if(extras!=null){
-            String username = extras.getString("USERNAME");
-            String email=extras.getString("EMAIL");
-            sessionManager=new SessionManager(getApplicationContext(),username);
-            if(!sessionManager.isLoggedIn()){
-                Intent intent = new Intent(getApplicationContext(),LoginActivity.class);
-                startActivity(intent);
-                finish();
+        mAuth=FirebaseAuth.getInstance();
+        user=mAuth.getCurrentUser();
+        if(user!=null){
+            for(UserInfo userInfo: user.getProviderData()){
+                
             }
-            sessionManager.createSession(username,email);
-            Toast.makeText(this,username,Toast.LENGTH_LONG).show();
         }
         btm_view = findViewById(R.id.bottomNavigationView);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         usernameDrawer=findViewById(R.id.drawer_nav_profile_name);
-
         setSupportActionBar(toolbar);
         getFragment(new FindRoommate());
         barDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open, R.string.close);
@@ -76,11 +74,11 @@ public class MainActivity extends AppCompatActivity {
                 }if(menuItem.getItemId()==R.id.my_requests_menu){
                     getFragment(new Request());
                 }if(menuItem.getItemId()==R.id.logout){
-                    sessionManager.logout();
-                    Intent intent = new Intent(MainActivity.this , LoginActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    mAuth.signOut();
+                    Intent intent= new Intent(getApplicationContext(),LoginActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     startActivity(intent);
-                    finish();
                 }
                 return false;
             }
