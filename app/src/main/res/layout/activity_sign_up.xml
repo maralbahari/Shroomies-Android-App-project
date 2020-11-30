@@ -55,19 +55,20 @@
         android:id="@+id/fullname"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/text_signup"
+        android:layout_below="@+id/text_signup"
+        android:layout_centerInParent="true"
         android:layout_marginLeft="50dp"
-        android:layout_marginTop="51dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginRight="50dp"
         android:background="@drawable/textbox_round"
         android:drawableStart="@drawable/ic_name_edit_text"
         android:elevation="10dp"
         android:hint="   Username"
         android:inputType="textPersonName"
+
+
         android:padding="10dp"
-        android:paddingLeft="24dp"
-
-
-        />
+        android:paddingLeft="24dp" />
 
     <EditText
         android:id="@+id/emailid"
@@ -138,7 +139,7 @@
         android:layout_centerInParent="true"
         android:layout_marginTop="60dp"
         android:background="@drawable/button_round"
-        android:drawableRight="@drawable/ic_arrow_register"
+        android:drawableRight="@drawable/ic_yellow_arrow_icon"
         android:text="Register"
         android:elevation="10dp"
         android:padding="10dp"

@@ -43,9 +43,7 @@
             android:layout_alignParentEnd="true"
             app:itemTextColor="@android:color/black"
             app:labelVisibilityMode="labeled"
-
             android:textAlignment="center"
-
             android:theme="@style/Theme.MaterialComponents"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
