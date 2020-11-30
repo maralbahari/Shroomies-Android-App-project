@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 public class SessionManager {
     SharedPreferences sharedPreferences;
@@ -27,7 +28,9 @@ public class SessionManager {
         sharedPreferences = context.getSharedPreferences(userName, PRIVATE_MODE);
         editor = sharedPreferences.edit();
     }
+    public SessionManager(){
 
+    }
 
     public void createSession(String name,String email) {
         HashMap<String, String> user = getUserDetail();
@@ -46,28 +49,36 @@ public class SessionManager {
     private void addUserNameToList(String name) {
         listOfUsers = context.getSharedPreferences(USERNAME_LIST ,PRIVATE_MODE);
         listEditor = listOfUsers.edit();
-        listEditor.putString(NAME , name);
+        listEditor.putString( name,NAME );
         listEditor.apply();
     }
 
+
     //check if the user is logged in.
     public boolean isLoggedIn() {
-
         return sharedPreferences.getBoolean(LOGIN, false);
-
     }
 
     // get the user details from the shared preferences file and return the data in a hashMap
     public HashMap<String, String> getUserDetail() {
-
         HashMap<String, String> user = new HashMap<>();
         user.put(NAME, sharedPreferences.getString(NAME, null));
         user.put(EMAIL, sharedPreferences.getString(EMAIL, null));
         user.put(BIOMETRIC_ENABLED, Boolean.toString(sharedPreferences.getBoolean(BIOMETRIC_ENABLED, false)));
         return user;
-
     }
-
+    //check if a user logged in and return the name of the user that is logged in
+    public String checkUsersLoggedIn(Context context){
+        listOfUsers = context.getSharedPreferences("USERNAME_LIST" , 0);
+        Map<String , String> users = (Map<String, String>) listOfUsers.getAll();
+        for(String userName : users.keySet()) {
+            SessionManager user = new SessionManager(context, userName);
+            if (user.isLoggedIn()) {
+                return userName;
+            }
+        }
+        return null;
+    }
     // keeps the user's data stored and changes his login status to false
     public void logout() {
 
