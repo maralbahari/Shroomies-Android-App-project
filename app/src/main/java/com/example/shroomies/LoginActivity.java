@@ -1,6 +1,7 @@
 package com.example.shroomies;
 
 import android.content.Intent;
+import android.icu.text.UnicodeSetSpanner;
 import android.os.Bundle;
 
 import android.text.Editable;
@@ -45,8 +46,8 @@ import java.io.File;
 import java.util.concurrent.Executor;
 
 public class LoginActivity extends AppCompatActivity {
-   protected EditText username;
-   protected EditText password;
+    protected EditText username;
+    protected EditText password;
     Button login;
     TextView signup;
     private final int RC_SIGN_IN = 7;
@@ -116,6 +117,7 @@ public class LoginActivity extends AppCompatActivity {
                 signIn();
             }
         });
+
         forgotPassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -140,7 +142,7 @@ public class LoginActivity extends AppCompatActivity {
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-             loginUser(successBiometric);
+                loginUser(successBiometric);
             }
         });
 
@@ -167,12 +169,17 @@ public class LoginActivity extends AppCompatActivity {
             mAuth.signInWithEmailAndPassword(uname_txt, pw_txt). addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
+                    final FirebaseUser user = mAuth.getCurrentUser();
                     if (task.isSuccessful()){
-                                Toast.makeText(LoginActivity.this, "Welcome to Shroomies! ", Toast.LENGTH_SHORT).show();
-                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                                startActivity(intent);
-                                finish();
+                        if(!user.isEmailVerified()) {
+                            Toast.makeText(LoginActivity.this, "Please verify your email address", Toast.LENGTH_SHORT).show();
+                        }
+                        else {
+                            Toast.makeText(LoginActivity.this, "Welcome to Shroomies! ", Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            startActivity(intent);
+                        }
                     }
                 }
             }).addOnFailureListener(new OnFailureListener() {
@@ -189,7 +196,8 @@ public class LoginActivity extends AppCompatActivity {
                             Toast.makeText(LoginActivity.this, "The email does not belong to a registered account. Please proceed to Sign Up.", Toast.LENGTH_SHORT).show();
                         } else if (errorCode.equals("ERROR_USER_DISABLED")) {
                             Toast.makeText(LoginActivity.this, "User account has been disabled", Toast.LENGTH_SHORT).show();
-                        } else {
+                        }
+                        else {
                             Toast.makeText(LoginActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                         }
 
@@ -198,7 +206,7 @@ public class LoginActivity extends AppCompatActivity {
             });
         }
 
-        }
+    }
     boolean setBiometric(){
         executor = ContextCompat.getMainExecutor(this);
         biometricPrompt = new BiometricPrompt(LoginActivity.this,
@@ -276,13 +284,10 @@ public class LoginActivity extends AppCompatActivity {
                     Toast.makeText(LoginActivity.this, "User Signed In", Toast.LENGTH_SHORT).show();
                 }
                 else{
-                    Log.w("Login", "signInWithCredentail:Failure", task.getException());
+                    Log.w("Login", "signInWithCredential:Failure", task.getException());
                     Toast.makeText(LoginActivity.this, "Authentication Failed", Toast.LENGTH_SHORT).show();
                 }
             }
         });
     }
 }
-
-
-

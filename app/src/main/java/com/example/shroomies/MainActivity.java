@@ -46,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
         user=mAuth.getCurrentUser();
         if(user!=null){
             for(UserInfo userInfo: user.getProviderData()){
-                
+
             }
         }
         btm_view = findViewById(R.id.bottomNavigationView);
