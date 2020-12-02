@@ -1,19 +1,317 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".PublishPost">
-    <TextView
-        android:layout_width="289dp"
-        android:layout_height="70dp"
-        android:layout_marginTop="264dp"
-        android:layout_marginEnd="60dp"
-        android:text="posts"
-        android:textAllCaps="true"
-        android:textSize="36sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    android:paddingTop="60dp"
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    android:paddingBottom="60dp"
+    tools:context=".PublishPost">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#FFFF"
+                android:drawableStart="@drawable/ic_pen_icon_edit"
+                android:padding="10dp"
+                android:text="create new post"
+
+                android:textAlignment="textStart"
+                android:textSize="17sp">
+
+            </Button>
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tab_layout_publish_post"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                >
+
+                <com.google.android.material.tabs.TabItem
+                    android:id="@+id/tab_button_apartment"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="apartment"
+                    />
+
+
+                <com.google.android.material.tabs.TabItem
+                    android:id="@+id/tab_button_personal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="personal"
+                  />
+
+
+            </com.google.android.material.tabs.TabLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RelativeLayout
+                android:id="@+id/upload_image_card"
+                android:layout_width="match_parent"
+                android:layout_height="180dp"
+                android:layout_margin="10dp"
+
+                android:background="@drawable/post_card_rectangle_round"
+                android:elevation="3dp">
+
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top"
+                    android:layout_margin="20dp"
+                    android:text="upload images"
+                    android:textSize="18sp">
+
+                </androidx.appcompat.widget.AppCompatTextView>
+
+                <ImageView
+                    android:id="@+id/cloud_icon_publish_post"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:background="@drawable/ic_upload_icon_cloud">
+
+                </ImageView>
+            </RelativeLayout>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+
+            <RelativeLayout
+                android:id="@+id/description_post"
+                android:layout_width="match_parent"
+                android:layout_height="180dp"
+                android:layout_margin="10dp"
+                android:background="@drawable/post_card_rectangle_round"
+                android:elevation="3dp">
+
+                <TextView
+                    android:id="@+id/description_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="20dp"
+
+                    android:text="Description:"></TextView>
+
+                <EditText
+                    android:id="@+id/description_edit_text"
+
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_below="@id/description_tv"
+
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginBottom="20dp">
+
+                </EditText>
+            </RelativeLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <RelativeLayout
+                android:id="@+id/number_of_roommates"
+                android:layout_width="0dp"
+                android:layout_height="130dp"
+                android:layout_margin="20dp"
+                android:layout_weight="1"
+
+                android:background="@drawable/post_card_rectangle_round"
+                android:elevation="3dp">
+
+                <TextView
+                    android:id="@+id/number_of_roommates_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="10dp"
+
+                    android:text="No.roommates:">
+
+                </TextView>
+
+                <NumberPicker
+                    android:id="@+id/roommate_number_picker"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/number_of_roommates_tv"
+                    android:layout_centerInParent="true"
+                    android:layout_marginBottom="10dp">
+
+                </NumberPicker>
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/budget_layout"
+
+                android:layout_width="0dp"
+                android:layout_height="130dp"
+                android:layout_margin="20dp"
+                android:layout_weight="1"
+
+
+                android:background="@drawable/post_card_rectangle_round"
+                android:elevation="3dp">
+
+                <TextView
+                    android:id="@+id/budget_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentStart="true"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="10dp"
+
+                    android:text="Budget:">
+
+                </TextView>
+
+                <NumberPicker
+                    android:id="@+id/budget_number_picker"
+                    android:layout_width="66dp"
+                    android:layout_height="73dp"
+                    android:layout_below="@id/budget_tv"
+                    android:layout_centerInParent="true"
+                    android:layout_marginBottom="10dp">
+
+                </NumberPicker>
+
+            </RelativeLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="400dp"
+            android:orientation="horizontal">
+
+            <com.google.android.gms.maps.MapView
+                android:layout_margin="10dp"
+                android:elevation="5dp"
+                android:id="@+id/address_map_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+
+            </com.google.android.gms.maps.MapView>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:orientation="horizontal">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@drawable/post_card_rectangle_round"
+                android:elevation="5dp">
+
+                <TextView
+                    android:id="@+id/add_property"
+                    android:layout_alignParentStart="true"
+                    android:layout_width="wrap_content"
+
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginEnd="20dp"
+
+                    android:text="Add properties" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/add_property"
+                    android:layout_margin="10dp"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/female_button_post"
+                        android:layout_margin="5dp"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/button_round"
+                        android:drawableStart="@drawable/ic_icon_ionic_ios_female"
+                        android:padding="10dp" />
+
+                    <Button
+                        android:id="@+id/male_button_post"
+                        android:layout_margin="5dp"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:background="@drawable/button_round"
+                        android:drawableStart="@drawable/ic_icon_ionic_ios_male"
+                        android:padding="10dp" />
+
+                    <Button
+                        android:id="@+id/pet_button_post"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_margin="5dp"
+                        android:background="@drawable/button_round"
+                        android:drawableStart="@drawable/ic_icon_map_pet_store"
+                        android:padding="10dp" />
+
+                    <Button
+                        android:id="@+id/non_smoking_button_post"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_margin="5dp"
+                        android:background="@drawable/button_round"
+                        android:drawableStart="@drawable/ic_icon_material_smoke_free"
+                        android:padding="10dp" />
+                </LinearLayout>
+
+            </RelativeLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</androidx.core.widget.NestedScrollView>
