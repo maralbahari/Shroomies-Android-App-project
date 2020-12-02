@@ -105,13 +105,16 @@ public class SignUpActivity extends AppCompatActivity {
                 userDetails.put("email", email);
                 userDetails.put("ID", mAuth.getCurrentUser().getUid());
                 userDetails.put("biometricEnabled",isEnabled);
-
+                userDetails.put("image",""); //add later in edit profile
+                userDetails.put("isPartOfRoom","false"); //change later
                 mRootref.child("Users").child(mAuth.getCurrentUser().getUid()).setValue(userDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
 
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
+
                             sendEmailVerification();
+
 
                         }
                     }

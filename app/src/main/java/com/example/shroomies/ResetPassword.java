@@ -3,6 +3,7 @@ package com.example.shroomies;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -58,6 +59,8 @@ public class ResetPassword extends AppCompatActivity {
         btn_Back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Intent intent = new Intent(getApplication(),LoginActivity.class);
+                startActivity(intent);
                 finish();
             }
         });

@@ -51,6 +51,7 @@
         android:elevation="10dp"
         android:hint="   Password"
         android:padding="10dp"
+        android:inputType="textPassword"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"

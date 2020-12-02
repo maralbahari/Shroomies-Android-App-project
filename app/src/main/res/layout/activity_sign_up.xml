@@ -65,8 +65,6 @@
         android:elevation="10dp"
         android:hint="   Username"
         android:inputType="textPersonName"
-
-
         android:padding="10dp"
         android:paddingLeft="24dp" />
 

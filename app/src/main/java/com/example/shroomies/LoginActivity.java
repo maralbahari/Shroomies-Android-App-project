@@ -3,11 +3,8 @@ package com.example.shroomies;
 import android.content.Intent;
 import android.os.Bundle;
 
-import android.text.Editable;
 import android.text.TextUtils;
-import android.text.TextWatcher;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -19,7 +16,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.biometric.BiometricConstants;
 import androidx.biometric.BiometricPrompt;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.FragmentActivity;
 
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
@@ -35,13 +31,15 @@ import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
-import com.google.android.gms.common.api.ApiException;
-import com.google.firebase.auth.UserInfo;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
-import java.io.File;
+import java.util.HashMap;
 import java.util.concurrent.Executor;
 
 public class LoginActivity extends AppCompatActivity {
@@ -53,13 +51,10 @@ public class LoginActivity extends AppCompatActivity {
     GoogleSignInClient mGoogleSignInClient;
     FirebaseAuth mAuth;
     TextView forgotPassword;
-    SessionManager sessionManager;
     boolean successBiometric = false;
-    static String user;
     private Executor executor;
     private BiometricPrompt biometricPrompt;
     private BiometricPrompt.PromptInfo promptInfo;
-    boolean alredyLoggedin = false;
     Button google_sign;
 
     @Override
@@ -81,27 +76,27 @@ public class LoginActivity extends AppCompatActivity {
 //            @Override
 //            public void onTextChanged(CharSequence s, int start, int before, int count) {
 //
-//                sessionManager=new SessionManager();
-//                if(sessionManager.checkUserBiometric(s.toString())){
-//                    password.setOnTouchListener(new View.OnTouchListener() {
-//                        @Override
-//                        public boolean onTouch(View v, MotionEvent event) {
-//                            setBiometric();
-//                            promptInfo = new BiometricPrompt.PromptInfo.Builder()
-//                                    .setTitle("Biometric login for my app")
-//                                    .setSubtitle("Log in using your biometric credential")
-//                                    .setNegativeButtonText("Use account password")
-//                                    .build();
-//                            biometricPrompt.authenticate(promptInfo);
-//                            return false;
-//                        }
-//                    });
-//                }
+//
 //            }
 //
 //            @Override
 //            public void afterTextChanged(Editable s) {
+////                if(chekEnabledBiometric(s.toString())){
 //
+////                    password.setOnTouchListener(new View.OnTouchListener() {
+////                        @Override
+////                        public boolean onTouch(View v, MotionEvent event) {
+////                            setBiometric();
+////                            promptInfo = new BiometricPrompt.PromptInfo.Builder()
+////                                    .setTitle("Biometric login for my app")
+////                                    .setSubtitle("Log in using your biometric credential")
+////                                    .setNegativeButtonText("Use account password")
+////                                    .build();
+////                            biometricPrompt.authenticate(promptInfo);
+////                            return false;
+////                        }
+////                    });
+////                }
 //            }
 //        });
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -141,6 +136,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
              loginUser(successBiometric);
+
             }
         });
 
@@ -168,6 +164,7 @@ public class LoginActivity extends AppCompatActivity {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if (task.isSuccessful()){
+                               FirebaseUser user = mAuth.getCurrentUser();
                                 Toast.makeText(LoginActivity.this, "Welcome to Shroomies! ", Toast.LENGTH_SHORT).show();
                                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -266,13 +263,20 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()){
-                    Log.d("Login", "signInWithCredential:Success");
                     FirebaseUser user = mAuth.getCurrentUser();
-                    sessionManager=new SessionManager(getApplicationContext(),user.getEmail());
-                    sessionManager.createSession(user.getEmail(),user.getEmail());
+                    if(task.getResult().getAdditionalUserInfo().isNewUser()){
+                        DatabaseReference mRootref = FirebaseDatabase.getInstance().getReference("Users");
+                        HashMap<String, Object> userDetails = new HashMap<>();
+                        userDetails.put("name","" );
+                        userDetails.put("email", user.getEmail());
+                        userDetails.put("ID", mAuth.getCurrentUser().getUid());
+                        userDetails.put("biometricEnabled","False");
+                        userDetails.put("image",""); //add later in edit profile
+                        userDetails.put("isPartOfRoom","false");// change later
+                        mRootref.child("Users").child(mAuth.getCurrentUser().getUid()).setValue(userDetails);
+                    }
                     Intent intent= new Intent(getApplicationContext(),MainActivity.class);
                     startActivity(intent);
-
                     Toast.makeText(LoginActivity.this, "User Signed In", Toast.LENGTH_SHORT).show();
                 }
                 else{
@@ -281,6 +285,39 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+    public boolean chekEnabledBiometric(String email){
+        FirebaseUser user= mAuth.getCurrentUser();
+        String userID="";
+        if(user!=null){
+            if(user.getEmail()==email){
+                userID=user.getUid();
+                Toast.makeText(getApplicationContext(),userID,Toast.LENGTH_SHORT).show();
+            }
+        }
+        if(userID!=null){
+            Query query= FirebaseDatabase.getInstance().getReference("Users").child(userID);
+            query.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    for(DataSnapshot dataSnapshot:snapshot.getChildren()){
+                       if(dataSnapshot.hasChild("biometricEnabled")){
+                           String trying= dataSnapshot.child("biometricEnabled").getValue().toString();
+                           Toast.makeText(getApplicationContext(),trying,Toast.LENGTH_LONG).show();
+                       }
+                    }
+//                        successBiometric= (boolean) snapshot.child("biometricEnabled").getValue();
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+        }
+
+        return successBiometric;
     }
 }
 

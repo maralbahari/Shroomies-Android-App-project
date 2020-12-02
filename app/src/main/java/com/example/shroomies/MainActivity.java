@@ -23,6 +23,11 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
+import com.google.firebase.database.ValueEventListener;
 
 public class MainActivity extends AppCompatActivity {
     DrawerLayout drawerLayout;
@@ -34,7 +39,6 @@ public class MainActivity extends AppCompatActivity {
     FragmentManager fm;
     ImageView myShroomies;
     TextView usernameDrawer;
-    SessionManager sessionManager;
     FirebaseUser user;
     FirebaseAuth mAuth;
 
@@ -45,9 +49,7 @@ public class MainActivity extends AppCompatActivity {
         mAuth=FirebaseAuth.getInstance();
         user=mAuth.getCurrentUser();
         if(user!=null){
-            for(UserInfo userInfo: user.getProviderData()){
 
-            }
         }
         btm_view = findViewById(R.id.bottomNavigationView);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
