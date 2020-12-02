@@ -79,11 +79,24 @@ public class SessionManager {
         }
         return null;
     }
+    //check for biometric in login
+    public boolean checkUserBiometric(String name){
+        listOfUsers = context.getSharedPreferences("USERNAME_LIST" , 0);
+        Map<String , String> users = (Map<String, String>) listOfUsers.getAll();
+        for(String userName : users.keySet()) {
+            if (name.equals(userName)) {
+                SessionManager user = new SessionManager(context, userName);
+                return user.biometricIsEnabled();
+            }
+        }
+        return false;
+    }
     // keeps the user's data stored and changes his login status to false
     public void logout() {
 
         editor.putBoolean(LOGIN, false);
         editor.apply();
+        editor.commit();
 
     }
 

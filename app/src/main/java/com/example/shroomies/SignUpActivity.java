@@ -8,6 +8,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -20,8 +21,10 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.core.Tag;
 
 import java.util.HashMap;
 
@@ -101,21 +104,16 @@ public class SignUpActivity extends AppCompatActivity {
                 userDetails.put("name", name);
                 userDetails.put("email", email);
                 userDetails.put("ID", mAuth.getCurrentUser().getUid());
-
+                userDetails.put("biometricEnabled",isEnabled);
+                userDetails.put("image",""); //add later in edit profile
+                userDetails.put("isPartOfRoom","false"); //change later
                 mRootref.child("Users").child(mAuth.getCurrentUser().getUid()).setValue(userDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
+
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
-                            pd.dismiss();
-                            sessionManager=new SessionManager(getApplicationContext(),name);
-                            sessionManager.createSession(name,email);
-                            sessionManager.setBiometricEnabled(isEnabled);
-                            Intent intent = new Intent(SignUpActivity.this, MainActivity.class);
-                            intent.putExtra("USERNAME",name);
-                            intent.putExtra("EMAIL",email);
-                            startActivity(intent);
-                            Toast.makeText(SignUpActivity.this, name+", you are a shroomie now", Toast.LENGTH_SHORT).show();
-                            finish();
+
+                            sendEmailVerification();
 
 
                         }
@@ -129,6 +127,26 @@ public class SignUpActivity extends AppCompatActivity {
                 Toast.makeText(SignUpActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
             }
             });
+    }
+    private void sendEmailVerification(){
+        final FirebaseUser user = mAuth.getCurrentUser();
+        user.sendEmailVerification().addOnCompleteListener(this, new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                findViewById(R.id.registerbt).setEnabled(true);
+                if(task.isSuccessful()){
+                    Toast.makeText(getApplicationContext(), "Registered Successfully. Verification email sent to " + user.getEmail(), Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
+                    startActivity(intent);
+                    //Toast.makeText(SignUpActivity.this, name+", you are a Shroomie now", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+                else {
+                    Log.e("Register", "Send Email verification failed!",task.getException());
+                    Toast.makeText(getApplicationContext(), "Failed to send verification email", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
     }
     // check if the device can use user's biometric
     public boolean canAuthenticate(){
