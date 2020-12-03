@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -51,10 +52,7 @@ public class LoginActivity extends AppCompatActivity {
     GoogleSignInClient mGoogleSignInClient;
     FirebaseAuth mAuth;
     TextView forgotPassword;
-    boolean successBiometric = false;
-    private Executor executor;
-    private BiometricPrompt biometricPrompt;
-    private BiometricPrompt.PromptInfo promptInfo;
+    ProgressBar progressBar;
     Button google_sign;
 
     @Override
@@ -67,7 +65,7 @@ public class LoginActivity extends AppCompatActivity {
         signup=findViewById(R.id.sign_up_button);
         google_sign = findViewById(R.id.google_sign_up);
         forgotPassword=findViewById(R.id.forgot_password_login);
-
+        progressBar=findViewById(R.id.progressBar_login);
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
@@ -122,8 +120,10 @@ public class LoginActivity extends AppCompatActivity {
             mAuth.signInWithEmailAndPassword(uname_txt, pw_txt). addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
+                    progressBar.setVisibility(View.VISIBLE);
                     if (task.isSuccessful()){
                         if(mAuth.getCurrentUser().isEmailVerified()){
+                            progressBar.setVisibility(View.GONE);
                             Toast.makeText(LoginActivity.this, "Welcome to Shroomies! ", Toast.LENGTH_SHORT).show();
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
