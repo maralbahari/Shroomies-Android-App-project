@@ -13,7 +13,8 @@ public class Home extends Application {
         super.onCreate();
         FirebaseAuth mAuth=FirebaseAuth.getInstance();
         FirebaseUser user=mAuth.getCurrentUser();
-        if(user!=null){
+        if(user!=null && user.isEmailVerified()){
+
             startActivity(new Intent(Home.this,MainActivity.class));
             Toast.makeText(getApplicationContext(),user.getEmail(),Toast.LENGTH_SHORT).show();
         }
