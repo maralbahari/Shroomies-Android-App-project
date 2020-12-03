@@ -41,16 +41,22 @@ public class MainActivity extends AppCompatActivity {
     TextView usernameDrawer;
     FirebaseUser user;
     FirebaseAuth mAuth;
-
+    FirebaseAuth.AuthStateListener authStateListener;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mAuth=FirebaseAuth.getInstance();
-        user=mAuth.getCurrentUser();
-        if(user!=null){
+        authStateListener=new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                user=mAuth.getCurrentUser();
+                if(user!=null){
+                Toast.makeText(MainActivity.this,user.getEmail(),Toast.LENGTH_SHORT).show();
+                }
+            }
+        };
 
-        }
         btm_view = findViewById(R.id.bottomNavigationView);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
