@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.motion.widget.MotionLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="@dimen/box_inset_layout_padding"
     android:background="@drawable/gradient_yellow_background"
+    android:padding="@dimen/box_inset_layout_padding"
+    app:layoutDescription="@xml/activity_login_scene"
     tools:context=".LoginActivity"
     tools:deviceIds="wear">
 
@@ -14,20 +15,19 @@
         android:id="@+id/black_mashroom_logo"
         android:layout_width="100dp"
         android:layout_height="129dp"
-        android:layout_marginTop="44dp"
         android:alpha="1.0"
         android:foregroundGravity="center"
         android:src="@drawable/black_mushroom"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        tools:layout_editor_absoluteY="44dp" />
 
     <EditText
         android:id="@+id/email_login"
         android:layout_width="0dp"
         android:layout_height="60dp"
         android:layout_marginStart="50dp"
-        android:layout_marginTop="48dp"
+        android:layout_marginTop="272dp"
         android:layout_marginEnd="50dp"
         android:background="@drawable/button_round"
         android:drawableStart="@drawable/ic_email_edit_text"
@@ -35,9 +35,9 @@
         android:hint="   Email"
         android:padding="10dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/shroomie_logo" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
         android:id="@+id/password_login"
@@ -60,12 +60,11 @@
 
     <TextView
         android:id="@+id/sign_up_button"
-        android:layout_width="0dp"
-        android:layout_height="40dp"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
         android:layout_marginStart="100dp"
-        android:layout_marginTop="30dp"
+        android:layout_marginTop="40dp"
         android:layout_marginEnd="100dp"
-        android:layout_marginBottom="100dp"
         android:gravity="center"
         android:shadowColor="@android:color/black"
         android:shadowDx="5"
@@ -73,14 +72,11 @@
         android:shadowRadius="5"
         android:text="Sign up"
         android:textAlignment="center"
-        android:textSize="18sp"
+        android:textSize="24sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/google_sign_up"
-        app:layout_constraintVertical_bias="0.048" />
+        app:layout_constraintTop_toBottomOf="@+id/google_sign_up" />
 
     <Button
         android:id="@+id/login_button"
@@ -122,13 +118,12 @@
         android:layout_width="0dp"
         android:layout_height="46dp"
         android:layout_marginStart="109dp"
-        android:layout_marginTop="17dp"
         android:layout_marginEnd="109dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/black_mashroom_logo"
-        app:srcCompat="@drawable/shroomies_black_white_text2" />
+        app:srcCompat="@drawable/shroomies_black_white_text2"
+        tools:layout_editor_absoluteY="190dp" />
 
     <TextView
         android:id="@+id/forgot_password_login"
@@ -140,6 +135,7 @@
         android:layout_marginBottom="170dp"
         android:gravity="center"
         android:text="Forgot Password ?"
+        android:alpha="0.9"
         android:textAlignment="center"
         android:textColor="@android:color/primary_text_light"
         android:textSize="18sp"
@@ -165,4 +161,4 @@
         app:layout_constraintTop_toBottomOf="@+id/password_login"
         app:layout_constraintVertical_bias="0.0" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.motion.widget.MotionLayout>
