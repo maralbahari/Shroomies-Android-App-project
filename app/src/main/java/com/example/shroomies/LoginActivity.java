@@ -54,6 +54,7 @@ public class LoginActivity extends AppCompatActivity {
     TextView forgotPassword;
     ProgressBar progressBar;
     Button google_sign;
+    SessionManager sessionManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,6 +110,7 @@ public class LoginActivity extends AppCompatActivity {
 
     }
     private void loginUser(){
+        progressBar.setVisibility(View.VISIBLE);
         final String uname_txt = username.getText().toString();
         String pw_txt = password.getText().toString();
 
@@ -120,10 +122,15 @@ public class LoginActivity extends AppCompatActivity {
             mAuth.signInWithEmailAndPassword(uname_txt, pw_txt). addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
-                    progressBar.setVisibility(View.VISIBLE);
+
                     if (task.isSuccessful()){
                         if(mAuth.getCurrentUser().isEmailVerified()){
                             progressBar.setVisibility(View.GONE);
+                            String userID =mAuth.getCurrentUser().getUid();
+                            String userEmail =mAuth.getCurrentUser().getEmail();
+                            sessionManager= new SessionManager(LoginActivity.this,userID);
+                            sessionManager.createSession(userID,userEmail);
+                            sessionManager.setVerifiedEmail(mAuth.getCurrentUser().isEmailVerified());
                             Toast.makeText(LoginActivity.this, "Welcome to Shroomies! ", Toast.LENGTH_SHORT).show();
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -198,6 +205,11 @@ public class LoginActivity extends AppCompatActivity {
                         userDetails.put("isPartOfRoom","false");// change later
                         mRootref.child("Users").child(mAuth.getCurrentUser().getUid()).setValue(userDetails);
                     }
+                    String userID =mAuth.getCurrentUser().getUid();
+                    String userEmail =mAuth.getCurrentUser().getEmail();
+                    sessionManager= new SessionManager(LoginActivity.this,userID);
+                    sessionManager.createSession(userID,userEmail);
+                    sessionManager.setVerifiedEmail(true);
                     Intent intent= new Intent(getApplicationContext(),MainActivity.class);
                     startActivity(intent);
                     Toast.makeText(LoginActivity.this, "User Signed In", Toast.LENGTH_SHORT).show();
