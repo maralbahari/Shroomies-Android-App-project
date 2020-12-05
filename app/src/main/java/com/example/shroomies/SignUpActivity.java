@@ -37,14 +37,12 @@ public class SignUpActivity extends AppCompatActivity {
     private DatabaseReference mRootref;
     private FirebaseAuth mAuth;
     ProgressDialog pd;
-    Switch enableBiometric;
     SessionManager sessionManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
-        enableBiometric=findViewById(R.id.enable_bio_signup);
         name = findViewById(R.id.fullname);
         email = findViewById(R.id.emailid);
         password = findViewById(R.id.password);
@@ -72,17 +70,8 @@ public class SignUpActivity extends AppCompatActivity {
                     Toast.makeText(SignUpActivity.this, "Password too short!", Toast.LENGTH_SHORT).show();
                 }
                 else {
-                    // check if the  biometric is enabled
-                    if(enableBiometric.isChecked()){
-                        if(canAuthenticate()){
-                            registerUser(txtName , txtEmail , txtPass, txtConfpw,true);
-                        }else {
-                            enableBiometric.setChecked(false);
-                        }
-                    }
-                    else{
-                        registerUser(txtName , txtEmail , txtPass, txtConfpw,false);
-                    }
+
+                        registerUser(txtName , txtEmail , txtPass, txtConfpw);
 
                 }
             }
@@ -92,7 +81,7 @@ public class SignUpActivity extends AppCompatActivity {
 
 
 
-    private void registerUser(final String name, final String email, String password, String confirmpw, final boolean isEnabled) {
+    private void registerUser(final String name, final String email, String password, String confirmpw) {
         pd.setMessage("Please wait");
         pd.show();
 
@@ -104,7 +93,6 @@ public class SignUpActivity extends AppCompatActivity {
                 userDetails.put("name", name);
                 userDetails.put("email", email);
                 userDetails.put("ID", mAuth.getCurrentUser().getUid());
-                userDetails.put("biometricEnabled",isEnabled);
                 userDetails.put("image",""); //add later in edit profile
                 userDetails.put("isPartOfRoom","false"); //change later
                 mRootref.child("Users").child(mAuth.getCurrentUser().getUid()).setValue(userDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -112,7 +100,6 @@ public class SignUpActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
-
                             sendEmailVerification();
 
 
@@ -138,6 +125,7 @@ public class SignUpActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Registered Successfully. Verification email sent to " + user.getEmail(), Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
                     startActivity(intent);
+
                     //Toast.makeText(SignUpActivity.this, name+", you are a Shroomie now", Toast.LENGTH_SHORT).show();
                     finish();
                 }
@@ -148,24 +136,5 @@ public class SignUpActivity extends AppCompatActivity {
             }
         });
     }
-    // check if the device can use user's biometric
-    public boolean canAuthenticate(){
-        BiometricManager biometricManager = BiometricManager.from(this);
-        switch (biometricManager.canAuthenticate()) {
-            case BiometricManager.BIOMETRIC_SUCCESS:
-                Toast.makeText(SignUpActivity.this, "App can authenticate using biometrics.",Toast.LENGTH_LONG).show();
-                return true;
-            case BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE:
-                Toast.makeText(SignUpActivity.this, "No biometric features available on this device.",Toast.LENGTH_LONG).show();
-                break;
-            case BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE:
-                Toast.makeText(SignUpActivity.this, "Biometric features are currently unavailable.",Toast.LENGTH_LONG).show();
-                break;
-            case BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED:
-                Toast.makeText(SignUpActivity.this, "The user hasn't associated " +
-                        "any biometric credentials with their account.",Toast.LENGTH_LONG).show();
-                break;
-        }
-        return false;
-    }
+
 }
