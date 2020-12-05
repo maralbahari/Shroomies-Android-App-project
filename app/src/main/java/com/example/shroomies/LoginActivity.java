@@ -124,8 +124,8 @@ public class LoginActivity extends AppCompatActivity {
                 public void onComplete(@NonNull Task<AuthResult> task) {
 
                     if (task.isSuccessful()){
+                        progressBar.setVisibility(View.GONE);
                         if(mAuth.getCurrentUser().isEmailVerified()){
-                            progressBar.setVisibility(View.GONE);
                             String userID =mAuth.getCurrentUser().getUid();
                             String userEmail =mAuth.getCurrentUser().getEmail();
                             sessionManager= new SessionManager(LoginActivity.this,userID);
@@ -133,6 +133,8 @@ public class LoginActivity extends AppCompatActivity {
                             sessionManager.setVerifiedEmail(mAuth.getCurrentUser().isEmailVerified());
                             Toast.makeText(LoginActivity.this, "Welcome to Shroomies! ", Toast.LENGTH_SHORT).show();
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                            intent.putExtra("ID",userID);
+                            intent.putExtra("EMAIL",userEmail);
                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                             startActivity(intent);
                         }else{

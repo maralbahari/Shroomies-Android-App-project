@@ -11,19 +11,25 @@ import androidx.annotation.NonNull;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import java.util.HashMap;
+//this class will check if user is logged in or is signed out to start the app either with main activity or login activity
 public class Home extends Application {
     SessionManager sessionManager;
     @Override
     public void onCreate() {
         super.onCreate();
-
         sessionManager= new SessionManager();
         String currentUserID=sessionManager.checkUsersLoggedIn(Home.this);
         if(currentUserID!=null){
             sessionManager=new SessionManager(Home.this,currentUserID);
+            HashMap userDetails=sessionManager.getUserDetail();
             if(sessionManager.verifiedEmail()){
                 Toast.makeText(Home.this,currentUserID,Toast.LENGTH_SHORT).show();
-                Intent intent= new Intent(Home.this,MainActivity.class);
+                Intent intent= new Intent(getApplicationContext(),MainActivity.class);
+                intent.putExtra("ID",currentUserID);
+                intent.putExtra("EMAIL",userDetails.get("EMAIL").toString());
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
             }
         }
 
