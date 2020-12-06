@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -46,7 +47,7 @@ import java.util.concurrent.Executor;
 public class LoginActivity extends AppCompatActivity {
    protected EditText username;
    protected EditText password;
-    Button login;
+    ImageButton login;
     TextView signup;
     private final int RC_SIGN_IN = 7;
     GoogleSignInClient mGoogleSignInClient;
