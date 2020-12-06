@@ -137,8 +137,26 @@ public class LoginActivity extends AppCompatActivity {
                             intent.putExtra("EMAIL",userEmail);
                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                             startActivity(intent);
-                        }else{
-                            Toast.makeText(LoginActivity.this, "Please verify your email address ", Toast.LENGTH_SHORT).show();
+                        }
+                        else{
+                            username.setText("");
+                            password.setText("");
+                            Toast.makeText(LoginActivity.this, "Please verify your email address", Toast.LENGTH_SHORT).show();
+                            final FirebaseUser user = mAuth.getCurrentUser();
+                            user.sendEmailVerification().addOnCompleteListener(LoginActivity.this, new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    login.setEnabled(true);
+                                    if(task.isSuccessful()){
+                                        Toast.makeText(LoginActivity.this, "a new verification email has been sent to"+user.getEmail(), Toast.LENGTH_SHORT).show();
+                                    }
+                                    else{
+                                        Toast.makeText(LoginActivity.this, "failed to send email verification", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
+
+
                         }
 
                     }
