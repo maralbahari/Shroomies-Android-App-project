@@ -17,39 +17,39 @@ public class SessionManager {
     int PRIVATE_MODE = 0;
     private static final String USERNAME_LIST = "USERNAME_LIST";
     private static final String LOGIN = "IS_LOGGED_IN";
-    public static final String ID = "ID";
+    public static final String NAME = "NAME";
     public static final String EMAIL = "EMAIL";
+    public static final String BIOMETRIC_ENABLED = "BIOMETRIC_ENABLED";
 
-    public static final String VERIFIED = "VERIFIED";
     //constructor gets the shared preferences or creates a new session if it doesn't exist
     // each user will have his/her own shared preferences folder
-    public SessionManager(Context context, String userID) {
+    public SessionManager(Context context, String userName) {
         this.context = context;
-        sharedPreferences = context.getSharedPreferences(userID, PRIVATE_MODE);
+        sharedPreferences = context.getSharedPreferences(userName, PRIVATE_MODE);
         editor = sharedPreferences.edit();
     }
     public SessionManager(){
 
     }
 
-    public void createSession(String id,String email) {
+    public void createSession(String name,String email) {
         HashMap<String, String> user = getUserDetail();
         // if the session is new , then populate the new SP file with the data.
-        if (user.get("ID") == null || user.get("EMAIL") == null) {
-            editor.putString(ID, id);
+        if (user.get("NAME") == null || user.get("EMAIL") == null) {
+            editor.putString(NAME, name);
             editor.putString(EMAIL, email);
             // add the user's name to the list , if the list doesn't exist then a new one will be generated.
-            addUserNameToList(id);
+            addUserNameToList(name);
         }
         //change the user's status to logged in.
         editor.putBoolean(LOGIN, true);
         editor.apply();
     }
 
-    private void addUserNameToList(String id) {
+    private void addUserNameToList(String name) {
         listOfUsers = context.getSharedPreferences(USERNAME_LIST ,PRIVATE_MODE);
         listEditor = listOfUsers.edit();
-        listEditor.putString( id,ID );
+        listEditor.putString( name,NAME );
         listEditor.apply();
     }
 
@@ -62,8 +62,9 @@ public class SessionManager {
     // get the user details from the shared preferences file and return the data in a hashMap
     public HashMap<String, String> getUserDetail() {
         HashMap<String, String> user = new HashMap<>();
-        user.put(ID, sharedPreferences.getString(ID, null));
+        user.put(NAME, sharedPreferences.getString(NAME, null));
         user.put(EMAIL, sharedPreferences.getString(EMAIL, null));
+        user.put(BIOMETRIC_ENABLED, Boolean.toString(sharedPreferences.getBoolean(BIOMETRIC_ENABLED, false)));
         return user;
     }
     //check if a user logged in and return the name of the user that is logged in
@@ -78,8 +79,18 @@ public class SessionManager {
         }
         return null;
     }
-
-
+    //check for biometric in login
+    public boolean checkUserBiometric(String name){
+        listOfUsers = context.getSharedPreferences("USERNAME_LIST" , 0);
+        Map<String , String> users = (Map<String, String>) listOfUsers.getAll();
+        for(String userName : users.keySet()) {
+            if (name.equals(userName)) {
+                SessionManager user = new SessionManager(context, userName);
+                return user.biometricIsEnabled();
+            }
+        }
+        return false;
+    }
     // keeps the user's data stored and changes his login status to false
     public void logout() {
 
@@ -89,6 +100,19 @@ public class SessionManager {
 
     }
 
+    // allows  biometric login , use this method in registration and in settings.
+    public void setBiometricEnabled(boolean allowed) {
+
+        editor.putBoolean(BIOMETRIC_ENABLED, allowed);
+        editor.apply();
+
+    }
+    //checks weather the user allowed the biometric login from this phone or not
+    public boolean biometricIsEnabled() {
+
+        return sharedPreferences.getBoolean(BIOMETRIC_ENABLED, false);
+
+    }
 
     // clears all  data , use this method only when user deletes account or wants to remove all shared preferences data.
     void deleteSession() {
@@ -96,26 +120,5 @@ public class SessionManager {
         editor.clear();
         editor.apply();
 
-    }
-    //set boolean if user verified the email
-    void setVerifiedEmail(boolean verified){
-        editor.putBoolean(VERIFIED,verified);
-        editor.apply();
-    }
-    //check if the email is verified
-    boolean verifiedEmail(){
-        return sharedPreferences.getBoolean(VERIFIED,false);
-    }
-    //check among all users get a particular user if they have verified their email
-    public boolean checkUserEmailVerification(String userId){
-        listOfUsers=context.getSharedPreferences("USERNAME_LIST",0);
-        Map<String,String> users=(Map<String,String>) listOfUsers.getAll();
-        for(String userID: users.keySet()){
-            if(userId.equals(userID)){
-                SessionManager userSession=new SessionManager(context,userId);
-                return userSession.verifiedEmail();
-            }
-        }
-        return false;
     }
 }

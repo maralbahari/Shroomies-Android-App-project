@@ -43,6 +43,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -56,8 +57,8 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
     FragmentTransaction ft;
     String address;
     LatLng latLng;
-    private static final int PICK_IMAGE = 100;
-    Uri imageUri;
+    private static final int PICK_IMAGE_MULTIPLE= 1;
+    List<Uri> imageUri;
 
     NumberPicker numberOfRoomMatesNumberPicker;
     NumberPicker budgetNumberPicker;
@@ -67,6 +68,7 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
     private GoogleMap mMap;
     Geocoder geocoder;
     ImageView cloudImageView;
+    TextView numberOfPhotos;
 
 
 
@@ -91,11 +93,18 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
         mMapView =v.findViewById(R.id.address_map_view);
         locationEditText = v.findViewById(R.id.location_search_view);
         cloudImageView = v.findViewById(R.id.cloud_icon_publish_post);
+        numberOfPhotos = v.findViewById(R.id.number_of_photos);
         initGoogleMap(savedInstanceState);
+        numberOfPhotos = v.findViewById(R.id.number_of_photos);
+        imageUri = new ArrayList<>();
         cloudImageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                // get the photo chosen
                 openGallery();
+
+
             }
         });
 
@@ -278,15 +287,41 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
     private void openGallery() {
         //add permisision denied handlers
         Intent gallery = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI);
-        startActivityForResult(gallery, PICK_IMAGE);
+        gallery.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        startActivityForResult(gallery, PICK_IMAGE_MULTIPLE);
+
     }
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data){
         super.onActivityResult(requestCode, resultCode, data);
-        //if the image is  selected store the image
-        if (resultCode == getActivity().RESULT_OK && requestCode == PICK_IMAGE){
-            imageUri = data.getData();
-            // do stuff here 
+        boolean duplicateFound = false;
+        Uri selectedImageUri;
+        if(imageUri.size()>5){
+            Toast.makeText(getActivity(), "too many photos" , Toast.LENGTH_SHORT).show();
+        }else {
+            if (resultCode == getActivity().RESULT_OK && requestCode == PICK_IMAGE_MULTIPLE) {
+                //get selected photo
+                selectedImageUri = data.getData();
+                //check if the selected uri already exists in tge list
+                for (Uri uri : imageUri) {
+                    //if duplicate found break
+                    if (selectedImageUri.equals(uri)) {
+                        duplicateFound = true;
+                        break;
+                    }
+                }
+                if (!duplicateFound) {
+                    //if no duplicate found  store the image
+                    imageUri.add(selectedImageUri);
+                    //set the the number of photos uploaded
+                    numberOfPhotos.setText(Integer.toString(imageUri.size()) + "x uploaded  images");
+                } else {
+                    Toast.makeText(getActivity(), "the image has already been uploaded", Toast.LENGTH_SHORT).show();
+
+                }
+
+
+            }
         }
     }
 }
