@@ -18,7 +18,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -31,8 +30,6 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 public class MainActivity extends AppCompatActivity {
-    public static LatLng updatedLatLng;
-    public static String updatedAdresses;
     DrawerLayout drawerLayout;
     ActionBarDrawerToggle barDrawerToggle;
     Toolbar toolbar;
@@ -44,16 +41,20 @@ public class MainActivity extends AppCompatActivity {
     TextView usernameDrawer;
     FirebaseUser user;
     FirebaseAuth mAuth;
-
-
+    FirebaseAuth.AuthStateListener authStateListener;
+    SessionManager sessionManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mAuth=FirebaseAuth.getInstance();
-        user=mAuth.getCurrentUser();
-        if(user!=null){
-
+        //Creating session in main activity
+        Bundle extras = getIntent().getExtras();
+        if(extras!=null){
+            String userID = extras.getString("ID");
+            String userEmail=extras.getString("EMAIL");
+            sessionManager=new SessionManager(getApplicationContext(),userID);
+            sessionManager.createSession(userID,userEmail);
+            Toast.makeText(this,userID+" "+userEmail,Toast.LENGTH_LONG).show();
         }
         btm_view = findViewById(R.id.bottomNavigationView);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
@@ -80,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
                 }if(menuItem.getItemId()==R.id.my_requests_menu){
                     getFragment(new Request());
                 }if(menuItem.getItemId()==R.id.logout){
-                    mAuth.signOut();
+                    sessionManager.logout();
                     Intent intent= new Intent(getApplicationContext(),LoginActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
