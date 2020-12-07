@@ -136,5 +136,13 @@ public class SignUpActivity extends AppCompatActivity {
             }
         });
     }
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (pd != null) {
+            pd.dismiss();
+            pd = null;
+        }
+    }
 
 }
