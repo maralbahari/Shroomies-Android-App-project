@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -46,7 +47,7 @@ import java.util.concurrent.Executor;
 public class LoginActivity extends AppCompatActivity {
    protected EditText username;
    protected EditText password;
-    Button login;
+    ImageButton login;
     TextView signup;
     private final int RC_SIGN_IN = 7;
     GoogleSignInClient mGoogleSignInClient;
@@ -137,8 +138,26 @@ public class LoginActivity extends AppCompatActivity {
                             intent.putExtra("EMAIL",userEmail);
                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                             startActivity(intent);
-                        }else{
-                            Toast.makeText(LoginActivity.this, "Please verify your email address ", Toast.LENGTH_SHORT).show();
+                        }
+                        else{
+                            username.setText("");
+                            password.setText("");
+                            Toast.makeText(LoginActivity.this, "Please verify your email address", Toast.LENGTH_SHORT).show();
+                            final FirebaseUser user = mAuth.getCurrentUser();
+                            user.sendEmailVerification().addOnCompleteListener(LoginActivity.this, new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    login.setEnabled(true);
+                                    if(task.isSuccessful()){
+                                        Toast.makeText(LoginActivity.this, "a new verification email has been sent to"+user.getEmail(), Toast.LENGTH_SHORT).show();
+                                    }
+                                    else{
+                                        Toast.makeText(LoginActivity.this, "failed to send email verification", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            });
+
+
                         }
 
                     }
