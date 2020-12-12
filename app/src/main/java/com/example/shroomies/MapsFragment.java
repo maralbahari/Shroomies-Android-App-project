@@ -226,6 +226,7 @@ public class MapsFragment extends Fragment {
                     LatLng latLng = new LatLng(ad.getLatitude()
                     ,ad.getLongitude());
                     latLngs.add(latLng);
+
                     stringAddresses.add(ad.getFeatureName()+" , "+ad.getAddressLine(0));
                     // stop the progressBar
 
