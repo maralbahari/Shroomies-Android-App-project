@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -10,29 +10,19 @@
     android:paddingBottom="60dp"
     tools:context=".PublishPost">
 
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/nested"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+
+        android:fillViewport="true"
+        >
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical">
-
-
-            <Button
-                android:id="@+id/button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="#FFFF"
-                android:drawableStart="@drawable/ic_pen_icon_edit"
-                android:padding="10dp"
-                android:text="create new post"
-
-                android:textAlignment="textStart"
-                android:textSize="17sp">
-
-            </Button>
-
-
-
-
 
             <com.google.android.material.tabs.TabLayout
 
@@ -61,95 +51,137 @@
             </com.google.android.material.tabs.TabLayout>
 
 
+        <RelativeLayout
+            android:id="@+id/upload_image_card"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+
+            android:background="@drawable/post_card_rectangle_round"
+            android:elevation="3dp">
+
+            <androidx.appcompat.widget.AppCompatTextView
+                android:id="@+id/upload_image_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="top"
+                android:layout_margin="20dp"
+                android:text="upload images"
+                android:textSize="18sp">
+
+            </androidx.appcompat.widget.AppCompatTextView>
+
+            <ImageButton
+                android:elevation="5dp"
+                android:padding="15dp"
+                android:clickable="true"
+            android:id="@+id/cloud_icon_publish_post"
+            android:background="@drawable/button_circle_timberwolf_small"
+            android:src="@drawable/ic_upload_icon_cloud"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_margin="20dp"
+            android:layout_above="@+id/view_pager"
+                />
 
 
-            <RelativeLayout
-                android:id="@+id/upload_image_card"
+
+            <TextView
+                android:id="@+id/number_of_photos"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/upload_image_text_view"
+                android:layout_marginRight="10dp"
+                android:layout_marginLeft="3dp"
+                android:layout_marginTop="5dp"
+                android:layout_toRightOf="@id/image_icon_post" />
+
+            <ImageView
+
+                android:id="@+id/image_icon_post"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:layout_below="@+id/upload_image_text_view"
+                android:layout_marginLeft="30dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginTop="5dp"
+                android:elevation="3dp"
+                android:src="@drawable/ic_icon_awesome_image"
+                android:visibility="gone"
+
+                >
+            </ImageView>
+
+            <ImageButton
+                android:visibility="gone"
+                android:id="@+id/delete_image_post"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_icon_material_remove_circle_outline"
+
+                android:layout_below="@id/view_pager"
+                android:layout_marginTop="-60dp"
+                android:layout_marginLeft="40dp"
+                android:layout_alignParentLeft="true"
+                android:background="@drawable/small_circle_button"
+                android:elevation="5dp"
+                android:padding="5dp"
+
+                />
+
+            <androidx.viewpager.widget.ViewPager
+
+            android:layout_below="@id/image_icon_post"
+                android:id="@+id/view_pager"
                 android:layout_width="match_parent"
-                android:layout_height="180dp"
-                android:layout_margin="10dp"
-
-                android:background="@drawable/post_card_rectangle_round"
-                android:elevation="3dp">
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/upload_image_text_view"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="top"
-                    android:layout_margin="20dp"
-                    android:text="upload images"
-                    android:textSize="18sp">
-
-                </androidx.appcompat.widget.AppCompatTextView>
-
-                <ImageView
-                    android:id="@+id/cloud_icon_publish_post"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:background="@drawable/ic_upload_icon_cloud">
-
-                </ImageView>
-                <TextView
-                    android:id="@+id/number_of_photos"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                   android:layout_toLeftOf="@id/image_icon_post"
-                    android:layout_alignParentBottom="true"
-                    android:layout_marginBottom="20dp"
-                    android:layout_marginRight="2dp"/>
-                <ImageView
-                    android:id="@+id/image_icon_post"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_icon_awesome_image"
-                 android:layout_marginBottom="20dp"
-                    android:layout_marginRight="30dp"
+                android:layout_height="200dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginBottom="20dp"
+                android:layout_marginTop="20dp"
+                android:visibility="gone">
 
 
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentBottom="true"
+            </androidx.viewpager.widget.ViewPager>
+            <com.make.dots.dotsindicator.DotsIndicator
+                android:visibility="gone"
+                android:layout_below="@id/view_pager"
+                android:layout_centerHorizontal="true"
+                android:id="@+id/dotsIndicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="-60dp"
+                android:background="@drawable/dots_background"
+                android:padding="4dp"
+                app:dot_drawable="@drawable/ic_dot_darkgrey"
+                app:dot_drawable_unselected="@drawable/ic_dot_lightgrey"
+                app:dot_height="6dp"
+                app:dot_margin="4dp"
+                app:dot_width="6dp" />
 
-                    >
 
-                </ImageView>
-            </RelativeLayout>
+        </RelativeLayout>
 
 
 
 
 
 
-            <RelativeLayout
-                android:id="@+id/description_post"
-                android:layout_width="match_parent"
-                android:layout_height="180dp"
-                android:layout_margin="10dp"
-                android:background="@drawable/post_card_rectangle_round"
-                android:elevation="3dp">
+        <EditText
+            android:id="@+id/description_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:background="@drawable/post_card_rectangle_round"
+            android:elevation="5dp"
+            android:hint="Description"
+            android:minHeight="80dp"
+            android:padding="20dp">
 
-                <TextView
-                    android:id="@+id/description_tv"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_margin="20dp"
 
-                    android:text="Description:"></TextView>
-
-                <EditText
-                    android:id="@+id/description_edit_text"
-
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_below="@id/description_tv"
-
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginRight="20dp"
-                    android:layout_marginBottom="20dp">
-
-                </EditText>
-            </RelativeLayout>
+        </EditText>
 
 
         <LinearLayout
@@ -158,7 +190,7 @@
             android:orientation="horizontal">
 
             <RelativeLayout
-                android:id="@+id/number_of_roommates"
+                android:id="@+id/number_of_roommates_relative_layout"
                 android:layout_width="0dp"
                 android:layout_height="130dp"
                 android:layout_margin="10dp"
@@ -213,7 +245,7 @@
                     android:layout_marginTop="20dp"
                     android:layout_marginBottom="10dp"
 
-                    android:text="Budget:">
+                    android:text="Price:">
 
                 </TextView>
 
@@ -233,25 +265,25 @@
         </LinearLayout>
 
 
+        <TextView
 
-            <TextView
+            android:id="@+id/location_search_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginRight="20dp"
+            android:background="@drawable/location_search_bar"
+            android:drawablePadding="5dp"
+            android:elevation="5dp"
 
-                android:id="@+id/location_search_view"
-                android:gravity="fill_vertical"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:minHeight="90dp"
-                android:layout_gravity="center"
-                android:layout_marginLeft="20dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginRight="20dp"
-                android:background="@drawable/location_search_bar"
+            android:gravity="fill_vertical"
+            android:minHeight="90dp"
+            android:padding="15dp"
+            android:drawableEnd="@drawable/ic_icon_feather_map">
 
-                android:elevation="5dp"
-                android:padding="10dp"
-                app:drawableEndCompat="@drawable/ic_icon_feather_map">
-
-            </TextView>
+        </TextView>
 
 
         <com.example.shroomies.CustomMapView
@@ -271,7 +303,10 @@
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="15dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="15dp"
+                android:layout_marginBottom="120dp"
                 android:background="@drawable/post_card_rectangle_round"
                 android:elevation="3dp"
                 >
@@ -288,86 +323,183 @@
                     android:text="Add properties" />
 
                 <LinearLayout
+                    android:id="@+id/property_Radio_group"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="10dp"
-                    android:layout_below="@id/add_property">
-                <ImageButton
-                    android:layout_height="wrap_content"
-
-                    android:layout_width="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:elevation="3dp"
-                    android:padding="10dp"
-                    android:background="@drawable/button_round"
-                    android:src="@drawable/ic_icon_ionic_ios_male"
-                    android:layout_margin="5dp"
-                    />
-
-                    <Space
-                        android:layout_width="0dp"
-                        android:layout_height="1dp"
-                        android:layout_weight="1" />
-                <ImageButton
-                    android:layout_height="wrap_content"
-                    android:layout_width="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:elevation="3dp"
-                    android:padding="10dp"
-                    android:background="@drawable/button_round"
-                    android:src="@drawable/ic_icon_ionic_ios_female"
-                    android:layout_margin="5dp"/>
-                    <Space
-                        android:layout_width="0dp"
-                        android:layout_height="1dp"
-                        android:layout_weight="1" />
-                <ImageButton
-                    android:layout_height="wrap_content"
-
-                    android:layout_width="wrap_content"
-                    android:layout_gravity="center_horizontal"
+                    android:orientation="horizontal"
                     android:layout_below="@id/add_property"
-                    android:elevation="3dp"
-                    android:padding="10dp"
-                    android:background="@drawable/button_round"
-                    android:src="@drawable/ic_icon_map_pet_store"
-                    android:layout_margin="5dp"/>
+                    >
+
+
+                    <androidx.appcompat.widget.AppCompatCheckBox
+                        android:id="@+id/male_image_button_publish_post"
+                        android:drawableStart="@drawable/ic_icon_ionic_ios_male"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_margin="5dp"
+                        android:button="@android:color/transparent"
+                   android:background="@drawable/property_radio_selector"
+                        android:elevation="3dp"
+                        android:padding="10dp"
+                        />
+
                     <Space
                         android:layout_width="0dp"
                         android:layout_height="1dp"
                         android:layout_weight="1" />
-                <ImageButton
-                    android:layout_height="wrap_content"
 
-                    android:layout_width="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_below="@id/add_property"
-                    android:elevation="3dp"
-                    android:padding="10dp"
-                    android:background="@drawable/button_round"
-                    android:src="@drawable/ic_icon_material_smoke_free"
-                    android:layout_margin="5dp"/>
+                    <androidx.appcompat.widget.AppCompatCheckBox
+                        android:id="@+id/female_image_button_post"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_margin="5dp"
+
+                        android:elevation="3dp"
+                        android:padding="10dp"
+                        android:drawableStart="@drawable/ic_icon_ionic_ios_female"
+                        android:button="@android:color/transparent"
+                        android:background="@drawable/property_radio_selector"/>
+                    <Space
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1" />
+
+                    <androidx.appcompat.widget.AppCompatCheckBox
+                        android:id="@+id/pets_allowd_image_button_post"
+
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/add_property"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_margin="5dp"
+
+                        android:elevation="3dp"
+                        android:padding="10dp"
+                        android:drawableStart="@drawable/ic_icon_map_pet_store"
+                        android:button="@android:color/transparent"
+                        android:background="@drawable/property_radio_selector"/>
+                    <Space
+                        android:layout_width="0dp"
+                        android:layout_height="1dp"
+                        android:layout_weight="1" />
+
+                    <androidx.appcompat.widget.AppCompatCheckBox
+                        android:id="@+id/non_smoking_image_button_post"
+
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/add_property"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_margin="5dp"
+
+                        android:elevation="3dp"
+                        android:padding="10dp"
+                        android:drawableStart="@drawable/ic_icon_material_smoke_free"
+                        android:button="@android:color/transparent"
+                        android:background="@drawable/property_radio_selector"/>
 
                 </LinearLayout>
 
             </RelativeLayout>
 
-        <ImageButton
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_margin="12dp"
-            android:layout_gravity="center"
-            android:gravity="center"
-            android:elevation="3dp"
-            android:background="@drawable/button_circle_yellow"
-            android:src="@drawable/ic_icon_material_publish"
-            />
-
-
-
 
 
     </LinearLayout>
 
+    </androidx.core.widget.NestedScrollView>
 
-</androidx.core.widget.NestedScrollView>
+    <Button
+        android:layout_alignParentBottom="true"
+        android:id="@+id/publish_post_button"
+        android:text="publish post"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp"
+
+        android:layout_marginBottom="20dp"
+        android:background="@drawable/publish_post_button"
+        android:clickable="true"
+        android:elevation="3dp"
+        android:gravity="center"
+        android:paddingLeft="30dp"
+        android:textSize="14dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:paddingRight="30dp"
+        android:textColor="@color/white"
+        android:drawableStart="@drawable/ic_icon_material_publish"
+        />
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:visibility="invisible"
+        android:id="@+id/lottie_uploading_post"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_margin="50dp"
+        app:lottie_rawRes="@raw/lf30_editor_igyp9bvy"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true">
+    </com.airbnb.lottie.LottieAnimationView>
+
+    <RelativeLayout
+        android:visibility="gone"
+        android:id="@+id/success_card"
+        android:layout_centerHorizontal="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:layout_marginRight="20dp"
+        android:layout_marginLeft="20dp"
+android:layout_marginTop="100dp"
+        android:layout_marginBottom="200dp"
+
+        android:background="@drawable/post_card_rectangle_round"
+        android:elevation="20dp"
+
+        >
+        <ImageView
+            android:id="@+id/check_Image"
+            android:layout_centerHorizontal="true"
+            android:layout_margin="20dp"
+            android:layout_width="wrap_content"
+
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_icon_awesome_check_circle">
+
+        </ImageView>
+        <TextView
+            android:gravity="center"
+            android:layout_centerInParent="true"
+            android:layout_margin="20dp"
+            android:textSize="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/check_Image"
+            android:text="your post has been successfully uploaded!"
+            />
+
+        <Button
+            android:id="@+id/ok_Button"
+            android:elevation="5dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+            android:minHeight="50dp"
+            android:textColor="@color/white"
+            android:textSize="20dp"
+            android:text="OK"
+            android:layout_alignParentBottom="true"
+            android:background="@drawable/ok_button"
+            ></Button>
+
+    </RelativeLayout>
+
+
+
+</RelativeLayout>
+

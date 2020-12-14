@@ -9,6 +9,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -18,8 +19,6 @@ import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,7 +27,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SearchView;
-import android.widget.Toast;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -69,16 +67,37 @@ public class MapsFragment extends Fragment {
         public void onMapReady(GoogleMap googleMap) {
             if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
                     != PackageManager.PERMISSION_GRANTED
-                    && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION)
+                    ||ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION)
                     != PackageManager.PERMISSION_GRANTED) {
 
-                return;
+                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+                requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
             }
-            mMap = googleMap;
-            googleMap.setMyLocationEnabled(false);
-            getLocationUpdateMarker();
+                mMap = googleMap;
+                googleMap.setMyLocationEnabled(false);
+                getCurrentLocationFromAsyncTask();
+
         }
+
     };
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if(getActivity()!=null) {
+            getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
+
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if(getActivity()!=null) {
+            getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
+
+        }
+    }
 
     @Override
     public View onCreateView( LayoutInflater inflater,
@@ -158,46 +177,60 @@ public class MapsFragment extends Fragment {
 
     }
 
-    private void getLocationUpdateMarker() {
-        //get the location of the phone in order to set the pin on the map to the current Location
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());
-        //check the API level
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            // Check if permission to access fine location is granted
-            if (getActivity().checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                //get the location
-                fusedLocationProviderClient.getLastLocation()
-                        .addOnSuccessListener(new OnSuccessListener<Location>() {
-                            @Override
-                            public void onSuccess(Location location) {
-                                if (location != null) {
-
-                                    latitude = location.getLatitude();
-                                    longitude = location.getLongitude();
-                                    LatLng latLng = new LatLng(latitude, longitude);
-                                    // get the icon and resize it to set it as the marker
-                                    Bitmap bitmap = BitmapFactory.decodeResource(getResources(),getResources().getIdentifier("black_mushroom" ,  "drawable", getActivity().getPackageName()));
-                                    Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, 90, 100, false);
-                                    MarkerOptions markerOptions = new MarkerOptions()
-                                            .position(latLng)
-                                            .icon(BitmapDescriptorFactory.fromBitmap(resizedBitmap));
-                                    mMap.addMarker(markerOptions);
-                                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,16));
-
-
-                                }
-                            }
-                        });
-            } else {
-                // make another  request to allow the app to access location
-                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-            }
-        }
-
-
+    private void  getCurrentLocationFromAsyncTask() {
+        new CurrentLocationAsync(getActivity()).execute();
     }
 
-//    async task class to find adresses using geocoder  on the background
+    // async task to get the last known locatio n and update the marker
+    // this task will be called from the on map reaady method
+
+    private class CurrentLocationAsync extends AsyncTask<Void , String , LatLng> {
+        FusedLocationProviderClient fusedLocationProviderClient;
+        double latitude;
+        double longitude;
+        Context context;
+        LatLng latLng;
+
+        CurrentLocationAsync(Context context){
+            this.context = context;
+        }
+        @Override
+        protected LatLng doInBackground(Void... voids) {
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                // Check if permission to access fine location is granted
+                if (getActivity().checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                    //get the location of the phone in order to set the pin on the map to the current Location
+                    fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context);
+                    //check the API level
+                    //get the location
+                    fusedLocationProviderClient.getLastLocation()
+                            .addOnSuccessListener(new OnSuccessListener<Location>() {
+                                @Override
+                                public void onSuccess(Location location) {
+                                    if (location != null) {
+
+                                        latitude = location.getLatitude();
+                                        longitude = location.getLongitude();
+                                        latLng = new LatLng(latitude, longitude);
+
+
+                                        setMarker((LatLng) latLng);
+
+                                        // get the icon and resize it to set it as the marker
+                                    }
+                                }
+                            });
+                } else {
+                    requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+                }
+            }
+            return latLng;
+        }
+    }
+
+
+    //    async task class to find adresses using geocoder  on the background
 //            geoecoder needs a seperate thread to run smoothly especially with live search
     private class GetAdressesAsyncTask extends AsyncTask<Void , String , List<String>> {
         Geocoder geocoder;
@@ -229,8 +262,6 @@ public class MapsFragment extends Fragment {
 
                     stringAddresses.add(ad.getFeatureName()+" , "+ad.getAddressLine(0));
                     // stop the progressBar
-
-
                 }
             } catch (IOException e) {
 

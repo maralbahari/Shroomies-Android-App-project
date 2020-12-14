@@ -23,7 +23,7 @@ public class Home extends Application {
         if(currentUserID!=null){
             sessionManager=new SessionManager(Home.this,currentUserID);
             HashMap userDetails=sessionManager.getUserDetail();
-            if(sessionManager.verifiedEmail()){
+            if(sessionManager.checkUserEmailVerification(currentUserID)){
                 Toast.makeText(Home.this,currentUserID,Toast.LENGTH_SHORT).show();
                 Intent intent= new Intent(getApplicationContext(),MainActivity.class);
                 intent.putExtra("ID",currentUserID);
