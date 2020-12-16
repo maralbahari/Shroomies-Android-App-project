@@ -43,4 +43,5 @@ public class FindRoommate extends Fragment {
             }
         });
     }
+
 }

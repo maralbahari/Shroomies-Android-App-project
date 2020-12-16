@@ -65,6 +65,7 @@ dependencies {
     implementation 'jp.wasabeef:picasso-transformations:2.0.0'
     implementation 'com.github.tizisdeepan:dots:1.0.1'
     implementation 'de.hdodenhof:circleimageview:3.1.0'
+    implementation 'com.github.jd-alexander:LikeButton:0.2.3'
 
 
 }

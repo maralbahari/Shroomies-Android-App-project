@@ -9,5 +9,6 @@
     <color name="lowerGradientColorForLoginBackground">#FFF5E58A</color>
     <color name="okGreen">#5ABE07</color>
     <color name="purple">#794C74</color>
+    <color name="Black">#000000</color>
 
 </resources>

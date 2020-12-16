@@ -42,4 +42,12 @@
         android:elevation="3dp"
         android:background="@drawable/search_border"/>
 
+<!--    to view the personal post -->
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/apartment_view"/>
+
+
+
 </RelativeLayout>
