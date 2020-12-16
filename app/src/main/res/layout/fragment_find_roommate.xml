@@ -7,42 +7,14 @@
     tools:context=".FindRoommate">
 
     <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="104dp"
-        android:layout_marginEnd="200dp"
-        android:focusable="false"
-        android:text="Discover"
+        android:layout_width="289dp"
+        android:layout_height="70dp"
+        android:layout_marginTop="264dp"
+        android:layout_marginEnd="60dp"
+        android:text="find"
         android:textAllCaps="true"
         android:textSize="36sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/find_shroomies_today_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="30dp"
-        android:layout_marginTop="15dp"
-        android:layout_marginEnd="10dp"
-        android:text="find your shroomy today!"
-        android:textSize="25dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView">
-
-    </TextView>
-
-    <Button
-        android:id="@+id/apartment_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_margin="50dp"
-        android:text="apartment view"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/find_shroomies_today_tv" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
