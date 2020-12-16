@@ -45,6 +45,7 @@ public class UserProfile extends Fragment {
         fm = getActivity().getSupportFragmentManager();
         ft = fm.beginTransaction();
         ft.addToBackStack(null);
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
         ft.replace(R.id.fragmentContainer, fragment);
         ft.commit();
     }

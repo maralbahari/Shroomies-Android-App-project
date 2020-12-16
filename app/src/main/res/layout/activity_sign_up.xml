@@ -64,7 +64,7 @@
         android:drawableStart="@drawable/ic_name_edit_text"
         android:elevation="10dp"
         android:hint="   Username"
-        android:inputType="textPersonName"
+        android:inputType="textPersonName|textCapWords"
         android:padding="10dp"
         android:paddingLeft="24dp" />
 

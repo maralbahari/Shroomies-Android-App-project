@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     FirebaseAuth mAuth;
     FirebaseAuth.AuthStateListener authStateListener;
     SessionManager sessionManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -103,7 +104,6 @@ public class MainActivity extends AppCompatActivity {
                     getFragment(new PublishPost());
                 }if(menuItem.getItemId()==R.id.message_inbox_menu){
                     getFragment(new MessageInbox());
-
                 }if(menuItem.getItemId()==R.id.user_profile_menu){
                     getFragment(new UserProfile());
                 }

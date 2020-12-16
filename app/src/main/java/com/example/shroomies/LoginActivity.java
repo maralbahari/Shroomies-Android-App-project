@@ -45,8 +45,8 @@ import java.util.HashMap;
 import java.util.concurrent.Executor;
 
 public class LoginActivity extends AppCompatActivity {
-   protected EditText username;
-   protected EditText password;
+    protected EditText username;
+    protected EditText password;
     ImageButton login;
     TextView signup;
     private final int RC_SIGN_IN = 7;
@@ -104,7 +104,7 @@ public class LoginActivity extends AppCompatActivity {
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-             loginUser();
+                loginUser();
 
             }
         });
@@ -185,7 +185,7 @@ public class LoginActivity extends AppCompatActivity {
             });
         }
 
-        }
+    }
 
     private void signIn() {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
@@ -244,6 +244,3 @@ public class LoginActivity extends AppCompatActivity {
     }
 
 }
-
-
-

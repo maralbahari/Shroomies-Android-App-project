@@ -231,7 +231,7 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
             @Override
             public void onPageSelected(int position) {
                 //set the index of the current image
-            currentViewPagerPosition = position;
+                currentViewPagerPosition = position;
             }
             @Override
             public void onPageScrollStateChanged(int state) { }
@@ -275,8 +275,8 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
             requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
             requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
         }
-            // initialize the map to be used in the getLocation method
-            mMap = map;
+        // initialize the map to be used in the getLocation method
+        mMap = map;
         // check if the location has been updated form the map fragment
         // if the location is updated s
         if (MainActivity.updatedAdresses != null && MainActivity.updatedLatLng != null) {
@@ -417,8 +417,8 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
     }
     void setCurrentLocationAddress(double latitude, double longitude)  {
         geocoder = new Geocoder(getActivity());
-            List<Address> addresses;
-            geocoder = new Geocoder(getActivity(), Locale.getDefault());
+        List<Address> addresses;
+        geocoder = new Geocoder(getActivity(), Locale.getDefault());
 
         try {
             addresses = geocoder.getFromLocation(latitude, longitude, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
@@ -436,7 +436,7 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
 
 
 
-        }
+    }
 
 
     private void getFragment (Fragment fragment) {
@@ -447,6 +447,7 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
         ft.replace(R.id.fragmentContainer, fragment);
         ft.commit();
     }
+
     private void setMarker(LatLng currentLatLng){
         // get the icon and resize it to set it as the marker
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(),getResources().getIdentifier("black_mushroom" ,  "drawable", getActivity().getPackageName()));
@@ -522,14 +523,14 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
 
         postUniqueName = getUniqueName();
 
-       // get the referance of the database
+        // get the referance of the database
         StorageReference storageReference = FirebaseStorage.getInstance().getReference();
 
         //create a storage referance
         UploadTask uploadTask;
         final List<String> IMAGE_URLS = new ArrayList<>();
         for (Uri uri:
-            imageUri ) {
+                imageUri ) {
             filePath = storageReference.child("apartment post image").child(uri.getLastPathSegment()
                     +postUniqueName+".jpg");
             filePath.putFile(uri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
@@ -538,7 +539,7 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
                     if(task.isSuccessful()) {
 
                         IMAGE_URLS.add(task.getResult().getMetadata().getReference().getDownloadUrl().toString());
-                        // once all the pictures are added to the Storage add the rest of the posts using the urls to trhe database
+                        // once all the pictures are added to the Storage add the rest of the posts using the urls to the database
                         if(IMAGE_URLS.size() == imageUri.size()){
                             addToRealTimeDatabase(locationLtLng ,  description ,  numberRoomMate ,  price , property ,IMAGE_URLS);
                         }
@@ -589,21 +590,21 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
 
         DatabaseReference firebaseDatabase = FirebaseDatabase.getInstance().getReference();
         firebaseDatabase.child("postApartment").child(userUid+postUniqueName).setValue(post).addOnCompleteListener(new OnCompleteListener<Void>() {
-             @Override
-             public void onComplete(@NonNull Task<Void> task) {
-                 uploadingProgress.pauseAnimation();
-                 uploadingProgress.setVisibility(View.GONE);
-                 publishPostButton.setVisibility(View.VISIBLE);
-                 nestedScrollView.setAlpha((float) 1);
-                 if (task.isSuccessful()) {
-                     successCard.setVisibility(View.VISIBLE);
-                 }else{
-                     Toast.makeText(getContext(), "we faced a problem ", Toast.LENGTH_SHORT).show();
-                 }
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                uploadingProgress.pauseAnimation();
+                uploadingProgress.setVisibility(View.GONE);
+                publishPostButton.setVisibility(View.VISIBLE);
+                nestedScrollView.setAlpha((float) 1);
+                if (task.isSuccessful()) {
+                    successCard.setVisibility(View.VISIBLE);
+                }else{
+                    Toast.makeText(getContext(), "we faced a problem ", Toast.LENGTH_SHORT).show();
+                }
 
-             }
+            }
 
-         });
+        });
 
     }
 
@@ -648,21 +649,21 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
 
 
 
-        List<String> getEncodedList(List<Uri> imageUri) throws FileNotFoundException {
+    List<String> getEncodedList(List<Uri> imageUri) throws FileNotFoundException {
         //List of strings will hold all the images as base64 images
-            List<String> encodedImageList = new ArrayList<>();
-            for (Uri  uri :
-                 imageUri) {
-                final InputStream imageStream;
-                imageStream = getActivity().getContentResolver().openInputStream(uri);
-                final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
-                encodedImageList.add(encodeImage(selectedImage));
-
-            }
-            Toast.makeText(getActivity(), Integer.toString(encodedImageList.size()),Toast.LENGTH_LONG).show();
-            return encodedImageList;
+        List<String> encodedImageList = new ArrayList<>();
+        for (Uri  uri :
+                imageUri) {
+            final InputStream imageStream;
+            imageStream = getActivity().getContentResolver().openInputStream(uri);
+            final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
+            encodedImageList.add(encodeImage(selectedImage));
 
         }
+        Toast.makeText(getActivity(), Integer.toString(encodedImageList.size()),Toast.LENGTH_LONG).show();
+        return encodedImageList;
+
+    }
     private String encodeImage(Bitmap bm)
     {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -675,53 +676,49 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
 
 
 
-        void addToViewPager(Uri newImageUri){
-            imageIconPost.setVisibility(View.VISIBLE);
-            viewPager.setVisibility(View.VISIBLE);
-            dotsIndicator.setVisibility(View.VISIBLE);
-            delteImageButton.setVisibility(View.VISIBLE);
-            //if no duplicate found  store the image
-            imageUri.add(newImageUri);
-            //set the the number of photos uploaded
-            numberOfPhotos.setText(Integer.toString(imageUri.size()) + "x images");
-            //initalize adapter with the list of uri
-            viewPagerAdapter = new ViewPagerAdapter(getActivity(), imageUri);
-            // set the view pager to the adapter
-            viewPager.setAdapter(viewPagerAdapter);
-            // add the indicator to the view pager and set to update on chage od dataset
-            dotsIndicator.setViewPager(viewPager);
-            viewPager.getAdapter().registerDataSetObserver(dotsIndicator.getDataSetObserver());
-        }
+    void addToViewPager(Uri newImageUri){
+        imageIconPost.setVisibility(View.VISIBLE);
+        viewPager.setVisibility(View.VISIBLE);
+        dotsIndicator.setVisibility(View.VISIBLE);
+        delteImageButton.setVisibility(View.VISIBLE);
+        //if no duplicate found  store the image
+        imageUri.add(newImageUri);
+        //set the the number of photos uploaded
+        numberOfPhotos.setText(Integer.toString(imageUri.size()) + "x images");
+        //initalize adapter with the list of uri
+        viewPagerAdapter = new ViewPagerAdapter(getActivity(), imageUri);
+        // set the view pager to the adapter
+        viewPager.setAdapter(viewPagerAdapter);
+        // add the indicator to the view pager and set to update on chage od dataset
+        dotsIndicator.setViewPager(viewPager);
+        viewPager.getAdapter().registerDataSetObserver(dotsIndicator.getDataSetObserver());
+    }
 
-        void deleteFromView(){
+    void deleteFromView(){
         if(imageUri.size()<=1){
             imageUri.remove(0);
         }else {
             imageUri.remove(currentViewPagerPosition);
         }
-            //set the the number of photos uploaded
-            numberOfPhotos.setText(Integer.toString(imageUri.size()) + "x images");
-            //initalize adapter with the list of uri
-            viewPagerAdapter = new ViewPagerAdapter(getActivity(), imageUri);
-            // set the view pager to the adapter
-            viewPager.setAdapter(viewPagerAdapter);
-            // add the indicator to the view pager and set to update on chage od dataset
-            dotsIndicator.setViewPager(viewPager);
-            viewPager.getAdapter().registerDataSetObserver(dotsIndicator.getDataSetObserver());
-            if (imageUri.size() == 0) {
-                imageIconPost.setVisibility(View.GONE);
-                viewPager.setVisibility(View.GONE);
-                dotsIndicator.setVisibility(View.GONE);
-                delteImageButton.setVisibility(View.GONE);
-                numberOfPhotos.setText("");
-            }
-            viewPager.setCurrentItem(currentViewPagerPosition);
-
+        //set the the number of photos uploaded
+        numberOfPhotos.setText(Integer.toString(imageUri.size()) + "x images");
+        //initalize adapter with the list of uri
+        viewPagerAdapter = new ViewPagerAdapter(getActivity(), imageUri);
+        // set the view pager to the adapter
+        viewPager.setAdapter(viewPagerAdapter);
+        // add the indicator to the view pager and set to update on chage od dataset
+        dotsIndicator.setViewPager(viewPager);
+        viewPager.getAdapter().registerDataSetObserver(dotsIndicator.getDataSetObserver());
+        if (imageUri.size() == 0) {
+            imageIconPost.setVisibility(View.GONE);
+            viewPager.setVisibility(View.GONE);
+            dotsIndicator.setVisibility(View.GONE);
+            delteImageButton.setVisibility(View.GONE);
+            numberOfPhotos.setText("");
         }
-
+        viewPager.setCurrentItem(currentViewPagerPosition);
 
     }
 
 
-
-
+}

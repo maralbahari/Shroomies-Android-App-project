@@ -19,10 +19,10 @@
         android:fillViewport="true"
         >
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
             <com.google.android.material.tabs.TabLayout
 
@@ -45,258 +45,258 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="personal"
-                  />
+                    />
 
 
             </com.google.android.material.tabs.TabLayout>
 
 
-        <RelativeLayout
-            android:id="@+id/upload_image_card"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-
-            android:background="@drawable/post_card_rectangle_round"
-            android:elevation="3dp">
-
-            <androidx.appcompat.widget.AppCompatTextView
-                android:id="@+id/upload_image_text_view"
-                android:layout_width="wrap_content"
+            <RelativeLayout
+                android:id="@+id/upload_image_card"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_gravity="top"
-                android:layout_margin="20dp"
-                android:text="upload images"
-                android:textSize="18sp">
+                android:layout_margin="10dp"
 
-            </androidx.appcompat.widget.AppCompatTextView>
+                android:background="@drawable/post_card_rectangle_round"
+                android:elevation="3dp">
 
-            <ImageButton
+                <androidx.appcompat.widget.AppCompatTextView
+                    android:id="@+id/upload_image_text_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="top"
+                    android:layout_margin="20dp"
+                    android:text="upload images"
+                    android:textSize="18sp">
+
+                </androidx.appcompat.widget.AppCompatTextView>
+
+                <ImageButton
+                    android:elevation="5dp"
+                    android:padding="15dp"
+                    android:clickable="true"
+                    android:id="@+id/cloud_icon_publish_post"
+                    android:background="@drawable/button_circle_timberwolf_small"
+                    android:src="@drawable/ic_upload_icon_cloud"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_margin="20dp"
+                    android:layout_above="@+id/view_pager"
+                    />
+
+
+
+                <TextView
+                    android:id="@+id/number_of_photos"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/upload_image_text_view"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginLeft="3dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_toRightOf="@id/image_icon_post" />
+
+                <ImageView
+
+                    android:id="@+id/image_icon_post"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentLeft="true"
+                    android:layout_below="@+id/upload_image_text_view"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginTop="5dp"
+                    android:elevation="3dp"
+                    android:src="@drawable/ic_icon_awesome_image"
+                    android:visibility="gone"
+
+                    >
+                </ImageView>
+
+                <ImageButton
+                    android:visibility="gone"
+                    android:id="@+id/delete_image_post"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_icon_material_remove_circle_outline"
+
+                    android:layout_below="@id/view_pager"
+                    android:layout_marginTop="-60dp"
+                    android:layout_marginLeft="40dp"
+                    android:layout_alignParentLeft="true"
+                    android:background="@drawable/small_circle_button"
+                    android:elevation="5dp"
+                    android:padding="5dp"
+
+                    />
+
+                <androidx.viewpager.widget.ViewPager
+
+                    android:layout_below="@id/image_icon_post"
+                    android:id="@+id/view_pager"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginBottom="20dp"
+                    android:layout_marginTop="20dp"
+                    android:visibility="gone">
+
+
+                </androidx.viewpager.widget.ViewPager>
+                <com.make.dots.dotsindicator.DotsIndicator
+                    android:visibility="gone"
+                    android:layout_below="@id/view_pager"
+                    android:layout_centerHorizontal="true"
+                    android:id="@+id/dotsIndicator"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="-60dp"
+                    android:background="@drawable/dots_background"
+                    android:padding="4dp"
+                    app:dot_drawable="@drawable/ic_dot_darkgrey"
+                    app:dot_drawable_unselected="@drawable/ic_dot_lightgrey"
+                    app:dot_height="6dp"
+                    app:dot_margin="4dp"
+                    app:dot_width="6dp" />
+
+
+            </RelativeLayout>
+
+
+
+
+
+
+            <EditText
+                android:id="@+id/description_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:background="@drawable/post_card_rectangle_round"
                 android:elevation="5dp"
-                android:padding="15dp"
-                android:clickable="true"
-            android:id="@+id/cloud_icon_publish_post"
-            android:background="@drawable/button_circle_timberwolf_small"
-            android:src="@drawable/ic_upload_icon_cloud"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_margin="20dp"
-            android:layout_above="@+id/view_pager"
-                />
+                android:hint="Description"
+                android:minHeight="80dp"
+                android:padding="20dp">
 
+
+            </EditText>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <RelativeLayout
+                    android:id="@+id/number_of_roommates_relative_layout"
+                    android:layout_width="0dp"
+                    android:layout_height="130dp"
+                    android:layout_margin="10dp"
+                    android:layout_weight="1"
+
+                    android:background="@drawable/post_card_rectangle_round"
+                    android:elevation="3dp">
+
+                    <TextView
+                        android:id="@+id/number_of_roommates_tv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentStart="true"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginTop="20dp"
+                        android:layout_marginBottom="10dp"
+
+                        android:text="No.roommates:">
+
+                    </TextView>
+
+                    <NumberPicker
+                        android:id="@+id/roommate_number_picker"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/number_of_roommates_tv"
+                        android:layout_centerInParent="true"
+                        android:layout_marginBottom="10dp">
+
+                    </NumberPicker>
+
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/budget_layout"
+
+                    android:layout_width="0dp"
+                    android:layout_height="130dp"
+                    android:layout_margin="10dp"
+                    android:layout_weight="1"
+
+
+                    android:background="@drawable/post_card_rectangle_round"
+                    android:elevation="3dp">
+
+                    <TextView
+                        android:id="@+id/budget_tv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentStart="true"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginTop="20dp"
+                        android:layout_marginBottom="10dp"
+
+                        android:text="Price:">
+
+                    </TextView>
+
+                    <NumberPicker
+                        android:id="@+id/budget_number_picker"
+                        android:layout_width="66dp"
+                        android:layout_height="73dp"
+                        android:layout_below="@id/budget_tv"
+                        android:layout_centerInParent="true"
+                        android:layout_marginBottom="10dp"
+                        android:selectionDividerHeight="0dp"
+                        >
+
+                    </NumberPicker>
+
+                </RelativeLayout>
+            </LinearLayout>
 
 
             <TextView
-                android:id="@+id/number_of_photos"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/upload_image_text_view"
-                android:layout_marginRight="10dp"
-                android:layout_marginLeft="3dp"
-                android:layout_marginTop="5dp"
-                android:layout_toRightOf="@id/image_icon_post" />
 
-            <ImageView
-
-                android:id="@+id/image_icon_post"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentLeft="true"
-                android:layout_below="@+id/upload_image_text_view"
-                android:layout_marginLeft="30dp"
-                android:layout_marginBottom="10dp"
-                android:layout_marginTop="5dp"
-                android:elevation="3dp"
-                android:src="@drawable/ic_icon_awesome_image"
-                android:visibility="gone"
-
-                >
-            </ImageView>
-
-            <ImageButton
-                android:visibility="gone"
-                android:id="@+id/delete_image_post"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_icon_material_remove_circle_outline"
-
-                android:layout_below="@id/view_pager"
-                android:layout_marginTop="-60dp"
-                android:layout_marginLeft="40dp"
-                android:layout_alignParentLeft="true"
-                android:background="@drawable/small_circle_button"
-                android:elevation="5dp"
-                android:padding="5dp"
-
-                />
-
-            <androidx.viewpager.widget.ViewPager
-
-            android:layout_below="@id/image_icon_post"
-                android:id="@+id/view_pager"
+                android:id="@+id/location_search_view"
                 android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_marginRight="20dp"
-                android:layout_marginLeft="20dp"
-                android:layout_marginBottom="20dp"
-                android:layout_marginTop="20dp"
-                android:visibility="gone">
-
-
-            </androidx.viewpager.widget.ViewPager>
-            <com.make.dots.dotsindicator.DotsIndicator
-                android:visibility="gone"
-                android:layout_below="@id/view_pager"
-                android:layout_centerHorizontal="true"
-                android:id="@+id/dotsIndicator"
-                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="-60dp"
-                android:background="@drawable/dots_background"
-                android:padding="4dp"
-                app:dot_drawable="@drawable/ic_dot_darkgrey"
-                app:dot_drawable_unselected="@drawable/ic_dot_lightgrey"
-                app:dot_height="6dp"
-                app:dot_margin="4dp"
-                app:dot_width="6dp" />
+                android:layout_gravity="center"
+                android:layout_marginLeft="20dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginRight="20dp"
+                android:background="@drawable/location_search_bar"
+                android:drawablePadding="5dp"
+                android:elevation="5dp"
+
+                android:gravity="fill_vertical"
+                android:minHeight="90dp"
+                android:padding="15dp"
+                android:drawableEnd="@drawable/ic_icon_feather_map">
+
+            </TextView>
 
 
-        </RelativeLayout>
+            <com.example.shroomies.CustomMapView
+                android:id="@+id/address_map_view"
+                android:layout_width="match_parent"
+                android:layout_height="250dp"
+                android:layout_marginLeft="20dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="20dp"
+                android:elevation="10dp">
 
 
-
-
-
-
-        <EditText
-            android:id="@+id/description_edit_text"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp"
-            android:background="@drawable/post_card_rectangle_round"
-            android:elevation="5dp"
-            android:hint="Description"
-            android:minHeight="80dp"
-            android:padding="20dp">
-
-
-        </EditText>
-
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <RelativeLayout
-                android:id="@+id/number_of_roommates_relative_layout"
-                android:layout_width="0dp"
-                android:layout_height="130dp"
-                android:layout_margin="10dp"
-                android:layout_weight="1"
-
-                android:background="@drawable/post_card_rectangle_round"
-                android:elevation="3dp">
-
-                <TextView
-                    android:id="@+id/number_of_roommates_tv"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginTop="20dp"
-                    android:layout_marginBottom="10dp"
-
-                    android:text="No.roommates:">
-
-                </TextView>
-
-                <NumberPicker
-                    android:id="@+id/roommate_number_picker"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/number_of_roommates_tv"
-                    android:layout_centerInParent="true"
-                    android:layout_marginBottom="10dp">
-
-                </NumberPicker>
-
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/budget_layout"
-
-                android:layout_width="0dp"
-                android:layout_height="130dp"
-                android:layout_margin="10dp"
-                android:layout_weight="1"
-
-
-                android:background="@drawable/post_card_rectangle_round"
-                android:elevation="3dp">
-
-                <TextView
-                    android:id="@+id/budget_tv"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentStart="true"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginTop="20dp"
-                    android:layout_marginBottom="10dp"
-
-                    android:text="Price:">
-
-                </TextView>
-
-                <NumberPicker
-                    android:id="@+id/budget_number_picker"
-                    android:layout_width="66dp"
-                    android:layout_height="73dp"
-                    android:layout_below="@id/budget_tv"
-                    android:layout_centerInParent="true"
-                    android:layout_marginBottom="10dp"
-                    android:selectionDividerHeight="0dp"
-                    >
-
-                </NumberPicker>
-
-            </RelativeLayout>
-        </LinearLayout>
-
-
-        <TextView
-
-            android:id="@+id/location_search_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginRight="20dp"
-            android:background="@drawable/location_search_bar"
-            android:drawablePadding="5dp"
-            android:elevation="5dp"
-
-            android:gravity="fill_vertical"
-            android:minHeight="90dp"
-            android:padding="15dp"
-            android:drawableEnd="@drawable/ic_icon_feather_map">
-
-        </TextView>
-
-
-        <com.example.shroomies.CustomMapView
-            android:id="@+id/address_map_view"
-            android:layout_width="match_parent"
-            android:layout_height="250dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            android:layout_marginBottom="20dp"
-            android:elevation="10dp">
-
-
-        </com.example.shroomies.CustomMapView>
+            </com.example.shroomies.CustomMapView>
 
 
 
@@ -340,7 +340,7 @@
                         android:layout_gravity="center_horizontal"
                         android:layout_margin="5dp"
                         android:button="@android:color/transparent"
-                   android:background="@drawable/property_radio_selector"
+                        android:background="@drawable/property_radio_selector"
                         android:elevation="3dp"
                         android:padding="10dp"
                         />
@@ -407,7 +407,7 @@
 
 
 
-    </LinearLayout>
+        </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>
 
@@ -456,7 +456,7 @@
 
         android:layout_marginRight="20dp"
         android:layout_marginLeft="20dp"
-android:layout_marginTop="100dp"
+        android:layout_marginTop="100dp"
         android:layout_marginBottom="200dp"
 
         android:background="@drawable/post_card_rectangle_round"
@@ -487,8 +487,8 @@ android:layout_marginTop="100dp"
         <Button
             android:id="@+id/ok_Button"
             android:elevation="5dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:minHeight="50dp"
             android:textColor="@color/white"
             android:textSize="20dp"
@@ -502,4 +502,3 @@ android:layout_marginTop="100dp"
 
 
 </RelativeLayout>
-
