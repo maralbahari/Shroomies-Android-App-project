@@ -1,0 +1,1057 @@
+Index: .idea/shelf/Uncommitted_changes_before_Update_at_30-Nov-20_23_52__Default_Changelist_.xml
+===================================================================
+--- .idea/shelf/Uncommitted_changes_before_Update_at_30-Nov-20_23_52__Default_Changelist_.xml	(revision fa2a53b1e2b32eb72903c9418a983711000aebc3)
++++ .idea/shelf/Uncommitted_changes_before_Update_at_30-Nov-20_23_52__Default_Changelist_.xml	(revision fa2a53b1e2b32eb72903c9418a983711000aebc3)
+@@ -1,4 +0,0 @@
+-<changelist name="Uncommitted_changes_before_Update_at_30-Nov-20_23_52_[Default_Changelist]" date="1606760711309" recycled="true" deleted="true">
+-  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_30-Nov-20_23_52_[Default_Changelist]/shelved.patch" />
+-  <option name="DESCRIPTION" value="Uncommitted changes before Update at 30-Nov-20 23:52 [Default Changelist]" />
+-</changelist>
+\ No newline at end of file
+Index: .idea/shelf/Uncommitted_changes_before_Update_at_30-Nov-20_00_01__Default_Changelist_.xml
+===================================================================
+--- .idea/shelf/Uncommitted_changes_before_Update_at_30-Nov-20_00_01__Default_Changelist_.xml	(revision fa2a53b1e2b32eb72903c9418a983711000aebc3)
++++ .idea/shelf/Uncommitted_changes_before_Update_at_30-Nov-20_00_01__Default_Changelist_.xml	(revision fa2a53b1e2b32eb72903c9418a983711000aebc3)
+@@ -1,4 +0,0 @@
+-<changelist name="Uncommitted_changes_before_Update_at_30-Nov-20_00_01_[Default_Changelist]" date="1606674716155" recycled="true" deleted="true">
+-  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_30-Nov-20_00_01_[Default_Changelist]/shelved.patch" />
+-  <option name="DESCRIPTION" value="Uncommitted changes before Update at 30-Nov-20 00:01 [Default Changelist]" />
+-</changelist>
+\ No newline at end of file
+Index: .idea/shelf/Uncommitted_changes_before_Update_at_30-Nov-20_22_15_[Default_Changelist]/shelved.patch
+===================================================================
+--- .idea/shelf/Uncommitted_changes_before_Update_at_30-Nov-20_22_15_[Default_Changelist]/shelved.patch	(revision fa2a53b1e2b32eb72903c9418a983711000aebc3)
++++ .idea/shelf/Uncommitted_changes_before_Update_at_30-Nov-20_22_15_[Default_Changelist]/shelved.patch	(revision fa2a53b1e2b32eb72903c9418a983711000aebc3)
+@@ -1,53 +0,0 @@
+-Index: app/src/main/java/com/example/shroomies/LoginActivity.java
+-IDEA additional info:
+-Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+-<+>package com.example.shroomies;\r\n\r\nimport android.content.Intent;\r\nimport android.os.Bundle;\r\n\r\nimport android.text.TextUtils;\r\nimport android.util.Log;\r\nimport android.view.View;\r\nimport android.widget.Button;\r\nimport android.widget.EditText;\r\nimport android.widget.TextView;\r\nimport android.widget.Toast;\r\n\r\nimport androidx.annotation.NonNull;\r\nimport androidx.appcompat.app.AppCompatActivity;\r\nimport androidx.biometric.BiometricConstants;\r\nimport androidx.biometric.BiometricPrompt;\r\nimport androidx.core.content.ContextCompat;\r\n\r\nimport com.google.android.gms.auth.api.signin.GoogleSignIn;\r\nimport com.google.android.gms.auth.api.signin.GoogleSignInAccount;\r\nimport com.google.android.gms.auth.api.signin.GoogleSignInClient;\r\nimport com.google.android.gms.auth.api.signin.GoogleSignInOptions;\r\nimport com.google.android.gms.common.api.ApiException;\r\nimport com.google.android.gms.tasks.OnCompleteListener;\r\nimport com.google.android.gms.tasks.OnFailureListener;\r\nimport com.google.android.gms.tasks.Task;\r\nimport com.google.firebase.auth.AuthCredential;\r\nimport com.google.firebase.auth.AuthResult;\r\nimport com.google.firebase.auth.FirebaseAuth;\r\nimport com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;\r\nimport com.google.firebase.auth.FirebaseAuthInvalidUserException;\r\nimport com.google.firebase.auth.FirebaseUser;\r\nimport com.google.firebase.auth.GoogleAuthProvider;\r\n\r\nimport java.io.File;\r\nimport java.util.concurrent.Executor;\r\n\r\npublic class LoginActivity extends AppCompatActivity {\r\n    protected EditText username;\r\n    protected EditText password;\r\n    Button login, google_sign;\r\n    TextView signup;\r\n\r\n    private final int RC_SIGN_IN = 7;\r\n    GoogleSignInClient mGoogleSignInClient;\r\n    FirebaseAuth mAuth;\r\n\r\n    SessionManager sessionManager;\r\n    boolean successBiometric = false;\r\n    static String user;\r\n    private Executor executor;\r\n    private BiometricPrompt biometricPrompt;\r\n    private BiometricPrompt.PromptInfo promptInfo;\r\n    boolean alredyLoggedin = false;\r\n\r\n    @Override\r\n    protected void onCreate(Bundle savedInstanceState) {\r\n        super.onCreate(savedInstanceState);\r\n        try {\r\n            File root = new File(\"/data/data/com.example.Shroomies/shared_prefs\");\r\n            if (root.isDirectory()) {\r\n                for (File child : root.listFiles()) {\r\n                    String fileName = child.getPath().substring(48).split(\"\\\\.\")[0];\r\n                    SessionManager sessionManager = new SessionManager(LoginActivity.this, fileName);\r\n                    if (sessionManager.isLoggedIn()) {\r\n                        this.user = fileName;\r\n                        alredyLoggedin = true;\r\n                        break;\r\n                    }\r\n                }\r\n            }\r\n        } catch (Exception e) {\r\n        }\r\n        if (alredyLoggedin) {\r\n            startActivity(new Intent(this, MainActivity.class));\r\n            finish();\r\n            Toast.makeText(LoginActivity.this, \"logged in as \" + user, Toast.LENGTH_LONG).show();\r\n        }\r\n\r\n        setContentView(R.layout.activity_login);\r\n        username = findViewById(R.id.email_login);\r\n        password = findViewById(R.id.password_login);\r\n        login = findViewById(R.id.login_button);\r\n        signup = findViewById(R.id.sign_up_button);\r\n        google_sign = findViewById(R.id.google_sign_up);\r\n        mAuth = FirebaseAuth.getInstance();\r\n\r\n        signup.setOnClickListener(new View.OnClickListener() {\r\n            @Override\r\n            public void onClick(View v) {\r\n                Intent intent = new Intent(getApplication(), SignUpActivity.class);\r\n                startActivity(intent);\r\n            }\r\n        });\r\n\r\n        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)\r\n                .requestIdToken(getString(R.string.default_web_client_id))\r\n                .requestEmail()\r\n                .build();\r\n\r\n        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);\r\n        google_sign.setOnClickListener(new View.OnClickListener() {\r\n            @Override\r\n            public void onClick(View v) {\r\n                signIn();\r\n            }\r\n        });\r\n\r\n        login.setOnClickListener(new View.OnClickListener() {\r\n            @Override\r\n            public void onClick(View v) {\r\n                String uname_txt = username.getText().toString();\r\n                String pw_txt = password.getText().toString();\r\n\r\n                if (TextUtils.isEmpty(uname_txt) || TextUtils.isEmpty(pw_txt)) {\r\n                    Toast.makeText(LoginActivity.this, \"Please fill in your details\", Toast.LENGTH_SHORT).show();\r\n                } else {\r\n                    loginUser(uname_txt, pw_txt);\r\n                }\r\n            }\r\n        });\r\n    }\r\n\r\n    private void loginUser(String username, String password) {\r\n        mAuth.signInWithEmailAndPassword(username, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {\r\n            @Override\r\n            public void onComplete(@NonNull Task<AuthResult> task) {\r\n                if (task.isSuccessful()) {\r\n                    Toast.makeText(LoginActivity.this, \"Welcome to Shroomies!\", Toast.LENGTH_SHORT).show();\r\n                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);\r\n                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);\r\n                    startActivity(intent);\r\n                    finish();\r\n                }\r\n            }\r\n        }).addOnFailureListener(new OnFailureListener() {\r\n            @Override\r\n            public void onFailure(@NonNull Exception e) {\r\n                if (e instanceof FirebaseAuthInvalidCredentialsException) {\r\n                    Toast.makeText(LoginActivity.this, \"Invalid password\", Toast.LENGTH_SHORT).show();\r\n                } else if (e instanceof FirebaseAuthInvalidUserException) {\r\n\r\n                    String errorCode =\r\n                            ((FirebaseAuthInvalidUserException) e).getErrorCode();\r\n\r\n                    if (errorCode.equals(\"ERROR_USER_NOT_FOUND\")) {\r\n                        Toast.makeText(LoginActivity.this, \"The email does not belong to a registered account. Please proceed to Sign Up.\", Toast.LENGTH_SHORT).show();\r\n                    } else if (errorCode.equals(\"ERROR_USER_DISABLED\")) {\r\n                        Toast.makeText(LoginActivity.this, \"User account has been disabled\", Toast.LENGTH_SHORT).show();\r\n                    } else {\r\n                        Toast.makeText(LoginActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();\r\n                    }\r\n                }\r\n            }\r\n        });\r\n    }\r\n\r\n    boolean setBiometric() {\r\n        executor = ContextCompat.getMainExecutor(this);\r\n        biometricPrompt = new BiometricPrompt(LoginActivity.this,\r\n                executor, new BiometricPrompt.AuthenticationCallback() {\r\n            @Override\r\n            public void onAuthenticationError(int errorCode,\r\n                                              @NonNull CharSequence errString) {\r\n                super.onAuthenticationError(errorCode, errString);\r\n                if (errorCode == BiometricConstants.ERROR_USER_CANCELED) {\r\n                    login.setOnTouchListener(null);\r\n                } else {\r\n                    Toast.makeText(getApplicationContext(),\r\n                            \"Authentication error: \" + errString, Toast.LENGTH_SHORT)\r\n                            .show();\r\n                }\r\n                successBiometric = false;\r\n            }\r\n\r\n            @Override\r\n            public void onAuthenticationSucceeded(\r\n                    @NonNull BiometricPrompt.AuthenticationResult result) {\r\n                super.onAuthenticationSucceeded(result);\r\n                successBiometric = true;\r\n            }\r\n\r\n            @Override\r\n            public void onAuthenticationFailed() {\r\n                super.onAuthenticationFailed();\r\n                Toast.makeText(getApplicationContext(), \"Authentication failed\",\r\n                        Toast.LENGTH_SHORT)\r\n                        .show();\r\n                successBiometric = false;\r\n            }\r\n        });\r\n\r\n        // Prompt appears when user clicks \"Log in\".\r\n        // Consider integrating with the keystore to unlock cryptographic operations,\r\n        // if needed by your app.\r\n        return successBiometric;\r\n    }\r\n\r\n    private void signIn() {\r\n        Intent signInIntent = mGoogleSignInClient.getSignInIntent();\r\n        startActivityForResult(signInIntent, RC_SIGN_IN);\r\n    }\r\n    public void onActivityResult(int requestCode, int resultCode, Intent data) {\r\n        super.onActivityResult(requestCode, resultCode, data);\r\n\r\n        if (requestCode == RC_SIGN_IN) {\r\n\r\n            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);\r\n            try {\r\n                GoogleSignInAccount account = task.getResult(ApiException.class);\r\n\r\n                firebaseAuthWithGoogle(account);\r\n            } catch (ApiException e) {\r\n                Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();\r\n            }\r\n        }\r\n    }\r\n    private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {\r\n        Log.d(\"Login\",\"firebaseAuthWithGoogle:\" + acct.getId());\r\n\r\n        AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);\r\n\r\n        mAuth.signInWithCredential(credential).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {\r\n            @Override\r\n            public void onComplete(@NonNull Task<AuthResult> task) {\r\n                if (task.isSuccessful()){\r\n                    Log.d(\"Login\", \"signInWithCredential:Success\");\r\n                    FirebaseUser user = mAuth.getCurrentUser();\r\n\r\n                    Toast.makeText(LoginActivity.this, \"User Signed In\", Toast.LENGTH_SHORT).show();\r\n                }\r\n                else{\r\n                    Log.w(\"Login\", \"signInWithCredentail:Failure\", task.getException());\r\n                    Toast.makeText(LoginActivity.this, \"Authentication Failed\", Toast.LENGTH_SHORT).show();\r\n                }\r\n            }\r\n        });\r\n    }\r\n}\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n
+-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+-<+>UTF-8
+-===================================================================
+---- app/src/main/java/com/example/shroomies/LoginActivity.java	(revision b5eed490fd6466253c4c7a3578131e1954620cbb)
+-+++ app/src/main/java/com/example/shroomies/LoginActivity.java	(date 1606748453604)
+-@@ -32,6 +32,8 @@
+- import com.google.firebase.auth.FirebaseAuthInvalidUserException;
+- import com.google.firebase.auth.FirebaseUser;
+- import com.google.firebase.auth.GoogleAuthProvider;
+-+import com.google.firebase.auth.UserInfo;
+-+
+- 
+- import java.io.File;
+- import java.util.concurrent.Executor;
+-@@ -127,11 +129,17 @@
+-             @Override
+-             public void onComplete(@NonNull Task<AuthResult> task) {
+-                 if (task.isSuccessful()) {
+--                    Toast.makeText(LoginActivity.this, "Welcome to Shroomies!", Toast.LENGTH_SHORT).show();
+--                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+--                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+--                    startActivity(intent);
+--                    finish();
+-+                    FirebaseUser muser = mAuth.getCurrentUser();
+-+                    if (muser != null) {
+-+                        for (UserInfo profile:muser.getProviderData()) {
+-+                            String name = profile.getDisplayName();
+-+                            Toast.makeText(LoginActivity.this, "Welcome to Shroomies!" + name, Toast.LENGTH_SHORT).show();
+-+                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+-+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+-+                            startActivity(intent);
+-+                            finish();
+-+                        }
+-+                    }
+-                 }
+-             }
+-         }).addOnFailureListener(new OnFailureListener() {
+-@@ -229,9 +237,10 @@
+-                     FirebaseUser user = mAuth.getCurrentUser();
+- 
+-                     Toast.makeText(LoginActivity.this, "User Signed In", Toast.LENGTH_SHORT).show();
+-+                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
+-                 }
+-                 else{
+--                    Log.w("Login", "signInWithCredentail:Failure", task.getException());
+-+                    Log.w("Login", "signInWithCredential:Failure", task.getException());
+-                     Toast.makeText(LoginActivity.this, "Authentication Failed", Toast.LENGTH_SHORT).show();
+-                 }
+-             }
+Index: .idea/shelf/Uncommitted_changes_before_Update_at_30-Nov-20_23_52_[Default_Changelist]/shelved.patch
+===================================================================
+--- .idea/shelf/Uncommitted_changes_before_Update_at_30-Nov-20_23_52_[Default_Changelist]/shelved.patch	(revision fa2a53b1e2b32eb72903c9418a983711000aebc3)
++++ .idea/shelf/Uncommitted_changes_before_Update_at_30-Nov-20_23_52_[Default_Changelist]/shelved.patch	(revision fa2a53b1e2b32eb72903c9418a983711000aebc3)
+@@ -1,197 +0,0 @@
+-Index: app/src/main/java/com/example/shroomies/MainActivity.java
+-IDEA additional info:
+-Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+-<+>package com.example.shroomies;\r\n\r\nimport androidx.annotation.NonNull;\r\nimport androidx.appcompat.app.ActionBarDrawerToggle;\r\nimport androidx.appcompat.app.AppCompatActivity;\r\nimport androidx.appcompat.widget.Toolbar;\r\nimport androidx.core.view.GravityCompat;\r\nimport androidx.drawerlayout.widget.DrawerLayout;\r\nimport androidx.fragment.app.Fragment;\r\nimport androidx.fragment.app.FragmentManager;\r\nimport androidx.fragment.app.FragmentTransaction;\r\n\r\nimport android.content.Intent;\r\nimport android.os.Bundle;\r\nimport android.view.MenuItem;\r\nimport android.view.View;\r\nimport android.widget.ImageView;\r\nimport android.widget.TextView;\r\nimport android.widget.Toast;\r\n\r\nimport com.google.android.material.bottomnavigation.BottomNavigationView;\r\nimport com.google.android.material.navigation.NavigationView;\r\n\r\npublic class MainActivity extends AppCompatActivity {\r\n    DrawerLayout drawerLayout;\r\n    ActionBarDrawerToggle barDrawerToggle;\r\n    Toolbar toolbar;\r\n    NavigationView navigationView;\r\n    static BottomNavigationView btm_view;\r\n    FragmentTransaction ft;\r\n    FragmentManager fm;\r\n    ImageView myShroomies;\r\n    TextView usernameDrawer;\r\n    SessionManager sessionManager;\r\n\r\n    @Override\r\n    protected void onCreate(Bundle savedInstanceState) {\r\n        super.onCreate(savedInstanceState);\r\n        setContentView(R.layout.activity_main);\r\n        Bundle extras = getIntent().getExtras();\r\n        if(extras!=null){\r\n            String username = extras.getString(\"USERNAME\");\r\n            String email=extras.getString(\"EMAIL\");\r\n            sessionManager=new SessionManager(getApplicationContext(),username);\r\n            sessionManager.createSession(username,email);\r\n            Toast.makeText(this,username,Toast.LENGTH_LONG).show();\r\n        }\r\n        btm_view = findViewById(R.id.bottomNavigationView);\r\n        drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);\r\n        toolbar = (Toolbar) findViewById(R.id.toolbar);\r\n        usernameDrawer=findViewById(R.id.drawer_nav_profile_name);\r\n\r\n        setSupportActionBar(toolbar);\r\n        getFragment(new FindRoommate());\r\n        barDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open, R.string.close);\r\n        drawerLayout.addDrawerListener(barDrawerToggle);\r\n        barDrawerToggle.setDrawerIndicatorEnabled(true);\r\n        barDrawerToggle.syncState();\r\n        navigationView = (NavigationView) findViewById(R.id.navigationView);\r\n        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {\r\n            @Override\r\n            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {\r\n                drawerLayout.closeDrawer(GravityCompat.START);\r\n                if(menuItem.getItemId()==R.id.setting_menu){\r\n                    getFragment(new PrivacySetting());\r\n                }if(menuItem.getItemId()==R.id.my_archive_menu){\r\n                    getFragment(new Archive());\r\n                }if(menuItem.getItemId()==R.id.my_favorite_menu){\r\n                    getFragment(new Favorite());\r\n\r\n                }if(menuItem.getItemId()==R.id.my_requests_menu){\r\n                    getFragment(new Request());\r\n                }if(menuItem.getItemId()==R.id.logout){\r\n                    finish();\r\n                    sessionManager.logout();\r\n                    Intent intent = new Intent(MainActivity.this , LoginActivity.class);\r\n                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);\r\n                    finish();\r\n                    startActivity(intent);\r\n                    finish();\r\n                }\r\n                return false;\r\n            }\r\n        });\r\n        btm_view.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener(){\r\n\r\n            @Override\r\n            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {\r\n                if(menuItem.getItemId()==R.id.find_roomie_menu){\r\n                    getFragment(new FindRoommate());\r\n                }if(menuItem.getItemId()==R.id.publish_post_menu){\r\n                    getFragment(new PublishPost());\r\n                }if(menuItem.getItemId()==R.id.message_inbox_menu){\r\n                    getFragment(new MessageInbox());\r\n\r\n                }if(menuItem.getItemId()==R.id.user_profile_menu){\r\n                    getFragment(new UserProfile());\r\n                }\r\n                return true;\r\n            }\r\n        });\r\n        myShroomies=findViewById(R.id.logo_toolbar);\r\n        myShroomies.setOnClickListener(new View.OnClickListener() {\r\n            @Override\r\n            public void onClick(View v) {\r\n                getFragment(new MyShroomies());\r\n            }\r\n        });\r\n\r\n    }\r\n    private void getFragment (Fragment fragment) {\r\n        fm = getSupportFragmentManager();\r\n        ft = fm.beginTransaction();\r\n        ft.addToBackStack(null);\r\n        ft.replace(R.id.fragmentContainer, fragment);\r\n        ft.commit();\r\n    }\r\n\r\n}
+-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+-<+>UTF-8
+-===================================================================
+---- app/src/main/java/com/example/shroomies/MainActivity.java	(revision e57c815b76854a0fb660ccf0476f3c3415d02ddb)
+-+++ app/src/main/java/com/example/shroomies/MainActivity.java	(date 1606758111447)
+-@@ -20,6 +20,8 @@
+- 
+- import com.google.android.material.bottomnavigation.BottomNavigationView;
+- import com.google.android.material.navigation.NavigationView;
+-+import com.google.firebase.auth.FirebaseAuth;
+-+import com.google.firebase.auth.FirebaseUser;
+- 
+- public class MainActivity extends AppCompatActivity {
+-     DrawerLayout drawerLayout;
+-@@ -36,7 +38,16 @@
+-     @Override
+-     protected void onCreate(Bundle savedInstanceState) {
+-         super.onCreate(savedInstanceState);
+-+
+-         setContentView(R.layout.activity_main);
+-+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+-+        if (user != null) {
+-+            // Name, email address, and profile photo Url
+-+            String name = user.getDisplayName();
+-+            String email = user.getEmail();
+-+            Toast.makeText(MainActivity.this, "Welcome to Shroomies! "+ name, Toast.LENGTH_SHORT).show();
+-+        }
+-+
+-         Bundle extras = getIntent().getExtras();
+-         if(extras!=null){
+-             String username = extras.getString("USERNAME");
+-Index: app/src/main/java/com/example/shroomies/LoginActivity.java
+-IDEA additional info:
+-Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+-<+>package com.example.shroomies;\r\n\r\nimport android.content.Intent;\r\nimport android.os.Bundle;\r\n\r\nimport android.text.Editable;\r\nimport android.text.TextUtils;\r\nimport android.text.TextWatcher;\r\nimport android.util.Log;\r\nimport android.view.MotionEvent;\r\nimport android.view.View;\r\nimport android.widget.Button;\r\nimport android.widget.EditText;\r\nimport android.widget.TextView;\r\nimport android.widget.Toast;\r\n\r\nimport androidx.annotation.NonNull;\r\nimport androidx.appcompat.app.AppCompatActivity;\r\nimport androidx.biometric.BiometricConstants;\r\nimport androidx.biometric.BiometricPrompt;\r\nimport androidx.core.content.ContextCompat;\r\nimport androidx.fragment.app.FragmentActivity;\r\n\r\nimport com.google.android.gms.auth.api.signin.GoogleSignInAccount;\r\nimport com.google.android.gms.auth.api.signin.GoogleSignInOptions;\r\nimport com.google.android.gms.common.api.ApiException;\r\nimport com.google.android.gms.tasks.OnCompleteListener;\r\nimport com.google.android.gms.tasks.OnFailureListener;\r\nimport com.google.android.gms.tasks.Task;\r\nimport com.google.firebase.auth.AuthCredential;\r\nimport com.google.firebase.auth.AuthResult;\r\nimport com.google.firebase.auth.FirebaseAuth;\r\nimport com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;\r\nimport com.google.firebase.auth.FirebaseAuthInvalidUserException;\r\nimport com.google.firebase.auth.FirebaseUser;\r\nimport com.google.firebase.auth.GoogleAuthProvider;\r\nimport com.google.android.gms.auth.api.signin.GoogleSignIn;\r\nimport com.google.android.gms.auth.api.signin.GoogleSignInAccount;\r\nimport com.google.android.gms.auth.api.signin.GoogleSignInClient;\r\nimport com.google.android.gms.auth.api.signin.GoogleSignInOptions;\r\nimport com.google.android.gms.common.api.ApiException;\r\nimport com.google.firebase.auth.UserInfo;\r\n\r\nimport java.io.File;\r\nimport java.util.concurrent.Executor;\r\n\r\npublic class LoginActivity extends AppCompatActivity {\r\n   protected EditText username;\r\n   protected EditText password;\r\n    Button login;\r\n    TextView signup;\r\n    private final int RC_SIGN_IN = 7;\r\n    GoogleSignInClient mGoogleSignInClient;\r\n    FirebaseAuth mAuth;\r\n    TextView forgotPassword;\r\n    SessionManager sessionManager;\r\n    boolean successBiometric = false;\r\n    static String user;\r\n    private Executor executor;\r\n    private BiometricPrompt biometricPrompt;\r\n    private BiometricPrompt.PromptInfo promptInfo;\r\n    boolean alredyLoggedin = false;\r\n    Button google_sign;\r\n\r\n    @Override\r\n    protected void onCreate(Bundle savedInstanceState) {\r\n        super.onCreate(savedInstanceState);\r\n        sessionManager=new SessionManager();\r\n        user=sessionManager.checkUsersLoggedIn(getApplicationContext());\r\n        if(user!=null){\r\n            Intent intent = new Intent(LoginActivity.this, MainActivity.class);\r\n            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);\r\n            intent.putExtra(\"USERNAME\",user);\r\n            startActivity(intent);\r\n            finish();\r\n        }\r\n        setContentView(R.layout.activity_login);\r\n        username=findViewById(R.id.email_login);\r\n        password=findViewById(R.id.password_login);\r\n        login=findViewById(R.id.login_button);\r\n        signup=findViewById(R.id.sign_up_button);\r\n        google_sign = findViewById(R.id.google_sign_up);\r\n        forgotPassword=findViewById(R.id.forgot_password_login);\r\n        username.addTextChangedListener(new TextWatcher() {\r\n            @Override\r\n            public void beforeTextChanged(CharSequence s, int start, int count, int after) {\r\n\r\n            }\r\n\r\n            @Override\r\n            public void onTextChanged(CharSequence s, int start, int before, int count) {\r\n\r\n            }\r\n\r\n            @Override\r\n            public void afterTextChanged(Editable s) {\r\n                String typedUsername=username.getText().toString();\r\n                sessionManager=new SessionManager(getApplicationContext(),typedUsername);\r\n                if(sessionManager.biometricIsEnabled()){\r\n                    password.setOnTouchListener(new View.OnTouchListener() {\r\n                        @Override\r\n                        public boolean onTouch(View v, MotionEvent event) {\r\n                            setBiometric();\r\n                            promptInfo = new BiometricPrompt.PromptInfo.Builder()\r\n                                    .setTitle(\"Biometric login for my app\")\r\n                                    .setSubtitle(\"Log in using your biometric credential\")\r\n                                    .setNegativeButtonText(\"Use account password\")\r\n                                    .build();\r\n                            biometricPrompt.authenticate(promptInfo);\r\n                            return false;\r\n                        }\r\n                    });\r\n                }\r\n            }\r\n        });\r\n        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)\r\n                .requestIdToken(getString(R.string.default_web_client_id))\r\n                .requestEmail()\r\n                .build();\r\n\r\n        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);\r\n        google_sign.setOnClickListener(new View.OnClickListener() {\r\n            @Override\r\n            public void onClick(View v) {\r\n                signIn();\r\n            }\r\n        });\r\n        forgotPassword.setOnClickListener(new View.OnClickListener() {\r\n            @Override\r\n            public void onClick(View v) {\r\n                Intent intent=new Intent(getApplication(),ResetPassword.class);\r\n                startActivity(intent);\r\n                finish();\r\n\r\n            }\r\n        });\r\n        mAuth = FirebaseAuth.getInstance();\r\n\r\n        signup.setOnClickListener(new View.OnClickListener() {\r\n            @Override\r\n            public void onClick(View v) {\r\n                Intent intent=new Intent(getApplication(),SignUpActivity.class);\r\n                startActivity(intent);\r\n                finish();\r\n\r\n            }\r\n        });\r\nif(!successBiometric){\r\n        login.setOnClickListener(new View.OnClickListener() {\r\n            @Override\r\n            public void onClick(View v) {\r\n             loginUser(successBiometric);\r\n            }\r\n        });\r\n\r\n    }}\r\n    private void loginUser(boolean biometricSuccessful){\r\n        final String uname_txt = username.getText().toString();\r\n        String pw_txt = password.getText().toString();\r\n\r\n        if (TextUtils.isEmpty(uname_txt) || TextUtils.isEmpty(pw_txt)){\r\n            Toast.makeText(LoginActivity.this, \"Please fill in your details\",Toast.LENGTH_SHORT).show();\r\n        }\r\n        else {\r\n            if(biometricSuccessful){\r\n                sessionManager=new SessionManager(getApplicationContext(),uname_txt);\r\n                // get name of the user\r\n                sessionManager.createSession(mAuth.getCurrentUser().getDisplayName().toString(),uname_txt);\r\n                Toast.makeText(LoginActivity.this, \"Welcome to Shroomies!\", Toast.LENGTH_SHORT).show();\r\n                Intent intent = new Intent(LoginActivity.this, MainActivity.class);\r\n                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);\r\n                startActivity(intent);\r\n                finish();\r\n            }\r\n\r\n            mAuth.signInWithEmailAndPassword(uname_txt, pw_txt). addOnCompleteListener(new OnCompleteListener<AuthResult>() {\r\n                @Override\r\n                public void onComplete(@NonNull Task<AuthResult> task) {\r\n                    if (task.isSuccessful()){\r\n                        FirebaseUser user = mAuth.getCurrentUser();\r\n                        if (user != null) {\r\n                            for (UserInfo profile : user.getProviderData()){\r\n                                String name = profile.getDisplayName();\r\n                                String email = profile.getEmail();\r\n//                                sessionManager=new SessionManager(getApplicationContext(),email);\r\n//                                sessionManager.createSession(name,email);\r\n                                Toast.makeText(LoginActivity.this, \"Welcome to Shroomies! \"+email, Toast.LENGTH_SHORT).show();\r\n                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);\r\n                                intent.putExtra(\"USERNAME\",name);\r\n                                intent.putExtra(\"EMIAL\",email);\r\n                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);\r\n                                startActivity(intent);\r\n                                finish();\r\n                            }\r\n\r\n                        }\r\n                    }\r\n                }\r\n            }).addOnFailureListener(new OnFailureListener() {\r\n                @Override\r\n                public void onFailure(@NonNull Exception e) {\r\n                    if (e instanceof FirebaseAuthInvalidCredentialsException) {\r\n                        Toast.makeText(LoginActivity.this, \"Invalid password\", Toast.LENGTH_SHORT).show();\r\n                    } else if (e instanceof FirebaseAuthInvalidUserException) {\r\n\r\n                        String errorCode =\r\n                                ((FirebaseAuthInvalidUserException) e).getErrorCode();\r\n\r\n                        if (errorCode.equals(\"ERROR_USER_NOT_FOUND\")) {\r\n                            Toast.makeText(LoginActivity.this, \"The email does not belong to a registered account. Please proceed to Sign Up.\", Toast.LENGTH_SHORT).show();\r\n                        } else if (errorCode.equals(\"ERROR_USER_DISABLED\")) {\r\n                            Toast.makeText(LoginActivity.this, \"User account has been disabled\", Toast.LENGTH_SHORT).show();\r\n                        } else {\r\n                            Toast.makeText(LoginActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();\r\n                        }\r\n\r\n                    }\r\n                }\r\n            });\r\n        }\r\n\r\n\r\n        }\r\n    boolean setBiometric(){\r\n        executor = ContextCompat.getMainExecutor(this);\r\n        biometricPrompt = new BiometricPrompt(LoginActivity.this,\r\n                executor, new BiometricPrompt.AuthenticationCallback() {\r\n            @Override\r\n            public void onAuthenticationError(int errorCode,\r\n                                              @NonNull CharSequence errString) {\r\n                super.onAuthenticationError(errorCode, errString);\r\n                if (errorCode == BiometricConstants.ERROR_USER_CANCELED){\r\n                    password.setOnTouchListener(null);\r\n                }else{\r\n                    Toast.makeText(getApplicationContext(),\r\n                            \"Authentication error: \" + errString, Toast.LENGTH_SHORT)\r\n                            .show();\r\n                }\r\n                successBiometric = false;\r\n            }\r\n            @Override\r\n            public void onAuthenticationSucceeded(\r\n                    @NonNull BiometricPrompt.AuthenticationResult result) {\r\n                super.onAuthenticationSucceeded(result);\r\n                successBiometric=true;\r\n                loginUser(successBiometric);\r\n            }\r\n            @Override\r\n            public void onAuthenticationFailed() {\r\n                super.onAuthenticationFailed();\r\n                Toast.makeText(getApplicationContext(), \"Authentication failed\",\r\n                        Toast.LENGTH_SHORT)\r\n                        .show();\r\n                successBiometric=false;\r\n            }\r\n        });\r\n\r\n        // Prompt appears when user clicks \"Log in\".\r\n        // Consider integrating with the keystore to unlock cryptographic operations,\r\n        // if needed by your app.\r\n        return successBiometric;\r\n    }\r\n    private void signIn() {\r\n        Intent signInIntent = mGoogleSignInClient.getSignInIntent();\r\n        startActivityForResult(signInIntent, RC_SIGN_IN);\r\n    }\r\n    public void onActivityResult(int requestCode, int resultCode, Intent data) {\r\n        super.onActivityResult(requestCode, resultCode, data);\r\n\r\n        if (requestCode == RC_SIGN_IN) {\r\n\r\n            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);\r\n            try {\r\n                GoogleSignInAccount account = task.getResult(ApiException.class);\r\n\r\n                firebaseAuthWithGoogle(account);\r\n            } catch (ApiException e) {\r\n                Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();\r\n            }\r\n        }\r\n    }\r\n    private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {\r\n        Log.d(\"Login\",\"firebaseAuthWithGoogle:\" + acct.getId());\r\n\r\n        AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);\r\n\r\n        mAuth.signInWithCredential(credential).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {\r\n            @Override\r\n            public void onComplete(@NonNull Task<AuthResult> task) {\r\n                if (task.isSuccessful()){\r\n                    Log.d(\"Login\", \"signInWithCredential:Success\");\r\n                    FirebaseUser user = mAuth.getCurrentUser();\r\n                    sessionManager=new SessionManager(getApplicationContext(),user.getEmail());\r\n                    sessionManager.createSession(user.getEmail(),user.getEmail());\r\n                    Intent intent= new Intent(getApplicationContext(),MainActivity.class);\r\n                    startActivity(intent);\r\n\r\n                    Toast.makeText(LoginActivity.this, \"User Signed In\", Toast.LENGTH_SHORT).show();\r\n                }\r\n                else{\r\n                    Log.w(\"Login\", \"signInWithCredentail:Failure\", task.getException());\r\n                    Toast.makeText(LoginActivity.this, \"Authentication Failed\", Toast.LENGTH_SHORT).show();\r\n                }\r\n            }\r\n        });\r\n    }\r\n}\r\n\r\n\r\n\r\n
+-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+-<+>UTF-8
+-===================================================================
+---- app/src/main/java/com/example/shroomies/LoginActivity.java	(revision e57c815b76854a0fb660ccf0476f3c3415d02ddb)
+-+++ app/src/main/java/com/example/shroomies/LoginActivity.java	(date 1606755003928)
+-@@ -298,7 +298,7 @@
+-                     Toast.makeText(LoginActivity.this, "User Signed In", Toast.LENGTH_SHORT).show();
+-                 }
+-                 else{
+--                    Log.w("Login", "signInWithCredentail:Failure", task.getException());
+-+                    Log.w("Login", "signInWithCredential:Failure", task.getException());
+-                     Toast.makeText(LoginActivity.this, "Authentication Failed", Toast.LENGTH_SHORT).show();
+-                 }
+-             }
+-Index: app/src/main/res/layout/activity_reset_password.xml
+-IDEA additional info:
+-Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+-<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<RelativeLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\r\n    android:layout_width=\"match_parent\"\r\n    android:layout_height=\"match_parent\"\r\n    android:background=\"@drawable/gradient_yellow_background\">\r\n\r\n\r\n    <TextView\r\n        android:id=\"@+id/txt_forgot\"\r\n        android:layout_width=\"wrap_content\"\r\n        android:layout_height=\"wrap_content\"\r\n        android:padding=\"10dp\"\r\n        android:text=\"Forgot your password?\"\r\n        android:layout_marginTop=\"100dp\"\r\n        android:layout_marginLeft=\"20dp\"\r\n        android:textSize=\"30sp\"\r\n        android:textStyle=\"bold\"\r\n        android:textColor=\"@android:color/black\"/>\r\n\r\n    <TextView\r\n        android:id=\"@+id/txt_enter_email\"\r\n        android:layout_width=\"wrap_content\"\r\n        android:layout_height=\"wrap_content\"\r\n        android:layout_below=\"@+id/txt_forgot\"\r\n        android:padding=\"10dp\"\r\n        android:text=\"Enter email id to reset password\"\r\n        android:layout_marginLeft=\"30dp\"\r\n        android:layout_marginTop=\"50dp\"\r\n        android:textSize=\"20sp\"\r\n        android:textStyle=\"bold\"\r\n        android:textColor=\"@android:color/black\" />\r\n\r\n    <EditText\r\n        android:id=\"@+id/edt_reset_email\"\r\n        android:layout_width=\"wrap_content\"\r\n        android:layout_height=\"wrap_content\"\r\n        android:layout_below=\"@+id/txt_enter_email\"\r\n        android:layout_marginRight=\"50dp\"\r\n        android:layout_marginLeft=\"50dp\"\r\n        android:layout_marginTop=\"10dp\"\r\n        android:hint=\"  Enter registered email here  \"\r\n        android:textSize=\"20sp\"\r\n        android:inputType=\"textEmailAddress\" />\r\n\r\n    <Button\r\n        android:id=\"@+id/btn_reset_password\"\r\n        android:layout_width=\"200dp\"\r\n        android:layout_height=\"wrap_content\"\r\n        android:layout_below=\"@+id/edt_reset_email\"\r\n        android:layout_centerHorizontal=\"true\"\r\n        android:layout_marginTop=\"30dp\"\r\n        android:text=\"Reset Password\"\r\n        android:background=\"@drawable/button_round\"/>\r\n\r\n    <Button\r\n        android:id=\"@+id/btn_back\"\r\n        android:layout_width=\"wrap_content\"\r\n        android:layout_height=\"wrap_content\"\r\n        android:layout_below=\"@+id/btn_reset_password\"\r\n        android:layout_marginTop=\"50dp\"\r\n        android:layout_centerHorizontal=\"true\"\r\n        android:background=\"@drawable/button_round\"\r\n        android:text=\"BACK\"\r\n        android:textColor=\"@color/colorAccent\" />\r\n\r\n</RelativeLayout>
+-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+-<+>UTF-8
+-===================================================================
+---- app/src/main/res/layout/activity_reset_password.xml	(revision e57c815b76854a0fb660ccf0476f3c3415d02ddb)
+-+++ app/src/main/res/layout/activity_reset_password.xml	(date 1606755877832)
+-@@ -9,32 +9,23 @@
+-         android:id="@+id/txt_forgot"
+-         android:layout_width="wrap_content"
+-         android:layout_height="wrap_content"
+--        android:padding="10dp"
+--        android:text="Forgot your password?"
+--        android:layout_marginTop="100dp"
+-         android:layout_marginLeft="20dp"
+--        android:textSize="30sp"
+--        android:textStyle="bold"
+--        android:textColor="@android:color/black"/>
+--
+--    <TextView
+--        android:id="@+id/txt_enter_email"
+--        android:layout_width="wrap_content"
+--        android:layout_height="wrap_content"
+--        android:layout_below="@+id/txt_forgot"
+-+        android:layout_marginTop="100dp"
+-+        android:layout_marginRight="20dp"
+-+        android:background="@drawable/txt_bg_rectangle"
+-         android:padding="10dp"
+--        android:text="Enter email id to reset password"
+--        android:layout_marginLeft="30dp"
+--        android:layout_marginTop="50dp"
+--        android:textSize="20sp"
+--        android:textStyle="bold"
+--        android:textColor="@android:color/black" />
+-+        android:text="Enter your email to proceed with password recovery"
+-+        android:textAlignment="center"
+-+        android:textColor="@android:color/black"
+-+        android:textSize="20sp" />
+-+
+-+
+- 
+-     <EditText
+-         android:id="@+id/edt_reset_email"
+-         android:layout_width="wrap_content"
+-         android:layout_height="wrap_content"
+--        android:layout_below="@+id/txt_enter_email"
+-+        android:layout_below="@+id/txt_forgot"
+-         android:layout_marginRight="50dp"
+-         android:layout_marginLeft="50dp"
+-         android:layout_marginTop="10dp"
+-Index: app/src/main/res/drawable/txt_bg_rectangle.xml
+-IDEA additional info:
+-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+-<+>UTF-8
+-===================================================================
+---- app/src/main/res/drawable/txt_bg_rectangle.xml	(date 1606755722456)
+-+++ app/src/main/res/drawable/txt_bg_rectangle.xml	(date 1606755722456)
+-@@ -0,0 +1,6 @@
+-+<?xml version="1.0" encoding="utf-8"?>
+-+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+-+    android:shape = "rectangle">
+-+    <solid android:color="@android:color/white"/>
+-+    <corners android:radius="10dp"/>
+-+</shape>
+-\ No newline at end of file
+-Index: .idea/shelf/Uncommitted_changes_before_Update_at_30-Nov-20_22_15__Default_Changelist_.xml
+-IDEA additional info:
+-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+-<+>UTF-8
+-===================================================================
+---- .idea/shelf/Uncommitted_changes_before_Update_at_30-Nov-20_22_15__Default_Changelist_.xml	(date 1606758112826)
+-+++ .idea/shelf/Uncommitted_changes_before_Update_at_30-Nov-20_22_15__Default_Changelist_.xml	(date 1606758112826)
+-@@ -0,0 +1,4 @@
+-+<changelist name="Uncommitted_changes_before_Update_at_30-Nov-20_22_15_[Default_Changelist]" date="1606754779219" recycled="true" deleted="true">
+-+  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_30-Nov-20_22_15_[Default_Changelist]/shelved.patch" />
+-+  <option name="DESCRIPTION" value="Uncommitted changes before Update at 30-Nov-20 22:15 [Default Changelist]" />
+-+</changelist>
+-\ No newline at end of file
+-Index: .idea/shelf/Uncommitted_changes_before_Update_at_30-Nov-20_22_15_[Default_Changelist]/shelved.patch
+-IDEA additional info:
+-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+-<+>UTF-8
+-===================================================================
+---- .idea/shelf/Uncommitted_changes_before_Update_at_30-Nov-20_22_15_[Default_Changelist]/shelved.patch	(date 1606754702149)
+-+++ .idea/shelf/Uncommitted_changes_before_Update_at_30-Nov-20_22_15_[Default_Changelist]/shelved.patch	(date 1606754702149)
+-@@ -0,0 +1,53 @@
+-+Index: app/src/main/java/com/example/shroomies/LoginActivity.java
+-+IDEA additional info:
+-+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+-+<+>package com.example.shroomies;\r\n\r\nimport android.content.Intent;\r\nimport android.os.Bundle;\r\n\r\nimport android.text.TextUtils;\r\nimport android.util.Log;\r\nimport android.view.View;\r\nimport android.widget.Button;\r\nimport android.widget.EditText;\r\nimport android.widget.TextView;\r\nimport android.widget.Toast;\r\n\r\nimport androidx.annotation.NonNull;\r\nimport androidx.appcompat.app.AppCompatActivity;\r\nimport androidx.biometric.BiometricConstants;\r\nimport androidx.biometric.BiometricPrompt;\r\nimport androidx.core.content.ContextCompat;\r\n\r\nimport com.google.android.gms.auth.api.signin.GoogleSignIn;\r\nimport com.google.android.gms.auth.api.signin.GoogleSignInAccount;\r\nimport com.google.android.gms.auth.api.signin.GoogleSignInClient;\r\nimport com.google.android.gms.auth.api.signin.GoogleSignInOptions;\r\nimport com.google.android.gms.common.api.ApiException;\r\nimport com.google.android.gms.tasks.OnCompleteListener;\r\nimport com.google.android.gms.tasks.OnFailureListener;\r\nimport com.google.android.gms.tasks.Task;\r\nimport com.google.firebase.auth.AuthCredential;\r\nimport com.google.firebase.auth.AuthResult;\r\nimport com.google.firebase.auth.FirebaseAuth;\r\nimport com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;\r\nimport com.google.firebase.auth.FirebaseAuthInvalidUserException;\r\nimport com.google.firebase.auth.FirebaseUser;\r\nimport com.google.firebase.auth.GoogleAuthProvider;\r\n\r\nimport java.io.File;\r\nimport java.util.concurrent.Executor;\r\n\r\npublic class LoginActivity extends AppCompatActivity {\r\n    protected EditText username;\r\n    protected EditText password;\r\n    Button login, google_sign;\r\n    TextView signup;\r\n\r\n    private final int RC_SIGN_IN = 7;\r\n    GoogleSignInClient mGoogleSignInClient;\r\n    FirebaseAuth mAuth;\r\n\r\n    SessionManager sessionManager;\r\n    boolean successBiometric = false;\r\n    static String user;\r\n    private Executor executor;\r\n    private BiometricPrompt biometricPrompt;\r\n    private BiometricPrompt.PromptInfo promptInfo;\r\n    boolean alredyLoggedin = false;\r\n\r\n    @Override\r\n    protected void onCreate(Bundle savedInstanceState) {\r\n        super.onCreate(savedInstanceState);\r\n        try {\r\n            File root = new File(\"/data/data/com.example.Shroomies/shared_prefs\");\r\n            if (root.isDirectory()) {\r\n                for (File child : root.listFiles()) {\r\n                    String fileName = child.getPath().substring(48).split(\"\\\\.\")[0];\r\n                    SessionManager sessionManager = new SessionManager(LoginActivity.this, fileName);\r\n                    if (sessionManager.isLoggedIn()) {\r\n                        this.user = fileName;\r\n                        alredyLoggedin = true;\r\n                        break;\r\n                    }\r\n                }\r\n            }\r\n        } catch (Exception e) {\r\n        }\r\n        if (alredyLoggedin) {\r\n            startActivity(new Intent(this, MainActivity.class));\r\n            finish();\r\n            Toast.makeText(LoginActivity.this, \"logged in as \" + user, Toast.LENGTH_LONG).show();\r\n        }\r\n\r\n        setContentView(R.layout.activity_login);\r\n        username = findViewById(R.id.email_login);\r\n        password = findViewById(R.id.password_login);\r\n        login = findViewById(R.id.login_button);\r\n        signup = findViewById(R.id.sign_up_button);\r\n        google_sign = findViewById(R.id.google_sign_up);\r\n        mAuth = FirebaseAuth.getInstance();\r\n\r\n        signup.setOnClickListener(new View.OnClickListener() {\r\n            @Override\r\n            public void onClick(View v) {\r\n                Intent intent = new Intent(getApplication(), SignUpActivity.class);\r\n                startActivity(intent);\r\n            }\r\n        });\r\n\r\n        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)\r\n                .requestIdToken(getString(R.string.default_web_client_id))\r\n                .requestEmail()\r\n                .build();\r\n\r\n        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);\r\n        google_sign.setOnClickListener(new View.OnClickListener() {\r\n            @Override\r\n            public void onClick(View v) {\r\n                signIn();\r\n            }\r\n        });\r\n\r\n        login.setOnClickListener(new View.OnClickListener() {\r\n            @Override\r\n            public void onClick(View v) {\r\n                String uname_txt = username.getText().toString();\r\n                String pw_txt = password.getText().toString();\r\n\r\n                if (TextUtils.isEmpty(uname_txt) || TextUtils.isEmpty(pw_txt)) {\r\n                    Toast.makeText(LoginActivity.this, \"Please fill in your details\", Toast.LENGTH_SHORT).show();\r\n                } else {\r\n                    loginUser(uname_txt, pw_txt);\r\n                }\r\n            }\r\n        });\r\n    }\r\n\r\n    private void loginUser(String username, String password) {\r\n        mAuth.signInWithEmailAndPassword(username, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {\r\n            @Override\r\n            public void onComplete(@NonNull Task<AuthResult> task) {\r\n                if (task.isSuccessful()) {\r\n                    Toast.makeText(LoginActivity.this, \"Welcome to Shroomies!\", Toast.LENGTH_SHORT).show();\r\n                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);\r\n                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);\r\n                    startActivity(intent);\r\n                    finish();\r\n                }\r\n            }\r\n        }).addOnFailureListener(new OnFailureListener() {\r\n            @Override\r\n            public void onFailure(@NonNull Exception e) {\r\n                if (e instanceof FirebaseAuthInvalidCredentialsException) {\r\n                    Toast.makeText(LoginActivity.this, \"Invalid password\", Toast.LENGTH_SHORT).show();\r\n                } else if (e instanceof FirebaseAuthInvalidUserException) {\r\n\r\n                    String errorCode =\r\n                            ((FirebaseAuthInvalidUserException) e).getErrorCode();\r\n\r\n                    if (errorCode.equals(\"ERROR_USER_NOT_FOUND\")) {\r\n                        Toast.makeText(LoginActivity.this, \"The email does not belong to a registered account. Please proceed to Sign Up.\", Toast.LENGTH_SHORT).show();\r\n                    } else if (errorCode.equals(\"ERROR_USER_DISABLED\")) {\r\n                        Toast.makeText(LoginActivity.this, \"User account has been disabled\", Toast.LENGTH_SHORT).show();\r\n                    } else {\r\n                        Toast.makeText(LoginActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();\r\n                    }\r\n                }\r\n            }\r\n        });\r\n    }\r\n\r\n    boolean setBiometric() {\r\n        executor = ContextCompat.getMainExecutor(this);\r\n        biometricPrompt = new BiometricPrompt(LoginActivity.this,\r\n                executor, new BiometricPrompt.AuthenticationCallback() {\r\n            @Override\r\n            public void onAuthenticationError(int errorCode,\r\n                                              @NonNull CharSequence errString) {\r\n                super.onAuthenticationError(errorCode, errString);\r\n                if (errorCode == BiometricConstants.ERROR_USER_CANCELED) {\r\n                    login.setOnTouchListener(null);\r\n                } else {\r\n                    Toast.makeText(getApplicationContext(),\r\n                            \"Authentication error: \" + errString, Toast.LENGTH_SHORT)\r\n                            .show();\r\n                }\r\n                successBiometric = false;\r\n            }\r\n\r\n            @Override\r\n            public void onAuthenticationSucceeded(\r\n                    @NonNull BiometricPrompt.AuthenticationResult result) {\r\n                super.onAuthenticationSucceeded(result);\r\n                successBiometric = true;\r\n            }\r\n\r\n            @Override\r\n            public void onAuthenticationFailed() {\r\n                super.onAuthenticationFailed();\r\n                Toast.makeText(getApplicationContext(), \"Authentication failed\",\r\n                        Toast.LENGTH_SHORT)\r\n                        .show();\r\n                successBiometric = false;\r\n            }\r\n        });\r\n\r\n        // Prompt appears when user clicks \"Log in\".\r\n        // Consider integrating with the keystore to unlock cryptographic operations,\r\n        // if needed by your app.\r\n        return successBiometric;\r\n    }\r\n\r\n    private void signIn() {\r\n        Intent signInIntent = mGoogleSignInClient.getSignInIntent();\r\n        startActivityForResult(signInIntent, RC_SIGN_IN);\r\n    }\r\n    public void onActivityResult(int requestCode, int resultCode, Intent data) {\r\n        super.onActivityResult(requestCode, resultCode, data);\r\n\r\n        if (requestCode == RC_SIGN_IN) {\r\n\r\n            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);\r\n            try {\r\n                GoogleSignInAccount account = task.getResult(ApiException.class);\r\n\r\n                firebaseAuthWithGoogle(account);\r\n            } catch (ApiException e) {\r\n                Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();\r\n            }\r\n        }\r\n    }\r\n    private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {\r\n        Log.d(\"Login\",\"firebaseAuthWithGoogle:\" + acct.getId());\r\n\r\n        AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);\r\n\r\n        mAuth.signInWithCredential(credential).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {\r\n            @Override\r\n            public void onComplete(@NonNull Task<AuthResult> task) {\r\n                if (task.isSuccessful()){\r\n                    Log.d(\"Login\", \"signInWithCredential:Success\");\r\n                    FirebaseUser user = mAuth.getCurrentUser();\r\n\r\n                    Toast.makeText(LoginActivity.this, \"User Signed In\", Toast.LENGTH_SHORT).show();\r\n                }\r\n                else{\r\n                    Log.w(\"Login\", \"signInWithCredentail:Failure\", task.getException());\r\n                    Toast.makeText(LoginActivity.this, \"Authentication Failed\", Toast.LENGTH_SHORT).show();\r\n                }\r\n            }\r\n        });\r\n    }\r\n}\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n\r\n
+-+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+-+<+>UTF-8
+-+===================================================================
+-+--- app/src/main/java/com/example/shroomies/LoginActivity.java	(revision b5eed490fd6466253c4c7a3578131e1954620cbb)
+-++++ app/src/main/java/com/example/shroomies/LoginActivity.java	(date 1606748453604)
+-+@@ -32,6 +32,8 @@
+-+ import com.google.firebase.auth.FirebaseAuthInvalidUserException;
+-+ import com.google.firebase.auth.FirebaseUser;
+-+ import com.google.firebase.auth.GoogleAuthProvider;
+-++import com.google.firebase.auth.UserInfo;
+-++
+-+ 
+-+ import java.io.File;
+-+ import java.util.concurrent.Executor;
+-+@@ -127,11 +129,17 @@
+-+             @Override
+-+             public void onComplete(@NonNull Task<AuthResult> task) {
+-+                 if (task.isSuccessful()) {
+-+-                    Toast.makeText(LoginActivity.this, "Welcome to Shroomies!", Toast.LENGTH_SHORT).show();
+-+-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+-+-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+-+-                    startActivity(intent);
+-+-                    finish();
+-++                    FirebaseUser muser = mAuth.getCurrentUser();
+-++                    if (muser != null) {
+-++                        for (UserInfo profile:muser.getProviderData()) {
+-++                            String name = profile.getDisplayName();
+-++                            Toast.makeText(LoginActivity.this, "Welcome to Shroomies!" + name, Toast.LENGTH_SHORT).show();
+-++                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+-++                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+-++                            startActivity(intent);
+-++                            finish();
+-++                        }
+-++                    }
+-+                 }
+-+             }
+-+         }).addOnFailureListener(new OnFailureListener() {
+-+@@ -229,9 +237,10 @@
+-+                     FirebaseUser user = mAuth.getCurrentUser();
+-+ 
+-+                     Toast.makeText(LoginActivity.this, "User Signed In", Toast.LENGTH_SHORT).show();
+-++                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
+-+                 }
+-+                 else{
+-+-                    Log.w("Login", "signInWithCredentail:Failure", task.getException());
+-++                    Log.w("Login", "signInWithCredential:Failure", task.getException());
+-+                     Toast.makeText(LoginActivity.this, "Authentication Failed", Toast.LENGTH_SHORT).show();
+-+                 }
+-+             }
+-diff --git .idea/shelf/Uncommitted_changes_before_Update_at_30-Nov-20_00_01__Default_Changelist_.xml .idea/shelf/Uncommitted_changes_before_Update_at_30-Nov-20_00_01__Default_Changelist_.xml
+-diff --git .idea/shelf/Uncommitted_changes_before_Update_at_29-Nov-20_00_23__Default_Changelist_.xml .idea/shelf/Uncommitted_changes_before_Update_at_29-Nov-20_00_23__Default_Changelist_.xml
+-diff --git .idea/shelf/Uncommitted_changes_before_Update_at_28-Nov-20_18_35__Default_Changelist_.xml .idea/shelf/Uncommitted_changes_before_Update_at_28-Nov-20_18_35__Default_Changelist_.xml
+Index: .idea/shelf/Uncommitted_changes_before_Update_at_30-Nov-20_22_15__Default_Changelist_.xml
+===================================================================
+--- .idea/shelf/Uncommitted_changes_before_Update_at_30-Nov-20_22_15__Default_Changelist_.xml	(revision fa2a53b1e2b32eb72903c9418a983711000aebc3)
++++ .idea/shelf/Uncommitted_changes_before_Update_at_30-Nov-20_22_15__Default_Changelist_.xml	(revision fa2a53b1e2b32eb72903c9418a983711000aebc3)
+@@ -1,4 +0,0 @@
+-<changelist name="Uncommitted_changes_before_Update_at_30-Nov-20_22_15_[Default_Changelist]" date="1606754779219" recycled="true" deleted="true">
+-  <option name="PATH" value="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_30-Nov-20_22_15_[Default_Changelist]/shelved.patch" />
+-  <option name="DESCRIPTION" value="Uncommitted changes before Update at 30-Nov-20 22:15 [Default Changelist]" />
+-</changelist>
+\ No newline at end of file
+Index: .idea/shelf/Uncommitted_changes_before_Update_at_30-Nov-20_00_01_[Default_Changelist]/shelved.patch
+===================================================================
+--- .idea/shelf/Uncommitted_changes_before_Update_at_30-Nov-20_00_01_[Default_Changelist]/shelved.patch	(revision fa2a53b1e2b32eb72903c9418a983711000aebc3)
++++ .idea/shelf/Uncommitted_changes_before_Update_at_30-Nov-20_00_01_[Default_Changelist]/shelved.patch	(revision fa2a53b1e2b32eb72903c9418a983711000aebc3)
+@@ -1,25 +0,0 @@
+-Index: app/src/main/res/layout/activity_sign_up.xml
+-IDEA additional info:
+-Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+-<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<RelativeLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\r\n    xmlns:app=\"http://schemas.android.com/apk/res-auto\"\r\n    xmlns:tools=\"http://schemas.android.com/tools\"\r\n    android:layout_width=\"match_parent\"\r\n    android:layout_height=\"match_parent\"\r\n    android:background=\"@drawable/gradient_yellow_background\"\r\n    tools:context=\".SignUpActivity\">\r\n\r\n<TextView\r\n    android:id=\"@+id/become\"\r\n    android:layout_width=\"wrap_content\"\r\n    android:layout_height=\"wrap_content\"\r\n    android:text=\"Become a\"\r\n    android:textSize=\"30dp\"\r\n    android:layout_marginLeft=\"30dp\"\r\n    android:layout_marginTop=\"30dp\"\r\n    android:textStyle=\"bold\"\r\n    android:textColor=\"@android:color/black\"/>\r\n    <ImageView\r\n        android:id=\"@+id/shroomie\"\r\n        android:layout_width=\"180dp\"\r\n        android:layout_height=\"60dp\"\r\n        android:layout_below=\"@id/become\"\r\n        android:layout_marginLeft=\"30dp\"\r\n        android:src=\"@drawable/mashroom_text_black_white\"\r\n        />\r\n    <TextView\r\n        android:layout_width=\"wrap_content\"\r\n        android:layout_height=\"wrap_content\"\r\n        android:text=\"today\"\r\n        android:layout_below=\"@id/become\"\r\n        android:layout_marginTop=\"10dp\"\r\n        android:textSize=\"30dp\"\r\n        android:textStyle=\"bold\"\r\n        android:layout_alignParentLeft=\"true\"\r\n        android:textColor=\"@android:color/black\"\r\n        android:layout_marginLeft=\"190dp\"/>\r\n    <TextView\r\n        android:id=\"@+id/text_signup\"\r\n        android:layout_width=\"300dp\"\r\n        android:layout_height=\"wrap_content\"\r\n        android:layout_marginLeft=\"30dp\"\r\n        android:layout_below=\"@id/shroomie\"\r\n        android:layout_marginTop=\"50dp\"\r\n        android:paddingLeft=\"30dp\"\r\n        android:text=\"Sign Up\"\r\n        android:textColor=\"@android:color/black\"\r\n        android:textSize=\"30sp\"\r\n        android:textStyle=\"bold\" />\r\n\r\n    <EditText\r\n        android:id=\"@+id/fullname\"\r\n        android:layout_width=\"wrap_content\"\r\n        android:layout_height=\"wrap_content\"\r\n        android:layout_below=\"@id/text_signup\"\r\n        android:elevation=\"10dp\"\r\n        android:padding=\"10dp\"\r\n        android:layout_marginLeft=\"50dp\"\r\n        android:layout_marginTop=\"51dp\"\r\n        android:background=\"@drawable/textbox_round\"\r\n        android:drawableStart=\"@drawable/ic_name_edit_text\"\r\n        android:hint=\"   Full Name\"\r\n        android:inputType=\"textPersonName\"\r\n        android:paddingLeft=\"24dp\"\r\n\r\n\r\n        />\r\n\r\n    <EditText\r\n        android:id=\"@+id/emailid\"\r\n        android:layout_width=\"wrap_content\"\r\n        android:layout_height=\"wrap_content\"\r\n        android:layout_below=\"@id/fullname\"\r\n        android:layout_centerInParent=\"true\"\r\n        android:layout_marginLeft=\"50dp\"\r\n        android:layout_marginTop=\"30dp\"\r\n        android:elevation=\"10dp\"\r\n        android:padding=\"10dp\"\r\n        android:background=\"@drawable/textbox_round\"\r\n        android:drawableStart=\"@drawable/ic_email_edit_text\"\r\n        android:hint=\"   Email\"\r\n        android:inputType=\"textEmailAddress\"\r\n        android:paddingLeft=\"20dp\" />\r\n\r\n    <EditText\r\n        android:id=\"@+id/password\"\r\n        android:layout_width=\"wrap_content\"\r\n        android:layout_height=\"wrap_content\"\r\n        android:layout_below=\"@id/emailid\"\r\n        android:layout_centerInParent=\"true\"\r\n        android:layout_marginLeft=\"50dp\"\r\n        android:layout_marginTop=\"30dp\"\r\n        android:background=\"@drawable/textbox_round\"\r\n        android:drawableStart=\"@drawable/ic_password_edit_text\"\r\n        android:hint=\"   Password\"\r\n        android:elevation=\"10dp\"\r\n        android:padding=\"10dp\"\r\n        android:inputType=\"textPassword\"\r\n        android:paddingLeft=\"20dp\" />\r\n\r\n    <EditText\r\n        android:id=\"@+id/confirmpw\"\r\n        android:layout_width=\"wrap_content\"\r\n        android:layout_height=\"wrap_content\"\r\n        android:layout_below=\"@id/password\"\r\n        android:layout_centerInParent=\"true\"\r\n        android:layout_marginLeft=\"50dp\"\r\n        android:layout_marginTop=\"30dp\"\r\n        android:background=\"@drawable/textbox_round\"\r\n        android:drawableStart=\"@drawable/ic_password_edit_text\"\r\n        android:hint=\"   Confirm Password\"\r\n        android:inputType=\"textPassword\"\r\n        android:elevation=\"10dp\"\r\n        android:padding=\"10dp\"\r\n        android:paddingLeft=\"20dp\" />\r\n\r\n    <Switch\r\n        android:id=\"@+id/enable_bio_signup\"\r\n        android:layout_width=\"match_parent\"\r\n        android:layout_height=\"wrap_content\"\r\n        android:layout_below=\"@id/confirmpw\"\r\n        android:layout_marginTop=\"10dp\"\r\n        android:showText=\"false\"\r\n        android:text=\"Enable login biometric\"\r\n        android:textAlignment=\"center\" />\r\n\r\n    <Button\r\n        android:id=\"@+id/registerbt\"\r\n        style=\"@style/TextAppearance.AppCompat.Widget.Button.Colored\"\r\n        android:layout_width=\"155dp\"\r\n        android:layout_height=\"wrap_content\"\r\n        android:layout_below=\"@id/confirmpw\"\r\n        android:layout_centerInParent=\"true\"\r\n        android:layout_marginTop=\"60dp\"\r\n        android:background=\"@drawable/button_round\"\r\n        android:drawableRight=\"@drawable/ic_arrow_register\"\r\n        android:text=\"Register\"\r\n        android:elevation=\"10dp\"\r\n        android:padding=\"10dp\"\r\n        android:shadowColor=\"@android:color/black\"\r\n        android:textColor=\"@android:color/black\" />\r\n\r\n</RelativeLayout>
+-Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+-<+>UTF-8
+-===================================================================
+---- app/src/main/res/layout/activity_sign_up.xml	(revision bedefe06311f141dc877b374c66476b9351485e0)
+-+++ app/src/main/res/layout/activity_sign_up.xml	(date 1606589597876)
+-@@ -17,6 +17,7 @@
+-     android:layout_marginTop="30dp"
+-     android:textStyle="bold"
+-     android:textColor="@android:color/black"/>
+-+
+-     <ImageView
+-         android:id="@+id/shroomie"
+-         android:layout_width="180dp"
+-@@ -36,6 +37,7 @@
+-         android:layout_alignParentLeft="true"
+-         android:textColor="@android:color/black"
+-         android:layout_marginLeft="190dp"/>
+-+
+-     <TextView
+-         android:id="@+id/text_signup"
+-         android:layout_width="300dp"
+Index: .idea/inspectionProfiles/Project_Default.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .idea/inspectionProfiles/Project_Default.xml	(date 1607783133897)
++++ .idea/inspectionProfiles/Project_Default.xml	(date 1607783133897)
+@@ -0,0 +1,6 @@
++<component name="InspectionProjectProfileManager">
++  <profile version="1.0">
++    <option name="myName" value="Project Default" />
++    <inspection_tool class="UNCHECKED_WARNING" enabled="false" level="WARNING" enabled_by_default="false" />
++  </profile>
++</component>
+\ No newline at end of file
+Index: app/src/main/java/com/example/shroomies/PublishPost.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.shroomies;\r\n\r\nimport android.Manifest;\r\nimport android.content.Context;\r\nimport android.content.Intent;\r\nimport android.content.pm.PackageManager;\r\nimport android.graphics.Bitmap;\r\nimport android.graphics.BitmapFactory;\r\nimport android.location.Address;\r\nimport android.location.Geocoder;\r\nimport android.location.Location;\r\nimport android.net.Uri;\r\nimport android.os.Build;\r\nimport android.os.Bundle;\r\n\r\nimport androidx.annotation.NonNull;\r\nimport androidx.annotation.Nullable;\r\nimport androidx.core.app.ActivityCompat;\r\nimport androidx.fragment.app.Fragment;\r\nimport androidx.fragment.app.FragmentManager;\r\nimport androidx.fragment.app.FragmentTransaction;\r\n\r\nimport android.provider.MediaStore;\r\nimport android.view.LayoutInflater;\r\nimport android.view.View;\r\nimport android.view.ViewGroup;\r\nimport android.widget.ArrayAdapter;\r\nimport android.widget.EditText;\r\nimport android.widget.ImageView;\r\nimport android.widget.ListView;\r\nimport android.widget.NumberPicker;\r\nimport android.widget.TextView;\r\nimport android.widget.Toast;\r\n\r\nimport com.google.android.gms.location.FusedLocationProviderClient;\r\nimport com.google.android.gms.location.LocationServices;\r\nimport com.google.android.gms.maps.CameraUpdateFactory;\r\nimport com.google.android.gms.maps.GoogleMap;\r\nimport com.google.android.gms.maps.OnMapReadyCallback;\r\nimport com.google.android.gms.maps.model.BitmapDescriptorFactory;\r\nimport com.google.android.gms.maps.model.LatLng;\r\nimport com.google.android.gms.maps.model.MarkerOptions;\r\nimport com.google.android.gms.tasks.OnSuccessListener;\r\n\r\nimport java.io.IOException;\r\nimport java.util.ArrayList;\r\nimport java.util.List;\r\nimport java.util.Locale;\r\n\r\n\r\npublic class PublishPost extends Fragment implements OnMapReadyCallback {\r\n    private static final String MAPVIEW_BUNDLE_KEY = \"MapViewBundleKey\";\r\n    private double latitude;\r\n    private double longitude;\r\n    View v;\r\n    FragmentManager fm;\r\n    FragmentTransaction ft;\r\n    String address;\r\n    LatLng latLng;\r\n    private static final int PICK_IMAGE_MULTIPLE= 1;\r\n    List<Uri> imageUri;\r\n\r\n    NumberPicker numberOfRoomMatesNumberPicker;\r\n    NumberPicker budgetNumberPicker;\r\n    private CustomMapView mMapView;\r\n    private TextView locationEditText;\r\n    private FusedLocationProviderClient fusedLocationProviderClient;\r\n    private GoogleMap mMap;\r\n    Geocoder geocoder;\r\n    ImageView cloudImageView;\r\n    TextView numberOfPhotos;\r\n\r\n\r\n\r\n\r\n\r\n    public View onCreateView(LayoutInflater inflater, ViewGroup container,\r\n                             Bundle savedInstanceState) {\r\n        // Inflate the layout for this fragment\r\n        v = inflater.inflate(R.layout.fragment_publish_post, container, false);\r\n        // clear any adresses and coordinates from the main activity\r\n\r\n\r\n        return v;\r\n    }\r\n\r\n    @Override\r\n    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {\r\n        super.onViewCreated(view, savedInstanceState);\r\n        numberOfRoomMatesNumberPicker = v.findViewById(R.id.roommate_number_picker);\r\n        numberOfRoomMatesNumberPicker.setMinValue(1);\r\n        numberOfRoomMatesNumberPicker.setMaxValue(7);\r\n        mMapView =v.findViewById(R.id.address_map_view);\r\n        locationEditText = v.findViewById(R.id.location_search_view);\r\n        cloudImageView = v.findViewById(R.id.cloud_icon_publish_post);\r\n        numberOfPhotos = v.findViewById(R.id.number_of_photos);\r\n        initGoogleMap(savedInstanceState);\r\n        numberOfPhotos = v.findViewById(R.id.number_of_photos);\r\n        imageUri = new ArrayList<>();\r\n        cloudImageView.setOnClickListener(new View.OnClickListener() {\r\n            @Override\r\n            public void onClick(View v) {\r\n\r\n                // get the photo chosen\r\n                openGallery();\r\n\r\n\r\n            }\r\n        });\r\n\r\n        //when edit text is pressed open the map fragement\r\n        locationEditText.setOnClickListener(new View.OnClickListener() {\r\n            @Override\r\n            public void onClick(View v) {\r\n                getFragment(new MapsFragment());\r\n            }\r\n        });\r\n\r\n\r\n\r\n\r\n    }\r\n    @Override\r\n    public void onMapReady(GoogleMap map) {\r\n        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)\r\n                != PackageManager.PERMISSION_GRANTED\r\n                && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION)\r\n                != PackageManager.PERMISSION_GRANTED) {\r\n\r\n            return;\r\n        }\r\n        // initialize the map to be used in the getLocation method\r\n        mMap = map;\r\n        // check if the location has been updated form the map fragment\r\n        // if the location is updated s\r\n        if(MainActivity.updatedAdresses!=null&& MainActivity.updatedLatLng!=null) {\r\n            address = MainActivity.updatedAdresses;\r\n            latLng = MainActivity.updatedLatLng;\r\n            setMarker(latLng);\r\n            locationEditText.setText(address);\r\n\r\n        } else {\r\n\r\n            map.setMyLocationEnabled(false);\r\n            getLocationUpdateMarker();\r\n        }\r\n    }\r\n\r\n    private void initGoogleMap(Bundle savedInstanceState) {\r\n        // *** IMPORTANT ***\r\n        // MapView requires that the Bundle you pass contain _ONLY_ MapView SDK\r\n        // objects or sub-Bundles.\r\n        Bundle mapViewBundle = null;\r\n        if (savedInstanceState != null) {\r\n            mapViewBundle = savedInstanceState.getBundle(MAPVIEW_BUNDLE_KEY);\r\n        }\r\n\r\n        mMapView.onCreate(mapViewBundle);\r\n        mMapView.getMapAsync(this);\r\n\r\n\r\n    }\r\n\r\n    @Override\r\n    public void onSaveInstanceState(Bundle outState) {\r\n        super.onSaveInstanceState(outState);\r\n\r\n        Bundle mapViewBundle = outState.getBundle(MAPVIEW_BUNDLE_KEY);\r\n        if (mapViewBundle == null) {\r\n            mapViewBundle = new Bundle();\r\n            outState.putBundle(MAPVIEW_BUNDLE_KEY, mapViewBundle);\r\n        }\r\n\r\n        mMapView.onSaveInstanceState(mapViewBundle);\r\n    }\r\n\r\n    @Override\r\n    public void onResume() {\r\n        super.onResume();\r\n        mMapView.onResume();\r\n    }\r\n\r\n    @Override\r\n    public void onStart() {\r\n        super.onStart();\r\n        mMapView.onStart();\r\n    }\r\n\r\n    @Override\r\n    public void onStop() {\r\n        super.onStop();\r\n        mMapView.onStop();\r\n    }\r\n\r\n    @Override\r\n    public void onPause() {\r\n        mMapView.onPause();\r\n        super.onPause();\r\n    }\r\n\r\n    @Override\r\n    public void onDestroy() {\r\n        mMapView.onDestroy();\r\n        super.onDestroy();\r\n    }\r\n\r\n    @Override\r\n    public void onLowMemory() {\r\n        super.onLowMemory();\r\n        mMapView.onLowMemory();\r\n    }\r\n\r\n    private  void getLocationUpdateMarker() {\r\n\r\n        //get the location of the phone in order to set the pin on the map to the current Location\r\n        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(getActivity());\r\n        //check the API level\r\n        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {\r\n            // Check if permission to access fine location is granted\r\n            if (getActivity().checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {\r\n                //get the location\r\n                fusedLocationProviderClient.getLastLocation()\r\n                        .addOnSuccessListener(new OnSuccessListener<Location>() {\r\n                            @Override\r\n                            public void onSuccess(Location location) {\r\n                                if (location != null) {\r\n\r\n                                    latitude = location.getLatitude();\r\n                                    longitude = location.getLongitude();\r\n                                    latLng = new LatLng(latitude, longitude);\r\n                                    setCurrentLocationAddress();\r\n                                    setMarker(latLng);\r\n                                }\r\n                            }\r\n                        });\r\n            } else {\r\n                // make another  request to allow the app to access location\r\n                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);\r\n            }\r\n        }\r\n\r\n\r\n    }\r\n    void setCurrentLocationAddress()  {\r\n        geocoder = new Geocoder(getActivity());\r\n            List<Address> addresses;\r\n            geocoder = new Geocoder(getActivity(), Locale.getDefault());\r\n\r\n        try {\r\n            addresses = geocoder.getFromLocation(latitude, longitude, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5\r\n            String maddress = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()\r\n            String city = addresses.get(0).getLocality();\r\n            String state = addresses.get(0).getAdminArea();\r\n            String country = addresses.get(0).getCountryName();\r\n            String postalCode = addresses.get(0).getPostalCode();\r\n            String knownName = addresses.get(0).getFeatureName(); // Only if available else return NULL\r\n            address = maddress +\" , \" +city;\r\n            locationEditText.setText(address);\r\n        } catch (IOException e) {\r\n            e.printStackTrace();\r\n        }\r\n\r\n\r\n\r\n        }\r\n\r\n\r\n    private void getFragment (Fragment fragment) {\r\n        fm = getActivity().getSupportFragmentManager();\r\n        ft = fm.beginTransaction();\r\n        ft.addToBackStack(null);\r\n        ft.replace(R.id.fragmentContainer, fragment);\r\n        ft.commit();\r\n    }\r\n    private void setMarker(LatLng latLng){\r\n        // get the icon and resize it to set it as the marker\r\n        Bitmap bitmap = BitmapFactory.decodeResource(getResources(),getResources().getIdentifier(\"black_mushroom\" ,  \"drawable\", getActivity().getPackageName()));\r\n        Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, 90, 100, false);\r\n        MarkerOptions markerOptions = new MarkerOptions()\r\n                .position(latLng)\r\n                .icon(BitmapDescriptorFactory.fromBitmap(resizedBitmap));\r\n        mMap.addMarker(markerOptions);\r\n        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,16));\r\n\r\n    }\r\n\r\n    private void openGallery() {\r\n        //add permisision denied handlers\r\n        Intent gallery = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI);\r\n        gallery.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);\r\n        startActivityForResult(gallery, PICK_IMAGE_MULTIPLE);\r\n\r\n    }\r\n    @Override\r\n    public void onActivityResult(int requestCode, int resultCode, Intent data){\r\n        super.onActivityResult(requestCode, resultCode, data);\r\n        boolean duplicateFound = false;\r\n        Uri selectedImageUri;\r\n        if(imageUri.size()>5){\r\n            Toast.makeText(getActivity(), \"too many photos\" , Toast.LENGTH_SHORT).show();\r\n        }else {\r\n            if (resultCode == getActivity().RESULT_OK && requestCode == PICK_IMAGE_MULTIPLE) {\r\n                //get selected photo\r\n                selectedImageUri = data.getData();\r\n                //check if the selected uri already exists in tge list\r\n                for (Uri uri : imageUri) {\r\n                    //if duplicate found break\r\n                    if (selectedImageUri.equals(uri)) {\r\n                        duplicateFound = true;\r\n                        break;\r\n                    }\r\n                }\r\n                if (!duplicateFound) {\r\n                    //if no duplicate found  store the image\r\n                    imageUri.add(selectedImageUri);\r\n                    //set the the number of photos uploaded\r\n                    numberOfPhotos.setText(Integer.toString(imageUri.size()) + \"x uploaded  images\");\r\n                } else {\r\n                    Toast.makeText(getActivity(), \"the image has already been uploaded\", Toast.LENGTH_SHORT).show();\r\n\r\n                }\r\n\r\n\r\n            }\r\n        }\r\n    }\r\n}\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/example/shroomies/PublishPost.java	(revision fa2a53b1e2b32eb72903c9418a983711000aebc3)
++++ app/src/main/java/com/example/shroomies/PublishPost.java	(date 1607783133787)
+@@ -243,8 +243,8 @@
+     }
+     void setCurrentLocationAddress()  {
+         geocoder = new Geocoder(getActivity());
+-            List<Address> addresses;
+-            geocoder = new Geocoder(getActivity(), Locale.getDefault());
++        List<Address> addresses;
++        geocoder = new Geocoder(getActivity(), Locale.getDefault());
+ 
+         try {
+             addresses = geocoder.getFromLocation(latitude, longitude, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
+@@ -262,7 +262,7 @@
+ 
+ 
+ 
+-        }
++    }
+ 
+ 
+     private void getFragment (Fragment fragment) {
+@@ -325,4 +325,3 @@
+         }
+     }
+ }
+-
+Index: app/src/main/res/layout/activity_sign_up.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<RelativeLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\r\n    xmlns:app=\"http://schemas.android.com/apk/res-auto\"\r\n    xmlns:tools=\"http://schemas.android.com/tools\"\r\n    android:layout_width=\"match_parent\"\r\n    android:layout_height=\"match_parent\"\r\n    android:background=\"@drawable/gradient_yellow_background\"\r\n    tools:context=\".SignUpActivity\">\r\n\r\n<TextView\r\n    android:id=\"@+id/become\"\r\n    android:layout_width=\"wrap_content\"\r\n    android:layout_height=\"wrap_content\"\r\n    android:text=\"Become a\"\r\n    android:textSize=\"30dp\"\r\n    android:layout_marginLeft=\"30dp\"\r\n    android:layout_marginTop=\"30dp\"\r\n    android:textStyle=\"bold\"\r\n    android:textColor=\"@android:color/black\"/>\r\n\r\n    <ImageView\r\n        android:id=\"@+id/shroomie\"\r\n        android:layout_width=\"180dp\"\r\n        android:layout_height=\"60dp\"\r\n        android:layout_below=\"@id/become\"\r\n        android:layout_marginLeft=\"30dp\"\r\n        android:src=\"@drawable/mashroom_text_black_white\"\r\n        />\r\n    <TextView\r\n        android:layout_width=\"wrap_content\"\r\n        android:layout_height=\"wrap_content\"\r\n        android:text=\"today\"\r\n        android:layout_below=\"@id/become\"\r\n        android:layout_marginTop=\"10dp\"\r\n        android:textSize=\"30dp\"\r\n        android:textStyle=\"bold\"\r\n        android:layout_alignParentLeft=\"true\"\r\n        android:textColor=\"@android:color/black\"\r\n        android:layout_marginLeft=\"190dp\"/>\r\n\r\n    <TextView\r\n        android:id=\"@+id/text_signup\"\r\n        android:layout_width=\"300dp\"\r\n        android:layout_height=\"wrap_content\"\r\n        android:layout_marginLeft=\"30dp\"\r\n        android:layout_below=\"@id/shroomie\"\r\n        android:layout_marginTop=\"50dp\"\r\n        android:paddingLeft=\"30dp\"\r\n        android:text=\"Sign Up\"\r\n        android:textColor=\"@android:color/black\"\r\n        android:textSize=\"30sp\"\r\n        android:textStyle=\"bold\" />\r\n\r\n    <EditText\r\n        android:id=\"@+id/fullname\"\r\n        android:layout_width=\"wrap_content\"\r\n        android:layout_height=\"wrap_content\"\r\n        android:layout_below=\"@+id/text_signup\"\r\n        android:layout_centerInParent=\"true\"\r\n        android:layout_marginLeft=\"50dp\"\r\n        android:layout_marginTop=\"40dp\"\r\n        android:layout_marginRight=\"50dp\"\r\n        android:background=\"@drawable/textbox_round\"\r\n        android:drawableStart=\"@drawable/ic_name_edit_text\"\r\n        android:elevation=\"10dp\"\r\n        android:hint=\"   Username\"\r\n        android:inputType=\"textPersonName\"\r\n        android:padding=\"10dp\"\r\n        android:paddingLeft=\"24dp\" />\r\n\r\n    <EditText\r\n        android:id=\"@+id/emailid\"\r\n        android:layout_width=\"wrap_content\"\r\n        android:layout_height=\"wrap_content\"\r\n        android:layout_below=\"@id/fullname\"\r\n        android:layout_centerInParent=\"true\"\r\n        android:layout_marginLeft=\"50dp\"\r\n        android:layout_marginTop=\"30dp\"\r\n        android:elevation=\"10dp\"\r\n        android:padding=\"10dp\"\r\n        android:background=\"@drawable/textbox_round\"\r\n        android:drawableStart=\"@drawable/ic_email_edit_text\"\r\n        android:hint=\"   Email\"\r\n        android:inputType=\"textEmailAddress\"\r\n        android:paddingLeft=\"20dp\" />\r\n\r\n    <EditText\r\n        android:id=\"@+id/password\"\r\n        android:layout_width=\"wrap_content\"\r\n        android:layout_height=\"wrap_content\"\r\n        android:layout_below=\"@id/emailid\"\r\n        android:layout_centerInParent=\"true\"\r\n        android:layout_marginLeft=\"50dp\"\r\n        android:layout_marginTop=\"30dp\"\r\n        android:background=\"@drawable/textbox_round\"\r\n        android:drawableStart=\"@drawable/ic_password_edit_text\"\r\n        android:hint=\"   Password\"\r\n        android:elevation=\"10dp\"\r\n        android:padding=\"10dp\"\r\n        android:inputType=\"textPassword\"\r\n        android:paddingLeft=\"20dp\" />\r\n\r\n    <EditText\r\n        android:id=\"@+id/confirmpw\"\r\n        android:layout_width=\"wrap_content\"\r\n        android:layout_height=\"wrap_content\"\r\n        android:layout_below=\"@id/password\"\r\n        android:layout_centerInParent=\"true\"\r\n        android:layout_marginLeft=\"50dp\"\r\n        android:layout_marginTop=\"30dp\"\r\n        android:background=\"@drawable/textbox_round\"\r\n        android:drawableStart=\"@drawable/ic_password_edit_text\"\r\n        android:hint=\"   Confirm Password\"\r\n        android:inputType=\"textPassword\"\r\n        android:elevation=\"10dp\"\r\n        android:padding=\"10dp\"\r\n        android:paddingLeft=\"20dp\" />\r\n\r\n    <Button\r\n        android:id=\"@+id/registerbt\"\r\n        style=\"@style/TextAppearance.AppCompat.Widget.Button.Colored\"\r\n        android:layout_width=\"155dp\"\r\n        android:layout_height=\"wrap_content\"\r\n        android:layout_below=\"@id/confirmpw\"\r\n        android:layout_centerInParent=\"true\"\r\n        android:layout_marginTop=\"40dp\"\r\n        android:background=\"@drawable/button_round\"\r\n        android:drawableRight=\"@drawable/ic_yellow_arrow_icon\"\r\n        android:text=\"Register\"\r\n        android:elevation=\"10dp\"\r\n        android:padding=\"10dp\"\r\n        android:shadowColor=\"@android:color/black\"\r\n        android:textColor=\"@android:color/black\" />\r\n\r\n</RelativeLayout>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/activity_sign_up.xml	(revision fa2a53b1e2b32eb72903c9418a983711000aebc3)
++++ app/src/main/res/layout/activity_sign_up.xml	(date 1607783133796)
+@@ -64,7 +64,7 @@
+         android:drawableStart="@drawable/ic_name_edit_text"
+         android:elevation="10dp"
+         android:hint="   Username"
+-        android:inputType="textPersonName"
++        android:inputType="textPersonName|textCapWords"
+         android:padding="10dp"
+         android:paddingLeft="24dp" />
+ 
+Index: app/src/main/res/layout/fragment_publish_post.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n\r\n<androidx.core.widget.NestedScrollView xmlns:android=\"http://schemas.android.com/apk/res/android\"\r\n    xmlns:app=\"http://schemas.android.com/apk/res-auto\"\r\n    xmlns:tools=\"http://schemas.android.com/tools\"\r\n    android:layout_width=\"match_parent\"\r\n    android:layout_height=\"match_parent\"\r\n    android:paddingTop=\"60dp\"\r\n\r\n    android:paddingBottom=\"60dp\"\r\n    tools:context=\".PublishPost\">\r\n\r\n    <LinearLayout\r\n        android:layout_width=\"match_parent\"\r\n        android:layout_height=\"match_parent\"\r\n        android:orientation=\"vertical\">\r\n\r\n\r\n            <Button\r\n                android:id=\"@+id/button\"\r\n                android:layout_width=\"match_parent\"\r\n                android:layout_height=\"wrap_content\"\r\n                android:background=\"#FFFF\"\r\n                android:drawableStart=\"@drawable/ic_pen_icon_edit\"\r\n                android:padding=\"10dp\"\r\n                android:text=\"create new post\"\r\n\r\n                android:textAlignment=\"textStart\"\r\n                android:textSize=\"17sp\">\r\n\r\n            </Button>\r\n\r\n\r\n\r\n\r\n\r\n            <com.google.android.material.tabs.TabLayout\r\n\r\n                android:id=\"@+id/tab_layout_publish_post\"\r\n                android:layout_width=\"match_parent\"\r\n                android:layout_height=\"wrap_content\"\r\n                app:tabBackground=\"@drawable/tab_backgorund_style\"\r\n                >\r\n\r\n                <com.google.android.material.tabs.TabItem\r\n                    android:id=\"@+id/tab_button_apartment\"\r\n                    android:layout_width=\"wrap_content\"\r\n                    android:layout_height=\"wrap_content\"\r\n                    android:text=\"apartment\"\r\n                    />\r\n\r\n\r\n                <com.google.android.material.tabs.TabItem\r\n                    android:id=\"@+id/tab_button_personal\"\r\n                    android:layout_width=\"wrap_content\"\r\n                    android:layout_height=\"wrap_content\"\r\n                    android:text=\"personal\"\r\n                  />\r\n\r\n\r\n            </com.google.android.material.tabs.TabLayout>\r\n\r\n\r\n\r\n\r\n            <RelativeLayout\r\n                android:id=\"@+id/upload_image_card\"\r\n                android:layout_width=\"match_parent\"\r\n                android:layout_height=\"180dp\"\r\n                android:layout_margin=\"10dp\"\r\n\r\n                android:background=\"@drawable/post_card_rectangle_round\"\r\n                android:elevation=\"3dp\">\r\n\r\n                <androidx.appcompat.widget.AppCompatTextView\r\n                    android:id=\"@+id/upload_image_text_view\"\r\n                    android:layout_width=\"wrap_content\"\r\n                    android:layout_height=\"wrap_content\"\r\n                    android:layout_gravity=\"top\"\r\n                    android:layout_margin=\"20dp\"\r\n                    android:text=\"upload images\"\r\n                    android:textSize=\"18sp\">\r\n\r\n                </androidx.appcompat.widget.AppCompatTextView>\r\n\r\n                <ImageView\r\n                    android:id=\"@+id/cloud_icon_publish_post\"\r\n                    android:layout_width=\"wrap_content\"\r\n                    android:layout_height=\"wrap_content\"\r\n                    android:layout_centerInParent=\"true\"\r\n                    android:background=\"@drawable/ic_upload_icon_cloud\">\r\n\r\n                </ImageView>\r\n                <TextView\r\n                    android:id=\"@+id/number_of_photos\"\r\n                    android:layout_width=\"wrap_content\"\r\n                    android:layout_height=\"wrap_content\"\r\n                   android:layout_toLeftOf=\"@id/image_icon_post\"\r\n                    android:layout_alignParentBottom=\"true\"\r\n                    android:layout_marginBottom=\"20dp\"\r\n                    android:layout_marginRight=\"2dp\"/>\r\n                <ImageView\r\n                    android:id=\"@+id/image_icon_post\"\r\n                    android:layout_width=\"wrap_content\"\r\n                    android:layout_height=\"wrap_content\"\r\n                    android:src=\"@drawable/ic_icon_awesome_image\"\r\n                 android:layout_marginBottom=\"20dp\"\r\n                    android:layout_marginRight=\"30dp\"\r\n\r\n\r\n                    android:layout_alignParentRight=\"true\"\r\n                    android:layout_alignParentBottom=\"true\"\r\n\r\n                    >\r\n\r\n                </ImageView>\r\n            </RelativeLayout>\r\n\r\n\r\n\r\n\r\n\r\n\r\n            <RelativeLayout\r\n                android:id=\"@+id/description_post\"\r\n                android:layout_width=\"match_parent\"\r\n                android:layout_height=\"180dp\"\r\n                android:layout_margin=\"10dp\"\r\n                android:background=\"@drawable/post_card_rectangle_round\"\r\n                android:elevation=\"3dp\">\r\n\r\n                <TextView\r\n                    android:id=\"@+id/description_tv\"\r\n                    android:layout_width=\"wrap_content\"\r\n                    android:layout_height=\"wrap_content\"\r\n                    android:layout_margin=\"20dp\"\r\n\r\n                    android:text=\"Description:\"></TextView>\r\n\r\n                <EditText\r\n                    android:id=\"@+id/description_edit_text\"\r\n\r\n                    android:layout_width=\"match_parent\"\r\n                    android:layout_height=\"match_parent\"\r\n                    android:layout_below=\"@id/description_tv\"\r\n\r\n                    android:layout_marginLeft=\"20dp\"\r\n                    android:layout_marginRight=\"20dp\"\r\n                    android:layout_marginBottom=\"20dp\">\r\n\r\n                </EditText>\r\n            </RelativeLayout>\r\n\r\n\r\n        <LinearLayout\r\n            android:layout_width=\"match_parent\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:orientation=\"horizontal\">\r\n\r\n            <RelativeLayout\r\n                android:id=\"@+id/number_of_roommates\"\r\n                android:layout_width=\"0dp\"\r\n                android:layout_height=\"130dp\"\r\n                android:layout_margin=\"10dp\"\r\n                android:layout_weight=\"1\"\r\n\r\n                android:background=\"@drawable/post_card_rectangle_round\"\r\n                android:elevation=\"3dp\">\r\n\r\n                <TextView\r\n                    android:id=\"@+id/number_of_roommates_tv\"\r\n                    android:layout_width=\"wrap_content\"\r\n                    android:layout_height=\"wrap_content\"\r\n                    android:layout_alignParentStart=\"true\"\r\n                    android:layout_marginLeft=\"20dp\"\r\n                    android:layout_marginTop=\"20dp\"\r\n                    android:layout_marginBottom=\"10dp\"\r\n\r\n                    android:text=\"No.roommates:\">\r\n\r\n                </TextView>\r\n\r\n                <NumberPicker\r\n                    android:id=\"@+id/roommate_number_picker\"\r\n                    android:layout_width=\"wrap_content\"\r\n                    android:layout_height=\"wrap_content\"\r\n                    android:layout_below=\"@id/number_of_roommates_tv\"\r\n                    android:layout_centerInParent=\"true\"\r\n                    android:layout_marginBottom=\"10dp\">\r\n\r\n                </NumberPicker>\r\n\r\n            </RelativeLayout>\r\n\r\n            <RelativeLayout\r\n                android:id=\"@+id/budget_layout\"\r\n\r\n                android:layout_width=\"0dp\"\r\n                android:layout_height=\"130dp\"\r\n                android:layout_margin=\"10dp\"\r\n                android:layout_weight=\"1\"\r\n\r\n\r\n                android:background=\"@drawable/post_card_rectangle_round\"\r\n                android:elevation=\"3dp\">\r\n\r\n                <TextView\r\n                    android:id=\"@+id/budget_tv\"\r\n                    android:layout_width=\"wrap_content\"\r\n                    android:layout_height=\"wrap_content\"\r\n                    android:layout_alignParentStart=\"true\"\r\n                    android:layout_marginLeft=\"20dp\"\r\n                    android:layout_marginTop=\"20dp\"\r\n                    android:layout_marginBottom=\"10dp\"\r\n\r\n                    android:text=\"Budget:\">\r\n\r\n                </TextView>\r\n\r\n                <NumberPicker\r\n                    android:id=\"@+id/budget_number_picker\"\r\n                    android:layout_width=\"66dp\"\r\n                    android:layout_height=\"73dp\"\r\n                    android:layout_below=\"@id/budget_tv\"\r\n                    android:layout_centerInParent=\"true\"\r\n                    android:layout_marginBottom=\"10dp\"\r\n                    android:selectionDividerHeight=\"0dp\"\r\n                    >\r\n\r\n                </NumberPicker>\r\n\r\n            </RelativeLayout>\r\n        </LinearLayout>\r\n\r\n\r\n\r\n            <TextView\r\n\r\n                android:id=\"@+id/location_search_view\"\r\n                android:gravity=\"fill_vertical\"\r\n                android:layout_width=\"match_parent\"\r\n                android:layout_height=\"wrap_content\"\r\n                android:minHeight=\"90dp\"\r\n                android:layout_gravity=\"center\"\r\n                android:layout_marginLeft=\"20dp\"\r\n                android:layout_marginTop=\"20dp\"\r\n                android:layout_marginRight=\"20dp\"\r\n                android:background=\"@drawable/location_search_bar\"\r\n\r\n                android:elevation=\"5dp\"\r\n                android:padding=\"10dp\"\r\n                app:drawableEndCompat=\"@drawable/ic_icon_feather_map\">\r\n\r\n            </TextView>\r\n\r\n\r\n        <com.example.shroomies.CustomMapView\r\n            android:id=\"@+id/address_map_view\"\r\n            android:layout_width=\"match_parent\"\r\n            android:layout_height=\"250dp\"\r\n            android:layout_marginLeft=\"20dp\"\r\n            android:layout_marginRight=\"20dp\"\r\n            android:layout_marginBottom=\"20dp\"\r\n            android:elevation=\"10dp\">\r\n\r\n\r\n        </com.example.shroomies.CustomMapView>\r\n\r\n\r\n\r\n            <RelativeLayout\r\n                android:layout_width=\"match_parent\"\r\n                android:layout_height=\"wrap_content\"\r\n                android:layout_margin=\"15dp\"\r\n                android:background=\"@drawable/post_card_rectangle_round\"\r\n                android:elevation=\"3dp\"\r\n                >\r\n\r\n                <TextView\r\n                    android:id=\"@+id/add_property\"\r\n                    android:layout_alignParentStart=\"true\"\r\n                    android:layout_width=\"wrap_content\"\r\n\r\n                    android:layout_height=\"wrap_content\"\r\n                    android:layout_marginStart=\"20dp\"\r\n                    android:layout_marginTop=\"20dp\"\r\n                    android:layout_marginEnd=\"20dp\"\r\n                    android:text=\"Add properties\" />\r\n\r\n                <LinearLayout\r\n                    android:layout_width=\"match_parent\"\r\n                    android:layout_height=\"wrap_content\"\r\n                    android:padding=\"10dp\"\r\n                    android:layout_below=\"@id/add_property\">\r\n                <ImageButton\r\n                    android:layout_height=\"wrap_content\"\r\n\r\n                    android:layout_width=\"wrap_content\"\r\n                    android:layout_gravity=\"center_horizontal\"\r\n                    android:elevation=\"3dp\"\r\n                    android:padding=\"10dp\"\r\n                    android:background=\"@drawable/button_round\"\r\n                    android:src=\"@drawable/ic_icon_ionic_ios_male\"\r\n                    android:layout_margin=\"5dp\"\r\n                    />\r\n\r\n                    <Space\r\n                        android:layout_width=\"0dp\"\r\n                        android:layout_height=\"1dp\"\r\n                        android:layout_weight=\"1\" />\r\n                <ImageButton\r\n                    android:layout_height=\"wrap_content\"\r\n                    android:layout_width=\"wrap_content\"\r\n                    android:layout_gravity=\"center_horizontal\"\r\n                    android:elevation=\"3dp\"\r\n                    android:padding=\"10dp\"\r\n                    android:background=\"@drawable/button_round\"\r\n                    android:src=\"@drawable/ic_icon_ionic_ios_female\"\r\n                    android:layout_margin=\"5dp\"/>\r\n                    <Space\r\n                        android:layout_width=\"0dp\"\r\n                        android:layout_height=\"1dp\"\r\n                        android:layout_weight=\"1\" />\r\n                <ImageButton\r\n                    android:layout_height=\"wrap_content\"\r\n\r\n                    android:layout_width=\"wrap_content\"\r\n                    android:layout_gravity=\"center_horizontal\"\r\n                    android:layout_below=\"@id/add_property\"\r\n                    android:elevation=\"3dp\"\r\n                    android:padding=\"10dp\"\r\n                    android:background=\"@drawable/button_round\"\r\n                    android:src=\"@drawable/ic_icon_map_pet_store\"\r\n                    android:layout_margin=\"5dp\"/>\r\n                    <Space\r\n                        android:layout_width=\"0dp\"\r\n                        android:layout_height=\"1dp\"\r\n                        android:layout_weight=\"1\" />\r\n                <ImageButton\r\n                    android:layout_height=\"wrap_content\"\r\n\r\n                    android:layout_width=\"wrap_content\"\r\n                    android:layout_gravity=\"center_horizontal\"\r\n                    android:layout_below=\"@id/add_property\"\r\n                    android:elevation=\"3dp\"\r\n                    android:padding=\"10dp\"\r\n                    android:background=\"@drawable/button_round\"\r\n                    android:src=\"@drawable/ic_icon_material_smoke_free\"\r\n                    android:layout_margin=\"5dp\"/>\r\n\r\n                </LinearLayout>\r\n\r\n            </RelativeLayout>\r\n\r\n        <ImageButton\r\n            android:layout_width=\"wrap_content\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:layout_margin=\"12dp\"\r\n            android:layout_gravity=\"center\"\r\n            android:gravity=\"center\"\r\n            android:elevation=\"3dp\"\r\n            android:background=\"@drawable/button_circle_yellow\"\r\n            android:src=\"@drawable/ic_icon_material_publish\"\r\n            />\r\n\r\n\r\n\r\n\r\n\r\n    </LinearLayout>\r\n\r\n\r\n</androidx.core.widget.NestedScrollView>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/fragment_publish_post.xml	(revision fa2a53b1e2b32eb72903c9418a983711000aebc3)
++++ app/src/main/res/layout/fragment_publish_post.xml	(date 1607783133908)
+@@ -78,7 +78,7 @@
+                     android:layout_height="wrap_content"
+                     android:layout_gravity="top"
+                     android:layout_margin="20dp"
+-                    android:text="upload images"
++                    android:text="Upload images"
+                     android:textSize="18sp">
+ 
+                 </androidx.appcompat.widget.AppCompatTextView>
+@@ -118,9 +118,6 @@
+ 
+ 
+ 
+-
+-
+-
+             <RelativeLayout
+                 android:id="@+id/description_post"
+                 android:layout_width="match_parent"
+@@ -149,6 +146,7 @@
+                     android:layout_marginBottom="20dp">
+ 
+                 </EditText>
++
+             </RelativeLayout>
+ 
+ 
+@@ -361,6 +359,7 @@
+             android:elevation="3dp"
+             android:background="@drawable/button_circle_yellow"
+             android:src="@drawable/ic_icon_material_publish"
++            android:id="@+id/postImage"
+             />
+ 
+ 
+Index: app/src/main/res/layout/activity_login.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<androidx.constraintlayout.motion.widget.MotionLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\r\n    xmlns:app=\"http://schemas.android.com/apk/res-auto\"\r\n    xmlns:tools=\"http://schemas.android.com/tools\"\r\n    android:layout_width=\"match_parent\"\r\n    android:layout_height=\"wrap_content\"\r\n    android:background=\"@drawable/gradient_yellow_background\"\r\n    android:padding=\"@dimen/box_inset_layout_padding\"\r\n    app:layoutDescription=\"@xml/activity_login_scene\"\r\n    tools:context=\".LoginActivity\"\r\n    tools:deviceIds=\"wear\">\r\n\r\n\r\n    <ImageView\r\n        android:id=\"@+id/black_mashroom_logo\"\r\n        android:layout_width=\"100dp\"\r\n        android:layout_height=\"129dp\"\r\n        android:alpha=\"1.0\"\r\n        android:foregroundGravity=\"center\"\r\n        android:src=\"@drawable/black_mushroom\"\r\n        app:layout_constraintEnd_toEndOf=\"parent\"\r\n        app:layout_constraintStart_toStartOf=\"parent\"\r\n        tools:layout_editor_absoluteY=\"44dp\" />\r\n\r\n    <ImageView\r\n        android:id=\"@+id/shroomie_logo\"\r\n        android:layout_width=\"0dp\"\r\n        android:layout_height=\"46dp\"\r\n        android:layout_marginStart=\"109dp\"\r\n        android:layout_marginEnd=\"109dp\"\r\n        app:layout_constraintEnd_toEndOf=\"parent\"\r\n        app:layout_constraintHorizontal_bias=\"1.0\"\r\n        app:layout_constraintStart_toStartOf=\"parent\"\r\n        app:srcCompat=\"@drawable/shroomies_black_white_text2\"\r\n        tools:layout_editor_absoluteY=\"190dp\" />\r\n\r\n\r\n        <EditText\r\n            android:id=\"@+id/email_login\"\r\n            android:layout_width=\"0dp\"\r\n            android:layout_height=\"60dp\"\r\n            android:layout_marginStart=\"50dp\"\r\n            android:layout_marginTop=\"272dp\"\r\n            android:layout_marginEnd=\"50dp\"\r\n            android:background=\"@drawable/button_round\"\r\n            android:drawableStart=\"@drawable/ic_email_edit_text\"\r\n            android:elevation=\"30dp\"\r\n            android:hint=\"   Email\"\r\n            android:padding=\"10dp\"\r\n            app:layout_constraintEnd_toEndOf=\"parent\"\r\n            app:layout_constraintHorizontal_bias=\"1.0\"\r\n            app:layout_constraintStart_toStartOf=\"parent\"\r\n            app:layout_constraintTop_toTopOf=\"parent\" />\r\n\r\n        <EditText\r\n            android:id=\"@+id/password_login\"\r\n            android:layout_width=\"0dp\"\r\n            android:layout_height=\"60dp\"\r\n            android:layout_marginStart=\"50dp\"\r\n            android:layout_marginTop=\"40dp\"\r\n            android:layout_marginEnd=\"50dp\"\r\n            android:background=\"@drawable/button_round\"\r\n            android:drawableStart=\"@drawable/ic_password_edit_text\"\r\n            android:elevation=\"30dp\"\r\n            android:hint=\"   Password\"\r\n            android:inputType=\"textPassword\"\r\n            android:padding=\"10dp\"\r\n            app:layout_constraintEnd_toEndOf=\"parent\"\r\n            app:layout_constraintHorizontal_bias=\"0.0\"\r\n            app:layout_constraintStart_toStartOf=\"parent\"\r\n            app:layout_constraintTop_toBottomOf=\"@+id/email_login\" />\r\n\r\n\r\n        <TextView\r\n            android:id=\"@+id/sign_up_button\"\r\n            android:layout_width=\"match_parent\"\r\n            android:layout_height=\"50dp\"\r\n            android:layout_marginStart=\"100dp\"\r\n            android:layout_marginTop=\"40dp\"\r\n            android:layout_marginEnd=\"100dp\"\r\n            android:gravity=\"center\"\r\n            android:shadowColor=\"@android:color/black\"\r\n            android:shadowDx=\"5\"\r\n            android:shadowDy=\"5\"\r\n            android:shadowRadius=\"5\"\r\n            android:text=\"Sign up\"\r\n            android:textAlignment=\"center\"\r\n            android:textSize=\"24sp\"\r\n            android:textStyle=\"bold\"\r\n            app:layout_constraintEnd_toEndOf=\"parent\"\r\n            app:layout_constraintStart_toStartOf=\"parent\"\r\n            app:layout_constraintTop_toBottomOf=\"@+id/google_sign_up\" />\r\n\r\n        <ImageButton\r\n            android:id=\"@+id/login_button\"\r\n            android:layout_width=\"wrap_content\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:layout_marginTop=\"32dp\"\r\n            android:background=\"@drawable/circle_white_button\"\r\n            android:src=\"@drawable/ic_yellow_arrow_icon\"\r\n            app:layout_constraintEnd_toEndOf=\"parent\"\r\n            app:layout_constraintHorizontal_bias=\"0.135\"\r\n            app:layout_constraintStart_toStartOf=\"parent\"\r\n            app:layout_constraintTop_toBottomOf=\"@+id/password_login\" />\r\n\r\n        <Button\r\n            android:id=\"@+id/google_sign_up\"\r\n            android:layout_width=\"wrap_content\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:layout_marginStart=\"52dp\"\r\n            android:layout_marginTop=\"142dp\"\r\n            android:layout_marginEnd=\"52dp\"\r\n            android:layout_marginBottom=\"150dp\"\r\n            android:background=\"@drawable/textbox_round\"\r\n            android:drawableLeft=\"@drawable/google_icon\"\r\n            android:elevation=\"10dp\"\r\n            android:gravity=\"center\"\r\n            android:maxWidth=\"400dp\"\r\n            android:padding=\"10dp\"\r\n            android:text=\"   Continue with Google\"\r\n            android:textAlignment=\"textStart\"\r\n            app:layout_constraintBottom_toBottomOf=\"parent\"\r\n            app:layout_constraintEnd_toEndOf=\"parent\"\r\n            app:layout_constraintHorizontal_bias=\"0.428\"\r\n            app:layout_constraintStart_toStartOf=\"parent\"\r\n            app:layout_constraintTop_toBottomOf=\"@+id/password_login\"\r\n            app:layout_constraintVertical_bias=\"0.0\" />\r\n\r\n        <TextView\r\n            android:id=\"@+id/forgot_password_login\"\r\n            android:layout_width=\"155dp\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:layout_marginStart=\"131dp\"\r\n            android:layout_marginTop=\"5dp\"\r\n            android:layout_marginEnd=\"131dp\"\r\n            android:layout_marginBottom=\"170dp\"\r\n            android:alpha=\"0.9\"\r\n            android:gravity=\"center\"\r\n            android:text=\"Forgot Password ?\"\r\n            android:textAlignment=\"center\"\r\n            android:textColor=\"@android:color/primary_text_light\"\r\n            android:textSize=\"18sp\"\r\n            app:layout_constraintBottom_toBottomOf=\"parent\"\r\n            app:layout_constraintEnd_toEndOf=\"parent\"\r\n            app:layout_constraintStart_toStartOf=\"parent\"\r\n            app:layout_constraintTop_toBottomOf=\"@+id/login_button\"\r\n            app:layout_constraintVertical_bias=\"0.0\" />\r\n\r\n        <ProgressBar\r\n            android:id=\"@+id/progressBar_login\"\r\n            style=\"?android:attr/progressBarStyle\"\r\n            android:layout_width=\"wrap_content\"\r\n            android:layout_height=\"wrap_content\"\r\n            android:layout_marginTop=\"32dp\"\r\n            android:layout_marginBottom=\"5dp\"\r\n            android:visibility=\"gone\"\r\n            app:layout_constraintBottom_toTopOf=\"@+id/forgot_password_login\"\r\n            app:layout_constraintEnd_toEndOf=\"parent\"\r\n            app:layout_constraintHorizontal_bias=\"0.305\"\r\n            app:layout_constraintStart_toEndOf=\"@+id/login_button\"\r\n            app:layout_constraintTop_toBottomOf=\"@+id/password_login\"\r\n            app:layout_constraintVertical_bias=\"0.0\" />\r\n\r\n\r\n\r\n</androidx.constraintlayout.motion.widget.MotionLayout>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/activity_login.xml	(revision fa2a53b1e2b32eb72903c9418a983711000aebc3)
++++ app/src/main/res/layout/activity_login.xml	(date 1607783133918)
+@@ -1,12 +1,11 @@
+ <?xml version="1.0" encoding="utf-8"?>
+-<androidx.constraintlayout.motion.widget.MotionLayout xmlns:android="http://schemas.android.com/apk/res/android"
++<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+     xmlns:app="http://schemas.android.com/apk/res-auto"
+     xmlns:tools="http://schemas.android.com/tools"
+     android:layout_width="match_parent"
+-    android:layout_height="wrap_content"
++    android:layout_height="match_parent"
++    android:padding="@dimen/box_inset_layout_padding"
+     android:background="@drawable/gradient_yellow_background"
+-    android:padding="@dimen/box_inset_layout_padding"
+-    app:layoutDescription="@xml/activity_login_scene"
+     tools:context=".LoginActivity"
+     tools:deviceIds="wear">
+ 
+@@ -15,152 +14,125 @@
+         android:id="@+id/black_mashroom_logo"
+         android:layout_width="100dp"
+         android:layout_height="129dp"
++        android:layout_marginTop="44dp"
+         android:alpha="1.0"
+         android:foregroundGravity="center"
+         android:src="@drawable/black_mushroom"
+         app:layout_constraintEnd_toEndOf="parent"
+         app:layout_constraintStart_toStartOf="parent"
+-        tools:layout_editor_absoluteY="44dp" />
+-
+-    <ImageView
+-        android:id="@+id/shroomie_logo"
+-        android:layout_width="0dp"
+-        android:layout_height="46dp"
+-        android:layout_marginStart="109dp"
+-        android:layout_marginEnd="109dp"
+-        app:layout_constraintEnd_toEndOf="parent"
+-        app:layout_constraintHorizontal_bias="1.0"
+-        app:layout_constraintStart_toStartOf="parent"
+-        app:srcCompat="@drawable/shroomies_black_white_text2"
+-        tools:layout_editor_absoluteY="190dp" />
+-
++        app:layout_constraintTop_toTopOf="parent" />
+ 
+-        <EditText
+-            android:id="@+id/email_login"
+-            android:layout_width="0dp"
+-            android:layout_height="60dp"
+-            android:layout_marginStart="50dp"
+-            android:layout_marginTop="272dp"
+-            android:layout_marginEnd="50dp"
+-            android:background="@drawable/button_round"
+-            android:drawableStart="@drawable/ic_email_edit_text"
+-            android:elevation="30dp"
+-            android:hint="   Email"
+-            android:padding="10dp"
+-            app:layout_constraintEnd_toEndOf="parent"
+-            app:layout_constraintHorizontal_bias="1.0"
+-            app:layout_constraintStart_toStartOf="parent"
+-            app:layout_constraintTop_toTopOf="parent" />
++    <EditText
++        android:id="@+id/email_login"
++        android:layout_width="0dp"
++        android:layout_height="60dp"
++        android:layout_marginStart="50dp"
++        android:layout_marginTop="48dp"
++        android:layout_marginEnd="50dp"
++        android:background="@drawable/button_round"
++        android:drawableStart="@drawable/ic_email_edit_text"
++        android:elevation="10dp"
++        android:hint="   Email"
++        android:padding="10dp"
++        app:layout_constraintEnd_toEndOf="parent"
++        app:layout_constraintHorizontal_bias="0.0"
++        app:layout_constraintStart_toStartOf="parent"
++        app:layout_constraintTop_toBottomOf="@+id/shroomie_logo" />
+ 
+-        <EditText
+-            android:id="@+id/password_login"
+-            android:layout_width="0dp"
+-            android:layout_height="60dp"
+-            android:layout_marginStart="50dp"
+-            android:layout_marginTop="40dp"
+-            android:layout_marginEnd="50dp"
+-            android:background="@drawable/button_round"
+-            android:drawableStart="@drawable/ic_password_edit_text"
+-            android:elevation="30dp"
+-            android:hint="   Password"
+-            android:inputType="textPassword"
+-            android:padding="10dp"
+-            app:layout_constraintEnd_toEndOf="parent"
+-            app:layout_constraintHorizontal_bias="0.0"
+-            app:layout_constraintStart_toStartOf="parent"
+-            app:layout_constraintTop_toBottomOf="@+id/email_login" />
++    <EditText
++        android:id="@+id/password_login"
++        android:layout_width="0dp"
++        android:layout_height="60dp"
++        android:layout_marginStart="50dp"
++        android:layout_marginTop="40dp"
++        android:layout_marginEnd="50dp"
++        android:background="@drawable/button_round"
++        android:drawableStart="@drawable/ic_password_edit_text"
++        android:elevation="10dp"
++        android:hint="   Password"
++        android:padding="10dp"
++        app:layout_constraintEnd_toEndOf="parent"
++        app:layout_constraintHorizontal_bias="0.0"
++        app:layout_constraintStart_toStartOf="parent"
++        app:layout_constraintTop_toBottomOf="@+id/email_login" />
+ 
+-
+-        <TextView
+-            android:id="@+id/sign_up_button"
+-            android:layout_width="match_parent"
+-            android:layout_height="50dp"
+-            android:layout_marginStart="100dp"
+-            android:layout_marginTop="40dp"
+-            android:layout_marginEnd="100dp"
+-            android:gravity="center"
+-            android:shadowColor="@android:color/black"
+-            android:shadowDx="5"
+-            android:shadowDy="5"
+-            android:shadowRadius="5"
+-            android:text="Sign up"
+-            android:textAlignment="center"
+-            android:textSize="24sp"
+-            android:textStyle="bold"
+-            app:layout_constraintEnd_toEndOf="parent"
+-            app:layout_constraintStart_toStartOf="parent"
+-            app:layout_constraintTop_toBottomOf="@+id/google_sign_up" />
++    <TextView
++        android:id="@+id/sign_up_button"
++        android:layout_width="100dp"
++        android:layout_height="30dp"
++        android:layout_marginTop="20dp"
++        android:gravity="center"
++        android:shadowColor="@android:color/black"
++        android:shadowDx="5"
++        android:shadowDy="5"
++        android:shadowRadius="5"
++        android:text="Sign up"
++        android:textAlignment="center"
++        android:textSize="18sp"
++        android:textStyle="bold"
++        app:layout_constraintEnd_toEndOf="parent"
++        app:layout_constraintStart_toStartOf="parent"
++        app:layout_constraintTop_toBottomOf="@+id/google_sign_up" />
+ 
+-        <ImageButton
+-            android:id="@+id/login_button"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:layout_marginTop="32dp"
+-            android:background="@drawable/circle_white_button"
+-            android:src="@drawable/ic_yellow_arrow_icon"
+-            app:layout_constraintEnd_toEndOf="parent"
+-            app:layout_constraintHorizontal_bias="0.135"
+-            app:layout_constraintStart_toStartOf="parent"
+-            app:layout_constraintTop_toBottomOf="@+id/password_login" />
++
++    <Button
++        android:id="@+id/login_button"
++        android:layout_width="63dp"
++        android:layout_height="52dp"
++        android:layout_marginTop="32dp"
++        android:background="@drawable/circle_white_button"
++        android:drawableLeft="@drawable/ic_yellow_arrow_icon"
++        app:layout_constraintEnd_toEndOf="parent"
++        app:layout_constraintHorizontal_bias="0.135"
++        app:layout_constraintStart_toStartOf="parent"
++        app:layout_constraintTop_toBottomOf="@+id/password_login" />
+ 
+-        <Button
+-            android:id="@+id/google_sign_up"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:layout_marginStart="52dp"
+-            android:layout_marginTop="142dp"
+-            android:layout_marginEnd="52dp"
+-            android:layout_marginBottom="150dp"
+-            android:background="@drawable/textbox_round"
+-            android:drawableLeft="@drawable/google_icon"
+-            android:elevation="10dp"
+-            android:gravity="center"
+-            android:maxWidth="400dp"
+-            android:padding="10dp"
+-            android:text="   Continue with Google"
+-            android:textAlignment="textStart"
+-            app:layout_constraintBottom_toBottomOf="parent"
+-            app:layout_constraintEnd_toEndOf="parent"
+-            app:layout_constraintHorizontal_bias="0.428"
+-            app:layout_constraintStart_toStartOf="parent"
+-            app:layout_constraintTop_toBottomOf="@+id/password_login"
+-            app:layout_constraintVertical_bias="0.0" />
++    <Button
++        android:id="@+id/google_sign_up"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:layout_marginStart="52dp"
++        android:layout_marginTop="20dp"
++        android:layout_marginEnd="52dp"
++        android:background="@drawable/textbox_round"
++        android:drawableLeft="@drawable/google_icon"
++        android:elevation="10dp"
++        android:gravity="center"
++        android:maxWidth="400dp"
++        android:padding="10dp"
++        android:text="   Continue with Google"
++        android:textAlignment="textStart"
++        app:layout_constraintEnd_toEndOf="parent"
++        app:layout_constraintStart_toStartOf="parent"
++        app:layout_constraintTop_toBottomOf="@+id/forgot_password_login" />
++
++    <ImageView
++        android:id="@+id/shroomie_logo"
++        android:layout_width="0dp"
++        android:layout_height="46dp"
++        android:layout_marginStart="109dp"
++        android:layout_marginTop="17dp"
++        android:layout_marginEnd="109dp"
++        app:layout_constraintEnd_toEndOf="parent"
++        app:layout_constraintHorizontal_bias="1.0"
++        app:layout_constraintStart_toStartOf="parent"
++        app:layout_constraintTop_toBottomOf="@+id/black_mashroom_logo"
++        app:srcCompat="@drawable/shroomies_black_white_text2" />
+ 
+-        <TextView
+-            android:id="@+id/forgot_password_login"
+-            android:layout_width="155dp"
+-            android:layout_height="wrap_content"
+-            android:layout_marginStart="131dp"
+-            android:layout_marginTop="5dp"
+-            android:layout_marginEnd="131dp"
+-            android:layout_marginBottom="170dp"
+-            android:alpha="0.9"
+-            android:gravity="center"
+-            android:text="Forgot Password ?"
+-            android:textAlignment="center"
+-            android:textColor="@android:color/primary_text_light"
+-            android:textSize="18sp"
+-            app:layout_constraintBottom_toBottomOf="parent"
+-            app:layout_constraintEnd_toEndOf="parent"
+-            app:layout_constraintStart_toStartOf="parent"
+-            app:layout_constraintTop_toBottomOf="@+id/login_button"
+-            app:layout_constraintVertical_bias="0.0" />
+-
+-        <ProgressBar
+-            android:id="@+id/progressBar_login"
+-            style="?android:attr/progressBarStyle"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:layout_marginTop="32dp"
+-            android:layout_marginBottom="5dp"
+-            android:visibility="gone"
+-            app:layout_constraintBottom_toTopOf="@+id/forgot_password_login"
+-            app:layout_constraintEnd_toEndOf="parent"
+-            app:layout_constraintHorizontal_bias="0.305"
+-            app:layout_constraintStart_toEndOf="@+id/login_button"
+-            app:layout_constraintTop_toBottomOf="@+id/password_login"
+-            app:layout_constraintVertical_bias="0.0" />
+-
+-
++    <TextView
++        android:id="@+id/forgot_password_login"
++        android:layout_width="155dp"
++        android:layout_height="wrap_content"
++        android:layout_marginStart="131dp"
++        android:layout_marginTop="8dp"
++        android:layout_marginEnd="131dp"
++        android:text="Forgot Password ?"
++        android:gravity="center"
++        android:textAlignment="center"
++        android:textColor="@android:color/primary_text_light"
++        android:textSize="18sp"
++        app:layout_constraintEnd_toEndOf="parent"
++        app:layout_constraintStart_toStartOf="parent"
++        app:layout_constraintTop_toBottomOf="@+id/login_button" />
+ 
+-</androidx.constraintlayout.motion.widget.MotionLayout>
+\ No newline at end of file
++</androidx.constraintlayout.widget.ConstraintLayout>
+\ No newline at end of file
+Index: app/src/main/java/com/example/shroomies/LoginActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.shroomies;\r\n\r\nimport android.content.Intent;\r\nimport android.os.Bundle;\r\n\r\nimport android.text.TextUtils;\r\nimport android.util.Log;\r\nimport android.view.View;\r\nimport android.widget.Button;\r\nimport android.widget.EditText;\r\nimport android.widget.ImageButton;\r\nimport android.widget.ProgressBar;\r\nimport android.widget.TextView;\r\nimport android.widget.Toast;\r\n\r\nimport androidx.annotation.NonNull;\r\nimport androidx.appcompat.app.AppCompatActivity;\r\nimport androidx.biometric.BiometricConstants;\r\nimport androidx.biometric.BiometricPrompt;\r\nimport androidx.core.content.ContextCompat;\r\n\r\nimport com.google.android.gms.auth.api.signin.GoogleSignInAccount;\r\nimport com.google.android.gms.auth.api.signin.GoogleSignInOptions;\r\nimport com.google.android.gms.common.api.ApiException;\r\nimport com.google.android.gms.tasks.OnCompleteListener;\r\nimport com.google.android.gms.tasks.OnFailureListener;\r\nimport com.google.android.gms.tasks.Task;\r\nimport com.google.firebase.auth.AuthCredential;\r\nimport com.google.firebase.auth.AuthResult;\r\nimport com.google.firebase.auth.FirebaseAuth;\r\nimport com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;\r\nimport com.google.firebase.auth.FirebaseAuthInvalidUserException;\r\nimport com.google.firebase.auth.FirebaseUser;\r\nimport com.google.firebase.auth.GoogleAuthProvider;\r\nimport com.google.android.gms.auth.api.signin.GoogleSignIn;\r\nimport com.google.android.gms.auth.api.signin.GoogleSignInClient;\r\nimport com.google.firebase.database.DataSnapshot;\r\nimport com.google.firebase.database.DatabaseError;\r\nimport com.google.firebase.database.DatabaseReference;\r\nimport com.google.firebase.database.FirebaseDatabase;\r\nimport com.google.firebase.database.Query;\r\nimport com.google.firebase.database.ValueEventListener;\r\n\r\nimport java.util.HashMap;\r\nimport java.util.concurrent.Executor;\r\n\r\npublic class LoginActivity extends AppCompatActivity {\r\n   protected EditText username;\r\n   protected EditText password;\r\n    ImageButton login;\r\n    TextView signup;\r\n    private final int RC_SIGN_IN = 7;\r\n    GoogleSignInClient mGoogleSignInClient;\r\n    FirebaseAuth mAuth;\r\n    TextView forgotPassword;\r\n    ProgressBar progressBar;\r\n    Button google_sign;\r\n    SessionManager sessionManager;\r\n\r\n    @Override\r\n    protected void onCreate(Bundle savedInstanceState) {\r\n        super.onCreate(savedInstanceState);\r\n        setContentView(R.layout.activity_login);\r\n        username=findViewById(R.id.email_login);\r\n        password=findViewById(R.id.password_login);\r\n        login=findViewById(R.id.login_button);\r\n        signup=findViewById(R.id.sign_up_button);\r\n        google_sign = findViewById(R.id.google_sign_up);\r\n        forgotPassword=findViewById(R.id.forgot_password_login);\r\n        progressBar=findViewById(R.id.progressBar_login);\r\n        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)\r\n                .requestIdToken(getString(R.string.default_web_client_id))\r\n                .requestEmail()\r\n                .build();\r\n\r\n        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);\r\n        google_sign.setOnClickListener(new View.OnClickListener() {\r\n            @Override\r\n            public void onClick(View v) {\r\n                signIn();\r\n            }\r\n        });\r\n        forgotPassword.setOnClickListener(new View.OnClickListener() {\r\n            @Override\r\n            public void onClick(View v) {\r\n                Intent intent=new Intent(getApplication(),ResetPassword.class);\r\n                startActivity(intent);\r\n                finish();\r\n\r\n            }\r\n        });\r\n        mAuth = FirebaseAuth.getInstance();\r\n\r\n        signup.setOnClickListener(new View.OnClickListener() {\r\n            @Override\r\n            public void onClick(View v) {\r\n                Intent intent=new Intent(getApplication(),SignUpActivity.class);\r\n                startActivity(intent);\r\n                finish();\r\n\r\n            }\r\n        });\r\n\r\n        login.setOnClickListener(new View.OnClickListener() {\r\n            @Override\r\n            public void onClick(View v) {\r\n             loginUser();\r\n\r\n            }\r\n        });\r\n\r\n    }\r\n    private void loginUser(){\r\n        progressBar.setVisibility(View.VISIBLE);\r\n        final String uname_txt = username.getText().toString();\r\n        String pw_txt = password.getText().toString();\r\n\r\n        if (TextUtils.isEmpty(uname_txt) || TextUtils.isEmpty(pw_txt)){\r\n            Toast.makeText(LoginActivity.this, \"Please fill in your details\",Toast.LENGTH_SHORT).show();\r\n        }\r\n        else {\r\n\r\n            mAuth.signInWithEmailAndPassword(uname_txt, pw_txt). addOnCompleteListener(new OnCompleteListener<AuthResult>() {\r\n                @Override\r\n                public void onComplete(@NonNull Task<AuthResult> task) {\r\n\r\n                    if (task.isSuccessful()){\r\n                        progressBar.setVisibility(View.GONE);\r\n                        if(mAuth.getCurrentUser().isEmailVerified()){\r\n                            String userID =mAuth.getCurrentUser().getUid();\r\n                            String userEmail =mAuth.getCurrentUser().getEmail();\r\n                            sessionManager= new SessionManager(LoginActivity.this,userID);\r\n                            sessionManager.createSession(userID,userEmail);\r\n                            sessionManager.setVerifiedEmail(mAuth.getCurrentUser().isEmailVerified());\r\n                            Toast.makeText(LoginActivity.this, \"Welcome to Shroomies! \", Toast.LENGTH_SHORT).show();\r\n                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);\r\n                            intent.putExtra(\"ID\",userID);\r\n                            intent.putExtra(\"EMAIL\",userEmail);\r\n                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);\r\n                            startActivity(intent);\r\n                        }\r\n                        else{\r\n                            username.setText(\"\");\r\n                            password.setText(\"\");\r\n                            Toast.makeText(LoginActivity.this, \"Please verify your email address\", Toast.LENGTH_SHORT).show();\r\n                            final FirebaseUser user = mAuth.getCurrentUser();\r\n                            user.sendEmailVerification().addOnCompleteListener(LoginActivity.this, new OnCompleteListener<Void>() {\r\n                                @Override\r\n                                public void onComplete(@NonNull Task<Void> task) {\r\n                                    login.setEnabled(true);\r\n                                    if(task.isSuccessful()){\r\n                                        Toast.makeText(LoginActivity.this, \"a new verification email has been sent to\"+user.getEmail(), Toast.LENGTH_SHORT).show();\r\n                                    }\r\n                                    else{\r\n                                        Toast.makeText(LoginActivity.this, \"failed to send email verification\", Toast.LENGTH_SHORT).show();\r\n                                    }\r\n                                }\r\n                            });\r\n\r\n\r\n                        }\r\n\r\n                    }\r\n                }\r\n            }).addOnFailureListener(new OnFailureListener() {\r\n                @Override\r\n                public void onFailure(@NonNull Exception e) {\r\n                    if (e instanceof FirebaseAuthInvalidCredentialsException) {\r\n                        Toast.makeText(LoginActivity.this, \"Invalid password\", Toast.LENGTH_SHORT).show();\r\n                    } else if (e instanceof FirebaseAuthInvalidUserException) {\r\n\r\n                        String errorCode =\r\n                                ((FirebaseAuthInvalidUserException) e).getErrorCode();\r\n\r\n                        if (errorCode.equals(\"ERROR_USER_NOT_FOUND\")) {\r\n                            Toast.makeText(LoginActivity.this, \"The email does not belong to a registered account. Please proceed to Sign Up.\", Toast.LENGTH_SHORT).show();\r\n                        } else if (errorCode.equals(\"ERROR_USER_DISABLED\")) {\r\n                            Toast.makeText(LoginActivity.this, \"User account has been disabled\", Toast.LENGTH_SHORT).show();\r\n                        } else {\r\n                            Toast.makeText(LoginActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();\r\n                        }\r\n\r\n                    }\r\n                }\r\n            });\r\n        }\r\n\r\n        }\r\n\r\n    private void signIn() {\r\n        Intent signInIntent = mGoogleSignInClient.getSignInIntent();\r\n        startActivityForResult(signInIntent, RC_SIGN_IN);\r\n    }\r\n    public void onActivityResult(int requestCode, int resultCode, Intent data) {\r\n        super.onActivityResult(requestCode, resultCode, data);\r\n\r\n        if (requestCode == RC_SIGN_IN) {\r\n\r\n            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);\r\n            try {\r\n                GoogleSignInAccount account = task.getResult(ApiException.class);\r\n\r\n                firebaseAuthWithGoogle(account);\r\n            } catch (ApiException e) {\r\n                Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();\r\n            }\r\n        }\r\n    }\r\n    private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {\r\n        Log.d(\"Login\",\"firebaseAuthWithGoogle:\" + acct.getId());\r\n\r\n        AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);\r\n\r\n        mAuth.signInWithCredential(credential).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {\r\n            @Override\r\n            public void onComplete(@NonNull Task<AuthResult> task) {\r\n                if (task.isSuccessful()){\r\n                    FirebaseUser user = mAuth.getCurrentUser();\r\n                    if(task.getResult().getAdditionalUserInfo().isNewUser()){\r\n                        DatabaseReference mRootref = FirebaseDatabase.getInstance().getReference(\"Users\");\r\n                        HashMap<String, Object> userDetails = new HashMap<>();\r\n                        userDetails.put(\"name\",\"\" );\r\n                        userDetails.put(\"email\", user.getEmail());\r\n                        userDetails.put(\"ID\", mAuth.getCurrentUser().getUid());\r\n                        userDetails.put(\"image\",\"\"); //add later in edit profile\r\n                        userDetails.put(\"isPartOfRoom\",\"false\");// change later\r\n                        mRootref.child(\"Users\").child(mAuth.getCurrentUser().getUid()).setValue(userDetails);\r\n                    }\r\n                    String userID =mAuth.getCurrentUser().getUid();\r\n                    String userEmail =mAuth.getCurrentUser().getEmail();\r\n                    sessionManager= new SessionManager(LoginActivity.this,userID);\r\n                    sessionManager.createSession(userID,userEmail);\r\n                    sessionManager.setVerifiedEmail(true);\r\n                    Intent intent= new Intent(getApplicationContext(),MainActivity.class);\r\n                    startActivity(intent);\r\n                    Toast.makeText(LoginActivity.this, \"User Signed In\", Toast.LENGTH_SHORT).show();\r\n                }\r\n                else{\r\n                    Log.w(\"Login\", \"signInWithCredentail:Failure\", task.getException());\r\n                    Toast.makeText(LoginActivity.this, \"Authentication Failed\", Toast.LENGTH_SHORT).show();\r\n                }\r\n            }\r\n        });\r\n    }\r\n\r\n}\r\n\r\n\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/example/shroomies/LoginActivity.java	(revision fa2a53b1e2b32eb72903c9418a983711000aebc3)
++++ app/src/main/java/com/example/shroomies/LoginActivity.java	(date 1607783133926)
+@@ -1,15 +1,17 @@
+ package com.example.shroomies;
+ 
+ import android.content.Intent;
++import android.icu.text.UnicodeSetSpanner;
+ import android.os.Bundle;
+ 
++import android.text.Editable;
+ import android.text.TextUtils;
++import android.text.TextWatcher;
+ import android.util.Log;
++import android.view.MotionEvent;
+ import android.view.View;
+ import android.widget.Button;
+ import android.widget.EditText;
+-import android.widget.ImageButton;
+-import android.widget.ProgressBar;
+ import android.widget.TextView;
+ import android.widget.Toast;
+ 
+@@ -18,6 +20,7 @@
+ import androidx.biometric.BiometricConstants;
+ import androidx.biometric.BiometricPrompt;
+ import androidx.core.content.ContextCompat;
++import androidx.fragment.app.FragmentActivity;
+ 
+ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
+@@ -33,29 +36,32 @@
+ import com.google.firebase.auth.FirebaseUser;
+ import com.google.firebase.auth.GoogleAuthProvider;
+ import com.google.android.gms.auth.api.signin.GoogleSignIn;
++import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+-import com.google.firebase.database.DataSnapshot;
+-import com.google.firebase.database.DatabaseError;
+-import com.google.firebase.database.DatabaseReference;
+-import com.google.firebase.database.FirebaseDatabase;
+-import com.google.firebase.database.Query;
+-import com.google.firebase.database.ValueEventListener;
++import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
++import com.google.android.gms.common.api.ApiException;
++import com.google.firebase.auth.UserInfo;
+ 
+-import java.util.HashMap;
++import java.io.File;
+ import java.util.concurrent.Executor;
+ 
+ public class LoginActivity extends AppCompatActivity {
+-   protected EditText username;
+-   protected EditText password;
+-    ImageButton login;
++    protected EditText username;
++    protected EditText password;
++    Button login;
+     TextView signup;
+     private final int RC_SIGN_IN = 7;
+     GoogleSignInClient mGoogleSignInClient;
+     FirebaseAuth mAuth;
+     TextView forgotPassword;
+-    ProgressBar progressBar;
+-    Button google_sign;
+     SessionManager sessionManager;
++    boolean successBiometric = false;
++    static String user;
++    private Executor executor;
++    private BiometricPrompt biometricPrompt;
++    private BiometricPrompt.PromptInfo promptInfo;
++    boolean alredyLoggedin = false;
++    Button google_sign;
+ 
+     @Override
+     protected void onCreate(Bundle savedInstanceState) {
+@@ -67,7 +73,38 @@
+         signup=findViewById(R.id.sign_up_button);
+         google_sign = findViewById(R.id.google_sign_up);
+         forgotPassword=findViewById(R.id.forgot_password_login);
+-        progressBar=findViewById(R.id.progressBar_login);
++//        username.addTextChangedListener(new TextWatcher() {
++//            @Override
++//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
++//
++//            }
++//
++//            @Override
++//            public void onTextChanged(CharSequence s, int start, int before, int count) {
++//
++//                sessionManager=new SessionManager();
++//                if(sessionManager.checkUserBiometric(s.toString())){
++//                    password.setOnTouchListener(new View.OnTouchListener() {
++//                        @Override
++//                        public boolean onTouch(View v, MotionEvent event) {
++//                            setBiometric();
++//                            promptInfo = new BiometricPrompt.PromptInfo.Builder()
++//                                    .setTitle("Biometric login for my app")
++//                                    .setSubtitle("Log in using your biometric credential")
++//                                    .setNegativeButtonText("Use account password")
++//                                    .build();
++//                            biometricPrompt.authenticate(promptInfo);
++//                            return false;
++//                        }
++//                    });
++//                }
++//            }
++//
++//            @Override
++//            public void afterTextChanged(Editable s) {
++//
++//            }
++//        });
+         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                 .requestIdToken(getString(R.string.default_web_client_id))
+                 .requestEmail()
+@@ -80,6 +117,7 @@
+                 signIn();
+             }
+         });
++
+         forgotPassword.setOnClickListener(new View.OnClickListener() {
+             @Override
+             public void onClick(View v) {
+@@ -104,14 +142,12 @@
+         login.setOnClickListener(new View.OnClickListener() {
+             @Override
+             public void onClick(View v) {
+-             loginUser();
+-
++                loginUser(successBiometric);
+             }
+         });
+ 
+     }
+-    private void loginUser(){
+-        progressBar.setVisibility(View.VISIBLE);
++    private void loginUser(final boolean biometricSuccessful){
+         final String uname_txt = username.getText().toString();
+         String pw_txt = password.getText().toString();
+ 
+@@ -119,47 +155,31 @@
+             Toast.makeText(LoginActivity.this, "Please fill in your details",Toast.LENGTH_SHORT).show();
+         }
+         else {
++//            if(biometricSuccessful){
++//                sessionManager=new SessionManager(getApplicationContext(),uname_txt);
++//                // get name of the user
++//                sessionManager.createSession(mAuth.getCurrentUser().getDisplayName().toString(),uname_txt);
++//                Toast.makeText(LoginActivity.this, "Welcome to Shroomies!", Toast.LENGTH_SHORT).show();
++//                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
++//                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
++//                startActivity(intent);
++//                finish();
++//            }
+ 
+             mAuth.signInWithEmailAndPassword(uname_txt, pw_txt). addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                 @Override
+                 public void onComplete(@NonNull Task<AuthResult> task) {
+-
++                    final FirebaseUser user = mAuth.getCurrentUser();
+                     if (task.isSuccessful()){
+-                        progressBar.setVisibility(View.GONE);
+-                        if(mAuth.getCurrentUser().isEmailVerified()){
+-                            String userID =mAuth.getCurrentUser().getUid();
+-                            String userEmail =mAuth.getCurrentUser().getEmail();
+-                            sessionManager= new SessionManager(LoginActivity.this,userID);
+-                            sessionManager.createSession(userID,userEmail);
+-                            sessionManager.setVerifiedEmail(mAuth.getCurrentUser().isEmailVerified());
++                        if(!user.isEmailVerified()) {
++                            Toast.makeText(LoginActivity.this, "Please verify your email address", Toast.LENGTH_SHORT).show();
++                        }
++                        else {
+                             Toast.makeText(LoginActivity.this, "Welcome to Shroomies! ", Toast.LENGTH_SHORT).show();
+                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+-                            intent.putExtra("ID",userID);
+-                            intent.putExtra("EMAIL",userEmail);
+                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                             startActivity(intent);
+                         }
+-                        else{
+-                            username.setText("");
+-                            password.setText("");
+-                            Toast.makeText(LoginActivity.this, "Please verify your email address", Toast.LENGTH_SHORT).show();
+-                            final FirebaseUser user = mAuth.getCurrentUser();
+-                            user.sendEmailVerification().addOnCompleteListener(LoginActivity.this, new OnCompleteListener<Void>() {
+-                                @Override
+-                                public void onComplete(@NonNull Task<Void> task) {
+-                                    login.setEnabled(true);
+-                                    if(task.isSuccessful()){
+-                                        Toast.makeText(LoginActivity.this, "a new verification email has been sent to"+user.getEmail(), Toast.LENGTH_SHORT).show();
+-                                    }
+-                                    else{
+-                                        Toast.makeText(LoginActivity.this, "failed to send email verification", Toast.LENGTH_SHORT).show();
+-                                    }
+-                                }
+-                            });
+-
+-
+-                        }
+-
+                     }
+                 }
+             }).addOnFailureListener(new OnFailureListener() {
+@@ -176,7 +196,8 @@
+                             Toast.makeText(LoginActivity.this, "The email does not belong to a registered account. Please proceed to Sign Up.", Toast.LENGTH_SHORT).show();
+                         } else if (errorCode.equals("ERROR_USER_DISABLED")) {
+                             Toast.makeText(LoginActivity.this, "User account has been disabled", Toast.LENGTH_SHORT).show();
+-                        } else {
++                        }
++                        else {
+                             Toast.makeText(LoginActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                         }
+ 
+@@ -185,8 +206,46 @@
+             });
+         }
+ 
+-        }
++    }
++    boolean setBiometric(){
++        executor = ContextCompat.getMainExecutor(this);
++        biometricPrompt = new BiometricPrompt(LoginActivity.this,
++                executor, new BiometricPrompt.AuthenticationCallback() {
++            @Override
++            public void onAuthenticationError(int errorCode,
++                                              @NonNull CharSequence errString) {
++                super.onAuthenticationError(errorCode, errString);
++                if (errorCode == BiometricConstants.ERROR_USER_CANCELED){
++                    password.setOnTouchListener(null);
++                }else{
++                    Toast.makeText(getApplicationContext(),
++                            "Authentication error: " + errString, Toast.LENGTH_SHORT)
++                            .show();
++                }
++                successBiometric = false;
++            }
++            @Override
++            public void onAuthenticationSucceeded(
++                    @NonNull BiometricPrompt.AuthenticationResult result) {
++                super.onAuthenticationSucceeded(result);
++                successBiometric=true;
++                loginUser(successBiometric);
++            }
++            @Override
++            public void onAuthenticationFailed() {
++                super.onAuthenticationFailed();
++                Toast.makeText(getApplicationContext(), "Authentication failed",
++                        Toast.LENGTH_SHORT)
++                        .show();
++                successBiometric=false;
++            }
++        });
+ 
++        // Prompt appears when user clicks "Log in".
++        // Consider integrating with the keystore to unlock cryptographic operations,
++        // if needed by your app.
++        return successBiometric;
++    }
+     private void signIn() {
+         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
+         startActivityForResult(signInIntent, RC_SIGN_IN);
+@@ -215,35 +274,20 @@
+             @Override
+             public void onComplete(@NonNull Task<AuthResult> task) {
+                 if (task.isSuccessful()){
++                    Log.d("Login", "signInWithCredential:Success");
+                     FirebaseUser user = mAuth.getCurrentUser();
+-                    if(task.getResult().getAdditionalUserInfo().isNewUser()){
+-                        DatabaseReference mRootref = FirebaseDatabase.getInstance().getReference("Users");
+-                        HashMap<String, Object> userDetails = new HashMap<>();
+-                        userDetails.put("name","" );
+-                        userDetails.put("email", user.getEmail());
+-                        userDetails.put("ID", mAuth.getCurrentUser().getUid());
+-                        userDetails.put("image",""); //add later in edit profile
+-                        userDetails.put("isPartOfRoom","false");// change later
+-                        mRootref.child("Users").child(mAuth.getCurrentUser().getUid()).setValue(userDetails);
+-                    }
+-                    String userID =mAuth.getCurrentUser().getUid();
+-                    String userEmail =mAuth.getCurrentUser().getEmail();
+-                    sessionManager= new SessionManager(LoginActivity.this,userID);
+-                    sessionManager.createSession(userID,userEmail);
+-                    sessionManager.setVerifiedEmail(true);
++                    sessionManager=new SessionManager(getApplicationContext(),user.getEmail());
++                    sessionManager.createSession(user.getEmail(),user.getEmail());
+                     Intent intent= new Intent(getApplicationContext(),MainActivity.class);
+                     startActivity(intent);
++
+                     Toast.makeText(LoginActivity.this, "User Signed In", Toast.LENGTH_SHORT).show();
+                 }
+                 else{
+-                    Log.w("Login", "signInWithCredentail:Failure", task.getException());
++                    Log.w("Login", "signInWithCredential:Failure", task.getException());
+                     Toast.makeText(LoginActivity.this, "Authentication Failed", Toast.LENGTH_SHORT).show();
+                 }
+             }
+         });
+     }
+-
+ }
+-
+-
+-
+Index: app/build.gradle
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>apply plugin: 'com.android.application'\r\napply plugin: 'com.google.gms.google-services'\r\n\r\nandroid {\r\n    compileSdkVersion 29\r\n\r\n    defaultConfig {\r\n        applicationId \"com.example.shroomies\"\r\n        minSdkVersion 26\r\n        targetSdkVersion 29\r\n        versionCode 1\r\n        versionName \"1.0\"\r\n\r\n        testInstrumentationRunner \"androidx.test.runner.AndroidJUnitRunner\"\r\n        Properties properties = new Properties()\r\n        if (rootProject.file(\"local.properties\").exists()) {\r\n            properties.load(rootProject.file(\"local.properties\").newDataInputStream())\r\n        }\r\n        manifestPlaceholders = [ mapsApiKey : properties.getProperty(\"MAPS_API_KEY\", \"\") ]\r\n\r\n    }\r\n\r\n\r\n        buildTypes {\r\n        release {\r\n            minifyEnabled false\r\n            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'\r\n        }\r\n    }\r\n}\r\n\r\ndependencies {\r\n    implementation 'com.google.firebase:firebase-database:19.5.1'\r\n    implementation 'androidx.wear:wear:1.0.0'\r\n    implementation 'com.google.android.gms:play-services-maps:17.0.0'\r\n    compileOnly 'com.google.android.wearable:wearable:2.6.0'\r\n    def nav_version = '2.3.1'\r\n    implementation fileTree(dir: \"libs\", include: [\"*.jar\"])\r\n    implementation 'androidx.appcompat:appcompat:1.2.0'\r\n    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'\r\n    testImplementation 'junit:junit:4.13.1'\r\n    androidTestImplementation 'androidx.test.ext:junit:1.1.2'\r\n    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'\r\n    implementation \"androidx.cardview:cardview:1.0.0\"\r\n    implementation \"androidx.recyclerview:recyclerview:1.1.0\"\r\n    implementation 'androidx.legacy:legacy-support-v4:1.0.0'\r\n    implementation \"androidx.navigation:navigation-fragment:2.3.1\"\r\n    implementation \"androidx.navigation:navigation-ui:$nav_version\"\r\n    implementation 'com.squareup.picasso:picasso:2.71828'\r\n    implementation \"androidx.cardview:cardview:1.0.0\"\r\n    implementation \"androidx.recyclerview:recyclerview:1.1.0\"\r\n    implementation 'com.cepheuen.elegant-number-button:lib:1.0.3'\r\n    implementation 'com.aurelhubert:ahbottomnavigation:2.3.4'\r\n    implementation 'androidx.biometric:biometric:1.0.1'\r\n    implementation  'com.google.firebase:firebase-auth:20.0.1'\r\n    implementation 'com.google.android.gms:play-services-auth:15.0.1'\r\n    implementation 'com.github.bumptech.glide:glide:4.3.1'\r\n    implementation 'com.google.maps.android:android-maps-utils:2.2.0'\r\n    implementation \"com.airbnb.android:lottie:3.5.0\"\r\n    implementation \"com.google.android.gms:play-services-location:17.1.0\"\r\n    implementation \"com.google.android.gms:play-services-location:15.0.1\"\r\n    annotationProcessor 'com.github.bumptech.glide:compiler:4.3.1'\r\n\r\n\r\n}\r\napply plugin: 'com.google.gms.google-services'
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/build.gradle	(revision fa2a53b1e2b32eb72903c9418a983711000aebc3)
++++ app/build.gradle	(date 1607783133937)
+@@ -33,6 +33,7 @@
+     implementation 'com.google.firebase:firebase-database:19.5.1'
+     implementation 'androidx.wear:wear:1.0.0'
+     implementation 'com.google.android.gms:play-services-maps:17.0.0'
++    implementation 'com.google.firebase:firebase-storage:19.2.0'
+     compileOnly 'com.google.android.wearable:wearable:2.6.0'
+     def nav_version = '2.3.1'
+     implementation fileTree(dir: "libs", include: ["*.jar"])
+@@ -60,6 +61,9 @@
+     implementation "com.google.android.gms:play-services-location:17.1.0"
+     implementation "com.google.android.gms:play-services-location:15.0.1"
+     annotationProcessor 'com.github.bumptech.glide:compiler:4.3.1'
++    api 'com.theartofdev.edmodo:android-image-cropper:2.8.+'
++    implementation "com.hendraanggrian.appcompat:socialview-core:0.2"
++    implementation "com.hendraanggrian.appcompat:socialview-commons:0.2"
+ 
+ 
+ }

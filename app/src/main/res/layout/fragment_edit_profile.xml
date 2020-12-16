@@ -30,7 +30,7 @@
         android:id="@+id/edit_profile_picture"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@+id/profile_image_edit_profile"
+        android:layout_toRightOf="@+id/edit_profile_image"
         android:layout_below="@id/edit_profile_text_view"
         android:src="@drawable/ic_icon_awesome_edit"
         android:elevation="5dp"
@@ -40,8 +40,8 @@
         android:padding="6dp"
         />
 
-    <ImageView
-        android:id="@+id/profile_image_edit_profile"
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/edit_profile_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
@@ -50,12 +50,11 @@
         android:layout_marginBottom="5dp"
         android:background="@drawable/circle_white_button"
         android:layout_below="@id/edit_profile_text_view"
-        android:src="@drawable/ic_user_profile_svgrepo_com">
+        android:src="@drawable/ic_user_profile_svgrepo_com"/>
 
-    </ImageView>
     <Button
         android:id="@+id/account_settings_button"
-        android:layout_below="@+id/profile_image_edit_profile"
+        android:layout_below="@+id/edit_profile_image"
         android:layout_width="wrap_content"
         android:layout_height="30dp"
         android:layout_centerHorizontal="true"
@@ -72,7 +71,7 @@
     </Button>
 
     <EditText
-        android:id="@+id/bio_edit_text"
+        android:id="@+id/edit_bio"
         android:layout_width="wrap_content"
         android:layout_height="50dp"
         android:layout_below="@id/account_settings_button"
@@ -89,15 +88,15 @@
         android:elevation="3dp"
 
         android:padding="10dp"
-        android:text="bio">
+        android:text="Bio">
 
     </EditText>
 
     <EditText
-        android:id="@+id/username_edit_text"
+        android:id="@+id/edit_username"
         android:layout_width="wrap_content"
         android:layout_height="50dp"
-        android:layout_below="@id/bio_edit_text"
+        android:layout_below="@id/edit_bio"
         android:layout_centerHorizontal="true"
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
@@ -108,19 +107,19 @@
         android:drawableEnd="@drawable/ic_icon_ionic_ios_arrow_back"
         android:elevation="3dp"
         android:padding="10dp"
-        android:text="user name">
+        android:text="Username">
 
     </EditText>
     <EditText
         android:padding="10dp"
-        android:id="@+id/email_edit_text"
+        android:id="@+id/edit_email"
         android:layout_width="wrap_content"
         android:layout_height="50dp"
         android:elevation="3dp"
         android:background="@drawable/textbox_round"
         android:layout_centerHorizontal="true"
-        android:text="email"
-        android:layout_below="@id/username_edit_text"
+        android:text="Email"
+        android:layout_below="@id/edit_username"
         android:layout_margin="10dp"
         android:drawableEnd="@drawable/ic_icon_ionic_ios_arrow_back"
         >
@@ -128,19 +127,32 @@
     <EditText
 
         android:padding="10dp"
-        android:id="@+id/password_edit_text"
+        android:id="@+id/edit_password"
         android:layout_width="wrap_content"
         android:layout_height="50dp"
         android:elevation="3dp"
         android:background="@drawable/textbox_round"
         android:layout_centerHorizontal="true"
-        android:text="email"
-        android:layout_below="@+id/email_edit_text"
+        android:text="Password"
+        android:inputType="textPassword"
+        android:layout_below="@+id/edit_email"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="30dp"
         android:drawableEnd="@drawable/ic_icon_ionic_ios_arrow_back"
         >
 
     </EditText>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btn_save"
+        android:layout_marginTop="15dp"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/button_round"
+        android:text="Save"
+        android:textColor="@color/colorAccent"
+        android:layout_below="@+id/edit_password"
+        />
 </RelativeLayout>
 </androidx.core.widget.NestedScrollView>

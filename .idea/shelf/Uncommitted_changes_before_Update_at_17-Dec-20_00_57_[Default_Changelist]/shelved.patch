@@ -1,0 +1,199 @@
+Index: app/build.gradle
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>apply plugin: 'com.android.application'\r\napply plugin: 'com.google.gms.google-services'\r\n\r\nandroid {\r\n    compileSdkVersion 29\r\n\r\n    defaultConfig {\r\n        applicationId \"com.example.shroomies\"\r\n        minSdkVersion 26\r\n        targetSdkVersion 29\r\n        versionCode 1\r\n        versionName \"1.0\"\r\n\r\n        testInstrumentationRunner \"androidx.test.runner.AndroidJUnitRunner\"\r\n        Properties properties = new Properties()\r\n        if (rootProject.file(\"local.properties\").exists()) {\r\n            properties.load(rootProject.file(\"local.properties\").newDataInputStream())\r\n        }\r\n        manifestPlaceholders = [ mapsApiKey : properties.getProperty(\"MAPS_API_KEY\", \"\") ]\r\n\r\n    }\r\n\r\n\r\n        buildTypes {\r\n        release {\r\n            minifyEnabled false\r\n            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'\r\n        }\r\n    }\r\n}\r\n\r\ndependencies {\r\n    implementation 'com.google.firebase:firebase-database:19.5.1'\r\n    implementation 'androidx.wear:wear:1.0.0'\r\n    implementation 'com.google.android.gms:play-services-maps:17.0.0'\r\n    implementation 'com.google.firebase:firebase-storage:19.2.0'\r\n    compileOnly 'com.google.android.wearable:wearable:2.6.0'\r\n    def nav_version = '2.3.1'\r\n    implementation fileTree(dir: \"libs\", include: [\"*.jar\"])\r\n    implementation 'androidx.appcompat:appcompat:1.2.0'\r\n    implementation 'androidx.constraintlayout:constraintlayout:2.0.4'\r\n    testImplementation 'junit:junit:4.13.1'\r\n    androidTestImplementation 'androidx.test.ext:junit:1.1.2'\r\n    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'\r\n    implementation \"androidx.cardview:cardview:1.0.0\"\r\n    implementation \"androidx.recyclerview:recyclerview:1.1.0\"\r\n    implementation 'androidx.legacy:legacy-support-v4:1.0.0'\r\n    implementation \"androidx.navigation:navigation-fragment:2.3.1\"\r\n    implementation \"androidx.navigation:navigation-ui:$nav_version\"\r\n    implementation 'com.squareup.picasso:picasso:2.71828'\r\n    implementation \"androidx.cardview:cardview:1.0.0\"\r\n    implementation \"androidx.recyclerview:recyclerview:1.1.0\"\r\n    implementation 'com.cepheuen.elegant-number-button:lib:1.0.3'\r\n    implementation 'com.aurelhubert:ahbottomnavigation:2.3.4'\r\n    implementation 'androidx.biometric:biometric:1.0.1'\r\n    implementation  'com.google.firebase:firebase-auth:20.0.1'\r\n    implementation 'com.google.android.gms:play-services-auth:15.0.1'\r\n    implementation 'com.github.bumptech.glide:glide:4.3.1'\r\n    implementation 'com.google.maps.android:android-maps-utils:2.2.0'\r\n    implementation \"com.airbnb.android:lottie:3.5.0\"\r\n    implementation \"com.google.android.gms:play-services-location:17.1.0\"\r\n    implementation \"com.google.android.gms:play-services-location:15.0.1\"\r\n    annotationProcessor 'com.github.bumptech.glide:compiler:4.3.1'\r\n    implementation 'com.squareup.picasso:picasso:2.71828'\r\n    implementation 'jp.wasabeef:picasso-transformations:2.0.0'\r\n    implementation 'com.github.tizisdeepan:dots:1.0.1'\r\n\r\n\r\n}\r\napply plugin: 'com.google.gms.google-services'
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/build.gradle	(revision 71b474650fcc9fda0b90fc9e1cdbf4409751a612)
++++ app/build.gradle	(date 1608115228932)
+@@ -64,6 +64,12 @@
+     implementation 'com.squareup.picasso:picasso:2.71828'
+     implementation 'jp.wasabeef:picasso-transformations:2.0.0'
+     implementation 'com.github.tizisdeepan:dots:1.0.1'
++    implementation "com.hendraanggrian.appcompat:socialview:0.2"
++    implementation "com.hendraanggrian.appcompat:socialview-commons:0.2"
++    implementation 'com.theartofdev.edmodo:android-image-cropper:2.8.0'
++    implementation 'de.hdodenhof:circleimageview:3.1.0'
++    implementation 'com.rengwuxian.materialedittext:library:2.1.4'
++
+ 
+ 
+ }
+Index: app/src/main/res/layout/fragment_edit_profile.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<androidx.core.widget.NestedScrollView xmlns:android=\"http://schemas.android.com/apk/res/android\"\r\n    xmlns:tools=\"http://schemas.android.com/tools\"\r\n    android:layout_width=\"match_parent\"\r\n    android:layout_height=\"match_parent\"\r\n    tools:context=\".EditProfile\"\r\n    android:layout_marginTop=\"60dp\"\r\n    android:layout_marginBottom=\"50dp\"\r\n    android:background=\"@drawable/gradient_yellow_background\">\r\n<RelativeLayout\r\n    android:layout_width=\"match_parent\"\r\n    android:layout_height=\"match_parent\">\r\n    <TextView\r\n        android:elevation=\"5dp\"\r\n        android:background=\"@drawable/edit_profile_text_view\"\r\n        android:paddingLeft=\"20dp\"\r\n        android:paddingRight=\"20dp\"\r\n        android:paddingTop=\"10dp\"\r\n        android:paddingBottom=\"10dp\"\r\n        android:textSize=\"20dp\"\r\n        android:id=\"@+id/edit_profile_text_view\"\r\n        android:layout_width=\"wrap_content\"\r\n        android:layout_height=\"wrap_content\"\r\n        android:text=\"Edit profile\"\r\n        android:layout_alignParentStart=\"true\"\r\n        android:layout_marginTop=\"40dp\">\r\n\r\n    </TextView>\r\n    <ImageButton\r\n        android:id=\"@+id/edit_profile_picture\"\r\n        android:layout_width=\"wrap_content\"\r\n        android:layout_height=\"wrap_content\"\r\n        android:layout_toRightOf=\"@+id/profile_image_edit_profile\"\r\n        android:layout_below=\"@id/edit_profile_text_view\"\r\n        android:src=\"@drawable/ic_icon_awesome_edit\"\r\n        android:elevation=\"5dp\"\r\n        android:background=\"@drawable/button_round\"\r\n        android:layout_marginLeft=\"-15dp\"\r\n        android:layout_marginTop=\"20dp\"\r\n        android:padding=\"6dp\"\r\n        />\r\n\r\n    <ImageView\r\n        android:id=\"@+id/profile_image_edit_profile\"\r\n        android:layout_width=\"wrap_content\"\r\n        android:layout_height=\"wrap_content\"\r\n        android:layout_centerHorizontal=\"true\"\r\n        android:padding=\"10dp\"\r\n        android:layout_marginTop=\"5dp\"\r\n        android:layout_marginBottom=\"5dp\"\r\n        android:background=\"@drawable/circle_white_button\"\r\n        android:layout_below=\"@id/edit_profile_text_view\"\r\n        android:src=\"@drawable/ic_user_profile_svgrepo_com\">\r\n\r\n    </ImageView>\r\n    <Button\r\n        android:id=\"@+id/account_settings_button\"\r\n        android:layout_below=\"@+id/profile_image_edit_profile\"\r\n        android:layout_width=\"wrap_content\"\r\n        android:layout_height=\"30dp\"\r\n        android:layout_centerHorizontal=\"true\"\r\n        android:layout_marginTop=\"10dp\"\r\n        android:layout_marginBottom=\"20dp\"\r\n        android:text=\"account settings \"\r\n        android:background=\"@drawable/button_round_alabaster\"\r\n       android:paddingLeft=\"5dp\"\r\n        android:paddingRight=\"5dp\"\r\n        android:drawableStart=\"@drawable/ic_icon_ionic_ios_settings\"\r\n        android:drawablePadding=\"5dp\"\r\n        android:textSize=\"9dp\">\r\n\r\n    </Button>\r\n\r\n    <EditText\r\n        android:id=\"@+id/bio_edit_text\"\r\n        android:layout_width=\"wrap_content\"\r\n        android:layout_height=\"50dp\"\r\n        android:layout_below=\"@id/account_settings_button\"\r\n        android:layout_centerHorizontal=\"true\"\r\n        android:layout_marginLeft=\"10dp\"\r\n\r\n        android:layout_marginRight=\"10dp\"\r\n        android:layout_marginBottom=\"10dp\"\r\n        android:alpha=\"0.8\"\r\n        android:background=\"@drawable/textbox_round\"\r\n        android:drawableStart=\"@drawable/ic_icon_feather_info\"\r\n        android:drawableEnd=\"@drawable/ic_icon_ionic_ios_arrow_back\"\r\n        android:drawablePadding=\"8dp\"\r\n        android:elevation=\"3dp\"\r\n\r\n        android:padding=\"10dp\"\r\n        android:text=\"bio\">\r\n\r\n    </EditText>\r\n\r\n    <EditText\r\n        android:id=\"@+id/username_edit_text\"\r\n        android:layout_width=\"wrap_content\"\r\n        android:layout_height=\"50dp\"\r\n        android:layout_below=\"@id/bio_edit_text\"\r\n        android:layout_centerHorizontal=\"true\"\r\n        android:layout_marginStart=\"10dp\"\r\n        android:layout_marginTop=\"10dp\"\r\n        android:layout_marginEnd=\"10dp\"\r\n        android:layout_marginBottom=\"10dp\"\r\n        android:alpha=\"0.8\"\r\n        android:background=\"@drawable/textbox_round\"\r\n        android:drawableEnd=\"@drawable/ic_icon_ionic_ios_arrow_back\"\r\n        android:elevation=\"3dp\"\r\n        android:padding=\"10dp\"\r\n        android:text=\"user name\">\r\n\r\n    </EditText>\r\n    <EditText\r\n        android:padding=\"10dp\"\r\n        android:id=\"@+id/email_edit_text\"\r\n        android:layout_width=\"wrap_content\"\r\n        android:layout_height=\"50dp\"\r\n        android:elevation=\"3dp\"\r\n        android:background=\"@drawable/textbox_round\"\r\n        android:layout_centerHorizontal=\"true\"\r\n        android:text=\"email\"\r\n        android:layout_below=\"@id/username_edit_text\"\r\n        android:layout_margin=\"10dp\"\r\n        android:drawableEnd=\"@drawable/ic_icon_ionic_ios_arrow_back\"\r\n        >\r\n    </EditText>\r\n    <EditText\r\n\r\n        android:padding=\"10dp\"\r\n        android:id=\"@+id/password_edit_text\"\r\n        android:layout_width=\"wrap_content\"\r\n        android:layout_height=\"50dp\"\r\n        android:elevation=\"3dp\"\r\n        android:background=\"@drawable/textbox_round\"\r\n        android:layout_centerHorizontal=\"true\"\r\n        android:text=\"email\"\r\n        android:layout_below=\"@+id/email_edit_text\"\r\n        android:layout_marginTop=\"10dp\"\r\n        android:layout_marginBottom=\"30dp\"\r\n        android:drawableEnd=\"@drawable/ic_icon_ionic_ios_arrow_back\"\r\n        >\r\n\r\n    </EditText>\r\n</RelativeLayout>\r\n</androidx.core.widget.NestedScrollView>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/fragment_edit_profile.xml	(revision 71b474650fcc9fda0b90fc9e1cdbf4409751a612)
++++ app/src/main/res/layout/fragment_edit_profile.xml	(date 1608136574336)
+@@ -30,7 +30,7 @@
+         android:id="@+id/edit_profile_picture"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+-        android:layout_toRightOf="@+id/profile_image_edit_profile"
++        android:layout_toRightOf="@+id/edit_profile_image"
+         android:layout_below="@id/edit_profile_text_view"
+         android:src="@drawable/ic_icon_awesome_edit"
+         android:elevation="5dp"
+@@ -40,8 +40,8 @@
+         android:padding="6dp"
+         />
+ 
+-    <ImageView
+-        android:id="@+id/profile_image_edit_profile"
++    <de.hdodenhof.circleimageview.CircleImageView
++        android:id="@+id/edit_profile_image"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_centerHorizontal="true"
+@@ -50,12 +50,11 @@
+         android:layout_marginBottom="5dp"
+         android:background="@drawable/circle_white_button"
+         android:layout_below="@id/edit_profile_text_view"
+-        android:src="@drawable/ic_user_profile_svgrepo_com">
++        android:src="@drawable/ic_user_profile_svgrepo_com"/>
+ 
+-    </ImageView>
+     <Button
+         android:id="@+id/account_settings_button"
+-        android:layout_below="@+id/profile_image_edit_profile"
++        android:layout_below="@+id/edit_profile_image"
+         android:layout_width="wrap_content"
+         android:layout_height="30dp"
+         android:layout_centerHorizontal="true"
+@@ -72,7 +71,7 @@
+     </Button>
+ 
+     <EditText
+-        android:id="@+id/bio_edit_text"
++        android:id="@+id/edit_bio"
+         android:layout_width="wrap_content"
+         android:layout_height="50dp"
+         android:layout_below="@id/account_settings_button"
+@@ -89,15 +88,15 @@
+         android:elevation="3dp"
+ 
+         android:padding="10dp"
+-        android:text="bio">
++        android:text="Bio">
+ 
+     </EditText>
+ 
+     <EditText
+-        android:id="@+id/username_edit_text"
++        android:id="@+id/edit_username"
+         android:layout_width="wrap_content"
+         android:layout_height="50dp"
+-        android:layout_below="@id/bio_edit_text"
++        android:layout_below="@id/edit_bio"
+         android:layout_centerHorizontal="true"
+         android:layout_marginStart="10dp"
+         android:layout_marginTop="10dp"
+@@ -108,19 +107,19 @@
+         android:drawableEnd="@drawable/ic_icon_ionic_ios_arrow_back"
+         android:elevation="3dp"
+         android:padding="10dp"
+-        android:text="user name">
++        android:text="Username">
+ 
+     </EditText>
+     <EditText
+         android:padding="10dp"
+-        android:id="@+id/email_edit_text"
++        android:id="@+id/edit_email"
+         android:layout_width="wrap_content"
+         android:layout_height="50dp"
+         android:elevation="3dp"
+         android:background="@drawable/textbox_round"
+         android:layout_centerHorizontal="true"
+-        android:text="email"
+-        android:layout_below="@id/username_edit_text"
++        android:text="Email"
++        android:layout_below="@id/edit_username"
+         android:layout_margin="10dp"
+         android:drawableEnd="@drawable/ic_icon_ionic_ios_arrow_back"
+         >
+@@ -128,19 +127,32 @@
+     <EditText
+ 
+         android:padding="10dp"
+-        android:id="@+id/password_edit_text"
++        android:id="@+id/edit_password"
+         android:layout_width="wrap_content"
+         android:layout_height="50dp"
+         android:elevation="3dp"
+         android:background="@drawable/textbox_round"
+         android:layout_centerHorizontal="true"
+-        android:text="email"
+-        android:layout_below="@+id/email_edit_text"
++        android:text="Password"
++        android:inputType="textPassword"
++        android:layout_below="@+id/edit_email"
+         android:layout_marginTop="10dp"
+         android:layout_marginBottom="30dp"
+         android:drawableEnd="@drawable/ic_icon_ionic_ios_arrow_back"
+         >
+ 
+     </EditText>
++
++    <Button
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:id="@+id/btn_save"
++        android:layout_marginTop="15dp"
++        android:layout_centerHorizontal="true"
++        android:background="@drawable/button_round"
++        android:text="Save"
++        android:textColor="@color/colorAccent"
++        android:layout_below="@+id/edit_password"
++        />
+ </RelativeLayout>
+ </androidx.core.widget.NestedScrollView>
+\ No newline at end of file
+Index: app/src/main/java/com/example/shroomies/SignUpActivity.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>package com.example.shroomies;\r\n\r\nimport androidx.annotation.NonNull;\r\nimport androidx.appcompat.app.AppCompatActivity;\r\nimport androidx.biometric.BiometricManager;\r\n\r\nimport android.app.ProgressDialog;\r\nimport android.content.Intent;\r\nimport android.os.Bundle;\r\nimport android.text.TextUtils;\r\nimport android.util.Log;\r\nimport android.view.View;\r\nimport android.widget.Button;\r\nimport android.widget.EditText;\r\nimport android.widget.Switch;\r\nimport android.widget.Toast;\r\n\r\nimport com.google.android.gms.tasks.OnCompleteListener;\r\nimport com.google.android.gms.tasks.OnFailureListener;\r\nimport com.google.android.gms.tasks.OnSuccessListener;\r\nimport com.google.android.gms.tasks.Task;\r\nimport com.google.firebase.auth.AuthResult;\r\nimport com.google.firebase.auth.FirebaseAuth;\r\nimport com.google.firebase.auth.FirebaseUser;\r\nimport com.google.firebase.database.DatabaseReference;\r\nimport com.google.firebase.database.FirebaseDatabase;\r\nimport com.google.firebase.database.core.Tag;\r\n\r\nimport java.util.HashMap;\r\n\r\npublic class SignUpActivity extends AppCompatActivity {\r\n    private EditText name;\r\n    private EditText email;\r\n    private EditText password;\r\n    private EditText confirmpw;\r\n    private Button register;\r\n    private DatabaseReference mRootref;\r\n    private FirebaseAuth mAuth;\r\n    ProgressDialog pd;\r\n    SessionManager sessionManager;\r\n\r\n    @Override\r\n    protected void onCreate(Bundle savedInstanceState) {\r\n        super.onCreate(savedInstanceState);\r\n        setContentView(R.layout.activity_sign_up);\r\n        name = findViewById(R.id.fullname);\r\n        email = findViewById(R.id.emailid);\r\n        password = findViewById(R.id.password);\r\n        confirmpw = findViewById(R.id.confirmpw);\r\n        register = findViewById(R.id.registerbt);\r\n        mRootref = FirebaseDatabase.getInstance().getReference();\r\n        mAuth = FirebaseAuth.getInstance();\r\n        pd = new ProgressDialog(this);\r\n        Boolean isEnabled;\r\n\r\n        register.setOnClickListener(new View.OnClickListener() {\r\n            @Override\r\n            public void onClick(View v) {\r\n                String txtName = name.getText().toString();\r\n                String txtEmail = email.getText().toString();\r\n                String txtPass = password.getText().toString();\r\n                String txtConfpw = confirmpw.getText().toString();\r\n\r\n\r\n                if (TextUtils.isEmpty(txtName) || TextUtils.isEmpty(txtEmail) || TextUtils.isEmpty(txtPass)\r\n                        || TextUtils.isEmpty(txtConfpw)){\r\n                    Toast.makeText(SignUpActivity.this, \"Empty credentials!\", Toast.LENGTH_SHORT).show();\r\n                }\r\n                else if (txtPass.length() < 6){\r\n                    Toast.makeText(SignUpActivity.this, \"Password too short!\", Toast.LENGTH_SHORT).show();\r\n                }\r\n                else {\r\n\r\n                        registerUser(txtName , txtEmail , txtPass, txtConfpw);\r\n\r\n                }\r\n            }\r\n        });\r\n\r\n    }\r\n\r\n\r\n\r\n    private void registerUser(final String name, final String email, String password, String confirmpw) {\r\n        pd.setMessage(\"Please wait\");\r\n        pd.show();\r\n\r\n        mAuth.createUserWithEmailAndPassword(email, password). addOnSuccessListener(new OnSuccessListener<AuthResult>() {\r\n            @Override\r\n            public void onSuccess(AuthResult authResult) {\r\n\r\n                HashMap<String, Object> userDetails = new HashMap<>();\r\n                userDetails.put(\"name\", name);\r\n                userDetails.put(\"email\", email);\r\n                userDetails.put(\"ID\", mAuth.getCurrentUser().getUid());\r\n                userDetails.put(\"image\",\"\"); //add later in edit profile\r\n                userDetails.put(\"isPartOfRoom\",\"false\"); //change later\r\n                mRootref.child(\"Users\").child(mAuth.getCurrentUser().getUid()).setValue(userDetails).addOnCompleteListener(new OnCompleteListener<Void>() {\r\n\r\n                    @Override\r\n                    public void onComplete(@NonNull Task<Void> task) {\r\n                        if (task.isSuccessful()) {\r\n                            sendEmailVerification();\r\n\r\n\r\n                        }\r\n                    }\r\n                });\r\n            }\r\n                }).addOnFailureListener(new OnFailureListener() {\r\n            @Override\r\n            public void onFailure(@NonNull Exception e) {\r\n                pd.dismiss();\r\n                Toast.makeText(SignUpActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();\r\n            }\r\n            });\r\n    }\r\n    private void sendEmailVerification(){\r\n        final FirebaseUser user = mAuth.getCurrentUser();\r\n        user.sendEmailVerification().addOnCompleteListener(this, new OnCompleteListener<Void>() {\r\n            @Override\r\n            public void onComplete(@NonNull Task<Void> task) {\r\n                findViewById(R.id.registerbt).setEnabled(true);\r\n                if(task.isSuccessful()){\r\n                    Toast.makeText(getApplicationContext(), \"Registered Successfully. Verification email sent to \" + user.getEmail(), Toast.LENGTH_SHORT).show();\r\n                    Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);\r\n                    startActivity(intent);\r\n\r\n                    //Toast.makeText(SignUpActivity.this, name+\", you are a Shroomie now\", Toast.LENGTH_SHORT).show();\r\n                    finish();\r\n                }\r\n                else {\r\n                    Log.e(\"Register\", \"Send Email verification failed!\",task.getException());\r\n                    Toast.makeText(getApplicationContext(), \"Failed to send verification email\", Toast.LENGTH_SHORT).show();\r\n                }\r\n            }\r\n        });\r\n    }\r\n    @Override\r\n    public void onDestroy() {\r\n        super.onDestroy();\r\n        if (pd != null) {\r\n            pd.dismiss();\r\n            pd = null;\r\n        }\r\n    }\r\n\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/java/com/example/shroomies/SignUpActivity.java	(revision 71b474650fcc9fda0b90fc9e1cdbf4409751a612)
++++ app/src/main/java/com/example/shroomies/SignUpActivity.java	(date 1608118871500)
+@@ -94,6 +94,7 @@
+                 userDetails.put("email", email);
+                 userDetails.put("ID", mAuth.getCurrentUser().getUid());
+                 userDetails.put("image",""); //add later in edit profile
++                userDetails.put("bio",""); //add later in edit profile
+                 userDetails.put("isPartOfRoom","false"); //change later
+                 mRootref.child("Users").child(mAuth.getCurrentUser().getUid()).setValue(userDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
+ 
+@@ -102,7 +103,6 @@
+                         if (task.isSuccessful()) {
+                             sendEmailVerification();
+ 
+-
+                         }
+                     }
+                 });
+Index: .idea/inspectionProfiles/Project_Default.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .idea/inspectionProfiles/Project_Default.xml	(date 1608137209283)
++++ .idea/inspectionProfiles/Project_Default.xml	(date 1608137209283)
+@@ -0,0 +1,10 @@
++<component name="InspectionProjectProfileManager">
++  <profile version="1.0">
++    <option name="myName" value="Project Default" />
++    <inspection_tool class="ConstantConditions" enabled="true" level="WARNING" enabled_by_default="true">
++      <option name="SUGGEST_NULLABLE_ANNOTATIONS" value="false" />
++      <option name="DONT_REPORT_TRUE_ASSERT_STATEMENTS" value="false" />
++    </inspection_tool>
++    <inspection_tool class="UNCHECKED_WARNING" enabled="false" level="WARNING" enabled_by_default="false" />
++  </profile>
++</component>
+\ No newline at end of file
