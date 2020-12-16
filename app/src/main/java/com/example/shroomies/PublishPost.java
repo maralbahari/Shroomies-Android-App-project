@@ -83,6 +83,7 @@ import kotlin.collections.AbstractIterator;
 
 
 public class PublishPost extends Fragment implements OnMapReadyCallback {
+
     private static final String MAPVIEW_BUNDLE_KEY = "MapViewBundleKey";
     int currentTabPosition = 0;
     View v;
