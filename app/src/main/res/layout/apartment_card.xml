@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    
+    <androidx.cardview.widget.CardView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="11dp"
+        android:layout_marginVertical="7dp"
+        app:cardCornerRadius="15dp"
+        >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/Iv_RoomImg"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_centerHorizontal="true"
+            android:elevation="10dp"
+            android:scaleType="centerCrop"
+
+            />
+    <ProgressBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="70dp"
+        style="@android:style/Widget.ProgressBar.Small"
+        android:id="@+id/PB_progress"
+        />
+
+        <TextView
+            android:id="@+id/TV_price"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Price"
+            android:paddingTop="16dp"
+            android:paddingLeft="16dp"
+            android:layout_below= "@id/Iv_RoomImg"
+            android:fontFamily="@font/assistant_bold"
+            android:textSize="22sp"
+
+            />
+        <TextView
+            android:id="@+id/TV_address"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/TV_price"
+            android:text="Address"
+            android:paddingLeft="16dp"
+            android:layout_ppaddingTop="8dp"
+            android:fontFamily="@font/assistant_semibold"
+            android:textSize="22sp"
+            />
+
+        <ImageView
+            android:id="@+id/IW_Star"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/Iv_RoomImg"
+            android:layout_alignParentRight="true"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginTop="16dp"
+            android:src="@drawable/star"
+
+
+            />
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/people"
+            android:id="@+id/IW_People"
+            android:layout_below="@id/Iv_RoomImg"
+            android:layout_toRightOf="@id/TV_price"
+            android:layout_marginTop="16dp"
+            android:layout_marginLeft="60dp"
+
+            />
+        <TextView
+            android:id="@+id/Room_mate_num"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1"
+            android:layout_toRightOf="@id/IW_People"
+            android:layout_below="@id/Iv_RoomImg"
+            android:layout_marginTop="30dp"
+            android:textSize="14sp"
+            />
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/msg"
+            android:layout_below="@id/TV_address"
+            android:layout_alignParentRight="true"
+            android:paddingRight="20dp"
+            android:paddingBottom="20dp"
+
+            />
+        <
+
+
+
+    </RelativeLayout>
+    </androidx.cardview.widget.CardView>
+</LinearLayout>
