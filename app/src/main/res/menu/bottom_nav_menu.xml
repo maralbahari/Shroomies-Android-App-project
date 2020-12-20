@@ -4,27 +4,27 @@
     <item
         android:id="@+id/find_roomie_menu"
         android:icon="@drawable/ic_find_roommie_"
-        android:title="find roommate"
+        android:title=""
 
 
  />
     <item
         android:id="@+id/publish_post_menu"
-        android:title="publish post"
+        android:title=""
 
 
         android:icon="@drawable/ic_publish_post_"
          />
     <item
         android:id="@+id/message_inbox_menu"
-        android:title="message inbox"
+        android:title=""
         android:icon="@drawable/ic_message_inbox_"
 />
 
 
     <item
         android:id="@+id/user_profile_menu"
-        android:title="view profile"
+        android:title=""
         android:icon="@drawable/ic_user_profile_"
        />
 
