@@ -1,53 +1,101 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<androidx.constraintlayout.motion.widget.MotionLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".FindRoommate"
-    android:layout_marginTop="55dp"
+    android:layout_marginTop="60dp"
     android:layout_marginBottom="50dp"
     android:background="@drawable/background_discover"
-    >
+    app:layoutDescription="@xml/fragment_find_roommate_scene"
+    tools:context=".FindRoommate">
+
     <TextView
         android:id="@+id/TWh1_dis"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="30dp"
+        android:layout_marginStart="30dp"
         android:layout_marginTop="50dp"
-        android:layout_marginBottom="2dp"
         android:fontFamily="@font/assistant_bold"
         android:text="@string/Heading_discover"
         android:textColor="#000000"
-        android:textSize="50sp" />
+        android:textSize="50sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
     <TextView
         android:id="@+id/TWh2_disc"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/TWh1_dis"
-        android:layout_marginLeft="45dp"
+
+        android:layout_marginTop="9dp"
+        android:layout_marginEnd="20dp"
         android:fontFamily="@font/assistant_semibold"
         android:text="Your shroomies today!"
         android:textColor="#000000"
-        android:textSize="30sp"/>
+        android:textSize="30sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/TWh1_dis" />
+
     <SearchView
         android:id="@+id/SVsearch_disc"
-        android:layout_width="280dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="30dp"
+        android:background="@drawable/search_border"
+        android:elevation="3dp"
         android:iconifiedByDefault="false"
         android:queryHint="Search.."
-        android:layout_below="@id/TWh2_disc"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp"
-        android:elevation="3dp"
-        android:background="@drawable/search_border"/>
+        app:layout_constraintBottom_toTopOf="@+id/tabLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/TWh2_disc" />
 
-<!--    to view the personal post -->
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/apartment_view"/>
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/tabLayout"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        app:layout_constraintBottom_toTopOf="@+id/apartment_recycler_view"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/SVsearch_disc">
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Apartment" />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Location" />
+
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="personal" />
+
+    </com.google.android.material.tabs.TabLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/apartment_recycler_view"
+        android:layout_width="match_parent"
+
+        android:layout_height="0dp"
+
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="1dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tabLayout" />
 
 
-
-</RelativeLayout>
+</androidx.constraintlayout.motion.widget.MotionLayout>

@@ -5,13 +5,13 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
 
-    android:layout_marginTop="50dp"
-    android:layout_marginBottom="60dp"
+
+
     app:layoutDescription="@xml/fragment_apartment_page_scene">
 
     <androidx.viewpager.widget.ViewPager
 
-        android:id="@+id/view_pager"
+        android:id="@+id/view_pager_apartment_view"
         android:layout_width="match_parent"
         android:layout_height="300dp"
 
@@ -22,7 +22,7 @@
     </androidx.viewpager.widget.ViewPager>
 
     <com.make.dots.dotsindicator.DotsIndicator
-        android:id="@+id/dotsIndicator"
+        android:id="@+id/dotsIndicator_apartment_view"
 
 
         android:layout_width="wrap_content"
@@ -37,10 +37,10 @@
         app:dot_height="6dp"
         app:dot_margin="4dp"
         app:dot_width="6dp"
-        app:layout_constraintBottom_toBottomOf="@id/view_pager"
-        app:layout_constraintEnd_toEndOf="@id/view_pager"
-        app:layout_constraintStart_toStartOf="@id/view_pager"
-        app:layout_constraintTop_toTopOf="@id/view_pager" />
+        app:layout_constraintBottom_toBottomOf="@id/view_pager_apartment_view"
+        app:layout_constraintEnd_toEndOf="@id/view_pager_apartment_view"
+        app:layout_constraintStart_toStartOf="@id/view_pager_apartment_view"
+        app:layout_constraintTop_toTopOf="@id/view_pager_apartment_view" />
     <ImageButton
         android:id="@+id/message_user_button"
         android:layout_width="wrap_content"
@@ -49,14 +49,14 @@
         android:src="@drawable/ic_icon_feather_message_circle"
         android:layout_marginRight="20dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/dotsIndicator" />
+        app:layout_constraintTop_toBottomOf="@+id/dotsIndicator_apartment_view" />
 
     <androidx.core.widget.NestedScrollView
         android:id="@+id/nestedScrollView2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/view_pager">
+        app:layout_constraintTop_toBottomOf="@+id/view_pager_apartment_view">
 
         <RelativeLayout
             android:layout_width="match_parent"

@@ -40,7 +40,7 @@
         android:padding="6dp"
         />
 
-    <de.hdodenhof.circleimageview.CircleImageView
+    <ImageView
         android:id="@+id/edit_profile_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

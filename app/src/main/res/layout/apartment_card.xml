@@ -11,6 +11,7 @@
         android:layout_marginHorizontal="11dp"
         android:layout_marginVertical="7dp"
         app:cardCornerRadius="15dp"
+        android:id="@+id/apartment_card_view"
         >
 
     <RelativeLayout
@@ -60,20 +61,20 @@
             />
 
 <!--        it is working on the emulator-->
-        <com.like.LikeButton
-            app:icon_type="star"
-            app:icon_size="20dp"
-            android:id="@+id/star_button_apartment_card"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/Iv_RoomImg"
-            android:layout_toRightOf="@id/IW_People"
-            android:layout_marginTop="16dp"
-            android:layout_marginHorizontal="170dp"
-            app:liked="true"
-            app:dots_primary_color="@color/Black"
-            app:dots_secondary_color="#F5CB5C"
-            />
+<!--        <com.like.LikeButton-->
+<!--            app:icon_type="star"-->
+<!--            app:icon_size="20dp"-->
+<!--            android:id="@+id/star_button_apartment_card"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_below="@id/Iv_RoomImg"-->
+<!--            android:layout_toRightOf="@id/IW_People"-->
+<!--            android:layout_marginTop="16dp"-->
+<!--            android:layout_marginHorizontal="170dp"-->
+<!--            app:liked="true"-->
+<!--            app:dots_primary_color="@color/Black"-->
+<!--            app:dots_secondary_color="#F5CB5C"-->
+<!--            />-->
 
 
         <ImageView
@@ -97,14 +98,23 @@
             android:layout_marginTop="30dp"
             android:textSize="14sp"
             />
-        <ImageView
+        <Button
+
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/msg"
+            android:minHeight="0dp"
+            android:padding="7dp"
+            android:id="@+id/start_chat_button_apartment_card"
+            android:background="@drawable/button_round_corner_purple"
+            android:text="send message"
+            android:textColor="@color/white"
+            android:drawableStart="@drawable/ic_icon_feather_message_circle_small"
+            android:drawablePadding="5dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginRight="20dp"
             android:layout_below="@id/TV_address"
             android:layout_alignParentRight="true"
-            android:paddingRight="20dp"
-            android:paddingBottom="20dp"
 
             />
         <ImageView

@@ -33,7 +33,6 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.Checkable;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -52,11 +51,8 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.CancellationToken;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.OnTokenCanceledListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
@@ -78,8 +74,6 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-
-import kotlin.collections.AbstractIterator;
 
 
 public class PublishPost extends Fragment implements OnMapReadyCallback {
@@ -378,7 +372,7 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
         double latitude;
         double longitude;
         Context context;
-        LatLng latLng;
+
 
         CurrentLocationAsync(Context context){
             this.context = context;
@@ -538,7 +532,7 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
                 public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                     if(task.isSuccessful()) {
 
-                        IMAGE_URLS.add(task.getResult().getMetadata().getReference().getDownloadUrl().toString());
+                        IMAGE_URLS.add(task.getResult().getMetadata().getReference().getPath().toString());
                         // once all the pictures are added to the Storage add the rest of the posts using the urls to the database
                         if(IMAGE_URLS.size() == imageUri.size()){
                             addToRealTimeDatabase(locationLtLng ,  description ,  numberRoomMate ,  price , property ,IMAGE_URLS);
@@ -585,6 +579,11 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
         post.put("preferences" , property);
         post.put("image_url" , IMAGE_URL );
 
+
+        // add the time of the post
+        Calendar calendar = Calendar.getInstance();
+        post.put("date",new SimpleDateFormat("dd-MMMM-yyyy").format(calendar.getTime()));
+
         //add image and date and user profile
 
 
@@ -623,6 +622,10 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
         post.put("locationLatLng", locationLtLng);
         post.put("preferences" , property);
 
+        // add the time of the post
+        Calendar calendar = Calendar.getInstance();
+        post.put("date",(new SimpleDateFormat("dd-MMMM-yyyy").format(calendar)));
+
         //add image and date and user profile
         postUniqueName = getUniqueName();
 
@@ -648,31 +651,6 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
 
 
 
-
-    List<String> getEncodedList(List<Uri> imageUri) throws FileNotFoundException {
-        //List of strings will hold all the images as base64 images
-        List<String> encodedImageList = new ArrayList<>();
-        for (Uri  uri :
-                imageUri) {
-            final InputStream imageStream;
-            imageStream = getActivity().getContentResolver().openInputStream(uri);
-            final Bitmap selectedImage = BitmapFactory.decodeStream(imageStream);
-            encodedImageList.add(encodeImage(selectedImage));
-
-        }
-        Toast.makeText(getActivity(), Integer.toString(encodedImageList.size()),Toast.LENGTH_LONG).show();
-        return encodedImageList;
-
-    }
-    private String encodeImage(Bitmap bm)
-    {
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bm.compress(Bitmap.CompressFormat.JPEG,100,baos);
-        byte[] b = baos.toByteArray();
-        String encImage = Base64.encodeToString(b, Base64.DEFAULT);
-
-        return encImage;
-    }
 
 
 

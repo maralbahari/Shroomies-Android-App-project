@@ -37,17 +37,20 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.StorageTask;
 import com.google.firebase.storage.UploadTask;
-import com.squareup.picasso.Picasso;
-import com.theartofdev.edmodo.cropper.CropImage;
-import com.theartofdev.edmodo.cropper.CropImageView;
 import java.util.HashMap;
-import de.hdodenhof.circleimageview.CircleImageView;
+//import com.squareup.picasso.Picasso;
+//import com.theartofdev.edmodo.cropper.CropImage;
+//import com.theartofdev.edmodo.cropper.CropImageView;
+//
+//import java.util.HashMap;
+//
+//import de.hdodenhof.circleimageview.CircleImageView;
 
 
 public class EditProfile extends Fragment {
 
     View v;
-    private CircleImageView profileImage;
+//    private CircleImageView profileImage;
     private ImageButton editImage;
     private EditText username;
     private EditText email;
@@ -74,7 +77,7 @@ public class EditProfile extends Fragment {
         View v = inflater.inflate(R.layout.fragment_edit_profile, container, false);
         MainActivity.btm_view.setBackgroundColor(getResources().getColor(R.color.lowerGradientColorForLoginBackground, getActivity().getTheme()));
 
-        profileImage = v.findViewById(R.id.edit_profile_image);
+//        profileImage = v.findViewById(R.id.edit_profile_image);
         editImage = v.findViewById(R.id.edit_profile_picture);
         username = v.findViewById(R.id.edit_username);
         email = v.findViewById(R.id.edit_email);
@@ -95,7 +98,7 @@ public class EditProfile extends Fragment {
                     username.setText(user.getName());
                     bio.setText(user.getBio());
                     email.setText(user.getEmail());
-                    Glide.with(getActivity()).load(user.getImageurl()).into(profileImage);
+//                    Glide.with(getActivity()).load(user.getImageurl()).into(profileImage);
                 }
 
                 @Override
@@ -104,12 +107,12 @@ public class EditProfile extends Fragment {
                 }
             });
 
-            profileImage.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    openImage();
-                }
-            });
+//            profileImage.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    openImage();
+//                }
+//            });
 
             editImage.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -227,7 +230,7 @@ public class EditProfile extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == IMAGE_REQUEST && resultCode == getActivity().RESULT_OK && data !=null) {
-            CropImage.ActivityResult result = CropImage.getActivityResult(data);
+//            CropImage.ActivityResult result = CropImage.getActivityResult(data);
             imageUri = data.getData();
 
             if (uploadTask !=null && uploadTask.isInProgress()){

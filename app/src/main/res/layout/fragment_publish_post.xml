@@ -82,7 +82,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:layout_margin="20dp"
-                    android:layout_above="@+id/view_pager"
+                    android:layout_above="@+id/view_pager_apartment_view"
                     />
 
 
