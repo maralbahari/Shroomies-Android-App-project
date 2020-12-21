@@ -1,6 +1,5 @@
 package com.example.shroomies;
 
-import android.graphics.Bitmap;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -13,91 +12,56 @@ public class Apartment implements Parcelable {
     String description;
     String date;
     int numberOfRoommates;
-    LatLngCustom locationLatLng;
+    double latitude;
+    double longitude;
     List<String> image_url;
     List<Boolean> preferences;
     int price;
-
-    public Apartment() {
-
-    }
-
-    public Apartment(String userID, String description, String date, int numberOfRoommates, LatLngCustom locationLatLng, List<String> image_url, List<Boolean> preferences, int price) {
-        this.userID = userID;
-        this.description = description;
-        this.date = date;
-        this.numberOfRoommates = numberOfRoommates;
-        this.locationLatLng = locationLatLng;
-        this.image_url = image_url;
-        this.preferences = preferences;
-        this.price = price;
-    }
+    String userName;
 
     public String getUserID() {
         return userID;
-    }
-
-    public void setUserID(String userID) {
-        this.userID = userID;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public String getDate() {
         return date;
-    }
-
-    public void setDate(String date) {
-        this.date = date;
     }
 
     public int getNumberOfRoommates() {
         return numberOfRoommates;
     }
 
-    public void setNumberOfRoommates(int numberOfRoommates) {
-        this.numberOfRoommates = numberOfRoommates;
+    public double getLatitude() {
+        return latitude;
     }
 
-    public LatLngCustom getLocationLatLng() {
-        return locationLatLng;
-    }
-
-    public void setLocationLatLng(LatLngCustom locationLatLng) {
-        this.locationLatLng = locationLatLng;
+    public double getLongitude() {
+        return longitude;
     }
 
     public List<String> getImage_url() {
         return image_url;
     }
 
-    public void setImage_url(List<String> image_url) {
-        this.image_url = image_url;
-    }
-
     public List<Boolean> getPreferences() {
         return preferences;
-    }
-
-    public void setPreferences(List<Boolean> preferences) {
-        this.preferences = preferences;
     }
 
     public int getPrice() {
         return price;
     }
 
-    public void setPrice(int price) {
-        this.price = price;
+    public String getUserName() {
+        return userName;
     }
 
+    public Apartment() {
 
+    }
 
 
     protected Apartment(Parcel in) {
@@ -105,23 +69,11 @@ public class Apartment implements Parcelable {
         description = in.readString();
         date = in.readString();
         numberOfRoommates = in.readInt();
+        latitude = in.readDouble();
+        longitude = in.readDouble();
         image_url = in.createStringArrayList();
         price = in.readInt();
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(userID);
-        dest.writeString(description);
-        dest.writeString(date);
-        dest.writeInt(numberOfRoommates);
-        dest.writeStringList(image_url);
-        dest.writeInt(price);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
+        userName = in.readString();
     }
 
     public static final Creator<Apartment> CREATOR = new Creator<Apartment>() {
@@ -135,22 +87,44 @@ public class Apartment implements Parcelable {
             return new Apartment[size];
         }
     };
+
+    /**
+     * Describe the kinds of special objects contained in this Parcelable
+     * instance's marshaled representation. For example, if the object will
+     * include a file descriptor in the output of {@link #writeToParcel(Parcel, int)},
+     * the return value of this method must include the
+     * {@link #CONTENTS_FILE_DESCRIPTOR} bit.
+     *
+     * @return a bitmask indicating the set of special object types marshaled
+     * by this Parcelable object instance.
+     */
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    /**
+     * Flatten this object in to a Parcel.
+     *
+     * @param dest  The Parcel in which the object should be written.
+     * @param flags Additional flags about how the object should be written.
+     *              May be 0 or {@link #PARCELABLE_WRITE_RETURN_VALUE}.
+     */
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(userID);
+        dest.writeString(description);
+        dest.writeString(date);
+        dest.writeInt(numberOfRoommates);
+        dest.writeDouble(latitude);
+        dest.writeDouble(longitude);
+        dest.writeStringList(image_url);
+        dest.writeInt(price);
+        dest.writeString(userName);
+    }
 }
 
-class LatLngCustom {
-    double latitude;
-    double longitude;
-
-    public double getLatitude() {
-        return latitude;
-    }
-
-    public double getLongitude() {
-        return longitude;
-    }
-
-    LatLngCustom() {
-    }
 
 
-}
+
+

@@ -20,6 +20,7 @@ import com.bumptech.glide.annotation.GlideModule;
 import com.bumptech.glide.module.AppGlideModule;
 
 import com.firebase.ui.storage.images.FirebaseImageLoader;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
@@ -52,10 +53,10 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
         geocoder = new Geocoder(context);
 
         holder.priceTV.setText(Integer.toString(apartmentList.get(position).getPrice()));
-        LatLngCustom latLng = apartmentList.get(position).getLocationLatLng();
-        // get the location from the latlng
+        LatLng latLng = new LatLng(apartmentList.get(position).getLatitude(), apartmentList.get(position).getLongitude());
+        // get the location from the latlng]
         try {
-            holder.addressTV.setText(geocoder.getFromLocation(latLng.getLatitude(),latLng.getLongitude(),1).get(0).getLocality());
+            holder.addressTV.setText(geocoder.getFromLocation(latLng.latitude,latLng.longitude,1).get(0).getLocality());
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -56,8 +56,11 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -117,6 +120,7 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
     String postUniqueName;
     RelativeLayout successCard;
     Button okButton;
+    String userName;
 
 
 
@@ -569,15 +573,39 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
 
     void addToRealTimeDatabase(LatLng locationLtLng , String description , int numberRoomMate , int price , List<Boolean> property ,List<String> IMAGE_URL){
 
-        HashMap<String ,Object> post = new HashMap<>();
         String userUid =  FirebaseAuth.getInstance().getCurrentUser().getUid();
+        //get the username of the user
+        DatabaseReference getUsername = FirebaseDatabase.getInstance().getReference("Users").child(userUid);
+
+        getUsername.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
+                    User user = snapshot.getValue(User.class);
+
+                    userName = user.getName();
+                    Toast.makeText(getActivity(), userName , Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+        HashMap<String ,Object> post = new HashMap<>();
+
         post.put("description" , description);
         post.put("userID" , userUid);
         post.put("price", price);
         post.put("numberOfRoommates" , numberRoomMate);
-        post.put("locationLatLng", locationLtLng);
+        post.put("latitude", locationLtLng.latitude);
+        post.put("longitude",locationLtLng.longitude);
         post.put("preferences" , property);
         post.put("image_url" , IMAGE_URL );
+        post.put("userName" , userName);
+
 
 
         // add the time of the post
@@ -608,19 +636,41 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
     }
 
     void publishPersonalPost(LatLng locationLtLng , String description , int price , List<Boolean> property ){
+        String userUid =  FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        //get the username of the user
+        DatabaseReference getUsername = FirebaseDatabase.getInstance().getReference("Users").child(userUid);
+
+        getUsername.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
+                    User user = snapshot.getValue(User.class);
+
+                    userName = user.getName();
+                    Toast.makeText(getActivity(), userName , Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
 
         uploadingProgress.setVisibility(View.VISIBLE);
         publishPostButton.setVisibility(View.INVISIBLE);
         uploadingProgress.playAnimation();
         nestedScrollView.setAlpha((float) 0.6);
         HashMap<String ,Object> post = new HashMap<>();
-        String userUid =  FirebaseAuth.getInstance().getCurrentUser().getUid();
+
         post.put("description" , description);
         post.put("userID" , userUid);
         post.put("price", price);
-
-        post.put("locationLatLng", locationLtLng);
+        post.put("latitude", locationLtLng.latitude);
+        post.put("longitude",locationLtLng.longitude);
         post.put("preferences" , property);
+        post.put("userName" , userName);
 
         // add the time of the post
         Calendar calendar = Calendar.getInstance();
