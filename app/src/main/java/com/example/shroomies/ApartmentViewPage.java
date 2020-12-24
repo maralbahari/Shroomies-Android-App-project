@@ -12,6 +12,7 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.appcompat.widget.Toolbar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,6 +21,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -28,6 +30,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -43,6 +46,7 @@ import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Random;
 
 import jp.wasabeef.picasso.transformations.RoundedCornersTransformation;
 
@@ -61,6 +65,7 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
     GoogleMap mMap;
     TextView locationAddressTextView;
     Geocoder geocoder;
+    Toolbar toolbar;
     private static final String MAPVIEW_BUNDLE_KEY = "MapViewBundleKey";
 
 
@@ -84,6 +89,10 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
             date = findViewById(R.id.date_of_post_text_view);
             username = findViewById(R.id.name_of_user_text_view);
             mapView = findViewById(R.id.apartment_post_page_map);
+            toolbar = (Toolbar) findViewById(R.id.toolbar);
+            setSupportActionBar(toolbar);
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setDisplayShowHomeEnabled(true);
             initGoogleMap(savedInstanceState);
 
             mapView.getMapAsync(this);
@@ -274,14 +283,15 @@ class ViewPagerAdapterApartmentView extends PagerAdapter {
         ImageView imageView = new ImageView(context);
 
 
+
         StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(imageUrls.get(position));
         Toast.makeText(context, imageUrls.get(position),Toast.LENGTH_LONG).show();
         // Load the image using Glide
         GlideApp.with(this.context)
                 .load(storageReference)
-                .centerCrop()
-                .centerInside()
+                .transform(new RoundedCorners(1))
                 .fitCenter()
+                .centerCrop()
                 .into(imageView);
 
         ViewPager vp = (ViewPager) container;

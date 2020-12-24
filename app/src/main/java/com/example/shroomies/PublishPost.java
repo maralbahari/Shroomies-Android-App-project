@@ -547,7 +547,6 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
                         publishPostButton.setVisibility(View.VISIBLE);
                         nestedScrollView.setAlpha((float) 1);
                         Toast.makeText(getActivity(), "we ran into a problem uploading your photos" , Toast.LENGTH_LONG).show();
-
                     }
                 }
             });
@@ -698,11 +697,6 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
         });
 
     }
-
-
-
-
-
 
     void addToViewPager(Uri newImageUri){
         imageIconPost.setVisibility(View.VISIBLE);

@@ -5,18 +5,26 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
 
-
-
     app:layoutDescription="@xml/fragment_apartment_page_scene">
+
+    <include
+        android:id="@+id/include1"
+        layout="@layout/drawer_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        app:layout_constraintEnd_toEndOf="parent"
+
+        app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.viewpager.widget.ViewPager
 
         android:id="@+id/view_pager_apartment_view"
         android:layout_width="match_parent"
-        android:layout_height="300dp"
+        android:layout_height="wrap_content"
 
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+       app:layout_constraintTop_toBottomOf="@+id/toolbar">
 
 
     </androidx.viewpager.widget.ViewPager>

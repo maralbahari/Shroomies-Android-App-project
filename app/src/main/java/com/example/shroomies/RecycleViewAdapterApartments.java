@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -17,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.Registry;
 import com.bumptech.glide.annotation.GlideModule;
+import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.bumptech.glide.module.AppGlideModule;
 
 import com.firebase.ui.storage.images.FirebaseImageLoader;
@@ -27,6 +30,8 @@ import com.google.firebase.storage.StorageReference;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleViewAdapterApartments.ViewHolder> {
 
@@ -52,7 +57,11 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
         //initialize geocoeder to get the location from the latlng
         geocoder = new Geocoder(context);
 
+
+        // set the price of the apartment
         holder.priceTV.setText(Integer.toString(apartmentList.get(position).getPrice()));
+        //set the number of roommates
+        holder.numRoomMateTV.setText(Integer.toString(apartmentList.get(position).getNumberOfRoommates()));
         LatLng latLng = new LatLng(apartmentList.get(position).getLatitude(), apartmentList.get(position).getLongitude());
         // get the location from the latlng]
         try {
@@ -67,9 +76,11 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
         // Load the image using Glide
                 GlideApp.with(this.context)
                         .load(storageReference)
+                        .fitCenter()
+                        .centerCrop()
                         .into(holder.apartmentImage);
         // on click go to the apartment view
-        holder.cradView.setOnClickListener(new View.OnClickListener() {
+        holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, ApartmentViewPage.class);
@@ -79,6 +90,12 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
                 context.startActivity(intent);
             }
         });
+        List<Boolean> preferences = apartmentList.get(position).getPreferences();
+        if(preferences.get(0)){holder.maleButton.setVisibility(View.VISIBLE);}
+        if(preferences.get(1)){holder.femaleButton.setVisibility(View.VISIBLE);}
+        if(preferences.get(2)){holder.petsAllowedButton.setVisibility(View.VISIBLE);}
+        if(preferences.get(3)){holder.smokeFreeButton.setVisibility(View.VISIBLE);}
+
 
 
     }
@@ -97,14 +114,22 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
         TextView numRoomMateTV;
         TextView addressTV;
         ImageView apartmentImage;
-        CardView cradView;
+        CardView cardView;
+        ImageView maleButton;
+        ImageView femaleButton;
+        ImageView petsAllowedButton;
+        ImageView smokeFreeButton;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             priceTV = itemView.findViewById(R.id.TV_price);
             numRoomMateTV = itemView.findViewById(R.id.Room_mate_num);
             addressTV = itemView.findViewById(R.id.TV_address);
             apartmentImage = itemView.findViewById(R.id.Iv_RoomImg);
-            cradView = itemView.findViewById(R.id.apartment_card_view);
+            cardView = itemView.findViewById(R.id.apartment_card_view);
+            maleButton = itemView.findViewById(R.id.male_image_apartment_card);
+            femaleButton = itemView.findViewById(R.id.female_image_apartment_card);
+            petsAllowedButton = itemView.findViewById(R.id.pets_allowd_image_apartment_card);
+            smokeFreeButton = itemView.findViewById(R.id.non_smoking_image_view_apartment_card);
 
         }
 

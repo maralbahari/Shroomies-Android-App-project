@@ -79,19 +79,17 @@ public class FindRoommate extends Fragment {
             public boolean onQueryTextSubmit(String query) {
                 // if  the user is searching in the apartment tab
                 if (tabLayout.getSelectedTabPosition() == 0) {
-                    DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
-                    Query query1 = reference.orderByChild("postApartment").equalTo(query);
+                    DatabaseReference reference = FirebaseDatabase.getInstance().getReference("postApartment");
+                    Query query1 = reference.orderByChild("userName").equalTo(query);
                     query1.addValueEventListener(new ValueEventListener() {
                         @Override
-
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            recycleViewAdapterApartment = new RecycleViewAdapterApartments(apartmentList, getActivity());
+
                             setAdapterData(snapshot);
                         }
-
                         @Override
-
                         public void onCancelled(@NonNull DatabaseError error) {
+                            Toast.makeText(getActivity(), error.getMessage() , Toast.LENGTH_SHORT).show();
                         }
                     });
 
@@ -115,9 +113,15 @@ public class FindRoommate extends Fragment {
                 //close the list view if its still open
                 locationListView.setAdapter(null);
                 locationListView.setVisibility(View.GONE);
+
+                // if the user closed the search get  the starting page apartments
+                if(tabLayout.getSelectedTabPosition()==0){
+                    getApartments();
+                }
                 return false;
             }
         });
+
         locationListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -184,6 +188,7 @@ public class FindRoommate extends Fragment {
     }
 
     void setAdapterData(DataSnapshot snapshot) {
+        apartmentList = new ArrayList<>();
         if (snapshot.exists()) {
             for (DataSnapshot dataSnapshot :
                     snapshot.getChildren()) {

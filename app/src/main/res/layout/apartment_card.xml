@@ -14,165 +14,174 @@
         android:id="@+id/apartment_card_view"
         >
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <ImageView
-            android:id="@+id/Iv_RoomImg"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="200dp"
-            android:layout_centerHorizontal="true"
-            android:elevation="10dp"
-            android:scaleType="centerCrop"
+            android:layout_height="wrap_content">
 
-            />
-    <ProgressBar
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="70dp"
-        style="@android:style/Widget.ProgressBar.Small"
-        android:id="@+id/PB_progress"
-        />
+            <ImageView
+                android:id="@+id/Iv_RoomImg"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_centerHorizontal="true"
+                android:elevation="10dp"
+                android:scaleType="centerCrop"
 
-        <TextView
-            android:id="@+id/TV_price"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Price"
-            android:paddingTop="16dp"
-            android:paddingLeft="16dp"
-            android:layout_below= "@id/Iv_RoomImg"
-            android:fontFamily="@font/assistant_bold"
-            android:textSize="22sp"
+                />
 
-            />
-        <TextView
-            android:id="@+id/TV_address"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/TV_price"
-            android:text="Address"
-            android:paddingLeft="16dp"
+            <ProgressBar
+                android:id="@+id/PB_progress"
+                style="@android:style/Widget.ProgressBar.Small"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="70dp" />
 
-            android:fontFamily="@font/assistant_semibold"
-            android:textSize="22sp"
-            />
+            <TextView
+                android:id="@+id/TV_price"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/Iv_RoomImg"
+                android:fontFamily="@font/assistant_bold"
+                android:paddingLeft="16dp"
+                android:paddingTop="16dp"
+                android:text="Price"
+                android:textSize="22sp"
 
-<!--        it is working on the emulator-->
-<!--        <com.like.LikeButton-->
-<!--            app:icon_type="star"-->
-<!--            app:icon_size="20dp"-->
-<!--            android:id="@+id/star_button_apartment_card"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_below="@id/Iv_RoomImg"-->
-<!--            android:layout_toRightOf="@id/IW_People"-->
-<!--            android:layout_marginTop="16dp"-->
-<!--            android:layout_marginHorizontal="170dp"-->
-<!--            app:liked="true"-->
-<!--            app:dots_primary_color="@color/Black"-->
-<!--            app:dots_secondary_color="#F5CB5C"-->
-<!--            />-->
+                />
 
 
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/people"
-            android:id="@+id/IW_People"
-            android:layout_below="@id/Iv_RoomImg"
-            android:layout_toRightOf="@id/TV_price"
-            android:layout_marginTop="16dp"
-            android:layout_marginLeft="90dp"
 
-            />
-        <TextView
-            android:id="@+id/Room_mate_num"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="1"
-            android:layout_toRightOf="@id/IW_People"
-            android:layout_below="@id/Iv_RoomImg"
-            android:layout_marginTop="30dp"
-            android:textSize="14sp"
-            />
-        <Button
+            <TextView
+                android:id="@+id/TV_address"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/TV_price"
+                android:fontFamily="@font/assistant_semibold"
+                android:paddingLeft="16dp"
 
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:minHeight="0dp"
-            android:padding="7dp"
-            android:id="@+id/start_chat_button_apartment_card"
-            android:background="@drawable/button_round_corner_purple"
-            android:text="send message"
-            android:textColor="@color/white"
-            android:drawableStart="@drawable/ic_icon_feather_message_circle_small"
-            android:drawablePadding="5dp"
-            android:layout_marginBottom="10dp"
-            android:layout_marginTop="15dp"
-            android:layout_marginRight="20dp"
-            android:layout_below="@id/TV_address"
-            android:layout_alignParentRight="true"
+                android:text="Address"
+                android:textSize="22sp" />
 
-            />
-        <ImageView
-            android:id="@+id/male_image_apartment_card"
-            android:src="@drawable/ic_icon_ionic_ios_male"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/circle_white_button_small"
-            android:elevation="3dp"
-            android:padding="5dp"
-            android:layout_below="@id/TV_address"
-            android:layout_marginLeft="16dp"
-            android:layout_marginVertical="10dp"
 
-            />
+                    <com.like.LikeButton
+                        app:icon_type="star"
+                        app:icon_size="15dp"
+                        android:id="@+id/star_button"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/IW_People"
+                        android:layout_toRightOf="@id/IW_People"
 
-        <ImageView
-            android:id="@+id/female_image_apartment_card"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_icon_ionic_ios_female"
-            android:background="@drawable/circle_white_button_small"
-            android:elevation="3dp"
-            android:padding="5dp"
-            android:layout_toRightOf="@id/male_image_apartment_card"
-            android:layout_below="@id/TV_address"
-            android:layout_marginVertical="10dp"
-            android:layout_marginHorizontal="8dp"
-            />
-        <ImageView
-            android:id="@+id/pets_allowd_image_apartment_card"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:src="@drawable/ic_icon_map_pet_store"
-            android:background="@drawable/circle_white_button_small"
-            android:elevation="1dp"
-            android:padding="5dp"
-            android:layout_below="@id/TV_address"
-            android:layout_toRightOf="@id/female_image_apartment_card"
-            android:layout_marginVertical="10dp"
-            android:layout_marginRight="8dp"
+                        android:layout_marginHorizontal="170dp"
+                        app:liked="true"
+                        app:dots_primary_color="@color/Black"
+                        app:dots_secondary_color="#F5CB5C"
+                        />
 
-            />
-        <ImageView
-            android:id="@+id/non_smoking_image_view_apartment"
 
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/circle_white_button_small"
-            android:elevation="1dp"
-            android:padding="5dp"
-            android:src="@drawable/ic_icon_material_smoke_free"
-            android:layout_marginVertical="10dp"
-            android:layout_below="@id/TV_address"
-            android:layout_toRightOf="@id/pets_allowd_image_apartment_card"
+            <ImageView
+                android:id="@+id/IW_People"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/Iv_RoomImg"
+                android:layout_marginLeft="90dp"
+                android:layout_marginTop="16dp"
+                android:layout_toRightOf="@id/TV_price"
+                android:src="@drawable/people"
 
-            />
-    </RelativeLayout>
+                />
+
+            <TextView
+                android:id="@+id/Room_mate_num"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/Iv_RoomImg"
+                android:layout_marginTop="30dp"
+                android:layout_toRightOf="@id/IW_People"
+                android:text="1"
+                android:textSize="14sp" />
+
+            <Button
+
+                android:id="@+id/start_chat_button_apartment_card"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/TV_address"
+                android:layout_alignParentRight="true"
+                android:layout_marginTop="15dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/button_round_corner_purple"
+                android:drawableStart="@drawable/ic_icon_feather_message_circle_small"
+                android:drawablePadding="5dp"
+                android:minHeight="0dp"
+                android:padding="7dp"
+                android:text="send message"
+                android:textColor="@color/white"
+
+                />
+
+            <ImageView
+                android:visibility="gone"
+                android:id="@+id/male_image_apartment_card"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/TV_address"
+                android:layout_marginVertical="10dp"
+                android:layout_marginLeft="16dp"
+                android:background="@drawable/circle_white_button_small"
+                android:elevation="3dp"
+                android:padding="5dp"
+                android:src="@drawable/ic_icon_ionic_ios_male"
+
+                />
+
+            <ImageView
+                android:visibility="gone"
+                android:id="@+id/female_image_apartment_card"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/TV_address"
+                android:layout_marginHorizontal="8dp"
+                android:layout_marginVertical="10dp"
+                android:layout_toRightOf="@id/male_image_apartment_card"
+                android:background="@drawable/circle_white_button_small"
+                android:elevation="3dp"
+                android:padding="5dp"
+                android:src="@drawable/ic_icon_ionic_ios_female" />
+
+            <ImageView
+                android:visibility="gone"
+                android:id="@+id/pets_allowd_image_apartment_card"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/TV_address"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginVertical="10dp"
+                android:layout_marginRight="8dp"
+                android:layout_toRightOf="@id/female_image_apartment_card"
+                android:background="@drawable/circle_white_button_small"
+                android:elevation="1dp"
+                android:padding="5dp"
+                android:src="@drawable/ic_icon_map_pet_store"
+
+                />
+
+            <ImageView
+                android:visibility="gone"
+                android:id="@+id/non_smoking_image_view_apartment_card"
+
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/TV_address"
+                android:layout_marginVertical="10dp"
+                android:layout_toRightOf="@id/pets_allowd_image_apartment_card"
+                android:background="@drawable/circle_white_button_small"
+                android:elevation="1dp"
+                android:padding="5dp"
+                android:src="@drawable/ic_icon_material_smoke_free"
+
+                />
+        </RelativeLayout>
     </androidx.cardview.widget.CardView>
 </LinearLayout>
