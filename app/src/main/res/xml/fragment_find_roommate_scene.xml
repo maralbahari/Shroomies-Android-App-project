@@ -86,17 +86,10 @@
             motion:layout_constraintEnd_toEndOf="parent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            motion:layout_constraintBottom_toTopOf="@+id/apartment_recycler_view"
+
             motion:layout_constraintTop_toBottomOf="@+id/SVsearch_disc"
             motion:layout_constraintStart_toStartOf="parent" />
-        <Constraint
-            android:id="@+id/tabLayout"
-            motion:layout_constraintEnd_toEndOf="parent"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            motion:layout_constraintBottom_toTopOf="@+id/apartment_recycler_view"
-            motion:layout_constraintTop_toBottomOf="@+id/SVsearch_disc"
-            motion:layout_constraintStart_toStartOf="parent" />
+
         <Constraint
             android:elevation="3dp"
             motion:layout_constraintEnd_toEndOf="parent"

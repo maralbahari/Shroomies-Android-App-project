@@ -99,7 +99,7 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
         geocoder = new Geocoder(getApplicationContext());
         try {
             // for some reason the latitude and the longitude are saved oppositly
-            locationAddressTextView.setText(geocoder.getFromLocation(apartment.getLongitude(),apartment.getLatitude(),1).get(0).getAddressLine(0));
+            locationAddressTextView.setText(geocoder.getFromLocation(apartment.getLatitude(), apartment.getLongitude(),1).get(0).getAddressLine(0));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -198,7 +198,7 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
         if(apartment!=null) {
             Toast.makeText(getApplicationContext(), Double.toString(apartment.getLatitude()) , Toast.LENGTH_LONG).show();
 
-            LatLng latLng = new LatLng(apartment.getLongitude(), apartment.getLatitude());
+            LatLng latLng = new LatLng(apartment.getLatitude(), apartment.getLongitude());
             Bitmap bitmap = BitmapFactory.decodeResource(getResources(), getResources().getIdentifier("black_mushroom", "drawable", getApplicationContext().getPackageName()));
             Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, 90, 100, false);
             MarkerOptions markerOptions = new MarkerOptions()

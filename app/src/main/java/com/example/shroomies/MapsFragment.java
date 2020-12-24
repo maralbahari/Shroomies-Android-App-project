@@ -232,7 +232,7 @@ public class MapsFragment extends Fragment {
 
     //    async task class to find adresses using geocoder  on the background
 //            geoecoder needs a seperate thread to run smoothly especially with live search
-    private class GetAdressesAsyncTask extends AsyncTask<Void , String , List<String>> {
+   public class GetAdressesAsyncTask extends AsyncTask<Void , String , List<String>> {
         Geocoder geocoder;
         Context context;
         String text;
