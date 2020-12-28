@@ -1,11 +1,18 @@
 package com.example.shroomies;
 
 import android.content.Context;
-import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.SearchView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -14,18 +21,6 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.FrameLayout;
-import android.widget.ListAdapter;
-import android.widget.ListView;
-import android.widget.SearchView;
-import android.widget.TabHost;
-import android.widget.Toast;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.tabs.TabLayout;
@@ -149,7 +144,20 @@ public class FindRoommate extends Fragment {
                     fragmentTransaction.commit();
                 }
 
+                if (tab.getPosition() == 2){
+                    recyclerView.setVisibility(View.GONE);
+
+
+                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.replace(R.id.frame_layout_search, new Personal_page());
+                    fragmentTransaction.commit();
+
+                }
+
             }
+
+
 
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {

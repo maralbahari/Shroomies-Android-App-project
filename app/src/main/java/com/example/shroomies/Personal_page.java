@@ -1,0 +1,65 @@
+package com.example.shroomies;
+
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.firebase.database.FirebaseDatabase;
+
+
+
+public class Personal_page extends Fragment {
+
+    private static final String ARG_PARAM1 = "param1";
+    private static final String ARG_PARAM2 = "param2";
+
+    private String mParam1;
+    private String mParam2;
+    RecyclerView myRecyclerView;
+
+    public Personal_page() {
+        // Required empty public constructor
+    }
+
+
+    public static Personal_page newInstance(String param1, String param2) {
+        Personal_page fragment = new Personal_page();
+        Bundle args = new Bundle();
+        args.putString(ARG_PARAM1, param1);
+        args.putString(ARG_PARAM2, param2);
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (getArguments() != null) {
+            mParam1 = getArguments().getString(ARG_PARAM1);
+            mParam2 = getArguments().getString(ARG_PARAM2);
+        }
+    }
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+        View v = inflater.inflate(R.layout.fragment_personal_page, container,
+                false);
+        myRecyclerView = (RecyclerView) v.findViewById(R.id.personal_recycler_view);
+        myRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        FirebaseRecyclerOptions<Model_personal> options =
+                new FirebaseRecyclerOptions.Builder<Model_personal>()
+                        .setQuery(FirebaseDatabase.getInstance().getReference().child("postPersonal"),
+                                Model_personal.class).build();
+
+        return v;
+    }
+}
