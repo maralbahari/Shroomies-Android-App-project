@@ -52,7 +52,7 @@ public class RecylerAdapter_PersonalPage extends RecyclerView.Adapter<RecylerAda
         TextView TV_userBudget;
         TextView TV_DatePosted;
         TextView TV_userDescription;
-        RelativeLayout Lay_REL;
+        RelativeLayout Lay_card;
 
 
     public ViewHolder(@NonNull View itemView) {
@@ -63,7 +63,7 @@ public class RecylerAdapter_PersonalPage extends RecyclerView.Adapter<RecylerAda
         TV_userBudget = itemView.findViewById(R.id.personal_post_budget_text_view);
         TV_DatePosted = itemView.findViewById(R.id.personal_post_date_text_view);
         TV_userDescription = itemView.findViewById(R.id.personal_card_text_view);
-        Lay_REL = itemView.findViewById(R.id.relative_layout_personal_card);
+        Lay_card = itemView.findViewById(R.id.relative_layout_personal_card);
 
     }
 }
