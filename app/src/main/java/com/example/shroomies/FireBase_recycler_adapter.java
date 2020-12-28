@@ -1,6 +1,5 @@
 package com.example.shroomies;
 
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -10,40 +9,36 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
+import com.firebase.ui.database.FirebaseRecyclerOptions;
 
-// only class responsible for displaying personal card
-// items in my recycler view
-// Creates the rows and maps items to those rows
-public class RecylerAdapter_personal extends RecyclerView.Adapter<RecylerAdapter_personal.ViewHolder>  {
+public class FireBase_recycler_adapter extends FirebaseRecyclerAdapter <Model_personal, FireBase_recycler_adapter.MyViewHolder> {
+
+    public FireBase_recycler_adapter(@NonNull FirebaseRecyclerOptions<Model_personal> options) {
+        super(options);
+    }
+
+    @Override
+    protected void onBindViewHolder(@NonNull MyViewHolder holder, int position, @NonNull Model_personal model) {
+
+    }
 
     @NonNull
     @Override
-
-    // turns xml to run time view
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-
-        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        View view = inflater.inflate(R.layout.personal_post_custom_card,parent,false);
-        //this view holder takes the view of the row
-        ViewHolder viewHolder = new ViewHolder(view);
-
-        return viewHolder;
+    public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        return null;
     }
 
-    @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 
-        // sets data to rows
 
-    }
-    //Returns the number of rows
-    @Override
-    public int getItemCount() {
-        return 0;
-    }
 
-    class ViewHolder extends RecyclerView.ViewHolder{
 
+
+
+
+
+
+    public  class MyViewHolder extends RecyclerView.ViewHolder{
         ImageView IV_userPic;
         TextView TV_userName;
         TextView TV_userOccupation;
@@ -53,8 +48,9 @@ public class RecylerAdapter_personal extends RecyclerView.Adapter<RecylerAdapter
         RelativeLayout Lay_card;
 
 
-        public ViewHolder(@NonNull View itemView) {
+        public MyViewHolder(@NonNull View itemView) {
             super(itemView);
+
             IV_userPic = itemView.findViewById(R.id.user_image_personal_card);
             TV_userName = itemView.findViewById(R.id.user_name_personal_card);
             TV_userOccupation = itemView.findViewById(R.id.bio_personal_card);
@@ -62,8 +58,6 @@ public class RecylerAdapter_personal extends RecyclerView.Adapter<RecylerAdapter
             TV_DatePosted = itemView.findViewById(R.id.personal_post_date_text_view);
             TV_userDescription = itemView.findViewById(R.id.personal_card_text_view);
             Lay_card = itemView.findViewById(R.id.relative_layout_personal_card);
-
         }
     }
-
 }
