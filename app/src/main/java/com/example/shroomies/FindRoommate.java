@@ -47,6 +47,7 @@ public class FindRoommate extends Fragment {
     RecylerAdapter_personal RecylerAdapter_personal;
     List<Apartment> apartmentList;
     List<Address> addressList;
+//    List<Personal> PersonalList;
     SearchView searchView;
     TabLayout tabLayout;
     ArrayAdapter searchArrayAdapter;
@@ -66,8 +67,10 @@ public class FindRoommate extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         apartmentList = new ArrayList<>();
+
         recyclerView = v.findViewById(R.id.apartment_recycler_view);
         recycleViewAdapterApartment = new RecycleViewAdapterApartments(apartmentList, getActivity());
+//        RecylerAdapter_personal = new RecyclerAdapter_personal();
         searchView = v.findViewById(R.id.SVsearch_disc);
         tabLayout = v.findViewById(R.id.tabLayout);
         locationListView = v.findViewById(R.id.list_view_search);
@@ -95,6 +98,7 @@ public class FindRoommate extends Fragment {
                     });
 
                 }
+
                 return false;
             }
 

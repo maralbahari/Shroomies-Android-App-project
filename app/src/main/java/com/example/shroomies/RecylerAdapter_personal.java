@@ -18,6 +18,8 @@ public class RecylerAdapter_personal extends RecyclerView.Adapter<RecylerAdapter
 
     @NonNull
     @Override
+
+    // turns xml to run time view
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
@@ -30,6 +32,8 @@ public class RecylerAdapter_personal extends RecyclerView.Adapter<RecylerAdapter
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+
+        // sets data to rows
 
     }
     //Returns the number of rows
