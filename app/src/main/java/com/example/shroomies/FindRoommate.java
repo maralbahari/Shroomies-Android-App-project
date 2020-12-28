@@ -44,6 +44,7 @@ public class FindRoommate extends Fragment {
     View v;
     RecyclerView recyclerView;
     RecycleViewAdapterApartments recycleViewAdapterApartment;
+    RecylerAdapter_personal RecylerAdapter_personal;
     List<Apartment> apartmentList;
     List<Address> addressList;
     SearchView searchView;
