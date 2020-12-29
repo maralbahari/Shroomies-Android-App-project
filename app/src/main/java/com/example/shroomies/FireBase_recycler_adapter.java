@@ -1,5 +1,6 @@
 package com.example.shroomies;
 
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -12,7 +13,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 
-public class FireBase_recycler_adapter extends FirebaseRecyclerAdapter <Model_personal, FireBase_recycler_adapter.MyViewHolder> {
+public class FireBase_recycler_adapter extends FirebaseRecyclerAdapter
+        <Model_personal, FireBase_recycler_adapter.MyViewHolder>
+
+{
 
     public FireBase_recycler_adapter(@NonNull FirebaseRecyclerOptions<Model_personal> options) {
         super(options);
@@ -20,13 +24,21 @@ public class FireBase_recycler_adapter extends FirebaseRecyclerAdapter <Model_pe
 
     @Override
     protected void onBindViewHolder(@NonNull MyViewHolder holder, int position, @NonNull Model_personal model) {
+    holder.TV_userDescription.setText(model.getDescription());
+    holder.TV_DatePosted.setText(model.getDate());
+    holder.TV_userBudget.setText(model.getPrice());
+
 
     }
 
     @NonNull
     @Override
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return null;
+        View view = LayoutInflater.from(parent.getContext()).inflate
+                (R.layout.personal_post_custom_card, parent, false);
+
+
+        return new MyViewHolder(view);
     }
 
 

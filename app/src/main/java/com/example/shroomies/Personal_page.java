@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -22,6 +23,7 @@ public class Personal_page extends Fragment {
     private String mParam1;
     private String mParam2;
     RecyclerView myRecyclerView;
+    FirebaseRecyclerAdapter myFirebaseAdapter;
 
     public Personal_page() {
         // Required empty public constructor
@@ -60,6 +62,23 @@ public class Personal_page extends Fragment {
                         .setQuery(FirebaseDatabase.getInstance().getReference().child("postPersonal"),
                                 Model_personal.class).build();
 
+
+        myFirebaseAdapter = new FireBase_recycler_adapter(options);
+        myRecyclerView.setAdapter(myFirebaseAdapter);
+
         return v;
+    }
+
+
+    public void onStart() {
+        super.onStart();
+        myFirebaseAdapter.startListening();
+
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        myFirebaseAdapter.stopListening();
     }
 }

@@ -2,7 +2,7 @@ package com.example.shroomies;
 
 public class Model_personal {
 
-    String date, description, latitude, longitude, preferences, price, userId;
+     String date, description, latitude, longitude, preferences, price, userId;
 
 
     //blank constructor
