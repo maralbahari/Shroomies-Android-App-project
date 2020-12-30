@@ -3,13 +3,14 @@ package com.example.shroomies;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +19,7 @@ import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -38,26 +40,24 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.StorageTask;
 import com.google.firebase.storage.UploadTask;
 import java.util.HashMap;
-//import com.squareup.picasso.Picasso;
-//import com.theartofdev.edmodo.cropper.CropImage;
-//import com.theartofdev.edmodo.cropper.CropImageView;
-//
-//import java.util.HashMap;
-//
-//import de.hdodenhof.circleimageview.CircleImageView;
+
+
 
 
 public class EditProfile extends Fragment {
 
+    FragmentManager fm;
+    FragmentTransaction ft;
+
     View v;
-//    private CircleImageView profileImage;
+    private ImageView profileImage;
     private ImageButton editImage;
-    private EditText username;
+
     private EditText email;
     private EditText bio;
-    private EditText pw;
+    private Button pw;
     private Button save;
-
+    private EditText username;
     private FirebaseUser mUser;
     private FirebaseDatabase mDataref;
     private FirebaseAuth mAuth;
@@ -77,69 +77,93 @@ public class EditProfile extends Fragment {
         View v = inflater.inflate(R.layout.fragment_edit_profile, container, false);
         MainActivity.btm_view.setBackgroundColor(getResources().getColor(R.color.lowerGradientColorForLoginBackground, getActivity().getTheme()));
 
-//        profileImage = v.findViewById(R.id.edit_profile_image);
+        profileImage = v.findViewById(R.id.edit_profile_image);
         editImage = v.findViewById(R.id.edit_profile_picture);
         username = v.findViewById(R.id.edit_username);
         email = v.findViewById(R.id.edit_email);
-        pw = v.findViewById(R.id.edit_password);
+//        pw = v.findViewById(R.id.edit_password);
         bio = v.findViewById(R.id.edit_bio);
         save = v.findViewById(R.id.btn_save);
 
 
+
+
         mRootref = mDataref.getInstance().getReference();
         //DatabaseReference firebaseDatabase = FirebaseDatabase.getInstance().getReference();
-        final String userUid =  mAuth.getInstance().getCurrentUser().getUid();
+        //final String userUid =  mAuth.getInstance().getCurrentUser().getUid();
         //mRootref = mDataref.getReference().child("Users").child(userUid);
         //mRootref.addValueEventListener(new ValueEventListener() {
         mRootref.child("Users").child(userUid).addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    User user = snapshot.getValue(User.class);
-                    username.setText(user.getName());
-                    bio.setText(user.getBio());
-                    email.setText(user.getEmail());
-//                    Glide.with(getActivity()).load(user.getImageurl()).into(profileImage);
-                }
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                User user = snapshot.getValue(User.class);
+                username.setText(user.getName());
+                bio.setText(user.getBio());
+                email.setText(user.getEmail());
+                GlideApp.with(getContext())
+                        .load(user.getImageurl())
+                        .fitCenter()
+                        .centerCrop()
+                        .placeholder(R.drawable.ic_user_profile_svgrepo_com)
+                        .into(profileImage);
+            }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
 
-                }
-            });
+            }
+        });
 
-//            profileImage.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    openImage();
-//                }
-//            });
+        profileImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openImage();
+            }
+        });
 
-            editImage.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    openImage();
-                }
-            });
+        editImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openImage();
+            }
+        });
 
-            save.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    updateProfile();
-                }
-            });
-            return v;
-        }
+        save.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                updateProfile();
+            }
+        });
+
+//        pw.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+////                getFragment(new ChangePassword());
+//            }
+//        });
+
+        username.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                getFragment(new ChangeUsername());
+            }
+        });
+
+        return v;
+
+    }
+
 
 
     private void updateProfile() {
-        String txtName = username.getText().toString();
+
         String txtEmail = email.getText().toString();
         String txtBio = bio.getText().toString();
 
         HashMap<String, Object> updateDetails = new HashMap<>();
-        updateDetails.put("name", txtName);
         updateDetails.put("email", txtEmail);
         updateDetails.put("bio", txtBio);
+
         mDataref.getInstance().getReference().child("Users").child(userUid).updateChildren(updateDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
 
             @Override
@@ -241,6 +265,14 @@ public class EditProfile extends Fragment {
         } else {
             Toast.makeText(getActivity(), "Something went wrong!", Toast.LENGTH_SHORT).show();
         }
+    }
+    private void getFragment (Fragment fragment) {
+        fm = getActivity().getSupportFragmentManager();
+        ft = fm.beginTransaction();
+        ft.addToBackStack(null);
+        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        ft.replace(R.id.fragmentContainer, fragment);
+        ft.commit();
     }
 
 }
