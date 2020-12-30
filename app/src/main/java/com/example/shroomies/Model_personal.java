@@ -1,24 +1,26 @@
 package com.example.shroomies;
 
+import java.util.List;
+
 public class Model_personal {
 
-     String date, description, latitude, longitude, preferences, price, userId;
+    String date, description,  userId;
+    int price;
+    long latitude, longitude;
 
+    List<Boolean> preferences;
 
-    //blank constructor
     public Model_personal() {
     }
 
-    public Model_personal(String date, String description, String latitude, String longitude,
-                          String preferences, String price, String userId)
-    {
+    public Model_personal(String date, String description, String userId, long latitude, long longitude, int price, List<Boolean> preferences) {
         this.date = date;
         this.description = description;
+        this.userId = userId;
         this.latitude = latitude;
         this.longitude = longitude;
-        this.preferences = preferences;
         this.price = price;
-        this.userId = userId;
+        this.preferences = preferences;
     }
 
     public String getDate() {
@@ -37,43 +39,43 @@ public class Model_personal {
         this.description = description;
     }
 
-    public String getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(String latitude) {
-        this.latitude = latitude;
-    }
-
-    public String getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(String longitude) {
-        this.longitude = longitude;
-    }
-
-    public String getPreferences() {
-        return preferences;
-    }
-
-    public void setPreferences(String preferences) {
-        this.preferences = preferences;
-    }
-
-    public String getPrice() {
-        return price;
-    }
-
-    public void setPrice(String price) {
-        this.price = price;
-    }
-
     public String getUserId() {
         return userId;
     }
 
     public void setUserId(String userId) {
         this.userId = userId;
+    }
+
+    public long getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(long latitude) {
+        this.latitude = latitude;
+    }
+
+    public long getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(long longitude) {
+        this.longitude = longitude;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
+    }
+
+    public List<Boolean> getPreferences() {
+        return preferences;
+    }
+
+    public void setPreferences(List<Boolean> preferences) {
+        this.preferences = preferences;
     }
 }

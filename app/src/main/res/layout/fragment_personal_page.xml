@@ -4,6 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Personal_page"
+    android:background="@drawable/background_discover"
+
 
     >
 
@@ -12,4 +14,6 @@
         android:id="@+id/personal_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+
 </FrameLayout>

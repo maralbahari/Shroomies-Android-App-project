@@ -71,7 +71,6 @@
                         android:layout_height="wrap_content"
                         android:layout_below="@id/IW_People"
                         android:layout_toRightOf="@id/IW_People"
-
                         android:layout_marginHorizontal="170dp"
                         app:liked="true"
                         app:dots_primary_color="@color/Black"

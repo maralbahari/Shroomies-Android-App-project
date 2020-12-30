@@ -4,10 +4,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
@@ -22,11 +22,13 @@ public class FireBase_recycler_adapter extends FirebaseRecyclerAdapter
         super(options);
     }
 
+
+    // setting data to
     @Override
     protected void onBindViewHolder(@NonNull MyViewHolder holder, int position, @NonNull Model_personal model) {
     holder.TV_userDescription.setText(model.getDescription());
     holder.TV_DatePosted.setText(model.getDate());
-    holder.TV_userBudget.setText(model.getPrice());
+
 
 
     }
@@ -46,10 +48,7 @@ public class FireBase_recycler_adapter extends FirebaseRecyclerAdapter
 
 
 
-
-
-
-
+// view holder class to hold the view
     public  class MyViewHolder extends RecyclerView.ViewHolder{
         ImageView IV_userPic;
         TextView TV_userName;
@@ -57,7 +56,7 @@ public class FireBase_recycler_adapter extends FirebaseRecyclerAdapter
         TextView TV_userBudget;
         TextView TV_DatePosted;
         TextView TV_userDescription;
-        RelativeLayout Lay_card;
+        CardView Lay_card;
 
 
         public MyViewHolder(@NonNull View itemView) {
@@ -69,7 +68,7 @@ public class FireBase_recycler_adapter extends FirebaseRecyclerAdapter
             TV_userBudget = itemView.findViewById(R.id.personal_post_budget_text_view);
             TV_DatePosted = itemView.findViewById(R.id.personal_post_date_text_view);
             TV_userDescription = itemView.findViewById(R.id.personal_card_text_view);
-            Lay_card = itemView.findViewById(R.id.relative_layout_personal_card);
+            Lay_card = itemView.findViewById(R.id.personal_card_view);
         }
     }
 }

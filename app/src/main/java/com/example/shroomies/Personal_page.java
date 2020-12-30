@@ -22,8 +22,8 @@ public class Personal_page extends Fragment {
 
     private String mParam1;
     private String mParam2;
-    RecyclerView myRecyclerView;
-    FirebaseRecyclerAdapter myFirebaseAdapter;
+    private RecyclerView myRecyclerView;
+    private FirebaseRecyclerAdapter myFirebaseAdapter;
 
     public Personal_page() {
         // Required empty public constructor
@@ -69,7 +69,7 @@ public class Personal_page extends Fragment {
         return v;
     }
 
-
+    @Override
     public void onStart() {
         super.onStart();
         myFirebaseAdapter.startListening();
