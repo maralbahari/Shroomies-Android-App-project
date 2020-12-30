@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+<androidx.cardview.widget.CardView
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="5dp">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="5dp">
+
+        <ImageView
+            android:padding="5dp"
+            android:id="@+id/suggestion_list_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@drawable/ic_launcher_background" />
+
+        <TextView
+            android:id="@+id/suggestion_list_username"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="90dp"
+            android:layout_toEndOf="@id/suggestion_list_image"
+            android:text=" Username"
+            android:textColor="@android:color/black"
+            android:textSize="18dp"
+            android:textStyle="bold" />
+        <TextView
+            android:id="@+id/suggestion_list_bio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="80dp"
+            android:layout_toEndOf="@id/suggestion_list_image"
+            android:text=" bio"
+            android:layout_below="@id/suggestion_list_username"
+            android:textColor="@android:color/black"
+            android:textSize="18dp"
+            android:textStyle="bold" />
+
+
+        <ImageView
+            android:id="@+id/add_user_to_group_button"
+            android:layout_width="match_parent"
+            android:layout_height="35dp"
+            android:layout_below="@id/suggestion_list_bio"
+            android:layout_alignParentRight="true"
+            android:layout_marginLeft="340dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="0dp"
+            android:background="@drawable/button_round_corner_purple"
+            tools:srcCompat="@drawable/ic_person_add_24" />
+
+    </RelativeLayout>
+</androidx.cardview.widget.CardView>
+</LinearLayout>

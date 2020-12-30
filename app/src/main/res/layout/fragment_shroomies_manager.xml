@@ -4,14 +4,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".PrivacySetting">
+    tools:context=".ShroomiesManager">
 
     <TextView
         android:layout_width="289dp"
         android:layout_height="70dp"
         android:layout_marginTop="264dp"
         android:layout_marginEnd="60dp"
-        android:text="privacy"
+        android:text="shroomies"
         android:textAllCaps="true"
         android:textSize="36sp"
         app:layout_constraintEnd_toEndOf="parent"

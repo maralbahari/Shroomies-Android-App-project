@@ -1,8 +1,5 @@
 package com.example.shroomies;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -10,6 +7,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -20,7 +20,6 @@ public class ResetPassword extends AppCompatActivity {
     Button btn_ResetPw;
     Button btn_Back;
     FirebaseAuth mAuth;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -28,7 +27,6 @@ public class ResetPassword extends AppCompatActivity {
         enter_Email = (EditText) findViewById(R.id.edt_reset_email);
         btn_ResetPw = (Button) findViewById(R.id.btn_reset_password);
         btn_Back = (Button) findViewById(R.id.btn_back);
-
         mAuth = FirebaseAuth.getInstance();
 
         btn_ResetPw.setOnClickListener(new View.OnClickListener() {
@@ -48,6 +46,7 @@ public class ResetPassword extends AppCompatActivity {
                             public void onComplete(@NonNull Task<Void> task) {
                                 if (task.isSuccessful()) {
                                     Toast.makeText(ResetPassword.this, "Check email for password reset instructions!", Toast.LENGTH_SHORT).show();
+
                                 } else {
                                     Toast.makeText(ResetPassword.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                                 }

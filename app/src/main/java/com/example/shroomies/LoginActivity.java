@@ -2,7 +2,6 @@ package com.example.shroomies;
 
 import android.content.Intent;
 import android.os.Bundle;
-
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -15,11 +14,10 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.biometric.BiometricConstants;
-import androidx.biometric.BiometricPrompt;
-import androidx.core.content.ContextCompat;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -32,17 +30,10 @@ import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-import com.google.android.gms.auth.api.signin.GoogleSignIn;
-import com.google.android.gms.auth.api.signin.GoogleSignInClient;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
-import java.util.concurrent.Executor;
 
 public class LoginActivity extends AppCompatActivity {
     protected EditText username;
@@ -139,7 +130,7 @@ public class LoginActivity extends AppCompatActivity {
                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                             startActivity(intent);
                         }
-                        else{
+                        if(!(mAuth.getCurrentUser().isEmailVerified())){
                             username.setText("");
                             password.setText("");
                             Toast.makeText(LoginActivity.this, "Please verify your email address", Toast.LENGTH_SHORT).show();
@@ -233,7 +224,7 @@ public class LoginActivity extends AppCompatActivity {
                     sessionManager.setVerifiedEmail(true);
                     Intent intent= new Intent(getApplicationContext(),MainActivity.class);
                     startActivity(intent);
-                    Toast.makeText(LoginActivity.this, "User Signed In", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(LoginActivity.this, "signed in successfully", Toast.LENGTH_SHORT).show();
                 }
                 else{
                     Log.w("Login", "signInWithCredentail:Failure", task.getException());
