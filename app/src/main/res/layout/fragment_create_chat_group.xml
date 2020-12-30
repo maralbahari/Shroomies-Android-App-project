@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".CreateChatGroupFragment">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="20dp">
+
+        <androidx.appcompat.widget.SearchView
+            android:id="@+id/create_group_search_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/search_border"
+            android:contextClickable="true"
+            android:orientation="vertical"
+            app:queryHint=" search usernames" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/suggestion_list_create_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/create_group_search_bar"
+            android:layout_marginTop="10dp" />
+
+        <ImageView
+            android:id="@+id/confirm_button_create_group"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_below="@id/suggestion_list_create_group"
+            android:layout_alignParentRight="true"
+            android:layout_marginLeft="320dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/button_circle_yellow"
+            app:srcCompat="@drawable/ic_arrow_forward" />
+
+
+    </RelativeLayout>
+
+
+</LinearLayout>

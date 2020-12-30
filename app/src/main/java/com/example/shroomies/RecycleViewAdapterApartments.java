@@ -3,42 +3,42 @@ package com.example.shroomies;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Geocoder;
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.Registry;
-import com.bumptech.glide.annotation.GlideModule;
-import com.bumptech.glide.load.resource.bitmap.CircleCrop;
-import com.bumptech.glide.module.AppGlideModule;
-
-import com.firebase.ui.storage.images.FirebaseImageLoader;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
-
-import de.hdodenhof.circleimageview.CircleImageView;
 
 public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleViewAdapterApartments.ViewHolder> {
 
     private List<Apartment> apartmentList;
     private Context context;
     private Geocoder geocoder;
-
+   private User receiverUser;
+   private DatabaseReference rootRef;
+   private FirebaseAuth mAuth;
     public RecycleViewAdapterApartments(List<Apartment> apartmentList, Context context){
         this.apartmentList = apartmentList;
         this.context = context;
@@ -49,6 +49,7 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
     public RecycleViewAdapterApartments.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(context);
         View view  = layoutInflater.inflate(R.layout.apartment_card,parent,false);
+        rootRef=FirebaseDatabase.getInstance().getReference();
         return new ViewHolder(view);
     }
 
@@ -100,10 +101,6 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
 
     }
 
-
-
-
-
     @Override
     public int getItemCount() {
         return apartmentList.size();
@@ -119,6 +116,7 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
         ImageView femaleButton;
         ImageView petsAllowedButton;
         ImageView smokeFreeButton;
+        Button sendMessageButton;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             priceTV = itemView.findViewById(R.id.TV_price);
@@ -130,8 +128,48 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
             femaleButton = itemView.findViewById(R.id.female_image_apartment_card);
             petsAllowedButton = itemView.findViewById(R.id.pets_allowd_image_apartment_card);
             smokeFreeButton = itemView.findViewById(R.id.non_smoking_image_view_apartment_card);
+            sendMessageButton=itemView.findViewById(R.id.start_chat_button_apartment_card);
+            sendMessageButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //get user details and pass to chatting activity
+                    DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(apartmentList.get(getAdapterPosition()).getUserID());
+                    Toast.makeText(context,apartmentList.get(getAdapterPosition()).getUserID(),Toast.LENGTH_SHORT).show();
+                    databaseReference.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            receiverUser = new User();
+                            receiverUser = snapshot.getValue(User.class);
 
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
+                    addUserToInbox(receiverUser);
+
+                }
+            });
         }
+    }
+    private void addUserToInbox(final User receiverUser){
+        HashMap<String, Object> receiverDetails = new HashMap<>();
+        receiverDetails.put("receiverName",receiverUser.getName());
+        receiverDetails.put("receiverImage",receiverUser.getImageurl());
+        receiverDetails.put("receiverID",receiverUser.getId());
+        rootRef.child("inboxLists").child(mAuth.getCurrentUser().getUid()).child(receiverUser.getId()).setValue(receiverDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Intent intent=new Intent(context,ChattingActivity.class);
+                    intent.putExtra("USERID",receiverUser.getId());
+                    intent.putExtra("USERNAME",receiverUser.getName());
+                    context.startActivity(intent);
 
+                }
+            }
+        });
     }
 }

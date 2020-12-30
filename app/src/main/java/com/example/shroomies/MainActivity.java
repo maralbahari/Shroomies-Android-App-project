@@ -1,5 +1,13 @@
 package com.example.shroomies;
 
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,25 +18,11 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import android.content.Intent;
-import android.os.Bundle;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserInfo;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
 
 public class MainActivity extends AppCompatActivity {
     public static String updatedAdresses;
@@ -67,16 +61,16 @@ public class MainActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         getFragment(new FindRoommate());
         barDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open, R.string.close);
+        barDrawerToggle.syncState();
         drawerLayout.addDrawerListener(barDrawerToggle);
         barDrawerToggle.setDrawerIndicatorEnabled(true);
-        barDrawerToggle.syncState();
         navigationView = (NavigationView) findViewById(R.id.navigationView);
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 drawerLayout.closeDrawer(GravityCompat.START);
                 if(menuItem.getItemId()==R.id.setting_menu){
-                    getFragment(new PrivacySetting());
+                    getFragment(new ShroomiesManager());
                 }if(menuItem.getItemId()==R.id.my_archive_menu){
                     getFragment(new Archive());
                 }if(menuItem.getItemId()==R.id.my_favorite_menu){
@@ -103,7 +97,8 @@ public class MainActivity extends AppCompatActivity {
                 }if(menuItem.getItemId()==R.id.publish_post_menu){
                     getFragment(new PublishPost());
                 }if(menuItem.getItemId()==R.id.message_inbox_menu){
-                    getFragment(new MessageInbox());
+                   Intent intent= new Intent(getApplicationContext(),MessageInbox.class);
+                   startActivity(intent);
                 }if(menuItem.getItemId()==R.id.user_profile_menu){
                     getFragment(new UserProfile());
                 }

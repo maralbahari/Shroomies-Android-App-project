@@ -2,34 +2,23 @@ package com.example.shroomies;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
-import android.Manifest;
-import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.location.Location;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.NumberPicker;
-import android.widget.Toast;
 
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -37,16 +26,13 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import okhttp3.internal.cache.DiskLruCache;
 
 public class MapSearchFragment extends Fragment {
-    static GoogleMap mMap;
-    Map<Marker, Apartment> markerMap;
-    FusedLocationProviderClient fusedLocationProviderClient;
+    GoogleMap mMap;
+
 
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
 
@@ -61,24 +47,10 @@ public class MapSearchFragment extends Fragment {
          */
         @Override
         public void onMapReady(GoogleMap googleMap) {
-            markerMap = new HashMap<>();
+            LatLng sydney = new LatLng(-34, 151);
+            googleMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
+            googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
             mMap = googleMap;
-            getApartments(mMap);
-
-            // set on click listeners to go to the apartment
-            // view page of the selected markers
-            googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-                @Override
-                public void onInfoWindowClick(Marker marker) {
-                    Apartment selectedApartment = markerMap.get(marker);
-                    Intent intent = new Intent(getActivity(), ApartmentViewPage.class);
-                    intent.putExtra("apartment", selectedApartment);
-                    startActivity(intent);
-                }
-            });
-            // sets the view map to the proximity of the current location
-            setCameraLocation();
-
         }
     };
 
@@ -97,13 +69,13 @@ public class MapSearchFragment extends Fragment {
                 (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {
             mapFragment.getMapAsync(callback);
-
+            getApartments();
         }
     }
 
 
 
-    private List<Apartment> getApartments(final GoogleMap mMap){
+    private List<Apartment> getApartments(){
         final List<Apartment> apartments = new ArrayList<>();
         DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference().child("postApartment");
         databaseReference.addValueEventListener(new ValueEventListener() {
@@ -113,11 +85,8 @@ public class MapSearchFragment extends Fragment {
                 : snapshot.getChildren()){
                   Apartment apartment = dataSnapshot.getValue(Apartment.class);
                   apartments.add(apartment);
-                  //  add the marker for  the apartment to the map
-                  addMarkers(apartment , mMap);
 
                 }
-                Toast.makeText(getActivity(),apartments.get(0).getUserID() , Toast.LENGTH_LONG).show();
             }
 
             @Override
@@ -125,46 +94,27 @@ public class MapSearchFragment extends Fragment {
 
             }
         });
+        addMarkers(apartments);
         return apartments;
+
+
+
     }
-    private void addMarkers(Apartment apartment , GoogleMap mMap){
+    private void addMarkers(List<Apartment> apartmentList){
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(),getResources().getIdentifier("black_mushroom" ,  "drawable", getActivity().getPackageName()));
         Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, 90, 100, false);
-        LatLng latLng = new LatLng(apartment.getLatitude(), apartment.getLongitude());
-        MarkerOptions markerOptions = new MarkerOptions()
-                .position(latLng)
-                .icon(BitmapDescriptorFactory.fromBitmap(resizedBitmap))
-                .title(Integer.toString(apartment.getPrice()))
-                .snippet("price")
-                ;
-        // show the snippet without click
-       Marker locationMarker = mMap.addMarker(markerOptions);
-       // add the marker and the apartment to the map
-        // this enables quick access when setting an on click listener
-       markerMap.put(locationMarker, apartment);
-       locationMarker.showInfoWindow();
-    }
-    public static void setLocationView(LatLng latLng, int zoom){
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,zoom));
-    }
 
-    void setCameraLocation(){
-        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED){
-        fusedLocationProviderClient=LocationServices.getFusedLocationProviderClient(getActivity());
-        //check the API level
-        //get the location
-        fusedLocationProviderClient.getLastLocation()
-        .addOnSuccessListener(new OnSuccessListener<Location>(){
-        @Override
-        public void onSuccess(Location location){
-            LatLng lastLocationLatLng = new LatLng(location.getLatitude(), location.getLongitude());
-            setLocationView(lastLocationLatLng, 13);
-                }
-        });
-
+        for(Apartment apartment
+        : apartmentList){
+            LatLng latLng = new LatLng(apartment.getLongitude(), apartment.getLatitude());
+            MarkerOptions markerOptions = new MarkerOptions()
+                    .position(latLng)
+                    .title(Integer.toString(apartment.getPrice()))
+                    .icon(BitmapDescriptorFactory.fromBitmap(resizedBitmap));
+            mMap.addMarker(markerOptions);
         }
+
+
     }
-
-
 
 }
