@@ -69,8 +69,6 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
     private static final String MAPVIEW_BUNDLE_KEY = "MapViewBundleKey";
 
 
-
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -133,8 +131,6 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
             viewPager.setAdapter(viewPagerAdapterApartmentView);
             dotsIndicator.setViewPager(viewPager);
             viewPager.getAdapter().registerDataSetObserver(dotsIndicator.getDataSetObserver());
-
-
 
     }
 
@@ -236,24 +232,6 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
     }
 
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 // create a new view pager adapter

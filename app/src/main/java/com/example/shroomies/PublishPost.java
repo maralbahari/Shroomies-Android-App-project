@@ -502,15 +502,6 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
             }
         }
     }
-    void removeAllimages(){
-        //clear  the image array
-        imageUri.clear();
-        //make the image icon invisible
-        imageIconPost.setVisibility(View.GONE);
-        //remove the number of posts from the  text view
-        numberOfPhotos.setText("");
-
-    }
 
     void publishPost(final LatLng locationLtLng , final  String description , final int numberRoomMate , final int price , final  List<Boolean> property , final List<Uri> imageUri ) {
         uploadingProgress.setVisibility(View.VISIBLE);
@@ -673,8 +664,8 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
 
         // add the time of the post
         Calendar calendar = Calendar.getInstance();
-        post.put("date",(new SimpleDateFormat("dd-MMMM-yyyy").format(calendar)));
 
+        post.put("date",new SimpleDateFormat("dd-MMMM-yyyy").format(calendar.getTime()));
         //add image and date and user profile
         postUniqueName = getUniqueName();
 

@@ -109,8 +109,6 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
         return apartmentList.size();
     }
 
-
-
     public class ViewHolder extends RecyclerView.ViewHolder{
         TextView priceTV ;
         TextView numRoomMateTV;
