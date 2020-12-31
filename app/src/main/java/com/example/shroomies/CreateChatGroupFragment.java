@@ -4,11 +4,16 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.ImageButton;
-import android.widget.SearchView;
+import android.widget.Toast;
+
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.widget.SearchView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,17 +24,30 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class CreateChatGroupFragment extends DialogFragment {
 
     private   View v;
     private SearchView searchView;
-    private RecyclerView userListSuggestion;
+    private RecyclerView userListSuggestionRecyclerView;
     private ImageButton nextButton;
     private DatabaseReference rootRef;
     private UserRecyclerAdapter userRecyclerAdapter;
-    private LinearLayoutManager linearLayoutManager;
+
+
+    static ArrayList<User>  selectedMembers;
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if(getDialog()!=null) {
+            getDialog().getWindow().setLayout(ActionBar.LayoutParams.WRAP_CONTENT, Toolbar.LayoutParams.WRAP_CONTENT);
+         getDialog().getWindow().setBackgroundDrawableResource(R.drawable.post_card_rectangle_round);
+        }
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -44,18 +62,16 @@ public class CreateChatGroupFragment extends DialogFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         searchView=v.findViewById(R.id.create_group_search_bar);
-        userListSuggestion=v.findViewById(R.id.suggestion_list_create_group);
+        userListSuggestionRecyclerView =v.findViewById(R.id.suggestion_list_create_group);
+        userListSuggestionRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         nextButton=v.findViewById(R.id.confirm_button_create_group);
-        linearLayoutManager=new LinearLayoutManager(getContext());
-        userListSuggestion.setHasFixedSize(true);
-        userListSuggestion.setLayoutManager(linearLayoutManager);
+
+        selectedMembers = new ArrayList<>();
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                userRecyclerAdapter=new UserRecyclerAdapter(getUsersListFromDatabase(query),getContext(),true);
-                userListSuggestion.setAdapter(userRecyclerAdapter);
-                userRecyclerAdapter.notifyDataSetChanged();
+                getUsersListFromDatabase(query);
                 return false;
             }
 
@@ -69,23 +85,29 @@ public class CreateChatGroupFragment extends DialogFragment {
             public void onClick(View v) {
                     CreateChatGroupDialogFrag2 dialogFrag2=new CreateChatGroupDialogFrag2();
                     Bundle bundle= new Bundle();
-                    bundle.putParcelableArrayList("ListOfSelectedUsers",userRecyclerAdapter.getMemberList());
+                    bundle.putParcelableArrayList("ListOfSelectedUsers",selectedMembers);
                     dialogFrag2.setArguments(bundle);
                     dialogFrag2.show(getChildFragmentManager(),"create group dialog 2");
             }
         });
 
     }
-    public List<User> getUsersListFromDatabase(String query){
-        final List<User> suggestedUser = null;
-        rootRef.child("Users").orderByChild("name").equalTo(query+"\uf8ff").addValueEventListener(new ValueEventListener() {
+    public void getUsersListFromDatabase(String query){
+
+        //+"\uf8ff"
+        rootRef.child("Users").orderByChild("name").equalTo(query).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
+                    List <User> suggestedUser = new ArrayList<>();
                     for (DataSnapshot ds : snapshot.getChildren()) {
-                        User user = snapshot.getValue(User.class);
+                        User user = ds.getValue(User.class);
                         suggestedUser.add(user);
                     }
+
+                    userRecyclerAdapter=new UserRecyclerAdapter(suggestedUser,getContext(),true);
+                    userListSuggestionRecyclerView.setAdapter(userRecyclerAdapter);
+
                 }
 
             }
@@ -95,7 +117,20 @@ public class CreateChatGroupFragment extends DialogFragment {
 
             }
         });
-       return suggestedUser;
+    }
+    public static void addSelectedMembers(User user){
+        if(selectedMembers.size()==0){
+            selectedMembers.add(user);
+        }else {
+            for (User selected : selectedMembers) {
+                if (selected.equals(user)) {
+                    return;
+                } else {
+                    selectedMembers.add(user);
+                }
+            }
+        }
+
     }
 
 }

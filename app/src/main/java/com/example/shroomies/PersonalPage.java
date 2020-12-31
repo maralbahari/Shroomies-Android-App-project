@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.database.FirebaseDatabase;
@@ -22,6 +23,7 @@ public class PersonalPage extends Fragment {
     private String mParam2;
     private RecyclerView myRecyclerView;
     private FirebaseRecyclerAdapter myFirebaseAdapter;
+
 
     public PersonalPage() {
         // Required empty public constructor

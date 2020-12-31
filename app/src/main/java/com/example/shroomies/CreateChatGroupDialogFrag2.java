@@ -13,6 +13,8 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -26,6 +28,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 
 public class CreateChatGroupDialogFrag2 extends DialogFragment {
@@ -34,27 +38,38 @@ public class CreateChatGroupDialogFrag2 extends DialogFragment {
    private EditText groupChatTitle;
    private RecyclerView selectedMembers;
     private DatabaseReference rootRef;
-    private ArrayList<User> selectedUsers;
+    private List<User> selectedUsers;
     private UserRecyclerAdapter userRecyclerAdapter;
     private Button createGroupButton;
    private String saveCurrentDate,saveCurrentTime;
     View v;
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if(getDialog()!=null) {
+            getDialog().getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
+        }
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
          v= inflater.inflate(R.layout.fragment_create_chat_group_dialog_frag2, container, false);
         rootRef= FirebaseDatabase.getInstance().getReference();
-        Bundle bundle = this.getArguments();
-        if (bundle != null) {
-           selectedUsers = bundle.getParcelableArrayList("ListOfSelectedUsers");
-        }
+
         return v;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        Bundle bundle = this.getArguments();
+        selectedUsers = new ArrayList<>();
+        if (bundle != null) {
+            selectedUsers = bundle.getParcelableArrayList("ListOfSelectedUsers");
+        }
         groupChatImage=v.findViewById(R.id.group_chat_image);
         groupChatTitle=v.findViewById(R.id.group_chat_name);
         selectedMembers=v.findViewById(R.id.list_of_selected_members);
@@ -64,25 +79,29 @@ public class CreateChatGroupDialogFrag2 extends DialogFragment {
         selectedMembers.setLayoutManager(linearLayoutManager);
         userRecyclerAdapter=new UserRecyclerAdapter(selectedUsers,getContext(),false);
         selectedMembers.setAdapter(userRecyclerAdapter);
+
         createGroupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 String groupName=groupChatTitle.getText().toString();
-                if(TextUtils.isEmpty(groupName)){
-                    Toast.makeText(getContext(),"Please Enter Group Name",Toast.LENGTH_LONG);
-                }
-                ArrayList<String> listOfMembersID = null;
+                List<String> listOfMembersID = new ArrayList<>();
                 for(User user: selectedUsers){
-                    listOfMembersID.add(user.getId());
+                    listOfMembersID.add(user.getID());
+
                 }
-                createGroupDatabase(groupName,listOfMembersID);
+                if(TextUtils.isEmpty(groupName) || listOfMembersID.isEmpty()){
+                    Toast.makeText(getContext(),"Please Enter Group Name",Toast.LENGTH_LONG).show();
+                }else {
+                    createGroupDatabase(groupName, listOfMembersID);
+                }
             }
         });
 
 
     }
-    public void createGroupDatabase(String groupName,ArrayList<String> membersID){
-        HashMap<String,Object> groupDetails=new HashMap<>();
+    public void createGroupDatabase(String groupName, final List<String> membersID){
+        Map<String,Object> groupDetails=new HashMap<>();
         groupDetails.put("groupName",groupName);
         groupDetails.put("groupMembers",membersID);
         Calendar calendarDate=Calendar.getInstance();
@@ -96,7 +115,6 @@ public class CreateChatGroupDialogFrag2 extends DialogFragment {
             @Override
             public void onComplete(@NonNull Task task) {
                 if(task.isSuccessful()){
-                    Toast.makeText(getContext(),"Group Created Successfully",Toast.LENGTH_LONG);
                     Intent intent = new Intent(getActivity(),MessageInbox.class);
                     startActivity(intent);
                 }else{

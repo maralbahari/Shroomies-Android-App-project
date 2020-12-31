@@ -140,6 +140,7 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
                             receiverUser = new User();
                             receiverUser = snapshot.getValue(User.class);
+                            addUserToInbox(receiverUser);
 
                         }
 
@@ -148,7 +149,7 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
 
                         }
                     });
-                    addUserToInbox(receiverUser);
+
 
                 }
             });
@@ -157,14 +158,14 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
     private void addUserToInbox(final User receiverUser){
         HashMap<String, Object> receiverDetails = new HashMap<>();
         receiverDetails.put("receiverName",receiverUser.getName());
-        receiverDetails.put("receiverImage",receiverUser.getImageurl());
-        receiverDetails.put("receiverID",receiverUser.getId());
-        rootRef.child("inboxLists").child(mAuth.getCurrentUser().getUid()).child(receiverUser.getId()).setValue(receiverDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
+        receiverDetails.put("receiverImage",receiverUser.getImage());
+        receiverDetails.put("receiverID",receiverUser.getID());
+        rootRef.child("inboxLists").child(mAuth.getInstance().getCurrentUser().getUid()).child(receiverUser.getID()).setValue(receiverDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
                     Intent intent=new Intent(context,ChattingActivity.class);
-                    intent.putExtra("USERID",receiverUser.getId());
+                    intent.putExtra("USERID",receiverUser.getID());
                     intent.putExtra("USERNAME",receiverUser.getName());
                     context.startActivity(intent);
 

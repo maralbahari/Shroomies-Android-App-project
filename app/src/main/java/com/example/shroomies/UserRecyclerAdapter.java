@@ -11,10 +11,15 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.load.resource.bitmap.CircleCrop;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapter.UserDetailsViewHolder> {
@@ -22,12 +27,15 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapte
     private Context context;
     private DatabaseReference rootRef;
     private View view;
-    private ArrayList<User> members;
+
     public boolean fromSearchPage;
+
     public UserRecyclerAdapter(List<User> usersList, Context context,boolean fromSearchPage) {
         this.usersList = usersList;
         this.context = context;
         this.fromSearchPage=fromSearchPage;
+        // create a new list to hold all selected users
+
     }
 
     @NonNull
@@ -40,9 +48,33 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapte
     }
 
     @Override
-    public void onBindViewHolder(@NonNull UserDetailsViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final UserDetailsViewHolder holder, int position) {
      holder.username.setText(usersList.get(position).getName());
      holder.bio.setText(usersList.get(position).getBio());
+
+        // storage referance to load the user's image if the userhas an
+        //uploaded image
+        if(!usersList.get(position).getImage().isEmpty()) {
+            DatabaseReference firebaseDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(usersList.get(position).getID());
+            firebaseDatabase.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    String url = snapshot.child("image").getValue(String.class);
+                    GlideApp.with(context)
+                            .load(url)
+                            .fitCenter()
+                            .circleCrop()
+                            .into(holder.userImageProfile);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+
+
+        }
      // if navigating from create group dialog 2 then we dont need the add user button to be shown or accessible
      if(!(fromSearchPage)){
          holder.addUser.setVisibility(view.GONE);
@@ -69,13 +101,11 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapte
                 @Override
                 public void onClick(View v) {
                     addUser.setImageResource(R.drawable.ic_done_outline);
-                    members.add(usersList.get(getAdapterPosition()));
+                    CreateChatGroupFragment.addSelectedMembers(usersList.get(getAdapterPosition()));
                 }
             });
         }
     }
-    public ArrayList<User> getMemberList(){
-        return members;
-    }
+
 
 }

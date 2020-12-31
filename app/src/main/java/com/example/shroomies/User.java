@@ -6,10 +6,10 @@ import android.os.Parcelable;
 public class User implements Parcelable {
     private String name;
     private String email;
-    private String username;
+
     private String bio;
-    private String imageurl;
-    private String id;
+    private String image;
+    private String ID;
 
     public User() {
 
@@ -17,19 +17,19 @@ public class User implements Parcelable {
     public User(String name, String email, String username, String bio, String imageurl, String id) {
         this.name = name;
         this.email = email;
-        this.username = username;
+
         this.bio = bio;
-        this.imageurl = imageurl;
-        this.id = id;
+        this.image = imageurl;
+        this.ID = id;
     }
 
     protected User(Parcel in) {
         name = in.readString();
         email = in.readString();
-        username = in.readString();
+
         bio = in.readString();
-        imageurl = in.readString();
-        id = in.readString();
+        image = in.readString();
+        ID = in.readString();
     }
 
     public static final Creator<User> CREATOR = new Creator<User>() {
@@ -59,13 +59,7 @@ public class User implements Parcelable {
         this.email = email;
     }
 
-    public String getUsername() {
-        return username;
-    }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
 
     public String getBio() {
         return bio;
@@ -75,20 +69,20 @@ public class User implements Parcelable {
         this.bio = bio;
     }
 
-        public String getImageurl() {
-            return imageurl;
+        public String getImage() {
+            return image;
         }
 
-        public void setImageurl(String imageurl) {
-            this.imageurl = imageurl;
+        public void setImage(String image) {
+            this.image = image;
         }
 
-        public String getId() {
-            return id;
+        public String getID() {
+            return ID;
         }
 
-        public void setId(String id) {
-            this.id = id;
+        public void setID(String ID) {
+            this.ID = ID;
         }
 
     @Override
@@ -100,9 +94,9 @@ public class User implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(name);
         dest.writeString(email);
-        dest.writeString(username);
+
         dest.writeString(bio);
-        dest.writeString(imageurl);
-        dest.writeString(id);
+        dest.writeString(image);
+        dest.writeString(ID);
     }
 }

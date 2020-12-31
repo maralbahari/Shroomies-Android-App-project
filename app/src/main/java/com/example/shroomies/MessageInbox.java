@@ -66,7 +66,7 @@ public class MessageInbox extends AppCompatActivity {
         userList.setHasFixedSize(true);
         userList.setLayoutManager(linearLayoutManager);
         userList.setAdapter(messageInboxRecycleViewAdapter);
-        rootRef.child("inboxLists").child(mAuth.getCurrentUser().getUid()).addChildEventListener(new ChildEventListener() {
+        rootRef.child("inboxLists").child(mAuth.getInstance().getCurrentUser().getUid()).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 if(snapshot.exists()){
