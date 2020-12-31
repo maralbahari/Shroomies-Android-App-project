@@ -34,31 +34,34 @@
             android:textColor="@android:color/black"
             android:textSize="18dp"
             android:textStyle="bold" />
+
         <TextView
             android:id="@+id/suggestion_list_bio"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_below="@id/suggestion_list_username"
             android:layout_marginLeft="5dp"
             android:layout_marginTop="10dp"
             android:layout_marginRight="80dp"
             android:layout_toEndOf="@id/suggestion_list_image"
             android:text=" bio"
-            android:layout_below="@id/suggestion_list_username"
             android:textColor="@android:color/black"
             android:textSize="18dp"
-            android:textStyle="bold" />
+            android:textStyle="normal" />
 
 
-        <ImageView
+        <ImageButton
             android:id="@+id/add_user_to_group_button"
             android:layout_width="match_parent"
             android:layout_height="35dp"
             android:layout_below="@id/suggestion_list_bio"
             android:layout_alignParentRight="true"
-            android:layout_marginLeft="340dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginRight="0dp"
-            android:background="@drawable/button_round_corner_purple"
+            android:layout_marginLeft="355dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="5dp"
+            android:background="@drawable/button_round_purple"
+            android:elevation="10dp"
+            android:padding="10dp"
             tools:srcCompat="@drawable/ic_person_add_24" />
 
     </RelativeLayout>

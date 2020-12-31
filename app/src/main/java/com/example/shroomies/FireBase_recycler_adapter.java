@@ -20,7 +20,6 @@ public class FireBase_recycler_adapter extends FirebaseRecyclerAdapter
         <Model_personal, FireBase_recycler_adapter.MyViewHolder>
 
 {
-
     public FireBase_recycler_adapter(@NonNull FirebaseRecyclerOptions<Model_personal> options) {
         super(options);
     }
@@ -45,10 +44,6 @@ public class FireBase_recycler_adapter extends FirebaseRecyclerAdapter
 
         return new MyViewHolder(view);
     }
-
-
-
-
 
 
     // view holder class to hold the view
