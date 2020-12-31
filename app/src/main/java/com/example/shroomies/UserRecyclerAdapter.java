@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapter.UserDetailsViewHolder> {
@@ -21,10 +22,12 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapte
     private Context context;
     private DatabaseReference rootRef;
     private View view;
-    private List<String> membersID;
-    public UserRecyclerAdapter(List<User> usersList, Context context) {
+    private ArrayList<User> members;
+    public boolean fromSearchPage;
+    public UserRecyclerAdapter(List<User> usersList, Context context,boolean fromSearchPage) {
         this.usersList = usersList;
         this.context = context;
+        this.fromSearchPage=fromSearchPage;
     }
 
     @NonNull
@@ -40,7 +43,10 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapte
     public void onBindViewHolder(@NonNull UserDetailsViewHolder holder, int position) {
      holder.username.setText(usersList.get(position).getName());
      holder.bio.setText(usersList.get(position).getBio());
-
+     // if navigating from create group dialog 2 then we dont need the add user button to be shown or accessible
+     if(!(fromSearchPage)){
+         holder.addUser.setVisibility(view.GONE);
+     }
     }
 
     @Override
@@ -63,13 +69,13 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapte
                 @Override
                 public void onClick(View v) {
                     addUser.setImageResource(R.drawable.ic_done_outline);
-                    membersID.add(usersList.get(getAdapterPosition()).getId());
+                    members.add(usersList.get(getAdapterPosition()));
                 }
             });
         }
     }
-    public List<String> getMemberList(){
-        return membersID;
+    public ArrayList<User> getMemberList(){
+        return members;
     }
 
 }

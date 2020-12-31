@@ -58,7 +58,7 @@ public class MessageInbox extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                CreateChatGroupFragment createChatGroupFragment=new CreateChatGroupFragment();
-               createChatGroupFragment.show(getSupportFragmentManager(),"create group dialog");
+               createChatGroupFragment.show(getSupportFragmentManager(),"create group dialog 1");
             }
         });
         messageInboxRecycleViewAdapter=new MessageInboxRecycleViewAdapter(usersArrayList,getApplicationContext());

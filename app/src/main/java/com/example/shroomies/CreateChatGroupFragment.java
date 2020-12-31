@@ -26,7 +26,7 @@ public class CreateChatGroupFragment extends DialogFragment {
     private   View v;
     private SearchView searchView;
     private RecyclerView userListSuggestion;
-    private ImageButton createGroupButton;
+    private ImageButton nextButton;
     private DatabaseReference rootRef;
     private UserRecyclerAdapter userRecyclerAdapter;
     private LinearLayoutManager linearLayoutManager;
@@ -36,6 +36,7 @@ public class CreateChatGroupFragment extends DialogFragment {
         // Inflate the layout for this fragment
         v= inflater.inflate(R.layout.fragment_create_chat_group, container, false);
         rootRef= FirebaseDatabase.getInstance().getReference();
+
         return v;
     }
 
@@ -44,7 +45,7 @@ public class CreateChatGroupFragment extends DialogFragment {
         super.onViewCreated(view, savedInstanceState);
         searchView=v.findViewById(R.id.create_group_search_bar);
         userListSuggestion=v.findViewById(R.id.suggestion_list_create_group);
-        createGroupButton=v.findViewById(R.id.confirm_button_create_group);
+        nextButton=v.findViewById(R.id.confirm_button_create_group);
         linearLayoutManager=new LinearLayoutManager(getContext());
         userListSuggestion.setHasFixedSize(true);
         userListSuggestion.setLayoutManager(linearLayoutManager);
@@ -52,7 +53,7 @@ public class CreateChatGroupFragment extends DialogFragment {
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                userRecyclerAdapter=new UserRecyclerAdapter(getUsersListFromDatabase(query),getContext());
+                userRecyclerAdapter=new UserRecyclerAdapter(getUsersListFromDatabase(query),getContext(),true);
                 userListSuggestion.setAdapter(userRecyclerAdapter);
                 userRecyclerAdapter.notifyDataSetChanged();
                 return false;
@@ -63,6 +64,17 @@ public class CreateChatGroupFragment extends DialogFragment {
                 return false;
             }
         });
+        nextButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                    CreateChatGroupDialogFrag2 dialogFrag2=new CreateChatGroupDialogFrag2();
+                    Bundle bundle= new Bundle();
+                    bundle.putParcelableArrayList("ListOfSelectedUsers",userRecyclerAdapter.getMemberList());
+                    dialogFrag2.setArguments(bundle);
+                    dialogFrag2.show(getChildFragmentManager(),"create group dialog 2");
+            }
+        });
+
     }
     public List<User> getUsersListFromDatabase(String query){
         final List<User> suggestedUser = null;
@@ -71,7 +83,6 @@ public class CreateChatGroupFragment extends DialogFragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
                     for (DataSnapshot ds : snapshot.getChildren()) {
-
                         User user = snapshot.getValue(User.class);
                         suggestedUser.add(user);
                     }
