@@ -66,8 +66,10 @@ public class PrivateInboxRecycleViewAdapter extends RecyclerView.Adapter<Private
                 @Override
                 public void onClick(View v) {
                     Intent intent=new Intent(context,ChattingActivity.class);
+
                     intent.putExtra("USERID",receiverUsersList.get(getAdapterPosition()).getReceiverID());
                     intent.putExtra("USERNAME",receiverUsersList.get(getAdapterPosition()).getReceiverName());
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(intent);
 
                 }

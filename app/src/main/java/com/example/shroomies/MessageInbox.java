@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,6 +24,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,6 +65,7 @@ public class MessageInbox extends AppCompatActivity {
         LayoutInflater inflater= (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View actionbarView=inflater.inflate(R.layout.toolbar_inbox_layout,null);
         actionBar.setCustomView(actionbarView);
+        getPrivateChatList();
 
         // add group button
         addgroupButton.setOnClickListener(new View.OnClickListener() {
@@ -78,8 +81,11 @@ public class MessageInbox extends AppCompatActivity {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 if(tab.getPosition()==0){
+                    usersArrayList = new ArrayList<>();
                     getPrivateChatList();
-                }else if(tab.getPosition()==1){
+                }
+                else if(tab.getPosition()==1){
+
                     getGroupChatList();
                 }
             }
@@ -133,35 +139,32 @@ public class MessageInbox extends AppCompatActivity {
         inboxListRecyclerView.setHasFixedSize(true);
         inboxListRecyclerView.setLayoutManager(linearLayoutManager);
         inboxListRecyclerView.setAdapter(groupInboxRecyclerViewAdapter);
-        rootRef.child("GroupChats").orderByChild("groupMembers").addChildEventListener(new ChildEventListener() {
+        rootRef.child("GroupChats").addValueEventListener(new ValueEventListener() {
             @Override
-            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()){
-                    String userName = mAuth.getCurrentUser().getUid();
+                    String userId = mAuth.getInstance().getCurrentUser().getUid();
                     for(DataSnapshot dataSnapshot
-                    : snapshot.getChildren()){
-                        if(dataSnapshot.child("groupMembers").child(userName).exists()){
-                            Group group = dataSnapshot.getValue(Group.class);
+                            : snapshot.getChildren()){
+                        Group group = dataSnapshot.getValue(Group.class);
+                        if(group.getGroupMembers().contains(userId)){
                             groupList.add(group);
+                            Toast.makeText(getApplicationContext(),dataSnapshot.getValue().toString(), Toast.LENGTH_SHORT).show();
                         }
+
                     }
+
                     groupInboxRecyclerViewAdapter = new GroupInboxRecyclerViewAdapter(groupList,getApplicationContext());
                     groupInboxRecyclerViewAdapter.notifyDataSetChanged();
                 }else{
 
                 }
             }
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) { }
 
             @Override
-            public void onChildRemoved(@NonNull DataSnapshot snapshot) { }
+            public void onCancelled(@NonNull DatabaseError error) {
 
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) { }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) { }
+            }
         });
 
 

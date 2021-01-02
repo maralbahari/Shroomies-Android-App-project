@@ -157,8 +157,6 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
     }
     private void addUserToInbox(final User receiverUser){
         HashMap<String, Object> receiverDetails = new HashMap<>();
-        receiverDetails.put("receiverName",receiverUser.getName());
-        receiverDetails.put("receiverImage",receiverUser.getImage());
         receiverDetails.put("receiverID",receiverUser.getID());
         rootRef.child("inboxLists").child(mAuth.getInstance().getCurrentUser().getUid()).child(receiverUser.getID()).setValue(receiverDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
@@ -168,7 +166,6 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
                     intent.putExtra("USERID",receiverUser.getID());
                     intent.putExtra("USERNAME",receiverUser.getName());
                     context.startActivity(intent);
-
                 }
             }
         });

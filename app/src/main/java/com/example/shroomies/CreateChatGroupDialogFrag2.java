@@ -1,13 +1,17 @@
 package com.example.shroomies;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -19,10 +23,18 @@ import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CircleCrop;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
+import com.squareup.picasso.Picasso;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -31,10 +43,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import jp.wasabeef.picasso.transformations.CropCircleTransformation;
+import jp.wasabeef.picasso.transformations.RoundedCornersTransformation;
+
 
 public class CreateChatGroupDialogFrag2 extends DialogFragment {
-
+    private FirebaseAuth mAuth;
    private ImageView groupChatImage;
+   private ImageButton addGroupImage;
    private EditText groupChatTitle;
    private RecyclerView selectedMembers;
     private DatabaseReference rootRef;
@@ -42,6 +58,9 @@ public class CreateChatGroupDialogFrag2 extends DialogFragment {
     private UserRecyclerAdapter userRecyclerAdapter;
     private Button createGroupButton;
    private String saveCurrentDate,saveCurrentTime;
+   private StorageReference storageReference;
+   StorageReference filePath ;
+   private Uri imageUri;
     View v;
 
     @Override
@@ -58,7 +77,7 @@ public class CreateChatGroupDialogFrag2 extends DialogFragment {
         // Inflate the layout for this fragment
          v= inflater.inflate(R.layout.fragment_create_chat_group_dialog_frag2, container, false);
         rootRef= FirebaseDatabase.getInstance().getReference();
-
+        storageReference = FirebaseStorage.getInstance().getReference();
         return v;
     }
 
@@ -74,6 +93,7 @@ public class CreateChatGroupDialogFrag2 extends DialogFragment {
         groupChatTitle=v.findViewById(R.id.group_chat_name);
         selectedMembers=v.findViewById(R.id.list_of_selected_members);
         createGroupButton=v.findViewById(R.id.create_group_chat_button);
+        addGroupImage = v.findViewById(R.id.icon_add_group_image);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         selectedMembers.setHasFixedSize(true);
         selectedMembers.setLayoutManager(linearLayoutManager);
@@ -87,21 +107,58 @@ public class CreateChatGroupDialogFrag2 extends DialogFragment {
                 List<String> listOfMembersID = new ArrayList<>();
                 for(User user: selectedUsers){
                     listOfMembersID.add(user.getID());
-
                 }
                 if(TextUtils.isEmpty(groupName) || listOfMembersID.isEmpty()){
                     Toast.makeText(getContext(),"Please Enter Group Name",Toast.LENGTH_LONG).show();
                 }else {
-                    createGroupDatabase(groupName, listOfMembersID);
+                    storeImage(groupName, listOfMembersID);
                 }
             }
         });
 
+        // once icon pressed open the gallery
+        // for the user to upload one image
+        addGroupImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openGallery();
+            }
+        });
+
+
 
     }
-    public void createGroupDatabase(String groupName, final List<String> membersID){
-        Map<String,Object> groupDetails=new HashMap<>();
+    void storeImage(final String groupName , final List<String>membersId){
+        // storage referance to save the image path in firebase storage
 
+        // if the image view hasn't been changed from the default drawable
+        //then upload the image
+
+        if(imageUri!=null){
+            String postUniqueName = getUniqueName();
+            filePath = storageReference.child("group profile image").child(imageUri.getLastPathSegment()
+                    +postUniqueName+".jpg");
+            filePath.putFile(imageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                    if(task.isSuccessful()) {
+                        String imageUrl = task.getResult().getMetadata().getReference().getPath();
+                        createGroupDatabase(groupName, membersId, imageUrl);
+                    }else{
+                        Toast.makeText(getActivity(),task.getException().toString(),Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
+
+
+    }
+
+    public void createGroupDatabase(String groupName, final List<String> membersID , String imagePath){
+
+        // add the current user id to the list
+        membersID.add(mAuth.getInstance().getCurrentUser().getUid());
+        Map<String,Object> groupDetails=new HashMap<>();
         // create a unique group id
         Calendar calendarDate=Calendar.getInstance();
         SimpleDateFormat currentDate=new SimpleDateFormat("dd-MMMM-yyyy");
@@ -114,20 +171,84 @@ public class CreateChatGroupDialogFrag2 extends DialogFragment {
         groupDetails.put("groupName",groupName);
         groupDetails.put("groupMembers",membersID);
         groupDetails.put("groupID",groupID);
+        groupDetails.put("groupImage", imagePath);
 
         rootRef.child("GroupChats").child(groupID).setValue(groupDetails).addOnCompleteListener(new OnCompleteListener() {
             @Override
             public void onComplete(@NonNull Task task) {
                 if(task.isSuccessful()){
-                    Intent intent = new Intent(getActivity(),MessageInbox.class);
+                    Intent intent = new Intent(getContext(),MessageInbox.class);
                     startActivity(intent);
                 }else{
-
                 }
 
             }
         });
     }
+
+    private void openGallery() {
+        //add permisision denied handlers
+        Intent gallery = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI);
+        gallery.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        startActivityForResult(gallery, 1);
+    }
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data){
+        super.onActivityResult(requestCode, resultCode, data);
+        Uri selectedImageUri;
+        if (resultCode == getActivity().RESULT_OK && requestCode == 1) {
+
+
+            //get selected photo
+            // load the image to the image view
+            selectedImageUri = data.getData();
+
+            // store the image uri
+            imageUri = selectedImageUri;
+//            GlideApp.with(this.context)
+//                    .load(storageReference)
+//                    .transform(new RoundedCorners(1))
+//                    .fitCenter()
+//                    .centerCrop()
+//                    .into(imageView);
+            Glide.with(getContext())
+                    .load(imageUri)
+                    .circleCrop()
+                    .into(groupChatImage);
+//            Picasso.get().load(selectedImageUri)
+//                    .fit()
+//                    .centerCrop()
+//                    .transform(new RoundedCornersTransformation(90 ,0))
+//                    .into(groupChatImage);
+
+        } else {
+            Toast.makeText(getActivity(), "an error occured", Toast.LENGTH_SHORT).show();
+
+                }
+
+            }
+
+
+
+
+    private String getUniqueName() {
+        //create a unique id for the post by combining the date with uuid
+        //get the date first
+        Calendar calendarDate = Calendar.getInstance();
+        SimpleDateFormat  currentDate = new SimpleDateFormat("dd-MMMM-yyyy");
+        String saveCurrentDate = currentDate.format(calendarDate.getTime());
+
+        //get the time in hours and minutes
+        Calendar calendarTime = Calendar.getInstance();
+        SimpleDateFormat currentTime = new SimpleDateFormat("HH:mm");
+        String saveCurrentTime = currentTime.format(calendarTime.getTime());
+
+        //add the two string together
+
+        return  saveCurrentDate+saveCurrentTime;
+    }
+
+
 
 
     }
