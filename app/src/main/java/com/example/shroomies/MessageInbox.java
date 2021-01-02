@@ -36,7 +36,7 @@ public class MessageInbox extends AppCompatActivity {
    private RecyclerView inboxListRecyclerView;
     private FragmentTransaction ft;
     private FragmentManager fm;
-    private  List<ReceiverUsers> usersArrayList=new ArrayList<>();
+    private  List<String> usersArrayList=new ArrayList<>();
     private  List<Group> groupList = new ArrayList<>();
     private LinearLayoutManager linearLayoutManager;
     private PrivateInboxRecycleViewAdapter messageInboxRecycleViewAdapter;
@@ -113,8 +113,12 @@ public class MessageInbox extends AppCompatActivity {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 if(snapshot.exists()){
-                    ReceiverUsers receiverUsers=snapshot.getValue(ReceiverUsers.class);
-                    usersArrayList.add(receiverUsers);
+                    for( DataSnapshot ds:snapshot.getChildren()){
+                         receiverID=ds.getValue().toString();
+                        usersArrayList.add(receiverID);
+                    }
+//                    ReceiverUsers receiverUsers=snapshot.getValue(ReceiverUsers.class);
+//                    usersArrayList.add(receiverUsers);
                     messageInboxRecycleViewAdapter.notifyDataSetChanged();
                 }else{ }
             }

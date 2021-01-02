@@ -12,20 +12,24 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.List;
 
 public class PrivateInboxRecycleViewAdapter extends RecyclerView.Adapter<PrivateInboxRecycleViewAdapter.UsersListViewHolder> {
-    private List<ReceiverUsers> receiverUsersList;
+    private List<String> receiverUsersList;
     private FirebaseAuth mAuth;
     private DatabaseReference rootRef;
     private String receiverID;
     private Context context;
 
-    public PrivateInboxRecycleViewAdapter(List<ReceiverUsers> receiverUsersList, Context context) {
+    public PrivateInboxRecycleViewAdapter(List<String> receiverUsersList, Context context) {
         this.receiverUsersList = receiverUsersList;
         this.context=context;
     }
@@ -41,8 +45,28 @@ public class PrivateInboxRecycleViewAdapter extends RecyclerView.Adapter<Private
 
     @Override
     public void onBindViewHolder(@NonNull final UsersListViewHolder holder, final int position) {
+                rootRef.child("User").equalTo(receiverUsersList.get(position)).addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if(snapshot.exists()){
+                            User user=snapshot.getValue(User.class);
+                            holder.receiverName.setText(user.getName());
+                            GlideApp.with(context)
+                                    .load(user.getImage())
+                                    .transform(new RoundedCorners(1))
+                                    .fitCenter()
+                                    .centerCrop()
+                                    .into(holder.receiverImageView);
 
-                holder.receiverName.setText(receiverUsersList.get(position).getReceiverName());
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+
                 // put image here
 
     }
@@ -66,9 +90,8 @@ public class PrivateInboxRecycleViewAdapter extends RecyclerView.Adapter<Private
                 @Override
                 public void onClick(View v) {
                     Intent intent=new Intent(context,ChattingActivity.class);
-
-                    intent.putExtra("USERID",receiverUsersList.get(getAdapterPosition()).getReceiverID());
-                    intent.putExtra("USERNAME",receiverUsersList.get(getAdapterPosition()).getReceiverName());
+                    intent.putExtra("USERID",receiverUsersList.get(getAdapterPosition()));
+                    intent.putExtra("USERNAME",receiverName.toString());
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(intent);
 
@@ -76,5 +99,8 @@ public class PrivateInboxRecycleViewAdapter extends RecyclerView.Adapter<Private
             });
 
         }
+    }
+    public String getLastMessage(String receiverID){
+        return "";
     }
 }
