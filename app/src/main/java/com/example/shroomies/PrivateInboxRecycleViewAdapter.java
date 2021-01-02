@@ -18,14 +18,14 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.List;
 
-public class MessageInboxRecycleViewAdapter extends RecyclerView.Adapter<MessageInboxRecycleViewAdapter.UsersListViewHolder> {
+public class PrivateInboxRecycleViewAdapter extends RecyclerView.Adapter<PrivateInboxRecycleViewAdapter.UsersListViewHolder> {
     private List<ReceiverUsers> receiverUsersList;
     private FirebaseAuth mAuth;
     private DatabaseReference rootRef;
     private String receiverID;
     private Context context;
 
-    public MessageInboxRecycleViewAdapter(List<ReceiverUsers> receiverUsersList,Context context) {
+    public PrivateInboxRecycleViewAdapter(List<ReceiverUsers> receiverUsersList, Context context) {
         this.receiverUsersList = receiverUsersList;
         this.context=context;
     }
@@ -58,9 +58,9 @@ public class MessageInboxRecycleViewAdapter extends RecyclerView.Adapter<Message
         RelativeLayout messageInboxViewHolderLayout;
         public UsersListViewHolder(@NonNull View itemView) {
             super(itemView);
-            lastMessage=itemView.findViewById(R.id.last_message);
-            receiverImageView=itemView.findViewById(R.id.receiver_image_profile_inbox);
-            receiverName=itemView.findViewById(R.id.receiver_name_inbox);
+            lastMessage=itemView.findViewById(R.id.inbox_last_message);
+            receiverImageView=itemView.findViewById(R.id.inbox_chat_item_image);
+            receiverName=itemView.findViewById(R.id.inbox_chat_item_name);
             messageInboxViewHolderLayout=itemView.findViewById(R.id.message_inbox_users_view_layout);
             messageInboxViewHolderLayout.setOnClickListener(new View.OnClickListener() {
                 @Override

@@ -85,5 +85,5 @@
         android:layout_above="@id/bottom_chatting_layout"
         android:layout_below="@id/include"
         android:layout_marginTop="2dp"
-        android:background="@color/Alabaster" />
+        android:background="@color/Timeberwolf" />
 </RelativeLayout>

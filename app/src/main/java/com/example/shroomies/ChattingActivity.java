@@ -57,7 +57,7 @@ public class ChattingActivity extends AppCompatActivity {
         receiverUsername=findViewById(R.id.receiver_username);
         mAuth=FirebaseAuth.getInstance();
         senderID=mAuth.getCurrentUser().getUid();
-        rootRef= FirebaseDatabase.getInstance().getReference("shroomies-e34d3");
+        rootRef= FirebaseDatabase.getInstance().getReference();
         Bundle extras = getIntent().getExtras();
         if(!(extras==null)){
             receiverID=extras.getString("USERID");
@@ -73,7 +73,7 @@ public class ChattingActivity extends AppCompatActivity {
         });
 
 
-//        retrieveMessages();
+        retrieveMessages();
 
     }
     private void initializeViews(){

@@ -83,7 +83,6 @@ public class CreateChatGroupDialogFrag2 extends DialogFragment {
         createGroupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 String groupName=groupChatTitle.getText().toString();
                 List<String> listOfMembersID = new ArrayList<>();
                 for(User user: selectedUsers){
@@ -102,16 +101,21 @@ public class CreateChatGroupDialogFrag2 extends DialogFragment {
     }
     public void createGroupDatabase(String groupName, final List<String> membersID){
         Map<String,Object> groupDetails=new HashMap<>();
-        groupDetails.put("groupName",groupName);
-        groupDetails.put("groupMembers",membersID);
+
+        // create a unique group id
         Calendar calendarDate=Calendar.getInstance();
         SimpleDateFormat currentDate=new SimpleDateFormat("dd-MMMM-yyyy");
         saveCurrentDate=currentDate.format(calendarDate.getTime());
         Calendar calendarTime=Calendar.getInstance();
         SimpleDateFormat currentTime=new SimpleDateFormat("HH:mm");
         saveCurrentTime=currentTime.format(calendarTime.getTime());
-        String GroupID=groupName+"-"+saveCurrentDate+"-"+saveCurrentTime;
-        rootRef.child("GroupChats").child(GroupID).setValue(groupDetails).addOnCompleteListener(new OnCompleteListener() {
+        String groupID=groupName+"-"+saveCurrentDate+"-"+saveCurrentTime;
+        // ad dthe group name , members and id
+        groupDetails.put("groupName",groupName);
+        groupDetails.put("groupMembers",membersID);
+        groupDetails.put("groupID",groupID);
+
+        rootRef.child("GroupChats").child(groupID).setValue(groupDetails).addOnCompleteListener(new OnCompleteListener() {
             @Override
             public void onComplete(@NonNull Task task) {
                 if(task.isSuccessful()){
@@ -124,5 +128,7 @@ public class CreateChatGroupDialogFrag2 extends DialogFragment {
             }
         });
     }
+
+
     }
 

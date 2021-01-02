@@ -5,6 +5,11 @@ public class ReceiverUsers {
     String receiverID;
     String receiverImage;
 
+
+    public  ReceiverUsers(){
+
+    }
+
     public ReceiverUsers(String receiverName, String receiverID, String receiverImage) {
         this.receiverName = receiverName;
         this.receiverID = receiverID;

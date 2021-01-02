@@ -6,34 +6,34 @@
     android:layout_height="wrap_content">
 
     <ImageButton
-        android:id="@+id/receiver_image_profile_inbox"
+        android:id="@+id/inbox_chat_item_image"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:padding="10dp"
         app:srcCompat="@drawable/ic_launcher_background" />
 
     <TextView
-        android:id="@+id/receiver_name_inbox"
+        android:id="@+id/inbox_chat_item_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
         android:layout_marginTop="10dp"
         android:layout_marginRight="10dp"
-        android:layout_toEndOf="@id/receiver_image_profile_inbox"
+        android:layout_toEndOf="@id/inbox_chat_item_image"
         android:text="username"
         android:textColor="@android:color/black"
         android:textSize="23sp"
         android:textStyle="bold" />
 
     <TextView
-        android:id="@+id/last_message"
+        android:id="@+id/inbox_last_message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/receiver_name_inbox"
+        android:layout_below="@id/inbox_chat_item_name"
         android:layout_marginLeft="10dp"
         android:layout_marginTop="10dp"
         android:layout_marginRight="10dp"
-        android:layout_toEndOf="@id/receiver_image_profile_inbox"
+        android:layout_toEndOf="@id/inbox_chat_item_image"
         android:text="last message"
         android:textSize="18sp" />
 

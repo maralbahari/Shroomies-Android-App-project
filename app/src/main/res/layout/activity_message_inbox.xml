@@ -16,7 +16,7 @@
         android:layout_height="50dp"
         android:orientation="horizontal">
     <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tabLayout"
+        android:id="@+id/tab_layout_inbox_message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
