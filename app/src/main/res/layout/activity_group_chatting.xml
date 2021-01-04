@@ -1,10 +1,11 @@
-<RelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_height="match_parent"
-    tools:context=".ChattingActivity">
+    tools:context=".GroupChattingActivity"
+    android:orientation="vertical">
     <include
         android:id="@+id/include"
         layout="@layout/toolbar_chatting_layout"
@@ -18,7 +19,7 @@
         android:orientation="horizontal"
         android:id="@+id/bottom_chatting_layout"
         android:background="@color/lowerGradientColorForLoginBackground"
-    >
+        >
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -85,6 +86,8 @@
         android:layout_above="@id/bottom_chatting_layout"
         android:layout_below="@id/include"
         android:layout_marginTop="2dp"
-        android:background="@color/Timeberwolf"
-        app:stackFromEnd="true"/>
+        android:layout_marginBottom="0dp"
+        app:stackFromEnd="true"
+        android:background="@color/Timeberwolf" />
+
 </RelativeLayout>

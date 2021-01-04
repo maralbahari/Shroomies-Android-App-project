@@ -158,11 +158,11 @@ public class FindRoommate extends Fragment {
                 if (tab.getPosition() == 2){
                     recyclerView.setVisibility(View.GONE);
 
-
-                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                    fragmentTransaction.replace(R.id.frame_layout_search, new PersonalPage());
-                    fragmentTransaction.commit();
+//
+//                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+//                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+//                    fragmentTransaction.replace(R.id.frame_layout_search, new PersonalPage());
+//                    fragmentTransaction.commit();
 
                 }
 

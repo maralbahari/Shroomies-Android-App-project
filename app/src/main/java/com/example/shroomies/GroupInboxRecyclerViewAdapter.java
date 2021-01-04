@@ -1,6 +1,7 @@
 package com.example.shroomies;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -61,10 +62,10 @@ public class GroupInboxRecyclerViewAdapter extends RecyclerView.Adapter<GroupInb
             messageInboxViewHolderLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-//                    Intent intent=new Intent(context,ChattingActivity.class);
-//                    intent.putExtra("USERID",receiverUsersList.get(getAdapterPosition()).getReceiverID());
-//                    intent.putExtra("USERNAME",receiverUsersList.get(getAdapterPosition()).getReceiverName());
-//                    context.startActivity(intent);
+                    Intent intent=new Intent(context,GroupChattingActivity.class);
+                    intent.putExtra("GROUPID",groupList.get(getAdapterPosition()).getGroupID());
+                    intent.putExtra("GROUPNAME",groupList.get(getAdapterPosition()).getGroupName());
+                    context.startActivity(intent);
 
                 }
             });

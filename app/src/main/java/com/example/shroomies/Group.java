@@ -1,7 +1,5 @@
 package com.example.shroomies;
 
-import android.os.Parcelable;
-
 import java.util.List;
 
 public class Group {
@@ -9,7 +7,32 @@ public class Group {
     String groupImage;
     String groupID;
     List<String> groupMembers;
+    public String date,time,type,message,from;
     Group(){
+    }
+
+    public void setGroupImage(String groupImage) {
+        this.groupImage = groupImage;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public void setTime(String time) {
+        this.time = time;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+
+    public void setFrom(String from) {
+        this.from = from;
     }
 
     public String getGroupName() {
@@ -42,5 +65,29 @@ public class Group {
 
     public void setGroupMembers(List<String> groupMembers) {
         this.groupMembers = groupMembers;
+    }
+
+    public String getGroupImage() {
+        return groupImage;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public String getFrom() {
+        return from;
     }
 }
