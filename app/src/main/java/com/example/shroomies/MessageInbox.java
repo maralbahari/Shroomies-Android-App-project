@@ -32,7 +32,7 @@ import java.util.List;
 
 public class MessageInbox extends AppCompatActivity {
    private Button addgroupButton;
-  private Toolbar inboxToolbar;
+   private Toolbar inboxToolbar;
    private RecyclerView inboxListRecyclerView;
     private FragmentTransaction ft;
     private FragmentManager fm;

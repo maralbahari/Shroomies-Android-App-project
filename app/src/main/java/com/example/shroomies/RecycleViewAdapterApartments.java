@@ -36,9 +36,9 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
     private List<Apartment> apartmentList;
     private Context context;
     private Geocoder geocoder;
-   private User receiverUser;
-   private DatabaseReference rootRef;
-   private FirebaseAuth mAuth;
+    private User receiverUser;
+    private DatabaseReference rootRef;
+    private FirebaseAuth mAuth;
     public RecycleViewAdapterApartments(List<Apartment> apartmentList, Context context){
         this.apartmentList = apartmentList;
         this.context = context;

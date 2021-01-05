@@ -84,14 +84,14 @@ public class ChattingActivity extends AppCompatActivity {
         actionBar.setDisplayShowHomeEnabled(true);
         LayoutInflater inflater= (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View actionbarView=inflater.inflate(R.layout.toolbar_chatting_layout,null);
-        sendMessage=findViewById(R.id.send_message_text_button);
-        addImage=findViewById(R.id.add_image_button_chat);
+        sendMessage=findViewById(R.id.send_message_button_group_chat);
+        addImage=findViewById(R.id.choose_file_group_chat);
         backButton=findViewById(R.id.back_button_chatting);
-        messageBody=findViewById(R.id.messeg_body);
-        chattingRecycler=findViewById(R.id.recycler_view_chatting);
+        messageBody=findViewById(R.id.messeg_body_group_chat);
+        chattingRecycler=findViewById(R.id.recycler_view_group_chatting);
         receiverProfileImage=findViewById(R.id.receiver_image_profile);
         receiverUsername.setText(receiverName);
-        chattingRecycler=findViewById(R.id.recycler_view_chatting);
+        chattingRecycler=findViewById(R.id.recycler_view_group_chatting);
         messagesAdapter=new MessagesAdapter(messagesArrayList);
         linearLayoutManager=new LinearLayoutManager(this);
         chattingRecycler.setHasFixedSize(true);
@@ -143,6 +143,7 @@ public class ChattingActivity extends AppCompatActivity {
         }
     }
    public void retrieveMessages(){
+
         rootRef.child("Messages").child(senderID).child(receiverID).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {

@@ -40,7 +40,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
        if(fromMessageType.equals("text")){
            holder.receiverCardView.setVisibility(View.INVISIBLE);
            if(fromUserID.equals(senderID)){
-              holder.senderCardView.setBackgroundResource(R.drawable.receiver_message_background);
+              holder.senderCardView.setBackgroundResource(R.drawable.sender_background_message);
               holder.senderCardView.setTextColor(Color.BLACK);
               holder.senderCardView.setGravity(Gravity.LEFT);
               holder.senderCardView.setText(messages.getMessage());
@@ -48,7 +48,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
            else{
                holder.senderCardView.setVisibility(View.INVISIBLE);
                holder.receiverCardView.setVisibility(View.VISIBLE);
-               holder.receiverCardView.setBackgroundResource(R.drawable.sender_background_message);
+               holder.receiverCardView.setBackgroundResource(R.drawable.receiver_message_background);
                holder.receiverCardView.setTextColor(Color.BLACK);
                holder.receiverCardView.setGravity(Gravity.LEFT);
                holder.receiverCardView.setText(messages.getMessage());
