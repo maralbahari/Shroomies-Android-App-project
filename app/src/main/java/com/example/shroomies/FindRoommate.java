@@ -253,6 +253,14 @@ public class FindRoommate extends Fragment {
 
     }
 
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        //if personal != null{
+        //
+        // }
+        super.onSaveInstanceState(outState);
+    }
+
     void getApartmentsFromQuery(String query){
 //        animationWrapper.setVisibility(View.VISIBLE);
 //        lottieAnimationProgressBar.resumeAnimation();
