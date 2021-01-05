@@ -35,7 +35,12 @@
         <meta-data
             android:name="com.google.android.wearable.standalone"
             android:value="true" />
-
+        <service
+            android:name=".notifications.MyFirebaseInstanceIDService">
+            <intent-filter>
+                <action android:name="com.google.firebase.INSTANCE_ID_EVENT"/>
+            </intent-filter>
+        </service>
         <activity
             android:name=".GroupChattingActivity"
             android:label="@string/title_activity_group_chatting">
