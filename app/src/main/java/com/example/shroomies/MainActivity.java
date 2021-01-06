@@ -6,7 +6,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -18,15 +17,11 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.example.shroomies.notifications.Token;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.iid.FirebaseInstanceId;
 
 public class MainActivity extends AppCompatActivity {
     public static String updatedAdresses;
@@ -119,7 +114,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        updateToken(FirebaseInstanceId.getInstance().getToken());
+
 
     }
 
@@ -131,13 +126,7 @@ public class MainActivity extends AppCompatActivity {
         ft.replace(R.id.fragmentContainer, fragment);
         ft.commit();
     }
-    public void updateToken(String token){
 
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Tokens");
-        Token mToken = new Token(token);
-        ref.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).setValue(mToken);
-
-    }
 
 
 

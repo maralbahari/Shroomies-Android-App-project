@@ -3,6 +3,7 @@ package com.example.shroomies;
 import android.content.Context;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
@@ -19,6 +20,10 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.shroomies.notifications.Data;
+import com.example.shroomies.notifications.Response;
+import com.example.shroomies.notifications.Sender;
+import com.example.shroomies.notifications.Token;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -27,6 +32,11 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -50,6 +60,8 @@ public class ChattingActivity extends AppCompatActivity {
     private final List<Messages> messagesArrayList=new ArrayList<>();
     private LinearLayoutManager linearLayoutManager;
     private MessagesAdapter messagesAdapter;
+    private boolean notify=false;
+    private RequestQueue requestQueue;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -97,13 +109,14 @@ public class ChattingActivity extends AppCompatActivity {
         chattingRecycler.setHasFixedSize(true);
         chattingRecycler.setLayoutManager(linearLayoutManager);
         chattingRecycler.setAdapter(messagesAdapter);
-
+        requestQueue=Volley.newRequestQueue(getApplicationContext());
     }
     private void sendMessageToUser(){
-        String messageText=messageBody.getText().toString();
+        final String messageText=messageBody.getText().toString();
         if(TextUtils.isEmpty(messageText)){
             Toast.makeText(getApplicationContext(),"please enter a message",Toast.LENGTH_LONG).show();
         }else{
+            notify=true;
             // referencing to database which user is send message to whom
            String messageSenderRef="Messages/"+senderID+"/"+receiverID;
            String messageReceiverRef="Messages/"+receiverID+"/"+senderID;
@@ -141,6 +154,72 @@ public class ChattingActivity extends AppCompatActivity {
                }
            });
         }
+
+       rootRef.child("Users").child(senderID).addValueEventListener(new ValueEventListener() {
+           @Override
+           public void onDataChange(@NonNull DataSnapshot snapshot) {
+              if(snapshot.exists()){
+                  User user=snapshot.getValue(User.class);
+                  if(notify){
+                      sendNotification(receiverID,user.getName(),messageText);
+                  }
+                  notify=false;
+              }
+           }
+
+           @Override
+           public void onCancelled(@NonNull DatabaseError error) {
+
+           }
+       });
+
+    }
+    private void sendNotification(final String receiverID,final String senderName,final String message) {
+        rootRef.child("Tokens").orderByKey().equalTo(receiverID).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    for (DataSnapshot ds : snapshot.getChildren()) {
+                        Token token = (Token) ds.getValue(Token.class);
+                        Data data = new Data(senderID, senderName + ":" + message, "New Message", receiverID, (R.drawable.ic_mashroom_icon));
+                        Sender sender = new Sender(data, token.getToken());
+
+                        try {
+                            JSONObject senderJsonObj = new JSONObject(new Gson().toJson(sender));
+                            JSONObjectRequest jsonObjectRequest=new JSONObjectRequest("https://fcm.googleapis.com/fcm/send",senderJsonObj, new Response.Listener<JSONObject>(){
+                                @Override
+                                public void onResponse(JSONObject response){
+                                    Log.d("JSON_RESPONSE","onResponse:"+response.toString());
+                                }
+                            },new Response.ErrorListener(){
+                                @Override
+                                public void onErrorResponse(VolleyError error){
+                                    Log.d("JSON_RESPONSE","onResponse:"+error.toString());
+                                }
+                            }){
+                                @Override
+                                public Map<String,String> getHeaders() throws AuthFailureError{
+                                    Map<String,String> headers= new HashMap<>();
+                                    headers.put("Content-type","application/json");
+                                    headers.put("Authorization","Key=AAAAyn_kPyQ:APA91bGLxMB-HGP-qd_EPD3wz_apYs4ZJIB2vyAvH5JbaTVlyLExgYn7ye-076FJxjfrhQ-1HJBmptN3RWHY4FoBdY08YRgplZSAN0Mnj6sLbS6imKa7w0rqPsLtc-aXMaPOhlxnXqPs");
+                                    return headers;
+                                }
+                            };
+                            requestQueue.add(jsonObjectRequest);
+
+                        } catch (JSONException e)(
+                                e.printStackTrace();
+                        )
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
     }
    public void retrieveMessages(){
 
