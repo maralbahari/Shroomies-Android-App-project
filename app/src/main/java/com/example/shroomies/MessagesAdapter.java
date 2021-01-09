@@ -5,6 +5,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -12,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
+import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -53,8 +55,20 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
                holder.receiverCardView.setGravity(Gravity.LEFT);
                holder.receiverCardView.setText(messages.getMessage());
            }
-       }
+       }if(fromMessageType.equals("image")) {
+            holder.senderCardView.setVisibility(View.INVISIBLE);
+            holder.receiverCardView.setVisibility(View.INVISIBLE);
 
+            if (fromUserID.equals(senderID)) {
+                holder.senderImageView.setVisibility(View.VISIBLE);
+                Picasso.get().load(messages.getMessage()).placeholder(R.drawable.ic_icon_awesome_image).into(holder.senderImageView);
+
+            } else {
+                holder.senderImageView.setVisibility(View.GONE);
+                holder.receiverImageView.setVisibility(View.VISIBLE);
+                Picasso.get().load(messages.getMessage()).placeholder(R.drawable.ic_icon_awesome_image).into(holder.receiverImageView);
+            }
+        }
 
     }
 
@@ -65,11 +79,15 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
 
     public class MessageViewHolder extends RecyclerView.ViewHolder {
         TextView senderCardView,receiverCardView;
+        ImageView senderImageView;
+        ImageView receiverImageView;
         public MessageViewHolder(@NonNull View itemView) {
             super(itemView);
 
             senderCardView=itemView.findViewById(R.id.sender_box_card);
             receiverCardView=itemView.findViewById(R.id.receiver_box_card);
+            senderImageView=itemView.findViewById(R.id.sender_image_view);
+            receiverImageView=itemView.findViewById(R.id.receiver_image_view);
         }
 
     }

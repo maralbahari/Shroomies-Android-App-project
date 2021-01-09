@@ -1,7 +1,15 @@
 package com.example.shroomies;
 
+import android.Manifest;
+import android.app.ProgressDialog;
+import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -15,8 +23,11 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -38,8 +49,10 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
+import com.google.firebase.storage.UploadTask;
 import com.google.gson.Gson;
-import com.google.gson.JsonIOException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -55,7 +68,7 @@ public class ChattingActivity extends AppCompatActivity {
     private Button sendMessage,addImage,backButton;
     private EditText messageBody;
     private Toolbar chattingToolbar;
-    private ImageView receiverProfileImage;
+    private ImageView receiverProfileImage,attacheButton;
     private TextView receiverUsername;
     private RecyclerView chattingRecycler;
     private String receiverID,receiverName;
@@ -68,6 +81,15 @@ public class ChattingActivity extends AppCompatActivity {
     private MessagesAdapter messagesAdapter;
     private boolean notify=false;
     private RequestQueue requestQueue;
+    private static final int CAMERA_REQUEST_CODE=100;
+    private static final int STORAGE_REQUEST_CODE=200;
+    private static final int IMAGE_PICK_CAMERA_CODE=300;
+    private static final int IMAGE_PICK_GALLERY_CODE=400;
+    String[] cameraPermissions;
+    String[] storagePermissions;
+    Uri chosenImage=null;
+    StorageReference filePathName;
+    private String imageUrl;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,7 +114,12 @@ public class ChattingActivity extends AppCompatActivity {
 
 
         retrieveMessages();
-
+       addImage.setOnClickListener(new View.OnClickListener() {
+           @Override
+           public void onClick(View v) {
+                 showImagePickDialog();
+           }
+       });
     }
     private void initializeViews(){
         chattingToolbar= findViewById(R.id.chat_toolbar);
@@ -102,14 +129,16 @@ public class ChattingActivity extends AppCompatActivity {
         actionBar.setDisplayShowHomeEnabled(true);
         LayoutInflater inflater= (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View actionbarView=inflater.inflate(R.layout.toolbar_chatting_layout,null);
-        sendMessage=findViewById(R.id.send_message_button_group_chat);
-        addImage=findViewById(R.id.choose_file_group_chat);
+        sendMessage=findViewById(R.id.send_message_button);
+        addImage=findViewById(R.id.choose_file_button);
         backButton=findViewById(R.id.back_button_chatting);
-        messageBody=findViewById(R.id.messeg_body_group_chat);
+        messageBody=findViewById(R.id.messeg_body_edit_text);
         chattingRecycler=findViewById(R.id.recycler_view_group_chatting);
         receiverProfileImage=findViewById(R.id.receiver_image_profile);
         receiverUsername.setText(receiverName);
         chattingRecycler=findViewById(R.id.recycler_view_group_chatting);
+        cameraPermissions=new String[]{Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        storagePermissions=new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
         messagesAdapter=new MessagesAdapter(messagesArrayList);
         linearLayoutManager=new LinearLayoutManager(this);
         chattingRecycler.setHasFixedSize(true);
@@ -231,11 +260,6 @@ public class ChattingActivity extends AppCompatActivity {
 
     }
 
-
-
-
-
-
    public void retrieveMessages(){
 
         rootRef.child("Messages").child(senderID).child(receiverID).addChildEventListener(new ChildEventListener() {
@@ -272,4 +296,189 @@ public class ChattingActivity extends AppCompatActivity {
             }
         });
    }
+
+   private void showImagePickDialog(){
+        String[] options={"Camera","Gallery"};
+       AlertDialog.Builder builder=new AlertDialog.Builder(this);
+       builder.setTitle("Choose Image from");
+       builder.setItems(options, new DialogInterface.OnClickListener() {
+           @Override
+           public void onClick(DialogInterface dialog, int which) {
+               //camera
+               if(which==0){
+                   if(!checkCameraPermisson()){
+                       requestCameraPermission();
+                   }
+                   else{
+                       pickFromCamera();
+                   }
+               }
+               //gallery
+               if(which==1){
+                   if(!checkStoragePermisson()){
+                       requestStoragePermission();
+                   }else{
+                       pickFromGallery();
+                   }
+               }
+           }
+       });
+       builder.create().show();
+   }
+   private void pickFromCamera(){
+       ContentValues cv= new ContentValues();
+       cv.put(MediaStore.Images.Media.TITLE,"Temp Pick");
+       cv.put(MediaStore.Images.Media.DESCRIPTION,"Temp Describe");
+        chosenImage=getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,cv);
+
+       Intent intent=new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+       intent.putExtra(MediaStore.EXTRA_OUTPUT,chosenImage);
+       startActivityForResult(intent,IMAGE_PICK_CAMERA_CODE);
+
+   }
+   private void pickFromGallery(){
+       Intent intent=new Intent(Intent.ACTION_PICK);
+       intent.setType("image/*");
+       startActivityForResult(intent,IMAGE_PICK_GALLERY_CODE);
+   }
+   private boolean checkStoragePermisson(){
+        boolean result= ContextCompat.checkSelfPermission(this,Manifest.permission.WRITE_EXTERNAL_STORAGE)==(PackageManager.PERMISSION_GRANTED);
+
+        return result;
+   }
+   private void requestStoragePermission(){
+       ActivityCompat.requestPermissions(this,storagePermissions,STORAGE_REQUEST_CODE);
+   }
+    private boolean checkCameraPermisson(){
+        boolean resultCam= ContextCompat.checkSelfPermission(this,Manifest.permission.CAMERA)==(PackageManager.PERMISSION_GRANTED);
+        boolean resultStorage= ContextCompat.checkSelfPermission(this,Manifest.permission.WRITE_EXTERNAL_STORAGE)==(PackageManager.PERMISSION_GRANTED);
+
+        return resultCam && resultStorage;
+    }
+    private void requestCameraPermission(){
+        ActivityCompat.requestPermissions(this,cameraPermissions,CAMERA_REQUEST_CODE);
+    }
+//this method is called when user oress allow or deny form permission request dialog
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode){
+            case CAMERA_REQUEST_CODE:{
+                if(grantResults.length>0){
+                    boolean cameraAccepted=grantResults[0]==PackageManager.PERMISSION_GRANTED;
+                    boolean storageAccepted=grantResults[1]==PackageManager.PERMISSION_GRANTED;
+                    if(cameraAccepted && storageAccepted){
+                        pickFromCamera();
+                    }else{
+                        Toast.makeText(this,"Camera and storage both permissions are neccessary....",Toast.LENGTH_SHORT).show();
+                    }
+                }else{
+
+                }
+            }break;
+            case STORAGE_REQUEST_CODE:{
+                if(grantResults.length>0){
+                    boolean storageAccepted=grantResults[0]==PackageManager.PERMISSION_GRANTED;
+                    if(storageAccepted){
+                        pickFromGallery();
+                    }else{
+                        Toast.makeText(this," storage permission is neccessary....",Toast.LENGTH_SHORT).show();
+
+                    }
+                }
+            }
+            break;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if(requestCode==RESULT_OK){
+            if(requestCode==IMAGE_PICK_GALLERY_CODE){
+                chosenImage=data.getData();
+                //Save to firebase
+                sendImageMessage(chosenImage);
+            }else if(requestCode==IMAGE_PICK_CAMERA_CODE){
+                sendImageMessage(chosenImage);
+            }
+        }
+        super.onActivityResult(requestCode, resultCode, data);
+
+    }
+    private void sendImageMessage(Uri image){
+        notify=true;
+        final ProgressDialog progressDialog=new ProgressDialog(this);
+        progressDialog.setMessage("sending image...");
+        progressDialog.show();
+        StorageReference storageReference = FirebaseStorage.getInstance().getReference();
+        filePathName=storageReference.child("chating images").child(image.getLastPathSegment()
+                +System.currentTimeMillis()+".jpg");
+               filePathName.putFile(image).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                   @Override
+                   public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                       if(task.isSuccessful()){
+                          progressDialog.dismiss();
+                           imageUrl=task.getResult().getMetadata().getReference().getPath().toString();
+                           addToRealTimeDataBase(imageUrl);
+                       }
+
+                   }
+               });
+
+    }
+    private void addToRealTimeDataBase(String url){
+        String messageSenderRef="Messages/"+senderID+"/"+receiverID;
+        String messageReceiverRef="Messages/"+receiverID+"/"+senderID;
+        //create the database ref
+        final String messagePushId= rootRef.child("Messages").child(senderID).child(receiverID).push().getKey();
+        //now making a unique id for each single message so that they wont be replaced and we save everything
+//            String messagePushId=userMessageKey.getKey();
+        Calendar calendarDate=Calendar.getInstance();
+        SimpleDateFormat currentDate=new SimpleDateFormat("dd-MMMM-yyyy");
+        saveCurrentDate=currentDate.format(calendarDate.getTime());
+        Calendar calendarTime=Calendar.getInstance();
+        SimpleDateFormat currentTime=new SimpleDateFormat("HH:mm aa");
+        saveCurrentTime=currentTime.format(calendarTime.getTime());
+        Map messageTextBody= new HashMap();
+        messageTextBody.put("message",url);
+        messageTextBody.put("time",saveCurrentTime);
+        messageTextBody.put("date",saveCurrentDate);
+        messageTextBody.put("type","image");
+        messageTextBody.put("from",senderID);
+        Map messageBodyDetails=new HashMap();
+        messageBodyDetails.put(messageSenderRef+"/"+messagePushId,messageTextBody);
+        messageBodyDetails.put(messageReceiverRef+"/"+messagePushId,messageTextBody);
+        rootRef.updateChildren(messageBodyDetails).addOnCompleteListener(new OnCompleteListener() {
+            @Override
+            public void onComplete(@NonNull Task task) {
+                if(task.isSuccessful()){
+                    messageBody.setText("");
+                }else{
+                    String message =task.getException().getMessage();
+                    Toast.makeText(getApplicationContext(),"Error "+message,Toast.LENGTH_SHORT).show();
+                    messageBody.setText("");
+                }
+
+            }
+        });
+        //send Notification
+        rootRef.child("Users").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
+                    User user=snapshot.getValue(User.class);
+                    if(notify){
+                        sendNotification(receiverID,user.getName(),"Sent you a photo..");
+
+                    }
+                    notify=false;
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
 }

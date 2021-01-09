@@ -54,7 +54,7 @@ public class GroupChattingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_group_chatting);
+        setContentView(R.layout.activity_chatting);
         groupNameTextview=findViewById(R.id.receiver_username);
         mAuth=FirebaseAuth.getInstance();
         senderID=mAuth.getCurrentUser().getUid();
@@ -67,10 +67,10 @@ public class GroupChattingActivity extends AppCompatActivity {
         actionBar.setDisplayShowHomeEnabled(true);
         LayoutInflater inflater= (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View actionbarView=inflater.inflate(R.layout.toolbar_chatting_layout,null);
-        sendMessage=findViewById(R.id.send_message_button_group_chat);
-        addImage=findViewById(R.id.choose_file_group_chat);
+        sendMessage=findViewById(R.id.send_message_button);
+        addImage=findViewById(R.id.choose_file_button);
         backButton=findViewById(R.id.back_button_chatting);
-        messageBody=findViewById(R.id.messeg_body_group_chat);
+        messageBody=findViewById(R.id.messeg_body_edit_text);
         chattingRecycler=findViewById(R.id.recycler_view_group_chatting);
         groupImage=findViewById(R.id.receiver_image_profile);
         groupNameTextview.setText(groupName);
