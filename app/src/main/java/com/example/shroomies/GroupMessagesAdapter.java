@@ -41,7 +41,7 @@ public class GroupMessagesAdapter extends RecyclerView.Adapter<GroupMessagesAdap
         String senderID=mAuth.getCurrentUser().getUid();
         Group groupMessages=groupMessagesList.get(position);
         String fromUserID=groupMessages.getFrom();
-        String fromMessageType=groupMessages.getType();
+        String fromMessageType= groupMessages.getType();
         if(fromMessageType.equals("text")){
             holder.receiverCardView.setVisibility(View.INVISIBLE);
             if(fromUserID.equals(senderID)){

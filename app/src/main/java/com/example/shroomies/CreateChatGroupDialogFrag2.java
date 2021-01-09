@@ -180,6 +180,7 @@ public class CreateChatGroupDialogFrag2 extends DialogFragment {
                     Intent intent = new Intent(getContext(),MessageInbox.class);
                     startActivity(intent);
                 }else{
+                    Toast.makeText(getActivity(), "something went wrong", Toast.LENGTH_SHORT).show();
                 }
 
             }

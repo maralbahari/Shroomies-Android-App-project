@@ -56,7 +56,7 @@ public class FirebaseMessaging  extends FirebaseMessagingService {
                 .setContentTitle(title)
                 .setAutoCancel(true)
                 .setSound(defSoundUri)
-                .setContentIntent(intent);
+                .setContentIntent(pendingIntent);
         NotificationManager notificationManager=(NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
         int j=0;
         if(i>0){
@@ -78,8 +78,7 @@ public class FirebaseMessaging  extends FirebaseMessagingService {
         PendingIntent pendingIntent=PendingIntent.getActivity(this,i,intent,PendingIntent.FLAG_ONE_SHOT);
         Uri defSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         OreoandAboveNotifactaions noti=new OreoandAboveNotifactaions(this);
-        Notification.Builder builder= notification.getONotifications(title,body,pendingIntent,defSoundUri,icon);
-
+        Notification.Builder builder= noti.getONotifications(title,body,pendingIntent,defSoundUri,icon);
         int j=0;
         if(i>0){
             j=i;

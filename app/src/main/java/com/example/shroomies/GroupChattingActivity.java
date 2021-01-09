@@ -59,12 +59,7 @@ public class GroupChattingActivity extends AppCompatActivity {
         mAuth=FirebaseAuth.getInstance();
         senderID=mAuth.getCurrentUser().getUid();
         rootRef= FirebaseDatabase.getInstance().getReference();
-        Bundle extras = getIntent().getExtras();
-        if(!(extras==null)){
-            groupID=extras.getString("GROUPID");
-            groupName=extras.getString("GROUPNAME");
-            groupNameTextview.setText(groupName);
-        }
+
         chattingToolbar= findViewById(R.id.chat_toolbar);
         setSupportActionBar(chattingToolbar);
         ActionBar actionBar=getSupportActionBar();
@@ -85,7 +80,14 @@ public class GroupChattingActivity extends AppCompatActivity {
         chattingRecycler.setHasFixedSize(true);
         chattingRecycler.setLayoutManager(linearLayoutManager);
         chattingRecycler.setAdapter(groupMessagesAdapter);
-        loadMessages();
+        Bundle extras = getIntent().getExtras();
+        if(!(extras==null)){
+            groupID=extras.getString("GROUPID");
+            groupName=extras.getString("GROUPNAME");
+            groupNameTextview.setText(groupName);
+            loadMessages();
+        }
+
         sendMessage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -137,9 +139,12 @@ public class GroupChattingActivity extends AppCompatActivity {
                 @Override
                 public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                     if(snapshot.exists()){
-                        Group groupMessages = snapshot.getValue(Group.class);
-                        groupMessagesArrayList.add(groupMessages);
-                        groupMessagesAdapter.notifyDataSetChanged();
+                        for(DataSnapshot dataSnapshot
+                        :snapshot.getChildren()) {
+                            Group groupMessages = dataSnapshot.getValue(Group.class);
+                            groupMessagesArrayList.add(groupMessages);
+                            groupMessagesAdapter.notifyDataSetChanged();
+                        }
                     }else{
 
                     }

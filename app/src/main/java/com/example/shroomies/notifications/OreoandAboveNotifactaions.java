@@ -37,7 +37,7 @@ private NotificationManager notificationManager;
     }
 
 
-    public Notification.Builder getNotifications(String title , String body , PendingIntent pendingIntent , Uri soundUri, String icon){
+    public Notification.Builder getONotifications(String title , String body , PendingIntent pendingIntent , Uri soundUri, String icon){
         return new Notification.Builder(getApplicationContext(),ID)
                 .setContentIntent(pendingIntent)
                 .setContentTitle(title)

@@ -20,8 +20,13 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.shroomies.notifications.Data;
-import com.example.shroomies.notifications.Response;
 import com.example.shroomies.notifications.Sender;
 import com.example.shroomies.notifications.Token;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -34,6 +39,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
+import com.google.gson.JsonIOException;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -109,7 +115,7 @@ public class ChattingActivity extends AppCompatActivity {
         chattingRecycler.setHasFixedSize(true);
         chattingRecycler.setLayoutManager(linearLayoutManager);
         chattingRecycler.setAdapter(messagesAdapter);
-        requestQueue=Volley.newRequestQueue(getApplicationContext());
+        requestQueue= Volley.newRequestQueue(getApplicationContext());
     }
     private void sendMessageToUser(){
         final String messageText=messageBody.getText().toString();
@@ -183,35 +189,38 @@ public class ChattingActivity extends AppCompatActivity {
                         Token token = (Token) ds.getValue(Token.class);
                         Data data = new Data(senderID, senderName + ":" + message, "New Message", receiverID, (R.drawable.ic_mashroom_icon));
                         Sender sender = new Sender(data, token.getToken());
-
                         try {
                             JSONObject senderJsonObj = new JSONObject(new Gson().toJson(sender));
-                            JSONObjectRequest jsonObjectRequest=new JSONObjectRequest("https://fcm.googleapis.com/fcm/send",senderJsonObj, new Response.Listener<JSONObject>(){
+                            JsonObjectRequest jsonObjectRequest=new JsonObjectRequest("https://fcm.googleapis.com/fcm/send", senderJsonObj, new Response.Listener<JSONObject>() {
                                 @Override
-                                public void onResponse(JSONObject response){
+                                public void onResponse(JSONObject response) {
                                     Log.d("JSON_RESPONSE","onResponse:"+response.toString());
                                 }
-                            },new Response.ErrorListener(){
+
+                            }, new Response.ErrorListener() {
                                 @Override
-                                public void onErrorResponse(VolleyError error){
+                                public void onErrorResponse(VolleyError error) {
                                     Log.d("JSON_RESPONSE","onResponse:"+error.toString());
+
                                 }
-                            }){
+                            })
+                            {
                                 @Override
-                                public Map<String,String> getHeaders() throws AuthFailureError{
+                                public Map<String,String> getHeaders() throws AuthFailureError {
                                     Map<String,String> headers= new HashMap<>();
                                     headers.put("Content-type","application/json");
                                     headers.put("Authorization","Key=AAAAyn_kPyQ:APA91bGLxMB-HGP-qd_EPD3wz_apYs4ZJIB2vyAvH5JbaTVlyLExgYn7ye-076FJxjfrhQ-1HJBmptN3RWHY4FoBdY08YRgplZSAN0Mnj6sLbS6imKa7w0rqPsLtc-aXMaPOhlxnXqPs");
                                     return headers;
                                 }
-                            };
-                            requestQueue.add(jsonObjectRequest);
 
-                        } catch (JSONException e)(
-                                e.printStackTrace();
-                        )
+                            };
+
+                        }catch (JSONException e){
+                            e.printStackTrace();
+                        }
                     }
                 }
+
             }
 
             @Override
@@ -221,6 +230,12 @@ public class ChattingActivity extends AppCompatActivity {
         });
 
     }
+
+
+
+
+
+
    public void retrieveMessages(){
 
         rootRef.child("Messages").child(senderID).child(receiverID).addChildEventListener(new ChildEventListener() {
