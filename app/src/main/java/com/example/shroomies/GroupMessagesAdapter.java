@@ -45,12 +45,15 @@ public class GroupMessagesAdapter extends RecyclerView.Adapter<GroupMessagesAdap
         if(fromMessageType.equals("text")){
             holder.receiverCardView.setVisibility(View.INVISIBLE);
             if(fromUserID.equals(senderID)){
+                holder.receiverInfoContainer.setVisibility(View.GONE);
+                holder.senderCardView.setVisibility(View.VISIBLE);
                 holder.senderCardView.setBackgroundResource(R.drawable.sender_background_message);
                 holder.senderCardView.setGravity(Gravity.LEFT);
                 holder.senderCardView.setText(groupMessages.getMessage());
             }
             else{
-                holder.receiverInfoContainer.setVisibility(View.INVISIBLE);
+                holder.receiverInfoContainer.setVisibility(View.VISIBLE);
+                holder.senderCardView.setVisibility(View.GONE);
                 holder.receiverCardView.setVisibility(View.VISIBLE);
                 holder.receiverCardView.setBackgroundResource(R.drawable.receiver_message_background);
                 holder.receiverCardView.setGravity(Gravity.LEFT);
