@@ -108,16 +108,16 @@ public class MessageInbox extends AppCompatActivity {
         inboxListRecyclerView.setHasFixedSize(true);
         inboxListRecyclerView.setLayoutManager(linearLayoutManager);
         inboxListRecyclerView.setAdapter(messageInboxRecycleViewAdapter);
-        rootRef.child("PrivateChatList").orderByChild(mAuth.getInstance().getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+        rootRef.child("PrivateChatList").child(mAuth.getInstance().getCurrentUser().getUid()).orderByChild("receiverID").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
                     for (DataSnapshot ds : snapshot.getChildren()) {
-                        receiverID = ds.child("receiverID").toString();
+                        receiverID = ds.getValue().toString();
                         usersArrayList.add(receiverID);
-                        messageInboxRecycleViewAdapter.notifyDataSetChanged();
-                    }
 
+                    }
+                    messageInboxRecycleViewAdapter.notifyDataSetChanged();
                 }
             }
             @Override
