@@ -19,7 +19,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -109,30 +108,25 @@ public class MessageInbox extends AppCompatActivity {
         inboxListRecyclerView.setHasFixedSize(true);
         inboxListRecyclerView.setLayoutManager(linearLayoutManager);
         inboxListRecyclerView.setAdapter(messageInboxRecycleViewAdapter);
-        rootRef.child("PrivateChatList").child(mAuth.getInstance().getCurrentUser().getUid()).addChildEventListener(new ChildEventListener() {
+        rootRef.child("PrivateChatList").orderByChild(mAuth.getInstance().getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
             @Override
-            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                if(snapshot.exists()){
-                    for( DataSnapshot ds:snapshot.getChildren()){
-                         receiverID=ds.getKey();
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    for (DataSnapshot ds : snapshot.getChildren()) {
+                        receiverID = ds.child("receiverID").toString();
                         usersArrayList.add(receiverID);
+                        messageInboxRecycleViewAdapter.notifyDataSetChanged();
                     }
-                    messageInboxRecycleViewAdapter.notifyDataSetChanged();
+
                 }
             }
             @Override
-            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) { }
+            public void onCancelled(@NonNull DatabaseError error) {
 
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot snapshot) { }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) { }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) { }
+            }
         });
     }
+
 
 
     private void getGroupChatList() {
