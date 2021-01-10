@@ -139,7 +139,7 @@ public class ChattingActivity extends AppCompatActivity {
         chattingRecycler=findViewById(R.id.recycler_view_group_chatting);
         cameraPermissions=new String[]{Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE};
         storagePermissions=new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
-        messagesAdapter=new MessagesAdapter(messagesArrayList);
+        messagesAdapter=new MessagesAdapter(messagesArrayList , getApplication());
         linearLayoutManager=new LinearLayoutManager(this);
         chattingRecycler.setHasFixedSize(true);
         chattingRecycler.setLayoutManager(linearLayoutManager);
@@ -266,9 +266,10 @@ public class ChattingActivity extends AppCompatActivity {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 if(snapshot.exists()){
-                    Messages messages = snapshot.getValue(Messages.class);
-                    messagesArrayList.add(messages);
-                    messagesAdapter.notifyDataSetChanged();
+
+                        Messages messages = snapshot.getValue(Messages.class);
+                        messagesArrayList.add(messages);
+                        messagesAdapter.notifyDataSetChanged();
                 }else{
 
                 }
@@ -370,6 +371,7 @@ public class ChattingActivity extends AppCompatActivity {
                     if(cameraAccepted && storageAccepted){
                         pickFromCamera();
                     }else{
+                        requestPermissions(new String[]{Manifest.permission.CAMERA}, CAMERA_REQUEST_CODE);
                         Toast.makeText(this,"Camera and storage both permissions are neccessary....",Toast.LENGTH_SHORT).show();
                     }
                 }else{
@@ -382,7 +384,9 @@ public class ChattingActivity extends AppCompatActivity {
                     if(storageAccepted){
                         pickFromGallery();
                     }else{
+                        requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, STORAGE_REQUEST_CODE);
                         Toast.makeText(this," storage permission is neccessary....",Toast.LENGTH_SHORT).show();
+                        pickFromGallery();
 
                     }
                 }
@@ -393,7 +397,7 @@ public class ChattingActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if(requestCode==RESULT_OK){
+        if(resultCode==RESULT_OK){
             if(requestCode==IMAGE_PICK_GALLERY_CODE){
                 chosenImage=data.getData();
                 //Save to firebase

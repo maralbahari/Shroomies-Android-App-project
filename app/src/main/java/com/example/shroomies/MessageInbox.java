@@ -109,18 +109,16 @@ public class MessageInbox extends AppCompatActivity {
         inboxListRecyclerView.setHasFixedSize(true);
         inboxListRecyclerView.setLayoutManager(linearLayoutManager);
         inboxListRecyclerView.setAdapter(messageInboxRecycleViewAdapter);
-        rootRef.child("inboxLists").child(mAuth.getInstance().getCurrentUser().getUid()).addChildEventListener(new ChildEventListener() {
+        rootRef.child("PrivateChatList").child(mAuth.getInstance().getCurrentUser().getUid()).addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 if(snapshot.exists()){
                     for( DataSnapshot ds:snapshot.getChildren()){
-                         receiverID=ds.getValue().toString();
+                         receiverID=ds.getKey();
                         usersArrayList.add(receiverID);
                     }
-//                    ReceiverUsers receiverUsers=snapshot.getValue(ReceiverUsers.class);
-//                    usersArrayList.add(receiverUsers);
                     messageInboxRecycleViewAdapter.notifyDataSetChanged();
-                }else{ }
+                }
             }
             @Override
             public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) { }
@@ -173,4 +171,5 @@ public class MessageInbox extends AppCompatActivity {
 
 
     }
+
 }

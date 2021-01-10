@@ -57,7 +57,7 @@ public class GroupChattingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_chatting);
         groupNameTextview=findViewById(R.id.receiver_username);
         mAuth=FirebaseAuth.getInstance();
-        senderID=mAuth.getCurrentUser().getUid();
+        senderID=mAuth.getInstance().getCurrentUser().getUid();
         rootRef= FirebaseDatabase.getInstance().getReference();
 
         chattingToolbar= findViewById(R.id.chat_toolbar);

@@ -1,5 +1,6 @@
 package com.example.shroomies;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -11,8 +12,11 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -21,8 +25,10 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
     private List<Messages> userMessagesList;
     private FirebaseAuth mAuth;
     private DatabaseReference rootRef;
-    public MessagesAdapter(List<Messages> userMessagesList) {
+    Context context;
+    public MessagesAdapter(List<Messages> userMessagesList,Context context) {
         this.userMessagesList = userMessagesList;
+        this.context = context;
     }
 
     @NonNull
@@ -58,15 +64,27 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
        }if(fromMessageType.equals("image")) {
             holder.senderCardView.setVisibility(View.INVISIBLE);
             holder.receiverCardView.setVisibility(View.INVISIBLE);
-
+            StorageReference storageReference = FirebaseStorage.getInstance().getReference(messages.getMessage());
             if (fromUserID.equals(senderID)) {
                 holder.senderImageView.setVisibility(View.VISIBLE);
-                Picasso.get().load(messages.getMessage()).placeholder(R.drawable.ic_icon_awesome_image).into(holder.senderImageView);
 
+                GlideApp.with(context)
+                        .load(storageReference)
+                        .transform(new RoundedCorners(10))
+                        .fitCenter()
+                        .centerCrop()
+                        .placeholder(R.drawable.ic_icon_awesome_image)
+                        .into(holder.senderImageView);
             } else {
                 holder.senderImageView.setVisibility(View.GONE);
                 holder.receiverImageView.setVisibility(View.VISIBLE);
-                Picasso.get().load(messages.getMessage()).placeholder(R.drawable.ic_icon_awesome_image).into(holder.receiverImageView);
+                GlideApp.with(context)
+                        .load(storageReference)
+                        .transform(new RoundedCorners(10))
+                        .fitCenter()
+                        .centerCrop()
+                        .placeholder(R.drawable.ic_icon_awesome_image)
+                        .into(holder.receiverImageView);
             }
         }
 
