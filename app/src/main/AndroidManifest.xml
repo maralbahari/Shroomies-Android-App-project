@@ -3,8 +3,6 @@
     package="com.example.shroomies">
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-
-
     <!--
          The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
          Google Maps Android API v2, but you must specify either coarse or fine
@@ -24,8 +22,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-
-
+        <activity android:name=".GroupInfoActivity"></activity>
         <!--
                Set to true if your app is Standalone, that is, it does not require the handheld
                app to run.
@@ -34,15 +31,16 @@
             android:name="com.google.android.wearable.standalone"
             android:value="true" />
 
-        <service android:name=".notifications.FirebaseMessaging"
+        <service
+            android:name=".notifications.FirebaseMessaging"
             android:enabled="true"
             android:exported="true">
-
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGIN_EVENT"/>
+                <action android:name="com.google.firebase.MESSAGIN_EVENT" />
             </intent-filter>
         </service>
-        <activity android:name=".GroupChattingActivity"/>
+
+        <activity android:name=".GroupChattingActivity" />
         <activity android:name=".ChattingActivity" />
         <activity android:name=".ResetPassword" />
         <activity android:name=".MainActivity" />
@@ -63,9 +61,9 @@
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
-
-        <meta-data android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyBxsKC0T7r-jozZk-mZUScW7wPN5zB_7pg"/>
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyBxsKC0T7r-jozZk-mZUScW7wPN5zB_7pg" />
     </application>
 
 </manifest>

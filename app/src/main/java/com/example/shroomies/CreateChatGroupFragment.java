@@ -1,18 +1,16 @@
 package com.example.shroomies;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.ImageButton;
-import android.widget.Toast;
-
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.widget.SearchView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -35,7 +33,7 @@ public class CreateChatGroupFragment extends DialogFragment {
     private ImageButton nextButton;
     private DatabaseReference rootRef;
     private UserRecyclerAdapter userRecyclerAdapter;
-
+   private boolean fromGroupInfo;
 
     static ArrayList<User>  selectedMembers;
 
@@ -55,8 +53,11 @@ public class CreateChatGroupFragment extends DialogFragment {
         v= inflater.inflate(R.layout.fragment_create_chat_group, container, false);
         rootRef= FirebaseDatabase.getInstance().getReference();
 
+
         return v;
     }
+
+
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -65,7 +66,8 @@ public class CreateChatGroupFragment extends DialogFragment {
         userListSuggestionRecyclerView =v.findViewById(R.id.suggestion_list_create_group);
         userListSuggestionRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         nextButton=v.findViewById(R.id.confirm_button_create_group);
-
+        Bundle extras=getArguments();
+        fromGroupInfo=extras.getBoolean("FromGroupInfo");
         selectedMembers = new ArrayList<>();
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -83,6 +85,11 @@ public class CreateChatGroupFragment extends DialogFragment {
         nextButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(fromGroupInfo){
+                    Intent intent = new Intent(getContext(),GroupInfoActivity.class);
+                    intent.putParcelableArrayListExtra("ListOfSelectedUsers",selectedMembers);
+                    startActivity(intent);
+                }
                     CreateChatGroupDialogFrag2 dialogFrag2=new CreateChatGroupDialogFrag2();
                     Bundle bundle= new Bundle();
                     bundle.putParcelableArrayList("ListOfSelectedUsers",selectedMembers);

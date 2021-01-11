@@ -43,7 +43,6 @@ import com.example.shroomies.notifications.Token;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -424,6 +423,7 @@ public class ChattingActivity extends AppCompatActivity {
 
     }
     private void addToRealTimeDataBase(String url){
+
         String messageSenderRef="Messages/"+senderID+"/"+receiverID;
         String messageReceiverRef="Messages/"+receiverID+"/"+senderID;
         //create the database ref

@@ -17,7 +17,6 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -67,7 +66,6 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
             StorageReference storageReference = FirebaseStorage.getInstance().getReference(messages.getMessage());
             if (fromUserID.equals(senderID)) {
                 holder.senderImageView.setVisibility(View.VISIBLE);
-
                 GlideApp.with(context)
                         .load(storageReference)
                         .transform(new RoundedCorners(10))

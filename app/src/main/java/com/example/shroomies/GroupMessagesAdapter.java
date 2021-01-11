@@ -1,15 +1,18 @@
 package com.example.shroomies;
 
+import android.content.Context;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -23,8 +26,10 @@ public class GroupMessagesAdapter extends RecyclerView.Adapter<GroupMessagesAdap
     private List<Group> groupMessagesList;
     private FirebaseAuth mAuth;
     private DatabaseReference rootRef;
-    public GroupMessagesAdapter(List<Group> userMessagesList) {
+    private Context context;
+    public GroupMessagesAdapter(List<Group> userMessagesList,Context context) {
         this.groupMessagesList = userMessagesList;
+        this.context=context;
     }
 
     @NonNull
@@ -60,6 +65,34 @@ public class GroupMessagesAdapter extends RecyclerView.Adapter<GroupMessagesAdap
                 holder.receiverCardView.setText(groupMessages.getMessage());
                 setUserName(fromUserID,holder);
             }
+        }if(fromMessageType.equals("image")){
+            if(fromUserID.equals(senderID)){
+                holder.receiverInfoContainer.setVisibility(View.GONE);
+                holder.senderCardView.setVisibility(View.GONE);
+                holder.senderImageView.setVisibility(View.VISIBLE);
+
+                GlideApp.with(context)
+                        .load(groupMessages.getMessage())
+                        .transform(new RoundedCorners(10))
+                        .fitCenter()
+                        .centerCrop()
+                        .placeholder(R.drawable.ic_icon_awesome_image)
+                        .into(holder.senderImageView);
+            }
+            else{
+                holder.receiverInfoContainer.setVisibility(View.VISIBLE);
+                holder.receiverCardView.setVisibility(View.GONE);
+                setUserName(fromUserID,holder);
+                GlideApp.with(context)
+                        .load(groupMessages.getMessage())
+                        .transform(new RoundedCorners(10))
+                        .fitCenter()
+                        .centerCrop()
+                        .placeholder(R.drawable.ic_icon_awesome_image)
+                        .into(holder.receiverImageView);
+
+            }
+
         }
 
 
@@ -89,12 +122,16 @@ public class GroupMessagesAdapter extends RecyclerView.Adapter<GroupMessagesAdap
     public class MessagesViewHolder extends RecyclerView.ViewHolder {
         TextView senderCardView,receiverCardView,receiverNameTV;
         LinearLayout receiverInfoContainer;
+        ImageView senderImageView;
+        ImageView receiverImageView;
         public MessagesViewHolder(@NonNull View itemView) {
             super(itemView);
             senderCardView=itemView.findViewById(R.id.sender_card_message);
             receiverCardView=itemView.findViewById(R.id.receiver_card_message);
             receiverNameTV=itemView.findViewById(R.id.receiver_name_textView);
             receiverInfoContainer=itemView.findViewById(R.id.linear_layout_receiver_card);
+            senderImageView=itemView.findViewById(R.id.sender_image_view);
+            receiverImageView=itemView.findViewById(R.id.receiver_image_view);
         }
 
     }
