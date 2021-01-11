@@ -45,7 +45,7 @@ public class PrivateInboxRecycleViewAdapter extends RecyclerView.Adapter<Private
 
     @Override
     public void onBindViewHolder(@NonNull final UsersListViewHolder holder, final int position) {
-                rootRef.child("User").equalTo(receiverUsersList.get(position)).addValueEventListener(new ValueEventListener() {
+                rootRef.child("Users").child(receiverUsersList.get(position)).addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         if(snapshot.exists()){
@@ -91,7 +91,6 @@ public class PrivateInboxRecycleViewAdapter extends RecyclerView.Adapter<Private
                 public void onClick(View v) {
                     Intent intent=new Intent(context,ChattingActivity.class);
                     intent.putExtra("USERID",receiverUsersList.get(getAdapterPosition()));
-                    intent.putExtra("USERNAME",receiverName.toString());
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(intent);
 

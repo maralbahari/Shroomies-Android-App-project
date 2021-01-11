@@ -65,6 +65,7 @@ import java.util.List;
 import java.util.Map;
 
 public class ChattingActivity extends AppCompatActivity {
+    private boolean firstChat = false;
     private Button sendMessage,addImage,backButton;
     private EditText messageBody;
     private Toolbar chattingToolbar;
@@ -101,8 +102,7 @@ public class ChattingActivity extends AppCompatActivity {
         Bundle extras = getIntent().getExtras();
         if(!(extras==null)){
             receiverID=extras.getString("USERID");
-            receiverName=extras.getString("USERNAME");
-            receiverUsername.setText(receiverName);
+            getUserDetail(receiverID);
         }
         initializeViews();
         sendMessage.setOnClickListener(new View.OnClickListener() {
@@ -135,7 +135,6 @@ public class ChattingActivity extends AppCompatActivity {
         messageBody=findViewById(R.id.messeg_body_edit_text);
         chattingRecycler=findViewById(R.id.recycler_view_group_chatting);
         receiverProfileImage=findViewById(R.id.receiver_image_profile);
-        receiverUsername.setText(receiverName);
         chattingRecycler=findViewById(R.id.recycler_view_group_chatting);
         cameraPermissions=new String[]{Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE};
         storagePermissions=new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
@@ -178,8 +177,10 @@ public class ChattingActivity extends AppCompatActivity {
                @Override
                public void onComplete(@NonNull Task task) {
                    if(task.isSuccessful()){
-                       Toast.makeText(getApplicationContext(),"id: "+messagePushId ,Toast.LENGTH_SHORT).show();
                        messageBody.setText("");
+                       if(firstChat){
+                           addUserToInbox();
+                       }
                    }else{
                        String message =task.getException().getMessage();
                        Toast.makeText(getApplicationContext(),"Error "+message,Toast.LENGTH_SHORT).show();
@@ -262,41 +263,33 @@ public class ChattingActivity extends AppCompatActivity {
 
    public void retrieveMessages(){
 
-        rootRef.child("Messages").child(senderID).child(receiverID).addChildEventListener(new ChildEventListener() {
+        rootRef.child("Messages").child(senderID).child(receiverID).addValueEventListener(new ValueEventListener() {
             @Override
-            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()){
-
-                        Messages messages = snapshot.getValue(Messages.class);
+                    for (DataSnapshot dataSnapshot
+                    :snapshot.getChildren()){
+                        Messages messages = dataSnapshot.getValue(Messages.class);
                         messagesArrayList.add(messages);
                         messagesAdapter.notifyDataSetChanged();
-                }else{
+                    }
+                }
+                if (messagesArrayList.size()==0|| messagesArrayList==null){
+
+                    firstChat= true;
+                }
 
                 }
 
-            }
 
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
 
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-            }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
 
             }
         });
-   }
+}
 
    private void showImagePickDialog(){
         String[] options={"Camera","Gallery"};
@@ -350,7 +343,7 @@ public class ChattingActivity extends AppCompatActivity {
    private void requestStoragePermission(){
        ActivityCompat.requestPermissions(this,storagePermissions,STORAGE_REQUEST_CODE);
    }
-    private boolean checkCameraPermisson(){
+   private boolean checkCameraPermisson(){
         boolean resultCam= ContextCompat.checkSelfPermission(this,Manifest.permission.CAMERA)==(PackageManager.PERMISSION_GRANTED);
         boolean resultStorage= ContextCompat.checkSelfPermission(this,Manifest.permission.WRITE_EXTERNAL_STORAGE)==(PackageManager.PERMISSION_GRANTED);
 
@@ -484,5 +477,56 @@ public class ChattingActivity extends AppCompatActivity {
 
             }
         });
+    }
+
+    private void getUserDetail(final String recieverID){
+        rootRef.child("Users").child(recieverID).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()) {
+                    User recieverUser = snapshot.getValue(User.class);
+                    GlideApp.with(getApplicationContext())
+                            .load(recieverUser.getImage())
+                            .circleCrop()
+                            .fitCenter()
+                            .into(receiverProfileImage);
+                    receiverUsername.setText(recieverUser.getName());
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+
+
+    }
+
+    private void addUserToInbox( ){
+        // put the reciver details in the senders private chat list and vice versa
+        HashMap<String, Object> receiverDetails = new HashMap<>();
+        final HashMap<String, Object> senderDetails = new HashMap<>();
+        senderDetails.put("receiverID",senderID);
+        receiverDetails.put("receiverID",receiverID);
+        rootRef.child("PrivateChatList").child(senderID).child(receiverID).setValue(receiverDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    rootRef.child("PrivateChatList").child(receiverID).child(mAuth.getInstance().getCurrentUser().getUid()).setValue(senderDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+
+                            }
+                        }
+                    });
+
+                }
+            }
+        });
+
     }
 }

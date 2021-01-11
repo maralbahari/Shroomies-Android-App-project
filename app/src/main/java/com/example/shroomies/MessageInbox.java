@@ -26,7 +26,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class MessageInbox extends AppCompatActivity {
@@ -84,7 +86,7 @@ public class MessageInbox extends AppCompatActivity {
                     getPrivateChatList();
                 }
                 else if(tab.getPosition()==1){
-
+                    groupList = new ArrayList<>();
                     getGroupChatList();
                 }
             }
@@ -108,16 +110,17 @@ public class MessageInbox extends AppCompatActivity {
         inboxListRecyclerView.setHasFixedSize(true);
         inboxListRecyclerView.setLayoutManager(linearLayoutManager);
         inboxListRecyclerView.setAdapter(messageInboxRecycleViewAdapter);
-        rootRef.child("PrivateChatList").orderByChild(mAuth.getInstance().getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+        rootRef.child("PrivateChatList").child(mAuth.getInstance().getCurrentUser().getUid()).orderByChild("receiverID").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
                     for (DataSnapshot ds : snapshot.getChildren()) {
-                        receiverID = ds.child("receiverID").toString();
-                        usersArrayList.add(receiverID);
-                        messageInboxRecycleViewAdapter.notifyDataSetChanged();
+                        HashMap<String,String> recivers= (HashMap) ds.getValue();
+                        usersArrayList.add(recivers.get("receiverID"));
+                        Toast.makeText(getApplicationContext(), recivers.toString(), Toast.LENGTH_SHORT).show();
                     }
 
+                    messageInboxRecycleViewAdapter.notifyDataSetChanged();
                 }
             }
             @Override
@@ -145,12 +148,12 @@ public class MessageInbox extends AppCompatActivity {
                         Group group = dataSnapshot.getValue(Group.class);
                         if(group.getGroupMembers().contains(userId)){
                             groupList.add(group);
-                            Toast.makeText(getApplicationContext(),dataSnapshot.getValue().toString(), Toast.LENGTH_SHORT).show();
+
                         }
 
                     }
 
-                    groupInboxRecyclerViewAdapter = new GroupInboxRecyclerViewAdapter(groupList,getApplicationContext());
+
                     groupInboxRecyclerViewAdapter.notifyDataSetChanged();
                 }else{
 

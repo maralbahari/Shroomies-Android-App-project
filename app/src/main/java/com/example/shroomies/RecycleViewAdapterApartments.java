@@ -75,11 +75,11 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
         StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(apartmentList.get(position).getImage_url().get(0));
 
         // Load the image using Glide
-                GlideApp.with(this.context)
-                        .load(storageReference)
-                        .fitCenter()
-                        .centerCrop()
-                        .into(holder.apartmentImage);
+        GlideApp.with(this.context)
+                .load(storageReference)
+                .fitCenter()
+                .centerCrop()
+                .into(holder.apartmentImage);
         // on click go to the apartment view
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -140,8 +140,9 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
                             receiverUser = new User();
                             receiverUser = snapshot.getValue(User.class);
-                            addUserToInbox(receiverUser);
-
+                            Intent intent = new Intent(context, ChattingActivity.class);
+                            intent.putExtra("USERID", receiverUser.getID());
+                            context.startActivity(intent);
                         }
 
                         @Override
@@ -149,25 +150,11 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
 
                         }
                     });
-
-
                 }
             });
         }
     }
-    private void addUserToInbox(final User receiverUser){
-        HashMap<String, Object> receiverDetails = new HashMap<>();
-        receiverDetails.put("receiverID",receiverUser.getID());
-        rootRef.child("PrivateChatList").child(mAuth.getInstance().getCurrentUser().getUid()).child(receiverUser.getID()).setValue(receiverDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()) {
-                    Intent intent=new Intent(context,ChattingActivity.class);
-                    intent.putExtra("USERID",receiverUser.getID());
-                    intent.putExtra("USERNAME",receiverUser.getName());
-                    context.startActivity(intent);
-                }
-            }
-        });
-    }
+
 }
+
+
