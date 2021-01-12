@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".EditGroupInfo"
+    android:background="@color/lowerGradientColorForLoginBackground">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageButton
+            android:id="@+id/icon_add_group_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="-15dp"
+            android:layout_marginTop="70dp"
+            android:layout_toRightOf="@+id/group_chat_image"
+            android:background="@drawable/button_round"
+            android:elevation="5dp"
+            android:padding="6dp"
+            android:src="@drawable/ic_icon_awesome_edit" />
+
+        <ImageView
+            android:id="@+id/group_chat_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minHeight="170dp"
+            android:minWidth="170dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="5dp"
+            android:background="@drawable/circle_white_button"
+            android:padding="10dp"
+            android:src="@drawable/ic_user_profile_svgrepo_com" />
+
+        <EditText
+            android:enabled="false"
+            android:id="@+id/group_chat_name"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_below="@id/group_chat_image"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="40dp"
+            android:layout_marginRight="30dp"
+            android:background="@drawable/button_round"
+            android:drawableLeft="@drawable/ic_user_profile_"
+            android:hint="  Group Name" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/list_of_selected_members"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/group_chat_name"
+            android:layout_marginLeft="30dp"
+            android:layout_marginTop="16dp"
+            android:layout_marginRight="30dp" />
+
+        <Button
+            android:id="@+id/create_group_chat_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="130dp"
+            android:layout_marginRight="100dp"
+            android:layout_marginTop="10dp"
+            android:background="@drawable/button_round_corner_purple"
+            android:text=" Save Changes "
+            android:textColor="@color/white"
+            android:padding="10dp"
+            android:elevation="10dp"
+            android:textStyle="bold"
+            android:layout_below="@id/list_of_selected_members"/>
+    </RelativeLayout>
+</androidx.core.widget.NestedScrollView>

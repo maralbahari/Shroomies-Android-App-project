@@ -73,6 +73,9 @@ public class GroupInfoActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //edit group chat here
+                Intent intent= new Intent(getApplicationContext(),EditGroupInfo.class);
+                intent.putExtra("GROUPID",groupID);
+                startActivity(intent);
             }
         });
       addParticipants.setOnClickListener(new View.OnClickListener() {
