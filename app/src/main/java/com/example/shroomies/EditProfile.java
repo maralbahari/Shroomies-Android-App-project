@@ -11,7 +11,9 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +22,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -27,6 +30,8 @@ import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserInfo;
@@ -58,6 +63,7 @@ public class EditProfile extends Fragment {
 
     private EditText email;
     private EditText bio;
+
     private Button pw;
     private Button save;
     private EditText username;
@@ -70,6 +76,7 @@ public class EditProfile extends Fragment {
     private StorageReference storageRef;
 
     final String userUid =  mAuth.getInstance().getCurrentUser().getUid();
+
 
     private static final int IMAGE_REQUEST= 1;
 
@@ -84,20 +91,13 @@ public class EditProfile extends Fragment {
         editImage = v.findViewById(R.id.edit_profile_picture);
         username = v.findViewById(R.id.edit_username);
         email = v.findViewById(R.id.edit_email);
-//        pw = v.findViewById(R.id.edit_password);
+        pw = v.findViewById(R.id.edit_password);
         bio = v.findViewById(R.id.edit_bio);
         save = v.findViewById(R.id.btn_save);
 
 
 
-
         mRootref = mDataref.getInstance().getReference();
-        //DatabaseReference firebaseDatabase = FirebaseDatabase.getInstance().getReference();
-        //final String userUid =  mAuth.getInstance().getCurrentUser().getUid();
-        //mRootref = mDataref.getReference().child("Users").child(userUid);
-        //mRootref.addValueEventListener(new ValueEventListener() {
-        //StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(apartmentList.get(position).getImage_url().get(0));
-
 
 
         mRootref.child("Users").child(userUid).addValueEventListener(new ValueEventListener() {
@@ -126,15 +126,15 @@ public class EditProfile extends Fragment {
             @Override
             public void onClick(View v) {
                 openImage();
-                //  CropImage.activity().setCropShape(CropImageView.CropShape.OVAL).start(getActivity());
+              //  CropImage.activity().setCropShape(CropImageView.CropShape.OVAL).start(getActivity());
             }
         });
 
         editImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                openImage();
-                //  CropImage.activity().setCropShape(CropImageView.CropShape.OVAL).start(getActivity());
+               openImage();
+              //  CropImage.activity().setCropShape(CropImageView.CropShape.OVAL).start(getActivity());
             }
         });
 
@@ -145,21 +145,29 @@ public class EditProfile extends Fragment {
             }
         });
 
-//        pw.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                getFragment(new ChangePassword());
-//            }
-//        });
-//
-//        username.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                getFragment(new ChangeUsername());
-//            }
-//        });
+        pw.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getFragment(new ChangePassword());
+            }
+        });
+
+        username.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getFragment(new ChangeUsername());
+            }
+        });
+
 
         return v;
+
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
 
     }
 
@@ -181,6 +189,7 @@ public class EditProfile extends Fragment {
                 if (task.isSuccessful()) {
                     Toast.makeText(getActivity(), "Updated successfully", Toast.LENGTH_SHORT).show();
                 }
+
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -189,8 +198,7 @@ public class EditProfile extends Fragment {
             }
         });
     }
-
-
+    
     private void openImage() {
         Intent intent = new Intent();
         intent.setType("image/*");
@@ -264,7 +272,7 @@ public class EditProfile extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == IMAGE_REQUEST && resultCode == getActivity().RESULT_OK && data !=null) {
-            // CropImage.ActivityResult result = CropImage.getActivityResult(data);
+           // CropImage.ActivityResult result = CropImage.getActivityResult(data);
             imageUri = data.getData();
 
             if (uploadTask !=null && uploadTask.isInProgress()){
