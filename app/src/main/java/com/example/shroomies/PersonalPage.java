@@ -86,6 +86,19 @@ public class PersonalPage extends Fragment {
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
+        // getting query
+        Bundle bun = getArguments();
+        String personalQuery = (String) bun.get("myQuery");
+
+        // creating search list
+        FirebaseRecyclerOptions<Model_personal> options =
+                new FirebaseRecyclerOptions.Builder<Model_personal>()
+                        .setQuery(FirebaseDatabase.getInstance().getReference().child("postPersonal").
+                                orderByChild("date").equalTo(personalQuery),
+                                Model_personal.class).build();
+        myFirebaseAdapter = new FireBase_recycler_adapter(options);
+        myFirebaseAdapter.startListening();
+        myRecyclerView.setAdapter(myFirebaseAdapter);
     }
 
     @Override
