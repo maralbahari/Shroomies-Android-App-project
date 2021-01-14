@@ -11,9 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 public class PersonalPage extends Fragment {
@@ -56,10 +54,10 @@ public class PersonalPage extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        DatabaseReference userHasRoomRef = FirebaseDatabase.getInstance().getReference().
-                child("postApartment");
-        loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
-        curUserId = loggedInUser.getUid();
+//        DatabaseReference userHasRoomRef = FirebaseDatabase.getInstance().getReference().
+//                child("postApartment");
+//        loggedInUser = FirebaseAuth.getInstance().getCurrentUser();
+//        curUserId = loggedInUser.getUid();
 
 
 

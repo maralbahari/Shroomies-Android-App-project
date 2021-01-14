@@ -88,6 +88,10 @@ public class FindRoommate extends Fragment {
                 if (tabLayout.getSelectedTabPosition() == 0) {
                     getApartmentsFromQuery(query);
                 }
+                else if(tabLayout.getSelectedTabPosition() == 2) {
+                    getPersonalPostsFromQuery(query);
+
+                }
                 return false;
             }
 
@@ -158,11 +162,11 @@ public class FindRoommate extends Fragment {
                 if (tab.getPosition() == 2){
                     recyclerView.setVisibility(View.GONE);
 
-//
-//                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-//                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-//                    fragmentTransaction.replace(R.id.frame_layout_search, new PersonalPage());
-//                    fragmentTransaction.commit();
+
+                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.replace(R.id.frame_layout_search, new PersonalPage());
+                    fragmentTransaction.commit();
 
                 }
 
@@ -185,6 +189,23 @@ public class FindRoommate extends Fragment {
                 }
             }
         });
+
+
+    }
+
+    void getPersonalPostsFromQuery(String query) {
+
+        recyclerView.setVisibility(View.GONE);
+
+        Bundle bundle = new Bundle();
+        bundle.putString("myQuery",query);
+
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        PersonalPage personalFrag = new PersonalPage();
+        personalFrag.setArguments(bundle);
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.frame_layout_search, new PersonalPage());
+        fragmentTransaction.commit();
 
 
     }
