@@ -47,7 +47,6 @@ public class LoginActivity extends AppCompatActivity {
     ProgressBar progressBar;
     Button google_sign;
     SessionManager sessionManager;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -59,6 +58,7 @@ public class LoginActivity extends AppCompatActivity {
         google_sign = findViewById(R.id.google_sign_up);
         forgotPassword=findViewById(R.id.forgot_password_login);
         progressBar=findViewById(R.id.progressBar_login);
+
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()

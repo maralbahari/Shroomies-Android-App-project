@@ -1,17 +1,22 @@
 package com.example.shroomies;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.List;
 
@@ -19,8 +24,10 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
     private List<Messages> userMessagesList;
     private FirebaseAuth mAuth;
     private DatabaseReference rootRef;
-    public MessagesAdapter(List<Messages> userMessagesList) {
+    Context context;
+    public MessagesAdapter(List<Messages> userMessagesList,Context context) {
         this.userMessagesList = userMessagesList;
+        this.context = context;
     }
 
     @NonNull
@@ -53,8 +60,31 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
                holder.receiverCardView.setGravity(Gravity.LEFT);
                holder.receiverCardView.setText(messages.getMessage());
            }
-       }
-
+       }if(fromMessageType.equals("image")) {
+            holder.senderCardView.setVisibility(View.INVISIBLE);
+            holder.receiverCardView.setVisibility(View.INVISIBLE);
+            StorageReference storageReference = FirebaseStorage.getInstance().getReference(messages.getMessage());
+            if (fromUserID.equals(senderID)) {
+                holder.senderImageView.setVisibility(View.VISIBLE);
+                GlideApp.with(context)
+                        .load(storageReference)
+                        .transform(new RoundedCorners(10))
+                        .fitCenter()
+                        .centerCrop()
+                        .placeholder(R.drawable.ic_icon_awesome_image)
+                        .into(holder.senderImageView);
+            } else {
+                holder.senderImageView.setVisibility(View.GONE);
+                holder.receiverImageView.setVisibility(View.VISIBLE);
+                GlideApp.with(context)
+                        .load(storageReference)
+                        .transform(new RoundedCorners(10))
+                        .fitCenter()
+                        .centerCrop()
+                        .placeholder(R.drawable.ic_icon_awesome_image)
+                        .into(holder.receiverImageView);
+            }
+        }
 
     }
 
@@ -65,11 +95,15 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
 
     public class MessageViewHolder extends RecyclerView.ViewHolder {
         TextView senderCardView,receiverCardView;
+        ImageView senderImageView;
+        ImageView receiverImageView;
         public MessageViewHolder(@NonNull View itemView) {
             super(itemView);
 
             senderCardView=itemView.findViewById(R.id.sender_box_card);
             receiverCardView=itemView.findViewById(R.id.receiver_box_card);
+            senderImageView=itemView.findViewById(R.id.sender_image_view);
+            receiverImageView=itemView.findViewById(R.id.receiver_image_view);
         }
 
     }

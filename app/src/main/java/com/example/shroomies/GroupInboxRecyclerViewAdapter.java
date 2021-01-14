@@ -65,6 +65,7 @@ public class GroupInboxRecyclerViewAdapter extends RecyclerView.Adapter<GroupInb
                     Intent intent=new Intent(context,GroupChattingActivity.class);
                     intent.putExtra("GROUPID",groupList.get(getAdapterPosition()).getGroupID());
                     intent.putExtra("GROUPNAME",groupList.get(getAdapterPosition()).getGroupName());
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(intent);
 
                 }

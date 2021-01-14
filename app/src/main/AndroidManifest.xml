@@ -2,9 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.shroomies">
 
-<!--    <uses-permission android:name="android.permission.WAKE_LOCK" />-->
-
-<!--    <uses-feature android:name="android.hardware.type.watch" />-->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
     <!--
          The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
          Google Maps Android API v2, but you must specify either coarse or fine
@@ -24,40 +22,27 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-<!--        <uses-library-->
-<!--            android:name="com.google.android.wearable"-->
-<!--            android:required="true" />-->
-
+        <activity android:name=".EditGroupInfo"></activity>
+        <activity android:name=".GroupInfoActivity" />
         <!--
                Set to true if your app is Standalone, that is, it does not require the handheld
                app to run.
         -->
-<!--        <meta-data-->
-<!--            android:name="com.google.android.wearable.standalone"-->
-<!--            android:value="true" />-->
-
-        <activity
-            android:name=".GroupChattingActivity"
-            android:label="@string/title_activity_group_chatting">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity android:name=".ChattingActivity" />
-        <!--
-             The API key for Google Maps-based APIs is defined as a string resource.
-             (See the file "res/values/google_maps_api.xml").
-             Note that the API key is linked to the encryption key used to sign the APK.
-             You need a different API key for each encryption key, including the release key that is used to
-             sign the APK for publishing.
-             You can define the keys for the debug and release targets in src/debug/ and src/release/.
-        -->
         <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="@string/google_maps_key" />
+            android:name="com.google.android.wearable.standalone"
+            android:value="true" />
 
+        <service
+            android:name=".notifications.FirebaseMessaging"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGIN_EVENT" />
+            </intent-filter>
+        </service>
+
+        <activity android:name=".GroupChattingActivity" />
+        <activity android:name=".ChattingActivity" />
         <activity android:name=".ResetPassword" />
         <activity android:name=".MainActivity" />
         <activity android:name=".SignUpActivity" />
@@ -77,6 +62,9 @@
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyBxsKC0T7r-jozZk-mZUScW7wPN5zB_7pg" />
     </application>
 
 </manifest>

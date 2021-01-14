@@ -103,6 +103,10 @@ public class FindRoommate extends Fragment {
                     new GetAdressListAsync(getActivity(), newText).execute();
 
                 }
+                else if(tabLayout.getSelectedTabPosition() == 2) {
+                    getPersonalPostsFromQuery(newText);
+
+                }
                 return false;
             }
         });
@@ -166,6 +170,7 @@ public class FindRoommate extends Fragment {
                     FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                     fragmentTransaction.replace(R.id.frame_layout_search, new PersonalPage());
+                    fragmentTransaction.addToBackStack(null);
                     fragmentTransaction.commit();
 
                 }
@@ -205,6 +210,7 @@ public class FindRoommate extends Fragment {
         personalFrag.setArguments(bundle);
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.frame_layout_search, new PersonalPage());
+        fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
 
 

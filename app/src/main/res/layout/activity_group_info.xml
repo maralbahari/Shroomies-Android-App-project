@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".GroupInfoActivity"
+    >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+    <include
+        android:id="@+id/include"
+        layout="@layout/group_info_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
+
+    <ImageView
+        android:id="@+id/group_chat_info_image"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        android:background="@color/Alabaster"
+        tools:srcCompat="@drawable/ic_icon_awesome_image" />
+
+        <Button
+            android:id="@+id/edit_group_chat"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="5dp"
+            android:background="@color/lowerGradientColorForLoginBackground"
+            android:drawableStart="@drawable/ic_edit"
+            android:text="Edit Group"
+            android:textAlignment="textStart" />
+
+        <Button
+            android:id="@+id/add_member_group_chat"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="5dp"
+            android:background="@color/lowerGradientColorForLoginBackground"
+            android:drawableStart="@drawable/ic_add_friend"
+            android:text="Add Participant"
+            android:textAlignment="textStart" />
+
+        <Button
+            android:id="@+id/leave_group_chat_button"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="5dp"
+            android:background="@color/lowerGradientColorForLoginBackground"
+            android:drawableStart="@drawable/ic_leave"
+            android:text="Leave Group"
+            android:textAlignment="textStart" />
+
+        <Button
+            android:id="@+id/delete_group_chat_button"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginTop="5dp"
+            android:background="@color/lowerGradientColorForLoginBackground"
+            android:drawableStart="@drawable/ic_trash"
+            android:text="Delete Group"
+            android:textAlignment="textStart" />
+        <TextView
+            android:textStyle="bold"
+            android:id="@+id/number_of_participants"
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:textColor="@color/Black"
+            android:text="Participants "
+            android:layout_marginTop="5dp"/>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/participants_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            />
+    </LinearLayout>
+</androidx.core.widget.NestedScrollView>

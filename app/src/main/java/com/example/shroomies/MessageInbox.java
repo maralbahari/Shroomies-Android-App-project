@@ -19,7 +19,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -27,7 +26,9 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class MessageInbox extends AppCompatActivity {
@@ -85,7 +86,7 @@ public class MessageInbox extends AppCompatActivity {
                     getPrivateChatList();
                 }
                 else if(tab.getPosition()==1){
-
+                    groupList = new ArrayList<>();
                     getGroupChatList();
                 }
             }
@@ -109,32 +110,26 @@ public class MessageInbox extends AppCompatActivity {
         inboxListRecyclerView.setHasFixedSize(true);
         inboxListRecyclerView.setLayoutManager(linearLayoutManager);
         inboxListRecyclerView.setAdapter(messageInboxRecycleViewAdapter);
-        rootRef.child("inboxLists").child(mAuth.getInstance().getCurrentUser().getUid()).addChildEventListener(new ChildEventListener() {
+        rootRef.child("PrivateChatList").child(mAuth.getInstance().getCurrentUser().getUid()).orderByChild("receiverID").addValueEventListener(new ValueEventListener() {
             @Override
-            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                if(snapshot.exists()){
-                    for( DataSnapshot ds:snapshot.getChildren()){
-                         receiverID=ds.getValue().toString();
-                        usersArrayList.add(receiverID);
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    for (DataSnapshot ds : snapshot.getChildren()) {
+                        HashMap<String,String> recivers= (HashMap) ds.getValue();
+                        usersArrayList.add(recivers.get("receiverID"));
+                        Toast.makeText(getApplicationContext(), recivers.toString(), Toast.LENGTH_SHORT).show();
                     }
-//                    ReceiverUsers receiverUsers=snapshot.getValue(ReceiverUsers.class);
-//                    usersArrayList.add(receiverUsers);
+
                     messageInboxRecycleViewAdapter.notifyDataSetChanged();
-                }else{ }
+                }
             }
             @Override
-            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) { }
+            public void onCancelled(@NonNull DatabaseError error) {
 
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot snapshot) { }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) { }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) { }
+            }
         });
     }
+
 
 
     private void getGroupChatList() {
@@ -153,12 +148,12 @@ public class MessageInbox extends AppCompatActivity {
                         Group group = dataSnapshot.getValue(Group.class);
                         if(group.getGroupMembers().contains(userId)){
                             groupList.add(group);
-                            Toast.makeText(getApplicationContext(),dataSnapshot.getValue().toString(), Toast.LENGTH_SHORT).show();
+
                         }
 
                     }
 
-                    groupInboxRecyclerViewAdapter = new GroupInboxRecyclerViewAdapter(groupList,getApplicationContext());
+
                     groupInboxRecyclerViewAdapter.notifyDataSetChanged();
                 }else{
 
@@ -173,4 +168,5 @@ public class MessageInbox extends AppCompatActivity {
 
 
     }
+
 }

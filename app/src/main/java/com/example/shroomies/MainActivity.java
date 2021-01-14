@@ -6,7 +6,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
@@ -40,6 +39,8 @@ public class MainActivity extends AppCompatActivity {
     FirebaseAuth mAuth;
     FirebaseAuth.AuthStateListener authStateListener;
     SessionManager sessionManager;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,7 +114,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+
     }
+
+
     private void getFragment (Fragment fragment) {
         fm = getSupportFragmentManager();
         ft = fm.beginTransaction();
@@ -121,5 +126,8 @@ public class MainActivity extends AppCompatActivity {
         ft.replace(R.id.fragmentContainer, fragment);
         ft.commit();
     }
+
+
+
 
 }

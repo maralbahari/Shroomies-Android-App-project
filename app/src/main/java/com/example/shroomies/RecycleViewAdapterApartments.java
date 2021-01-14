@@ -16,8 +16,6 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -28,7 +26,6 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
 
 public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleViewAdapterApartments.ViewHolder> {
@@ -75,11 +72,11 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
         StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(apartmentList.get(position).getImage_url().get(0));
 
         // Load the image using Glide
-                GlideApp.with(this.context)
-                        .load(storageReference)
-                        .fitCenter()
-                        .centerCrop()
-                        .into(holder.apartmentImage);
+        GlideApp.with(this.context)
+                .load(storageReference)
+                .fitCenter()
+                .centerCrop()
+                .into(holder.apartmentImage);
         // on click go to the apartment view
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -140,8 +137,9 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
                             receiverUser = new User();
                             receiverUser = snapshot.getValue(User.class);
-                            addUserToInbox(receiverUser);
-
+                            Intent intent = new Intent(context, ChattingActivity.class);
+                            intent.putExtra("USERID", receiverUser.getID());
+                            context.startActivity(intent);
                         }
 
                         @Override
@@ -149,25 +147,11 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
 
                         }
                     });
-
-
                 }
             });
         }
     }
-    private void addUserToInbox(final User receiverUser){
-        HashMap<String, Object> receiverDetails = new HashMap<>();
-        receiverDetails.put("receiverID",receiverUser.getID());
-        rootRef.child("PrivateChatList").child(mAuth.getInstance().getCurrentUser().getUid()).child(receiverUser.getID()).setValue(receiverDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if (task.isSuccessful()) {
-                    Intent intent=new Intent(context,ChattingActivity.class);
-                    intent.putExtra("USERID",receiverUser.getID());
-                    intent.putExtra("USERNAME",receiverUser.getName());
-                    context.startActivity(intent);
-                }
-            }
-        });
-    }
+
 }
+
+
