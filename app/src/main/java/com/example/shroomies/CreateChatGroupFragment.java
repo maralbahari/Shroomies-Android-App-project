@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -33,6 +34,7 @@ public class CreateChatGroupFragment extends DialogFragment {
     private ImageButton nextButton;
     private DatabaseReference rootRef;
     private UserRecyclerAdapter userRecyclerAdapter;
+    private String groupID;
    private boolean fromGroupInfo;
 
     static ArrayList<User>  selectedMembers;
@@ -66,8 +68,13 @@ public class CreateChatGroupFragment extends DialogFragment {
         userListSuggestionRecyclerView =v.findViewById(R.id.suggestion_list_create_group);
         userListSuggestionRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         nextButton=v.findViewById(R.id.confirm_button_create_group);
+
         Bundle extras=getArguments();
-        fromGroupInfo=extras.getBoolean("FromGroupInfo");
+        if(extras!=null) {
+            fromGroupInfo = extras.getBoolean("FromGroupInfo");
+            groupID = extras.getString("GROUPID");
+
+        }
         selectedMembers = new ArrayList<>();
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -86,7 +93,9 @@ public class CreateChatGroupFragment extends DialogFragment {
             @Override
             public void onClick(View v) {
                 if(fromGroupInfo){
+
                     Intent intent = new Intent(getContext(),GroupInfoActivity.class);
+                    intent.putExtra("GROUPID" , groupID);
                     intent.putParcelableArrayListExtra("ListOfSelectedUsers",selectedMembers);
                     startActivity(intent);
                 }
@@ -112,7 +121,7 @@ public class CreateChatGroupFragment extends DialogFragment {
                         suggestedUser.add(user);
                     }
 
-                    userRecyclerAdapter=new UserRecyclerAdapter(suggestedUser,getContext(),true);
+                    userRecyclerAdapter=new UserRecyclerAdapter(suggestedUser,getContext(),"SEARCH_PAGE");
                     userListSuggestionRecyclerView.setAdapter(userRecyclerAdapter);
 
                 }
@@ -126,17 +135,12 @@ public class CreateChatGroupFragment extends DialogFragment {
         });
     }
     public static void addSelectedMembers(User user){
-        if(selectedMembers.size()==0){
-            selectedMembers.add(user);
-        }else {
-            for (User selected : selectedMembers) {
-                if (selected.equals(user)) {
-                    return;
-                } else {
-                    selectedMembers.add(user);
-                }
-            }
-        }
+
+       if(!selectedMembers.contains(user)){
+           selectedMembers.add(user);
+        }else{
+           // add member already selected exception
+       }
 
     }
 

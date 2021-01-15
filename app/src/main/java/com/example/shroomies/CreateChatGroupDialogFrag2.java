@@ -97,7 +97,7 @@ public class CreateChatGroupDialogFrag2 extends DialogFragment {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         selectedMembers.setHasFixedSize(true);
         selectedMembers.setLayoutManager(linearLayoutManager);
-        userRecyclerAdapter=new UserRecyclerAdapter(selectedUsers,getContext(),false);
+        userRecyclerAdapter=new UserRecyclerAdapter(selectedUsers,getContext(),"CREATE_GROUP_FRAG_2");
         selectedMembers.setAdapter(userRecyclerAdapter);
 
         createGroupButton.setOnClickListener(new View.OnClickListener() {

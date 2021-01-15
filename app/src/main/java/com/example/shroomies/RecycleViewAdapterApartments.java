@@ -134,7 +134,7 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
                 public void onClick(View v) {
                     //get user details and pass to chatting activity
                     DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(apartmentList.get(getAdapterPosition()).getUserID());
-                    Toast.makeText(context,apartmentList.get(getAdapterPosition()).getUserID(),Toast.LENGTH_SHORT).show();
+
                     databaseReference.addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {

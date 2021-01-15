@@ -17,11 +17,14 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.example.shroomies.notifications.FirebaseMessaging;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.messaging.FirebaseMessagingService;
 
 public class MainActivity extends AppCompatActivity {
     public static String updatedAdresses;
@@ -39,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
     FirebaseAuth mAuth;
     FirebaseAuth.AuthStateListener authStateListener;
     SessionManager sessionManager;
+    FirebaseMessaging firebaseMessaging;
 
 
 
@@ -53,8 +57,12 @@ public class MainActivity extends AppCompatActivity {
             String userEmail=extras.getString("EMAIL");
             sessionManager=new SessionManager(getApplicationContext(),userID);
             sessionManager.createSession(userID,userEmail);
+            firebaseMessaging = new FirebaseMessaging();
+            firebaseMessaging.onNewToken(FirebaseInstanceId.getInstance().getToken());
 
         }
+
+
         btm_view = findViewById(R.id.bottomNavigationView);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
