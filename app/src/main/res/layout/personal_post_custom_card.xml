@@ -205,24 +205,16 @@
 
                 />
 
-            <com.like.LikeButton
-                android:id="@+id/star_button"
+            <ImageButton
+                android:id="@+id/BUT_fav_uncheck"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/bio_personal_card"
                 android:layout_alignParentRight="true"
-                android:layout_marginHorizontal="5dp"
-                android:layout_marginVertical="12dp"
-
-
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="18dp"
                 android:layout_marginRight="15dp"
-                android:layout_toRightOf="@id/start_chat_button"
-                app:dots_primary_color="@color/Black"
-                app:dots_secondary_color="#F5CB5C"
-                app:icon_size="18dp"
-                app:icon_type="star"
-                app:liked="false" />
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_icon_awesome_star_unchecked" />
 
 
         </RelativeLayout>
