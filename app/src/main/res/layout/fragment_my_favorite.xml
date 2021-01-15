@@ -1,21 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Favorite">
+    android:layout_marginTop="60dp"
+    android:layout_marginBottom="50dp"
+    android:background="@color/white"
+    tools:context=".Favorite"
+
+    >
+
+    <ImageView
+        android:id="@+id/IV_Fav_star"
+        android:layout_width="43dp"
+        android:layout_height="41dp"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="8dp"
+        android:src="@drawable/star"
+
+        />
+
     <TextView
-        android:layout_width="289dp"
-        android:layout_height="70dp"
-        android:layout_marginTop="264dp"
-        android:layout_marginEnd="60dp"
-        android:text="Favorite"
-        android:textAllCaps="true"
-        android:textSize="36sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:id="@+id/TV_FavHead"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="7dp"
+        android:layout_toRightOf="@id/IV_Fav_star"
+        android:text="Favourites"
+        android:textColor="@color/Black"
+
+        android:textSize="26sp" />
+
+    <com.google.android.material.tabs.TabLayout
+
+        android:id="@+id/tab_layout_Fav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/TV_FavHead"
+        android:layout_marginTop="12dp"
+        app:tabBackground="@drawable/tab_backgorund_style"
+        >
+
+        <com.google.android.material.tabs.TabItem
+            android:id="@+id/tab_button_fav_apartment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="apartment"
+            />
+
+
+        <com.google.android.material.tabs.TabItem
+            android:id="@+id/tab_button_fav_personal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="personal"
+            />
+
+
+    </com.google.android.material.tabs.TabLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/fav_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/tab_layout_Fav"
+        android:layout_margin="8dp"
+        />
 
 
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+
+</RelativeLayout>
