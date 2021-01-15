@@ -6,6 +6,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -23,6 +24,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class EditGroupInfo extends AppCompatActivity {
     private FirebaseAuth mAuth;
@@ -37,7 +39,7 @@ public class EditGroupInfo extends AppCompatActivity {
     private StorageReference storageReference;
     StorageReference filePath ;
     private Uri imageUri;
-    private String groupID;
+    private Group group;
     private ArrayList<String> groupMembersID;
     private UserRecyclerAdapter membersAdapter;
     private ArrayList<User> membersList;
@@ -45,11 +47,6 @@ public class EditGroupInfo extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_group_info);
-        Bundle bundle = getIntent().getExtras();
-        if (bundle != null) {
-            groupID=bundle.getString("GROUPID");
-            displayGroupInfo();
-        }
         rootRef= FirebaseDatabase.getInstance().getReference();
         storageReference = FirebaseStorage.getInstance().getReference();
         groupImage=findViewById(R.id.group_chat_image);
@@ -61,34 +58,27 @@ public class EditGroupInfo extends AppCompatActivity {
         groupMembers.setHasFixedSize(true);
         groupMembers.setLayoutManager(linearLayoutManager);
 
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            group=bundle.getParcelable("GROUP");
+            groupChatTitle.setText(group.getGroupName());
+            StorageReference storageReference = FirebaseStorage.getInstance().getReference(group.getGroupImage());
+            GlideApp.with(getApplicationContext())
+                    .load(storageReference)
+                    .circleCrop()
+                    .fitCenter()
+                    .centerCrop()
+                    .into(groupImage);
+            getMemberDetail(group.getGroupMembers());
+        }
+
     }
-    private void displayGroupInfo(){
-        rootRef.child("GroupChat").child(groupID).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.exists()){
-                    for(DataSnapshot dataSnapshot
-                            : snapshot.getChildren()) {
-                        Group group = dataSnapshot.getValue(Group.class);
-                        GlideApp.with(getApplicationContext())
-                                .load(group.getImage())
-                                .transform(new RoundedCorners(1))
-                                .fitCenter()
-                                .centerCrop()
-                                .into(groupImage);
-                        //save members ID in array
-                        groupMembersID= (ArrayList<String>) group.groupMembers;
-
-                    }
-                }
-            }
 
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
+    private void getMemberDetail(List<String> groupMembersID) {
+        membersList = new ArrayList<>();
+        membersAdapter=new UserRecyclerAdapter(membersList,getApplicationContext(),"EDIT_GROUP_INFO" , group.getGroupID());
+        groupMembers.setAdapter(membersAdapter);
         //look for each members details in firebase from the array we created in line 83 one by one
         for(String memberId: groupMembersID){
             rootRef.child("Users").child(memberId).addValueEventListener(new ValueEventListener() {
@@ -98,6 +88,7 @@ public class EditGroupInfo extends AppCompatActivity {
                         User user=snapshot.getValue(User.class);
                         //save each member's details in an array of User type to be able pass to adapter
                         membersList.add(user);
+                        membersAdapter.notifyDataSetChanged();
                     }
                 }
 
@@ -107,9 +98,8 @@ public class EditGroupInfo extends AppCompatActivity {
                 }
             });
             //finally add to the adapter
-            membersAdapter=new UserRecyclerAdapter(membersList,getApplicationContext(),false);
-            groupMembers.setAdapter(membersAdapter);
-            membersAdapter.notifyDataSetChanged();
+
         }
+
     }
 }

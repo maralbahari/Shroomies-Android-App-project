@@ -19,6 +19,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.List;
 
@@ -47,6 +49,7 @@ public class GroupMessagesAdapter extends RecyclerView.Adapter<GroupMessagesAdap
         Group groupMessages=groupMessagesList.get(position);
         String fromUserID=groupMessages.getFrom();
         String fromMessageType= groupMessages.getType();
+        StorageReference storageReference = FirebaseStorage.getInstance().getReference(groupMessages.getMessage());
         if(fromMessageType.equals("text")){
             holder.receiverCardView.setVisibility(View.INVISIBLE);
             if(fromUserID.equals(senderID)){
@@ -72,7 +75,7 @@ public class GroupMessagesAdapter extends RecyclerView.Adapter<GroupMessagesAdap
                 holder.senderImageView.setVisibility(View.VISIBLE);
 
                 GlideApp.with(context)
-                        .load(groupMessages.getMessage())
+                        .load(storageReference)
                         .transform(new RoundedCorners(10))
                         .fitCenter()
                         .centerCrop()
@@ -83,8 +86,9 @@ public class GroupMessagesAdapter extends RecyclerView.Adapter<GroupMessagesAdap
                 holder.receiverInfoContainer.setVisibility(View.VISIBLE);
                 holder.receiverCardView.setVisibility(View.GONE);
                 setUserName(fromUserID,holder);
+
                 GlideApp.with(context)
-                        .load(groupMessages.getMessage())
+                        .load(storageReference)
                         .transform(new RoundedCorners(10))
                         .fitCenter()
                         .centerCrop()

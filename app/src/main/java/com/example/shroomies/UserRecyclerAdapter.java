@@ -7,16 +7,23 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapter.UserDetailsViewHolder> {
@@ -24,15 +31,25 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapte
     private Context context;
     private DatabaseReference rootRef;
     private View view;
+    private String groupID;
+    public String fromWhere;
+    private String currentUserId;
+    private FirebaseAuth mAuth;
 
-    public boolean fromSearchPage;
-
-    public UserRecyclerAdapter(List<User> usersList, Context context,boolean fromSearchPage) {
+    public UserRecyclerAdapter(List<User> usersList, Context context,String fromWhere , String groupID) {
         this.usersList = usersList;
         this.context = context;
-        this.fromSearchPage=fromSearchPage;
+        this.fromWhere = fromWhere;
+        this.groupID = groupID;
+        this.currentUserId = mAuth.getInstance().getCurrentUser().getUid();
         // create a new list to hold all selected users
+    }
 
+    public UserRecyclerAdapter(List<User> usersList, Context context,String fromWhere ) {
+        this.usersList = usersList;
+        this.context = context;
+        this.fromWhere = fromWhere;
+        // create a new list to hold all selected users
     }
 
     @NonNull
@@ -47,7 +64,7 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapte
     @Override
     public void onBindViewHolder(@NonNull final UserDetailsViewHolder holder, int position) {
      holder.username.setText(usersList.get(position).getName());
-     holder.bio.setText(usersList.get(position).getBio());
+
 
         // storage referance to load the user's image if the userhas an
         //uploaded image
@@ -73,8 +90,15 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapte
 
         }
      // if navigating from create group dialog 2 then we dont need the add user button to be shown or accessible
-     if(!(fromSearchPage)){
+     if(!fromWhere.equals("SEARCH_PAGE")){
          holder.addUser.setVisibility(view.GONE);
+     }
+     // if the page is edit group chat
+        // enable the user to delte by setting the visiblity of the icon to visible
+        // also the visibilty should be gone for the user himself
+     if(fromWhere.equals("EDIT_GROUP_INFO") && !usersList.get(position).getID().equals(currentUserId)){
+         holder.removeUserFromGroupChat.setVisibility(View.VISIBLE);
+         holder.addUser.setVisibility(View.GONE);
      }
     }
 
@@ -84,16 +108,51 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapte
     }
 
     public class UserDetailsViewHolder extends RecyclerView.ViewHolder{
-        ImageButton addUser;
+        ImageButton addUser , removeUserFromGroupChat;
         ImageView userImageProfile;
-        TextView username,bio;
+        TextView username;
+
 
         public UserDetailsViewHolder(@NonNull View itemView) {
             super(itemView);
             addUser= itemView.findViewById(R.id.add_user_to_group_button);
             userImageProfile=itemView.findViewById(R.id.suggestion_list_image);
             username=itemView.findViewById(R.id.suggestion_list_username);
-            bio=itemView.findViewById(R.id.suggestion_list_bio);
+            removeUserFromGroupChat = itemView.findViewById(R.id.remove_user_from_group_chat_image_button);
+            if(fromWhere.equals("EDIT_GROUP_INFO")) {
+
+                removeUserFromGroupChat.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        final String userId = usersList.get(getAdapterPosition()).getID();
+                        rootRef.child("GroupChats").child(groupID).child("groupMembers").addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                if (snapshot.exists()) {
+                                    List<String> groupMemberIds =(ArrayList<String>) snapshot.getValue();
+                                    groupMemberIds.remove(userId);
+                                    HashMap<String , Object> updateGroupMembers  = new HashMap<>();
+                                    updateGroupMembers.put("groupMembers" , groupMemberIds);
+                                    rootRef.child("GroupChats").child(groupID).updateChildren(updateGroupMembers).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            Toast.makeText(context , "Deleted this fucking doodool", Toast.LENGTH_LONG).show();
+                                            usersList.remove(getAdapterPosition());
+                                            notifyItemRemoved(getAdapterPosition());
+                                        }
+                                    });
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+
+                            }
+                        });
+                    }
+                });
+            }
+
             addUser.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
