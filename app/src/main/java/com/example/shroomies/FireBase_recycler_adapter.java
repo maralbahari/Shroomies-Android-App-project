@@ -16,6 +16,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -46,10 +48,7 @@ public class FireBase_recycler_adapter extends FirebaseRecyclerAdapter<Model_per
         // getting data from user id
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("Users");
          DatabaseReference myRef = ref.child(id);
-
         myRef.addValueEventListener(new ValueEventListener() {
-
-
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()){
@@ -63,17 +62,11 @@ public class FireBase_recycler_adapter extends FirebaseRecyclerAdapter<Model_per
                             .fitCenter()
                             .centerCrop()
                             .into(holder.IV_userPic);
-
                 }
             }
-
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
+            public void onCancelled(@NonNull DatabaseError error) { }
         });
-
-
         //setting preferences
         if(!model.getPreferences().get(0)){
             holder.IV_male.setVisibility(View.GONE); }
@@ -87,6 +80,12 @@ public class FireBase_recycler_adapter extends FirebaseRecyclerAdapter<Model_per
         if(!model.getPreferences().get(3)){
             holder.IV_smoke.setVisibility(View.GONE); }
         else holder.IV_smoke.setVisibility(View.VISIBLE);
+
+
+        // getting cur user
+
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        final String Uid = firebaseUser.getUid();
 
 
 
