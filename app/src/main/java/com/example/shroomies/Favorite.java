@@ -37,6 +37,29 @@ public class Favorite extends Fragment {
         tabApt = (TabItem) v.findViewById(R.id.tab_button_fav_apartment);
         tabPost = (TabItem) v.findViewById(R.id.tab_button_fav_personal);
         VPfav = (ViewPager) v.findViewById(R.id.VP_fav);
+        final FavoritePageAdapter pageAdapter = new FavoritePageAdapter(getChildFragmentManager(), tabFav.getTabCount());
+        VPfav.setAdapter(pageAdapter);
+
+        tabFav.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                VPfav.setCurrentItem(tab.getPosition());
+
+                if ((tab.getPosition() == 0 )|| (tab.getPosition() == 1))
+                    pageAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+        VPfav.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tabFav));
 
 
     }

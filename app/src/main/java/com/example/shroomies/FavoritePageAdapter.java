@@ -9,9 +9,11 @@ public class FavoritePageAdapter extends FragmentPagerAdapter {
 
     int tabCount;
 
-    public FavoritePageAdapter(@NonNull FragmentManager fm, int behavior) {
-        super(fm, behavior);
-        tabCount = behavior;
+
+    public FavoritePageAdapter(@NonNull FragmentManager fm, int tabCount) {
+        super(fm);
+        this.tabCount = tabCount;
+
     }
 
     @NonNull
@@ -23,6 +25,11 @@ public class FavoritePageAdapter extends FragmentPagerAdapter {
             default: return null;
 
         }
+    }
+
+    @Override
+    public int getItemPosition(@NonNull Object object) {
+        return super.getItemPosition(object);
     }
 
     @Override
