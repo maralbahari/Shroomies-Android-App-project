@@ -15,6 +15,7 @@
         android:id="@+id/IV_Fav_star"
         android:layout_width="43dp"
         android:layout_height="41dp"
+        android:layout_marginTop="5dp"
         android:layout_alignParentLeft="true"
         android:layout_marginLeft="8dp"
         android:src="@drawable/ic_icon_awesome_star_checked"
@@ -29,7 +30,6 @@
         android:layout_toRightOf="@id/IV_Fav_star"
         android:text="Favourites"
         android:textColor="@color/Black"
-
         android:textSize="26sp" />
 
     <com.google.android.material.tabs.TabLayout
