@@ -511,6 +511,7 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
         final List<String> IMAGE_URLS = new ArrayList<>();
         for (Uri uri:
                 imageUri ) {
+
             filePath = storageReference.child("apartment post image").child(uri.getLastPathSegment()
                     +postUniqueName+".jpg");
             filePath.putFile(uri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {

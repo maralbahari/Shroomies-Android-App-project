@@ -79,6 +79,8 @@ public class GroupChattingActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chatting);
+        cameraPermissions=new String[]{Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        storagePermissions=new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
         groupNameTextview=findViewById(R.id.receiver_username);
         mAuth=FirebaseAuth.getInstance();
         senderID=mAuth.getInstance().getCurrentUser().getUid();
@@ -124,7 +126,11 @@ public class GroupChattingActivity extends AppCompatActivity {
                 sendMessageToGroup();
             }
         });
-
+        addImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showImagePickDialog(); }
+        });
     }
     public void sendMessageToGroup(){
         String messageText=messageBody.getText().toString();
