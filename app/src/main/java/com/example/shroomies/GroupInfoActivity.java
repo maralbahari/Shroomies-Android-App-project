@@ -166,9 +166,9 @@ public class GroupInfoActivity extends AppCompatActivity {
                     groupMembersID=  group.getGroupMembers();
                     membersList = new ArrayList<>();
                     getMemberDetail(groupMembersID);
-                    StorageReference storageReference = FirebaseStorage.getInstance().getReference(group.getGroupImage());
+
                     GlideApp.with(getApplicationContext())
-                            .load(storageReference)
+                            .load(group.getGroupImage())
                             .transform(new RoundedCorners(1))
                             .fitCenter()
                             .centerCrop()

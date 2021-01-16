@@ -1,6 +1,7 @@
 package com.example.shroomies;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,6 +12,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -99,6 +101,7 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapte
      if(fromWhere.equals("EDIT_GROUP_INFO") && !usersList.get(position).getID().equals(currentUserId)){
          holder.removeUserFromGroupChat.setVisibility(View.VISIBLE);
          holder.addUser.setVisibility(View.GONE);
+
      }
     }
 
@@ -113,11 +116,13 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapte
         TextView username;
 
 
+
         public UserDetailsViewHolder(@NonNull View itemView) {
             super(itemView);
             addUser= itemView.findViewById(R.id.add_user_to_group_button);
             userImageProfile=itemView.findViewById(R.id.suggestion_list_image);
             username=itemView.findViewById(R.id.suggestion_list_username);
+
             removeUserFromGroupChat = itemView.findViewById(R.id.remove_user_from_group_chat_image_button);
             if(fromWhere.equals("EDIT_GROUP_INFO")) {
 

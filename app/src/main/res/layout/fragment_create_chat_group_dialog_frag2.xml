@@ -9,34 +9,36 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="20dp"
-        android:background="@color/lowerGradientColorForLoginBackground">
+        >
 
         <ImageButton
             android:id="@+id/icon_add_group_image"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="-15dp"
-            android:layout_marginTop="70dp"
+            android:layout_marginLeft="-20dp"
+            android:layout_marginTop="50dp"
             android:layout_toRightOf="@+id/group_chat_image"
             android:background="@drawable/button_round"
             android:elevation="5dp"
-            android:padding="6dp"
+            android:padding="10dp"
             android:src="@drawable/ic_icon_awesome_edit" />
 
         <ImageView
             android:id="@+id/group_chat_image"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minHeight="170dp"
-            android:minWidth="170dp"
+            android:minHeight="120dp"
+            android:minWidth="120dp"
             android:layout_centerHorizontal="true"
             android:layout_marginTop="20dp"
             android:layout_marginBottom="5dp"
             android:background="@drawable/circle_white_button"
-            android:padding="10dp"
+            android:padding="20dp"
+            android:elevation="3dp"
             android:src="@drawable/ic_user_profile_svgrepo_com" />
 
         <EditText
+
             android:id="@+id/group_chat_name"
             android:layout_width="match_parent"
             android:layout_height="50dp"
@@ -46,6 +48,8 @@
             android:layout_marginRight="30dp"
             android:background="@drawable/button_round"
             android:drawableLeft="@drawable/ic_user_profile_"
+            android:padding="5dp"
+            android:elevation="3dp"
             android:hint="  Group Name" />
 
         <androidx.recyclerview.widget.RecyclerView
@@ -53,21 +57,32 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/group_chat_name"
-            android:layout_marginLeft="30dp"
+            android:layout_marginLeft="5dp"
             android:layout_marginTop="16dp"
-            android:layout_marginRight="30dp" />
+            android:layout_marginRight="5dp"
+            android:layout_above="@+id/create_group_chat_button"/>
 
         <Button
+            android:layout_margin="10dp"
             android:id="@+id/create_group_chat_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
             android:background="@drawable/button_round_corner_purple"
-            android:text=" Create Group "
-            android:textColor="@color/white"
-            android:padding="10dp"
+            android:drawableEnd="@drawable/ic_arrow_forward"
             android:elevation="10dp"
-            android:textStyle="bold"
-            android:layout_below="@id/list_of_selected_members"/>
+            android:padding="10dp"
+            android:text=" Create Group "
+
+            android:textColor="@color/white"
+            android:textStyle="bold" />
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:background="@drawable/circle_white_button_small"
+            android:src="@android:drawable/ic_menu_close_clear_cancel"/>
+
     </RelativeLayout>
 </LinearLayout>

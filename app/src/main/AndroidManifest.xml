@@ -41,7 +41,8 @@
             </intent-filter>
         </service>
 
-        <activity android:name=".GroupChattingActivity" />
+        <activity android:name=".GroupChattingActivity"
+            android:parentActivityName=".MessageInbox"/>
         <activity android:name=".ChattingActivity" />
         <activity android:name=".ResetPassword" />
         <activity android:name=".MainActivity" />

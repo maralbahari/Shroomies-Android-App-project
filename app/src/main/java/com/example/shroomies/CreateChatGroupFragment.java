@@ -2,6 +2,7 @@ package com.example.shroomies;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.transition.Transition;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,6 +37,7 @@ public class CreateChatGroupFragment extends DialogFragment {
     private UserRecyclerAdapter userRecyclerAdapter;
     private String groupID;
    private boolean fromGroupInfo;
+   private  List <User> suggestedUser;
 
     static ArrayList<User>  selectedMembers;
 
@@ -43,8 +45,8 @@ public class CreateChatGroupFragment extends DialogFragment {
     public void onStart() {
         super.onStart();
         if(getDialog()!=null) {
-            getDialog().getWindow().setLayout(ActionBar.LayoutParams.WRAP_CONTENT, Toolbar.LayoutParams.WRAP_CONTENT);
-         getDialog().getWindow().setBackgroundDrawableResource(R.drawable.post_card_rectangle_round);
+            getDialog().getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
+         getDialog().getWindow().setBackgroundDrawableResource(R.drawable.create_group_fragment_background);
         }
     }
 
@@ -59,7 +61,11 @@ public class CreateChatGroupFragment extends DialogFragment {
         return v;
     }
 
-
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getDialog().getWindow().setWindowAnimations(R.style.DialogAnimation);
+    }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -109,21 +115,22 @@ public class CreateChatGroupFragment extends DialogFragment {
 
     }
     public void getUsersListFromDatabase(String query){
-
+        suggestedUser = new ArrayList<>();
+        userRecyclerAdapter=new UserRecyclerAdapter(suggestedUser,getContext(),"SEARCH_PAGE");
+        userListSuggestionRecyclerView.setAdapter(userRecyclerAdapter);
         //+"\uf8ff"
         rootRef.child("Users").orderByChild("name").equalTo(query).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
-                    List <User> suggestedUser = new ArrayList<>();
+
                     for (DataSnapshot ds : snapshot.getChildren()) {
                         User user = ds.getValue(User.class);
                         suggestedUser.add(user);
                     }
-
-                    userRecyclerAdapter=new UserRecyclerAdapter(suggestedUser,getContext(),"SEARCH_PAGE");
-                    userListSuggestionRecyclerView.setAdapter(userRecyclerAdapter);
-
+                    //add the members already selected
+                    suggestedUser.addAll(selectedMembers);
+                    userRecyclerAdapter.notifyDataSetChanged();
                 }
 
             }

@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -45,24 +46,20 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
        String fromUserID=messages.getFrom();
        String fromMessageType=messages.getType();
        if(fromMessageType.equals("text")){
-           holder.receiverCardView.setVisibility(View.INVISIBLE);
+           holder.receiverLinearLayout.setVisibility(View.INVISIBLE);
            if(fromUserID.equals(senderID)){
-              holder.senderCardView.setBackgroundResource(R.drawable.sender_background_message);
-              holder.senderCardView.setTextColor(Color.BLACK);
-              holder.senderCardView.setGravity(Gravity.LEFT);
-              holder.senderCardView.setText(messages.getMessage());
+              holder.senderTextView.setText(messages.getMessage());
+              holder.senderDate.setText(messages.getDate());
            }
            else{
-               holder.senderCardView.setVisibility(View.INVISIBLE);
-               holder.receiverCardView.setVisibility(View.VISIBLE);
-               holder.receiverCardView.setBackgroundResource(R.drawable.receiver_message_background);
-               holder.receiverCardView.setTextColor(Color.BLACK);
-               holder.receiverCardView.setGravity(Gravity.LEFT);
-               holder.receiverCardView.setText(messages.getMessage());
+               holder.senderLinearLayout.setVisibility(View.INVISIBLE);
+               holder.receiverLinearLayout.setVisibility(View.VISIBLE);
+               holder.receiverTextView.setText(messages.getMessage());
+               holder.receiverDate.setText(messages.getDate());
            }
        }if(fromMessageType.equals("image")) {
-            holder.senderCardView.setVisibility(View.INVISIBLE);
-            holder.receiverCardView.setVisibility(View.INVISIBLE);
+            holder.senderTextView.setVisibility(View.INVISIBLE);
+            holder.receiverTextView.setVisibility(View.INVISIBLE);
             StorageReference storageReference = FirebaseStorage.getInstance().getReference(messages.getMessage());
             if (fromUserID.equals(senderID)) {
                 holder.senderImageView.setVisibility(View.VISIBLE);
@@ -94,14 +91,19 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
     }
 
     public class MessageViewHolder extends RecyclerView.ViewHolder {
-        TextView senderCardView,receiverCardView;
+        TextView senderTextView, receiverTextView, senderDate , receiverDate;
+        private LinearLayout receiverLinearLayout;
+        private LinearLayout senderLinearLayout;
         ImageView senderImageView;
         ImageView receiverImageView;
         public MessageViewHolder(@NonNull View itemView) {
             super(itemView);
-
-            senderCardView=itemView.findViewById(R.id.sender_box_card);
-            receiverCardView=itemView.findViewById(R.id.receiver_box_card);
+            receiverLinearLayout= itemView.findViewById(R.id.receiver_box_card_layout);
+            senderLinearLayout = itemView.findViewById(R.id.sender_box_card_layout);
+            senderTextView =itemView.findViewById(R.id.sender_box_card);
+            senderDate = itemView.findViewById(R.id.sender_box_card_date);
+            receiverDate = itemView.findViewById(R.id.reciever_box_card_date);
+            receiverTextView =itemView.findViewById(R.id.receiver_box_card);
             senderImageView=itemView.findViewById(R.id.sender_image_view);
             receiverImageView=itemView.findViewById(R.id.receiver_image_view);
         }
