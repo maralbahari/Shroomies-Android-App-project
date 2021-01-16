@@ -1,4 +1,4 @@
-package com.example.shroomies;
+ package com.example.shroomies;
 
 import android.app.Activity;
 import android.content.Context;

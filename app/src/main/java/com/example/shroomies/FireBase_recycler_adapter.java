@@ -5,6 +5,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -111,6 +112,7 @@ public class FireBase_recycler_adapter extends FirebaseRecyclerAdapter<Model_per
         TextView TV_DatePosted;
         TextView TV_userDescription;
         CardView Lay_card;
+        ImageButton favBut;
 
         ImageView IV_male;
         ImageView IV_female;
@@ -133,6 +135,7 @@ public class FireBase_recycler_adapter extends FirebaseRecyclerAdapter<Model_per
             IV_female = itemView.findViewById(R.id.female_image_view_apartment);
             IV_pet = itemView.findViewById(R.id.pets_allowd_image_view_apartment);
             IV_smoke = itemView.findViewById(R.id.non_smoking_image_view_apartment);
+            favBut = (ImageButton) itemView.findViewById(R.id.BUT_fav);
         }
     }
 }

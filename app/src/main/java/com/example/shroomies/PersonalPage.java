@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 public class PersonalPage extends Fragment {
@@ -24,7 +25,9 @@ public class PersonalPage extends Fragment {
     private RecyclerView myRecyclerView;
     private FirebaseUser loggedInUser;
     private FirebaseRecyclerAdapter myFirebaseAdapter;
+    DatabaseReference favRef, favList;
     private String curUserId;
+    Boolean favChecker = false;
 
 
     public PersonalPage() {
@@ -78,6 +81,10 @@ public class PersonalPage extends Fragment {
 
         myFirebaseAdapter = new FireBase_recycler_adapter(options);
         myRecyclerView.setAdapter(myFirebaseAdapter);
+
+
+
+
 
         return v;
     }

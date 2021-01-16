@@ -17,7 +17,7 @@
         android:layout_height="41dp"
         android:layout_alignParentLeft="true"
         android:layout_marginLeft="8dp"
-        android:src="@drawable/star"
+        android:src="@drawable/ic_icon_awesome_star_checked"
 
         />
 
@@ -25,7 +25,7 @@
         android:id="@+id/TV_FavHead"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="7dp"
+        android:layout_marginLeft="0dp"
         android:layout_toRightOf="@id/IV_Fav_star"
         android:text="Favourites"
         android:textColor="@color/Black"
@@ -38,7 +38,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/TV_FavHead"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="24dp"
+        android:layout_marginBottom="12dp"
         app:tabBackground="@drawable/tab_backgorund_style"
         >
 
