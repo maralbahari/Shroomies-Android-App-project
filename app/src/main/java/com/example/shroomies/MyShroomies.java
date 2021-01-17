@@ -75,6 +75,8 @@ public class MyShroomies extends Fragment {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         myShroomiesRecyclerView.setHasFixedSize(true);
         myShroomiesRecyclerView.setLayoutManager(linearLayoutManager);
+        expensesCardsList = new ArrayList<>();
+        expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList,getContext());
         shroomieSpinnerFilter = v.findViewById(R.id.shroomie_spinner_filter);
         retreiveExpensesCards();
         myShroomiesTablayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -107,18 +109,21 @@ public class MyShroomies extends Fragment {
         shroomieSpinnerFilter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                if (adapterView.getSelectedItemPosition()==0){
-                    sortAccordingtoImportance();
-                }else if (adapterView.getSelectedItemPosition()==1){
-                    sortAccordingToLatest();
-
-                }else if(adapterView.getSelectedItemPosition()==2){
-                    sortAccordingToOldest();
-                }else{
-                    sortAccordingToTitle();
+                switch (i) {
+                    case 0:
+                        sortAccordingtoImportance();
+                        break;
+                    case 1:
+                        sortAccordingToLatest();
+                        break;
+                    case 2:
+                        sortAccordingToOldest();
+                        break;
+                    case 3:
+                        sortAccordingToTitle();
+                        break;
                 }
             }
-
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
 
@@ -130,12 +135,15 @@ public class MyShroomies extends Fragment {
             public void onClick(View view) {
 
                 AddNewCard addNewCard = new AddNewCard();
-                if(myShroomiesTablayout.getSelectedTabPosition()==0){
-                    Bundle bundle=new Bundle();
-                    bundle.putBoolean("Expenses",true);
-                    addNewCard.setArguments(bundle);
-                }
+                Bundle bundle=new Bundle();
 
+                if(myShroomiesTablayout.getSelectedTabPosition()==0){
+
+                    bundle.putBoolean("Expenses",true);
+                }else {
+                    bundle.putBoolean("Expenses",false);
+                }
+                addNewCard.setArguments(bundle);
                 addNewCard.show(getFragmentManager(),"add new card");
 
             }
@@ -150,18 +158,22 @@ public class MyShroomies extends Fragment {
     public void retreiveExpensesCards(){
 //        Toast.makeText(getContext(),"HKOADKOSKAD",Toast.LENGTH_SHORT).show();
         expensesCardsList=new ArrayList<>();
+
         expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList,getContext());
+        myShroomiesRecyclerView.setAdapter(expensesCardAdapter);
         rootRef.child("expensesCards").child(mAuth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                expensesCardsList.clear();
                 if (snapshot.exists()) {
 
                     for (DataSnapshot sp : snapshot.getChildren()) {
-                        ExpensesCard expensesCard = snapshot.getValue(ExpensesCard.class);
+                        ExpensesCard expensesCard = sp.getValue(ExpensesCard.class);
                         expensesCardsList.add(expensesCard);
 
+
                     }
-                    myShroomiesRecyclerView.setAdapter(expensesCardAdapter);
+
                     expensesCardAdapter.notifyDataSetChanged();
                 }
             }
@@ -181,7 +193,7 @@ public class MyShroomies extends Fragment {
                 Date dateO2 = null;
                 String d1 = o1.getDate();
                 String d2 = o2.getDate();
-                SimpleDateFormat format = new SimpleDateFormat("dd-MMMM-yyyy");
+                SimpleDateFormat format = new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
                 try {
                     dateO1 = format.parse(d1);
                     dateO2 = format.parse(d2);
@@ -205,7 +217,7 @@ public class MyShroomies extends Fragment {
                 Date dateO2 = null;
                 String d1 = o1.getDate();
                 String d2 = o2.getDate();
-                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+                SimpleDateFormat format = new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
                 try {
                     dateO1 = format.parse(d1);
                     dateO2 = format.parse(d2);
@@ -226,17 +238,15 @@ public class MyShroomies extends Fragment {
          expensesCardsList.sort(new Comparator<ExpensesCard>() {
              @Override
              public int compare(ExpensesCard o1, ExpensesCard o2) {
-                 String colorO1=o1.getImportance();
-                 String colorO2=o2.getImportance();
-                 if(colorO1.equals("red") || colorO2.equals("red")){
-                      return 1;
-                 }else if(colorO1.equals("orange") || colorO2.equals("orange")){
-                     return -1;
+                 int colorO1=Integer.parseInt(o1.getImportance());
+                 int colorO2=Integer.parseInt(o2.getImportance());
 
-                 }else if(colorO1.equals("green") || colorO2.equals("green")){
-                      return -1;
+                 if (colorO1<colorO2){
+                     return 1;
+                 }else {
+                     return -1;
                  }
-                 return 0;
+
              }
 
          });
@@ -256,16 +266,16 @@ public class MyShroomies extends Fragment {
     }
 
 
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        if (myShroomiesTablayout.getSelectedTabPosition()==0) {
-            outState.putBoolean("expenses", true);
-
-        }else{
-            outState.putBoolean("expenses",false);
-        }
-    }
+//    @Override
+//    public void onSaveInstanceState(@NonNull Bundle outState) {
+//        super.onSaveInstanceState(outState);
+//        if (myShroomiesTablayout.getSelectedTabPosition()==0) {
+//            outState.putBoolean("expenses", true);
+//
+//        }else{
+//            outState.putBoolean("expenses",false);
+//        }
+//    }
 
 
 

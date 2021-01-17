@@ -2,20 +2,29 @@ package com.example.shroomies;
 
 public class ExpensesCard  {
 
-    String attachedFile, description, title, dueDate, importance,members, date;
+    String attachedFile, description, title, dueDate, importance,members, date, cardId;
 
     public ExpensesCard() {
 
     }
 
 
-    public ExpensesCard(String attachedFile, String description, String title, String dueDate, String importance, String members) {
+    public ExpensesCard(String attachedFile, String description, String title, String dueDate, String importance, String members,String cardId) {
         this.attachedFile = attachedFile;
         this.description = description;
         this.title = title;
         this.dueDate = dueDate;
         this.importance = importance;
         this.members = members;
+        this.cardId = cardId;
+    }
+
+    public void setCardId(String cardId) {
+        this.cardId = cardId;
+    }
+
+    public String getCardId() {
+        return cardId;
     }
 
     public void setDate(String date) {

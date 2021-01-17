@@ -99,7 +99,7 @@ public class AddNewCard extends DialogFragment  {
        Bundle bundle=this.getArguments();
        if(bundle!=null){
            expensesCardSelected=bundle.getBoolean("Expenses");
-           if(expensesCardSelected){
+           if(!expensesCardSelected){
                attachButton.setVisibility(v.GONE);
            }
        }
@@ -120,16 +120,16 @@ public class AddNewCard extends DialogFragment  {
                 mdueDate = dueDate.getText().toString();
                 switch (newcardShroomieRadioGroup.getCheckedRadioButtonId()) {
                     case  R.id.newcard_green_radio_button:
-                        importantButton = "green";
+                        importantButton = "0";
                         break;
                     case  R.id.newcard_red_radio_button:
-                        importantButton = "red";
+                        importantButton = "2";
                         break;
                     case  R.id.newcard_orange_radio_button:
-                        importantButton = "orange";
+                        importantButton = "1";
                         break;
                     default:
-                        importantButton = "others";
+                        importantButton = "0";
                 }
 
                 mdescription = description.getText().toString();
@@ -137,11 +137,13 @@ public class AddNewCard extends DialogFragment  {
                 if (mtitle.isEmpty()){
                     Toast.makeText(getContext(),"Please insert Title",Toast.LENGTH_SHORT).show();
                 }else{
-                    if(expensesCardSelected){
-                        saveTaskCardToFirebase(mtitle,mdescription,mdueDate,importantButton);
+                    if(expensesCardSelected==false){
+//                        saveTaskCardToFirebase(mtitle,mdescription,mdueDate,importantButton);
+                    }else if (expensesCardSelected==true){
+                        uploadImgToFirebaseStorage(mtitle, mdescription, mdueDate, importantButton, chosenImage);
                     }
-                    uploadImgToFirebaseStorage(mtitle,mdescription,mdueDate,importantButton,chosenImage);
-                }
+                    }
+
                 }
         });
 
@@ -177,19 +179,23 @@ public class AddNewCard extends DialogFragment  {
 
         DatabaseReference ref = rootRef.child("tasksCards").child(mAuth.getCurrentUser().getUid()).push();
         HashMap<String ,Object> newCard = new HashMap<>();
-        if (mtitle.trim().isEmpty()||mdescription.trim().isEmpty()||mdueDate.trim().isEmpty()||importance.trim().isEmpty()){
-            Toast.makeText(getActivity(),"Please fill all information",Toast.LENGTH_SHORT).show();
-            return;
-        }
+//        if (mtitle.trim().isEmpty()||mdescription.trim().isEmpty()||mdueDate.trim().isEmpty()||importance.trim().isEmpty()){
+//            Toast.makeText(getActivity(),"Please fill all information",Toast.LENGTH_SHORT).show();
+//            return;
+//        }
+
         Calendar calendarDate=Calendar.getInstance();
         SimpleDateFormat currentDate=new SimpleDateFormat("dd-MMMM-yyyy");
         saveCurrentDate=currentDate.format(calendarDate.getTime());
+        Calendar calendarTime=Calendar.getInstance();
+        SimpleDateFormat currentTime=new SimpleDateFormat("HH:mm aa");
+        saveCurrentTime=currentTime.format(calendarTime.getTime());
         newCard.put("description" , mdescription);
         newCard.put("title" ,mtitle);
         newCard.put("dueDate", mdueDate);
         newCard.put("importance", importance);
         newCard.put("members", "");
-        newCard.put("date",saveCurrentDate);
+
 
         ref.updateChildren(newCard).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
@@ -235,10 +241,16 @@ public class AddNewCard extends DialogFragment  {
         SimpleDateFormat currentDate=new SimpleDateFormat("dd-MMMM-yyyy");
         saveCurrentDate=currentDate.format(calendarDate.getTime());
 
-        if (title.trim().isEmpty()||description.trim().isEmpty()||dueDate.trim().isEmpty()||importance.trim().isEmpty()||attachUrl.trim().isEmpty()){
-            Toast.makeText(getActivity(),"Please fill all information",Toast.LENGTH_SHORT).show();
-            return;
-        }
+//        if (title.trim().isEmpty()||description.trim().isEmpty()||dueDate.trim().isEmpty()||importance.trim().isEmpty()||attachUrl.trim().isEmpty()){
+//            Toast.makeText(getActivity(),"Please fill all information",Toast.LENGTH_SHORT).show();
+//            return;
+//        }
+        String uniqueID = ref.getKey();
+        Calendar mcalendarDate=Calendar.getInstance();
+        SimpleDateFormat mcurrentDate=new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
+        saveCurrentDate=mcurrentDate.format(calendarDate.getTime());
+        Calendar calendarTime=Calendar.getInstance();
+
 
         newCard.put("description" , description);
         newCard.put("title" ,title);
@@ -247,6 +259,7 @@ public class AddNewCard extends DialogFragment  {
         newCard.put("attachedFile", attachUrl);
         newCard.put("members", "");
         newCard.put("date",saveCurrentDate);
+        newCard.put("cardId",uniqueID);
 
         ref.updateChildren(newCard).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
