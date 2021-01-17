@@ -44,8 +44,6 @@ public class MainActivity extends AppCompatActivity {
     SessionManager sessionManager;
     FirebaseMessaging firebaseMessaging;
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -121,7 +119,6 @@ public class MainActivity extends AppCompatActivity {
                 getFragment(new MyShroomies());
             }
         });
-
 
 
     }

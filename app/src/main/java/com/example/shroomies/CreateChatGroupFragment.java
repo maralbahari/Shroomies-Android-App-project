@@ -2,6 +2,7 @@ package com.example.shroomies;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.transition.Transition;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,13 +18,17 @@ import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class CreateChatGroupFragment extends DialogFragment {
@@ -36,6 +41,9 @@ public class CreateChatGroupFragment extends DialogFragment {
     private UserRecyclerAdapter userRecyclerAdapter;
     private String groupID;
    private boolean fromGroupInfo;
+   private FirebaseAuth mAuth;
+   private  List <User> suggestedUser;
+   private List<String> inboxListUsers;
 
     static ArrayList<User>  selectedMembers;
 
@@ -43,8 +51,8 @@ public class CreateChatGroupFragment extends DialogFragment {
     public void onStart() {
         super.onStart();
         if(getDialog()!=null) {
-            getDialog().getWindow().setLayout(ActionBar.LayoutParams.WRAP_CONTENT, Toolbar.LayoutParams.WRAP_CONTENT);
-         getDialog().getWindow().setBackgroundDrawableResource(R.drawable.post_card_rectangle_round);
+            getDialog().getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
+         getDialog().getWindow().setBackgroundDrawableResource(R.drawable.create_group_fragment_background);
         }
     }
 
@@ -54,20 +62,29 @@ public class CreateChatGroupFragment extends DialogFragment {
         // Inflate the layout for this fragment
         v= inflater.inflate(R.layout.fragment_create_chat_group, container, false);
         rootRef= FirebaseDatabase.getInstance().getReference();
+        mAuth = FirebaseAuth.getInstance();
 
 
         return v;
     }
 
-
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getDialog().getWindow().setWindowAnimations(R.style.DialogAnimation);
+    }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         searchView=v.findViewById(R.id.create_group_search_bar);
+
         userListSuggestionRecyclerView =v.findViewById(R.id.suggestion_list_create_group);
         userListSuggestionRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         nextButton=v.findViewById(R.id.confirm_button_create_group);
+
+
+
 
         Bundle extras=getArguments();
         if(extras!=null) {
@@ -75,6 +92,7 @@ public class CreateChatGroupFragment extends DialogFragment {
             groupID = extras.getString("GROUPID");
 
         }
+        getMessageInboxListIntoAdapter();
         selectedMembers = new ArrayList<>();
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -86,6 +104,13 @@ public class CreateChatGroupFragment extends DialogFragment {
 
             @Override
             public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+        searchView.setOnCloseListener(new SearchView.OnCloseListener() {
+            @Override
+            public boolean onClose() {
+                getMessageInboxListIntoAdapter();
                 return false;
             }
         });
@@ -108,22 +133,74 @@ public class CreateChatGroupFragment extends DialogFragment {
         });
 
     }
-    public void getUsersListFromDatabase(String query){
 
+    private void getMessageInboxListIntoAdapter() {
+        inboxListUsers = new ArrayList<>();
+        rootRef.child("PrivateChatList").child(mAuth.getInstance().getCurrentUser().getUid()).orderByChild("receiverID").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
+                    for(DataSnapshot dataSnapshot
+                    :snapshot.getChildren()){
+                        HashMap<String,String> recievers= (HashMap) dataSnapshot.getValue();
+                        inboxListUsers.add(recievers.get("receiverID"));
+                    }
+                    addInboxUsersToRecycler(inboxListUsers);
+
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void addInboxUsersToRecycler(List<String> inboxListUsers) {
+
+        suggestedUser = new ArrayList<>();
+        suggestedUser.addAll(selectedMembers);
+        userRecyclerAdapter=new UserRecyclerAdapter(suggestedUser,getContext(),"SEARCH_PAGE");
+        for(String id
+        :inboxListUsers){
+            rootRef.child("Users").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if(snapshot.exists()){
+                        suggestedUser.add(snapshot.getValue(User.class));
+                        userRecyclerAdapter.notifyDataSetChanged();
+                        Toast.makeText(getContext() , "we reaching" , Toast.LENGTH_LONG).show();
+                    }
+                    userListSuggestionRecyclerView.setAdapter(userRecyclerAdapter);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+        }
+    }
+
+    public void getUsersListFromDatabase(String query){
+        suggestedUser = new ArrayList<>();
+        userRecyclerAdapter=new UserRecyclerAdapter(suggestedUser,getContext(),"SEARCH_PAGE");
+        userListSuggestionRecyclerView.setAdapter(userRecyclerAdapter);
         //+"\uf8ff"
         rootRef.child("Users").orderByChild("name").equalTo(query).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
-                    List <User> suggestedUser = new ArrayList<>();
+
                     for (DataSnapshot ds : snapshot.getChildren()) {
                         User user = ds.getValue(User.class);
                         suggestedUser.add(user);
                     }
-
-                    userRecyclerAdapter=new UserRecyclerAdapter(suggestedUser,getContext(),"SEARCH_PAGE");
-                    userListSuggestionRecyclerView.setAdapter(userRecyclerAdapter);
-
+                    //add the members already selected
+                    suggestedUser.addAll(selectedMembers);
+                    userRecyclerAdapter.notifyDataSetChanged();
                 }
 
             }

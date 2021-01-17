@@ -13,8 +13,10 @@ import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -52,7 +54,7 @@ import java.util.List;
 import java.util.Map;
 
 public class GroupChattingActivity extends AppCompatActivity {
-    private Button sendMessage,addImage,backButton;
+    private ImageButton sendMessage,addImage;
     private EditText messageBody;
     private Toolbar chattingToolbar;
     private ImageView groupImage;
@@ -63,7 +65,7 @@ public class GroupChattingActivity extends AppCompatActivity {
     private DatabaseReference rootRef;
     private String senderID;
     private String saveCurrentDate,saveCurrentTime;
-    private final List<Group> groupMessagesArrayList=new ArrayList<>();
+    private List<Group> groupMessagesArrayList=new ArrayList<>();
     private LinearLayoutManager linearLayoutManager;
     private GroupMessagesAdapter groupMessagesAdapter;
     private static final int CAMERA_REQUEST_CODE=100;
@@ -90,16 +92,17 @@ public class GroupChattingActivity extends AppCompatActivity {
         ActionBar actionBar=getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowHomeEnabled(true);
+        actionBar.setDisplayShowTitleEnabled(false);
+        //hides the title from the action bar
+
         final LayoutInflater inflater= (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View actionbarView=inflater.inflate(R.layout.toolbar_chatting_layout,null);
         sendMessage=findViewById(R.id.send_message_button);
         addImage=findViewById(R.id.choose_file_button);
-        backButton=findViewById(R.id.back_button_chatting);
         messageBody=findViewById(R.id.messeg_body_edit_text);
         chattingRecycler=findViewById(R.id.recycler_view_group_chatting);
         groupImage=findViewById(R.id.receiver_image_profile);
         chattingRecycler=findViewById(R.id.recycler_view_group_chatting);
-        groupMessagesAdapter=new GroupMessagesAdapter(groupMessagesArrayList,getApplicationContext());
         linearLayoutManager=new LinearLayoutManager(this);
         chattingRecycler.setHasFixedSize(true);
         chattingRecycler.setLayoutManager(linearLayoutManager);
@@ -138,27 +141,26 @@ public class GroupChattingActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(),"please enter a message",Toast.LENGTH_LONG).show();
         }else {
             DatabaseReference reference = rootRef.child("GroupChats").child(groupID).child("Messages").push();
-            //now making a unique id for each single message so that they wont be replaced and we save everything
-            String messagePushId=reference.getKey();
-            Calendar calendarDate=Calendar.getInstance();
-            SimpleDateFormat currentDate=new SimpleDateFormat("dd-MMMM-yyyy");
-            saveCurrentDate=currentDate.format(calendarDate.getTime());
-            Calendar calendarTime=Calendar.getInstance();
-            SimpleDateFormat currentTime=new SimpleDateFormat("HH:mm aa");
-            saveCurrentTime=currentTime.format(calendarTime.getTime());
-            //unique name for each message
-            final String uniqueName=messagePushId+saveCurrentDate+saveCurrentTime;
+//            //now making a unique id for each single message so that they wont be replaced and we save everything
+//            String messagePushId=reference.getKey();
+//            Calendar calendarDate=Calendar.getInstance();
+//            SimpleDateFormat currentDate=new SimpleDateFormat("dd-MMMM-yyyy");
+//            saveCurrentDate=currentDate.format(calendarDate.getTime());
+//            Calendar calendarTime=Calendar.getInstance();
+//            SimpleDateFormat currentTime=new SimpleDateFormat("HH:mm aa");
+//            saveCurrentTime=currentTime.format(calendarTime.getTime());
+//            //unique name for each message
+//            final String uniqueName=messagePushId+saveCurrentDate+saveCurrentTime;
             Map messageDetails= new HashMap();
             messageDetails.put("message",messageText);
             messageDetails.put("time",saveCurrentTime);
             messageDetails.put("date",saveCurrentDate);
             messageDetails.put("type","text");
             messageDetails.put("from",senderID);
-            reference.child(uniqueName).setValue(messageDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
+            reference.setValue(messageDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     if(task.isSuccessful()){
-                        Toast.makeText(getApplicationContext(),"id: "+uniqueName ,Toast.LENGTH_SHORT).show();
                         messageBody.setText("");
                     }else{
                         String message =task.getException().getMessage();
@@ -171,35 +173,21 @@ public class GroupChattingActivity extends AppCompatActivity {
         }
         }
         void loadMessages(){
-            rootRef.child("GroupChats").child(groupID).child("Messages").addChildEventListener(new ChildEventListener() {
+            groupMessagesArrayList = new ArrayList<>();
+
+            rootRef.child("GroupChats").child(groupID).child("Messages").addValueEventListener(new ValueEventListener() {
                 @Override
-                public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    groupMessagesArrayList.clear();
                     if(snapshot.exists()){
                         for(DataSnapshot dataSnapshot
-                        :snapshot.getChildren()) {
+                                :snapshot.getChildren()) {
                             Group groupMessages = dataSnapshot.getValue(Group.class);
                             groupMessagesArrayList.add(groupMessages);
-                            groupMessagesAdapter.notifyDataSetChanged();
                         }
-                    }else{
-
-                    }
-
-                }
-
-                @Override
-                public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-                }
-
-                @Override
-                public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-
-                }
-
-                @Override
-                public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
+                        groupMessagesAdapter=new GroupMessagesAdapter(groupMessagesArrayList,getApplicationContext());
+                        chattingRecycler.setAdapter(groupMessagesAdapter);
+                    }else{ }
                 }
 
                 @Override
@@ -209,20 +197,19 @@ public class GroupChattingActivity extends AppCompatActivity {
             });
         }
         private void getGroupDetails(){
-            rootRef.child("GroupChat").child(groupID).addValueEventListener(new ValueEventListener() {
+            rootRef.child("GroupChats").child(groupID).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     if(snapshot.exists()){
                             Group group = snapshot.getValue(Group.class);
-                            GlideApp.with(getApplicationContext())
-                                    .load(group.getImage())
-                                    .transform(new RoundedCorners(1))
-                                    .fitCenter()
-                                    .centerCrop()
-                                    .into(groupImage);
                             groupNameTextview.setText(group.getGroupName());
 
-
+                            GlideApp.with(getApplicationContext())
+                                    .load(group.getGroupImage())
+                                    .fitCenter()
+                                    .circleCrop()
+                                    .into(groupImage);
+                            groupNameTextview.setText(group.getGroupName());
                     }
                 }
 
@@ -265,7 +252,6 @@ public class GroupChattingActivity extends AppCompatActivity {
         cv.put(MediaStore.Images.Media.TITLE,"Temp Pick");
         cv.put(MediaStore.Images.Media.DESCRIPTION,"Temp Describe");
         chosenImage=getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,cv);
-
         Intent intent=new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         intent.putExtra(MediaStore.EXTRA_OUTPUT,chosenImage);
         startActivityForResult(intent,IMAGE_PICK_CAMERA_CODE);

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -32,7 +33,7 @@ import java.util.Map;
 
 
 public class MessageInbox extends AppCompatActivity {
-   private Button addgroupButton;
+   private ImageButton addgroupButton;
    private Toolbar inboxToolbar;
    private RecyclerView inboxListRecyclerView;
     private FragmentTransaction ft;
@@ -73,6 +74,7 @@ public class MessageInbox extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                CreateChatGroupFragment createChatGroupFragment=new CreateChatGroupFragment();
+
                createChatGroupFragment.show(getSupportFragmentManager(),"create group dialog 1");
             }
         });
@@ -105,6 +107,7 @@ public class MessageInbox extends AppCompatActivity {
 
     }
     public void getPrivateChatList(){
+        usersArrayList = new ArrayList<>();
         messageInboxRecycleViewAdapter=new PrivateInboxRecycleViewAdapter(usersArrayList,getApplicationContext());
         linearLayoutManager=new LinearLayoutManager(this);
         inboxListRecyclerView.setHasFixedSize(true);
@@ -113,6 +116,7 @@ public class MessageInbox extends AppCompatActivity {
         rootRef.child("PrivateChatList").child(mAuth.getInstance().getCurrentUser().getUid()).orderByChild("receiverID").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                usersArrayList.clear();
                 if (snapshot.exists()) {
                     for (DataSnapshot ds : snapshot.getChildren()) {
                         HashMap<String,String> recivers= (HashMap) ds.getValue();
@@ -131,8 +135,8 @@ public class MessageInbox extends AppCompatActivity {
     }
 
 
-
     private void getGroupChatList() {
+        groupList = new ArrayList<>();
         groupInboxRecyclerViewAdapter =new GroupInboxRecyclerViewAdapter(groupList,getApplicationContext());
         linearLayoutManager=new LinearLayoutManager(this);
         inboxListRecyclerView.setHasFixedSize(true);
@@ -141,6 +145,7 @@ public class MessageInbox extends AppCompatActivity {
         rootRef.child("GroupChats").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                groupList.clear();
                 if(snapshot.exists()){
                     String userId = mAuth.getInstance().getCurrentUser().getUid();
                     for(DataSnapshot dataSnapshot

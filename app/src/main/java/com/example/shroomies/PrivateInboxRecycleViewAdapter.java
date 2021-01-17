@@ -2,6 +2,7 @@ package com.example.shroomies;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,14 +11,17 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.List;
@@ -51,13 +55,14 @@ public class PrivateInboxRecycleViewAdapter extends RecyclerView.Adapter<Private
                         if(snapshot.exists()){
                             User user=snapshot.getValue(User.class);
                             holder.receiverName.setText(user.getName());
-                            GlideApp.with(context)
-                                    .load(user.getImage())
-                                    .transform(new RoundedCorners(1))
-                                    .fitCenter()
-                                    .centerCrop()
-                                    .into(holder.receiverImageView);
-
+                            if(!user.getImage().isEmpty()) {
+                                holder.receiverImageView.setPadding(0,0,0,0);
+                                GlideApp.with(context)
+                                        .load(user.getImage())
+                                        .fitCenter()
+                                        .circleCrop()
+                                        .into(holder.receiverImageView);
+                            }
                         }
                     }
 
@@ -67,7 +72,8 @@ public class PrivateInboxRecycleViewAdapter extends RecyclerView.Adapter<Private
                     }
                 });
 
-                // put image here
+                // set the last message
+                 getLastMessage(receiverUsersList.get(position) , holder);
 
     }
 
@@ -99,7 +105,33 @@ public class PrivateInboxRecycleViewAdapter extends RecyclerView.Adapter<Private
 
         }
     }
-    public String getLastMessage(String receiverID){
-        return "";
+    public void getLastMessage(String receiverID , final UsersListViewHolder viewHolder){
+        rootRef.child("Messages").child(mAuth.getInstance().getCurrentUser().getUid()).child(receiverID).orderByKey().limitToLast(1).addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                if(snapshot.exists()) {
+                 Messages messages = snapshot.getValue(Messages.class);
+                 if(messages.getType().equals("text")){
+                     viewHolder.lastMessage.setText(messages.getMessage());
+                 }else{
+                     viewHolder.lastMessage.setText("Photo");
+                 }
+
+                }
+            }
+            @Override public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+            @Override public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+
+            }
+            @Override public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+            @Override public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
     }
 }

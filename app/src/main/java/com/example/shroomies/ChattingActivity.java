@@ -14,9 +14,12 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -65,7 +68,8 @@ import java.util.Map;
 
 public class ChattingActivity extends AppCompatActivity {
     private boolean firstChat = false;
-    private Button sendMessage,addImage,backButton;
+
+    private ImageButton sendMessage,addImage;
     private EditText messageBody;
     private Toolbar chattingToolbar;
     private ImageView receiverProfileImage,attacheButton;
@@ -76,7 +80,7 @@ public class ChattingActivity extends AppCompatActivity {
     private DatabaseReference rootRef;
     private String senderID;
     private String saveCurrentDate,saveCurrentTime;
-    private final List<Messages> messagesArrayList=new ArrayList<>();
+    private List<Messages> messagesArrayList=new ArrayList<>();
     private LinearLayoutManager linearLayoutManager;
     private MessagesAdapter messagesAdapter;
     private boolean notify=false;
@@ -93,7 +97,9 @@ public class ChattingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_chatting);
+
         receiverUsername=findViewById(R.id.receiver_username);
         mAuth=FirebaseAuth.getInstance();
         senderID=mAuth.getCurrentUser().getUid();
@@ -126,22 +132,24 @@ public class ChattingActivity extends AppCompatActivity {
         ActionBar actionBar=getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowHomeEnabled(true);
+        actionBar.setDisplayShowTitleEnabled(false);
         LayoutInflater inflater= (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View actionbarView=inflater.inflate(R.layout.toolbar_chatting_layout,null);
         sendMessage=findViewById(R.id.send_message_button);
         addImage=findViewById(R.id.choose_file_button);
-        backButton=findViewById(R.id.back_button_chatting);
+
         messageBody=findViewById(R.id.messeg_body_edit_text);
         chattingRecycler=findViewById(R.id.recycler_view_group_chatting);
         receiverProfileImage=findViewById(R.id.receiver_image_profile);
         chattingRecycler=findViewById(R.id.recycler_view_group_chatting);
         cameraPermissions=new String[]{Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE};
         storagePermissions=new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
-        messagesAdapter=new MessagesAdapter(messagesArrayList , getApplication());
+
         linearLayoutManager=new LinearLayoutManager(this);
+        linearLayoutManager.setStackFromEnd(true);
         chattingRecycler.setHasFixedSize(true);
         chattingRecycler.setLayoutManager(linearLayoutManager);
-        chattingRecycler.setAdapter(messagesAdapter);
+
         requestQueue= Volley.newRequestQueue(getApplicationContext());
     }
     private void sendMessageToUser(){
@@ -177,6 +185,7 @@ public class ChattingActivity extends AppCompatActivity {
                public void onComplete(@NonNull Task task) {
                    if(task.isSuccessful()){
                        messageBody.setText("");
+                       chattingRecycler.smoothScrollToPosition(messagesAdapter.getItemCount()-1);
                        if(firstChat){
                            addUserToInbox();
                        }
@@ -261,28 +270,32 @@ public class ChattingActivity extends AppCompatActivity {
     }
 
    public void retrieveMessages(){
-
+        messagesArrayList = new ArrayList<>();
+       messagesAdapter=new MessagesAdapter(messagesArrayList , getApplication());
+       chattingRecycler.setAdapter(messagesAdapter);
         rootRef.child("Messages").child(senderID).child(receiverID).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                messagesArrayList.clear();
                 if(snapshot.exists()){
                     for (DataSnapshot dataSnapshot
                     :snapshot.getChildren()){
                         Messages messages = dataSnapshot.getValue(Messages.class);
                         messagesArrayList.add(messages);
-                        messagesAdapter.notifyDataSetChanged();
                     }
+                    messagesAdapter.notifyDataSetChanged();
+
+
                 }
                 if (messagesArrayList.size()==0|| messagesArrayList==null){
 
                     firstChat= true;
+                }else{
+                    // scroll to the end of the recycler if there are messages
+                    chattingRecycler.smoothScrollToPosition(messagesAdapter.getItemCount()-1);
                 }
 
                 }
-
-
-
-
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
 
@@ -358,6 +371,7 @@ public class ChattingActivity extends AppCompatActivity {
         switch (requestCode){
             case CAMERA_REQUEST_CODE:{
                 if(grantResults.length>0){
+
                     boolean cameraAccepted=grantResults[0]==PackageManager.PERMISSION_GRANTED;
                     boolean storageAccepted=grantResults[1]==PackageManager.PERMISSION_GRANTED;
                     if(cameraAccepted && storageAccepted){
@@ -487,8 +501,8 @@ public class ChattingActivity extends AppCompatActivity {
                     User recieverUser = snapshot.getValue(User.class);
                     GlideApp.with(getApplicationContext())
                             .load(recieverUser.getImage())
-                            .circleCrop()
                             .fitCenter()
+                            .circleCrop()
                             .into(receiverProfileImage);
                     receiverUsername.setText(recieverUser.getName());
                 }

@@ -49,7 +49,7 @@ public class GroupMessagesAdapter extends RecyclerView.Adapter<GroupMessagesAdap
         Group groupMessages=groupMessagesList.get(position);
         String fromUserID=groupMessages.getFrom();
         String fromMessageType= groupMessages.getType();
-        StorageReference storageReference = FirebaseStorage.getInstance().getReference(groupMessages.getMessage());
+
         if(fromMessageType.equals("text")){
             holder.receiverCardView.setVisibility(View.INVISIBLE);
             if(fromUserID.equals(senderID)){
@@ -69,6 +69,7 @@ public class GroupMessagesAdapter extends RecyclerView.Adapter<GroupMessagesAdap
                 setUserName(fromUserID,holder);
             }
         }if(fromMessageType.equals("image")){
+            StorageReference storageReference = FirebaseStorage.getInstance().getReference(groupMessages.getMessage());
             if(fromUserID.equals(senderID)){
                 holder.receiverInfoContainer.setVisibility(View.GONE);
                 holder.senderCardView.setVisibility(View.GONE);
@@ -102,7 +103,7 @@ public class GroupMessagesAdapter extends RecyclerView.Adapter<GroupMessagesAdap
 
     }
     void setUserName(String fromUserID, final MessagesViewHolder holder){
-        rootRef.child("Users").orderByChild("ID").equalTo(fromUserID).addValueEventListener(new ValueEventListener() {
+        rootRef.child("Users").child(fromUserID).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()){

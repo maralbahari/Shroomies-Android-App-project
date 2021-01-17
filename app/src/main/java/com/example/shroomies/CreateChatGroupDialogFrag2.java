@@ -68,6 +68,7 @@ public class CreateChatGroupDialogFrag2 extends DialogFragment {
         super.onStart();
         if(getDialog()!=null) {
             getDialog().getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
+            getDialog().getWindow().setBackgroundDrawableResource(R.drawable.create_group_fragment_2_background);
         }
     }
 
@@ -80,6 +81,12 @@ public class CreateChatGroupDialogFrag2 extends DialogFragment {
         storageReference = FirebaseStorage.getInstance().getReference();
         return v;
     }
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getDialog().getWindow().setWindowAnimations(R.style.DialogAnimation);
+    }
+
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -142,8 +149,13 @@ public class CreateChatGroupDialogFrag2 extends DialogFragment {
                 @Override
                 public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                     if(task.isSuccessful()) {
-                        String imageUrl = task.getResult().getMetadata().getReference().getPath();
-                        createGroupDatabase(groupName, membersId, imageUrl);
+                         task.getResult().getMetadata().getReference().getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Uri> task) {
+                                createGroupDatabase(groupName, membersId, task.getResult().toString());
+                            }
+                        });
+
                     }else{
                         Toast.makeText(getActivity(),task.getException().toString(),Toast.LENGTH_SHORT).show();
                     }

@@ -17,7 +17,8 @@
 
     <string-array name="spinner_options">
         <item>Importance</item>
-        <item>Date</item>
+        <item>latest</item>
+        <item>Oldest</item>
         <item>Title</item>
     </string-array>
 </resources>
