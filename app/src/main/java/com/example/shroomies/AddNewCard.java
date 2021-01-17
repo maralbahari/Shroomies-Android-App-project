@@ -25,7 +25,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -79,6 +78,8 @@ public class AddNewCard extends DialogFragment  {
         // Inflate the layout for this fragment
 
         v =inflater.inflate(R.layout.fragment_add_new_card, container, false);
+        mAuth = FirebaseAuth.getInstance();
+        rootRef = FirebaseDatabase.getInstance().getReference();
         return v;
     }
 
@@ -95,13 +96,13 @@ public class AddNewCard extends DialogFragment  {
         cameraPermissions=new String[]{Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE};
         storagePermissions=new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
         attachedFile = v.findViewById(R.id.attached_files);
-        mAuth = FirebaseAuth.getInstance();
-
-
-
-//        expensesCardSelected = savedInstanceState.getBoolean("expenses");
-        rootRef = FirebaseDatabase.getInstance().getReference();
-
+       Bundle bundle=this.getArguments();
+       if(bundle!=null){
+           expensesCardSelected=bundle.getBoolean("Expenses");
+           if(expensesCardSelected){
+               attachButton.setVisibility(v.GONE);
+           }
+       }
 
         fTitle = title.getText().toString();
         fDescription = description.getText().toString();
@@ -128,7 +129,7 @@ public class AddNewCard extends DialogFragment  {
                         importantButton = "orange";
                         break;
                     default:
-                        importantButton = "red";
+                        importantButton = "others";
                 }
 
                 mdescription = description.getText().toString();
@@ -136,6 +137,9 @@ public class AddNewCard extends DialogFragment  {
                 if (mtitle.isEmpty()){
                     Toast.makeText(getContext(),"Please insert Title",Toast.LENGTH_SHORT).show();
                 }else{
+                    if(expensesCardSelected){
+                        saveTaskCardToFirebase(mtitle,mdescription,mdueDate,importantButton);
+                    }
                     uploadImgToFirebaseStorage(mtitle,mdescription,mdueDate,importantButton,chosenImage);
                 }
                 }
@@ -169,7 +173,35 @@ public class AddNewCard extends DialogFragment  {
 
     }
 
+    private void saveTaskCardToFirebase(String mtitle, String mdescription, String mdueDate, String importance) {
 
+        DatabaseReference ref = rootRef.child("tasksCards").child(mAuth.getCurrentUser().getUid()).push();
+        HashMap<String ,Object> newCard = new HashMap<>();
+        if (mtitle.trim().isEmpty()||mdescription.trim().isEmpty()||mdueDate.trim().isEmpty()||importance.trim().isEmpty()){
+            Toast.makeText(getActivity(),"Please fill all information",Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Calendar calendarDate=Calendar.getInstance();
+        SimpleDateFormat currentDate=new SimpleDateFormat("dd-MMMM-yyyy");
+        saveCurrentDate=currentDate.format(calendarDate.getTime());
+        newCard.put("description" , mdescription);
+        newCard.put("title" ,mtitle);
+        newCard.put("dueDate", mdueDate);
+        newCard.put("importance", importance);
+        newCard.put("members", "");
+        newCard.put("date",saveCurrentDate);
+
+        ref.updateChildren(newCard).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    dismiss();
+                }
+            }
+        });
+
+
+    }
 
 
     private void chooseFile() {
@@ -197,7 +229,6 @@ public class AddNewCard extends DialogFragment  {
     public void saveToFireBase(String title, String description, String dueDate, String attachUrl, String importance ){
 
         DatabaseReference ref = rootRef.child("expensesCards").child(mAuth.getCurrentUser().getUid()).push();
-        String newCardUniqueID=ref.getKey();
         HashMap<String ,Object> newCard = new HashMap<>();
 
         Calendar calendarDate=Calendar.getInstance();
@@ -221,7 +252,6 @@ public class AddNewCard extends DialogFragment  {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()){
-//                    getFragment(new MyShroomies());
                     dismiss();
                 }
             }
@@ -335,12 +365,7 @@ public class AddNewCard extends DialogFragment  {
         }
     }
 
-    private void getFragment (Fragment fragment) {
-        fm = getChildFragmentManager();
-        ft = fm.beginTransaction();
-        ft.replace(R.id.fragmentContainer, fragment);
-        ft.commit();
-    }
+
 
 }
 
