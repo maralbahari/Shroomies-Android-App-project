@@ -86,9 +86,9 @@ public class FireBase_recycler_adapter extends FirebaseRecyclerAdapter<Model_per
         // getting cur user
 
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        final String Uid = firebaseUser.getUid();
+        String Uid = firebaseUser.getUid();
 
-        if(id == Uid){
+        if(id.equals(Uid)){
             holder.BT_message.setVisibility(View.GONE);
             holder.BT_fav.setVisibility(View.GONE);
         }
