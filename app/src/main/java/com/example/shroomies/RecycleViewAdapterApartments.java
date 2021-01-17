@@ -7,9 +7,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
@@ -96,6 +96,7 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
 
 
 
+
     }
 
     @Override
@@ -114,6 +115,7 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
         ImageView petsAllowedButton;
         ImageView smokeFreeButton;
         Button sendMessageButton;
+        ImageButton BUT_fav_apt;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             priceTV = itemView.findViewById(R.id.TV_price);
@@ -126,6 +128,8 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
             petsAllowedButton = itemView.findViewById(R.id.pets_allowd_image_apartment_card);
             smokeFreeButton = itemView.findViewById(R.id.non_smoking_image_view_apartment_card);
             sendMessageButton=itemView.findViewById(R.id.start_chat_button_apartment_card);
+            BUT_fav_apt = itemView.findViewById(R.id.BUT_fav_apt);
+
             sendMessageButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
