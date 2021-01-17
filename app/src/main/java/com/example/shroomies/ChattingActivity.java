@@ -371,6 +371,7 @@ public class ChattingActivity extends AppCompatActivity {
         switch (requestCode){
             case CAMERA_REQUEST_CODE:{
                 if(grantResults.length>0){
+
                     boolean cameraAccepted=grantResults[0]==PackageManager.PERMISSION_GRANTED;
                     boolean storageAccepted=grantResults[1]==PackageManager.PERMISSION_GRANTED;
                     if(cameraAccepted && storageAccepted){
