@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -94,19 +95,19 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
         if(preferences.get(2)){holder.petsAllowedButton.setVisibility(View.VISIBLE);}
         if(preferences.get(3)){holder.smokeFreeButton.setVisibility(View.VISIBLE);}
 
-//        Apartment app = new Apartment();
-//        String id = app.getUserID();
-//        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-//        String Uid = firebaseUser.getUid();
-//
-//        if(id.equals(Uid)){
-//            holder.sendMessageButton.setVisibility(View.GONE);
-//            holder.BUT_fav_apt.setVisibility(View.GONE);
-//        }
-//        else {
-//            holder.sendMessageButton.setVisibility(View.VISIBLE);
-//            holder.BUT_fav_apt.setVisibility(View.VISIBLE);
-//        }
+
+        String id = apartmentList.get(position).getUserID();
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        String Uid = firebaseUser.getUid();
+
+        if(id.equals(Uid)){
+            holder.sendMessageButton.setVisibility(View.GONE);
+            holder.BUT_fav_apt.setVisibility(View.GONE);
+        }
+        else {
+            holder.sendMessageButton.setVisibility(View.VISIBLE);
+            holder.BUT_fav_apt.setVisibility(View.VISIBLE);
+        }
 
 
 
