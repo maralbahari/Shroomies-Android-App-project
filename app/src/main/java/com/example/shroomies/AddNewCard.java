@@ -184,6 +184,7 @@ public class AddNewCard extends DialogFragment  {
 //            return;
 //        }
 
+
         Calendar calendarDate=Calendar.getInstance();
         SimpleDateFormat currentDate=new SimpleDateFormat("dd-MMMM-yyyy");
         saveCurrentDate=currentDate.format(calendarDate.getTime());
@@ -230,7 +231,23 @@ public class AddNewCard extends DialogFragment  {
 
     }
 
-
+//    public void saveTaskCardToFireBase(String taskTitle, String taskDescription, String taskDueDate, String taskImportance){
+//
+//        DatabaseReference ref = rootRef.child("tasksCards").child(mAuth.getCurrentUser().getUid()).push();
+//        HashMap<String ,Object> newTaskCard = new HashMap<>();
+//
+//        Calendar mcalendarDate=Calendar.getInstance();
+//        SimpleDateFormat mcurrentDate=new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
+//        saveCurrentDate=mcurrentDate.format(calendarDate.getTime());
+//        Calendar calendarTime=Calendar.getInstance();
+//
+//        newTaskCard.put("taskTitle", taskTitle);
+//        newTaskCard.put("taskDescription", taskDescription);
+//        newTaskCard.put("taskDueDate",taskDueDate);
+//        newTaskCard.put("taskImportance",taskImportance);
+//
+//
+//    }
 
     public void saveToFireBase(String title, String description, String dueDate, String attachUrl, String importance ){
 

@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/my_shroomies_task_card"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        app:cardCornerRadius="15dp">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <View
+                android:id="@+id/task_importance_view"
+                android:layout_width="match_parent"
+                android:layout_height="5dp"
+                android:background="@color/okGreen"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Clean basment"
+                android:id="@+id/task_card_title"
+                android:textSize="25sp"
+                android:layout_margin="25dp"
+                />
+
+            <CheckBox
+                android:id="@+id/task_checkbox"
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:layout_below="@+id/task_card_description"
+                android:layout_margin="25dp"
+                />
+
+            <TextView
+                android:id="@+id/task_mark_as_done"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mark as done"
+                android:layout_toRightOf="@+id/task_checkbox"
+                android:layout_below="@+id/task_card_description"
+                android:layout_marginLeft="1dp"
+                android:layout_marginTop="25dp"
+                />
+
+            <TextView
+                android:layout_width="300dp"
+                android:layout_marginLeft="25dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/task_card_description"
+                android:layout_below="@+id/task_card_title"
+                android:text="the mechanic number is +1232313123 please contact him asap!"
+                />
+
+            <ImageButton
+                android:id="@+id/task_archive"
+                android:src="@drawable/ic_archive"
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:layout_below="@+id/task_checkbox"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="28dp"
+                android:layout_marginBottom="10dp"
+                />
+
+            <ImageButton
+                android:id="@+id/task_delete"
+                android:src="@drawable/ic_delete"
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:layout_below="@+id/task_checkbox"
+                android:layout_toRightOf="@+id/task_archive"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="25dp"
+                android:layout_marginBottom="10dp"
+                />
+
+            <TextView
+                android:id="@+id/task_card_duedate"
+                android:layout_width="101dp"
+                android:layout_height="20dp"
+                android:layout_toRightOf="@+id/task_card_title"
+                android:layout_marginTop="30dp"
+                android:text="Due date"
+                android:textSize="10sp"
+                android:gravity="center"
+                android:background="@drawable/textbox_round"
+                android:elevation="5dp"
+                />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Mentions"
+                android:layout_below="@+id/task_checkbox"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="100dp"
+                android:layout_marginTop="10dp"
+                android:textSize="10sp"
+                />
+
+
+
+
+        </RelativeLayout>
+
+
+    </androidx.cardview.widget.CardView>
+
+</LinearLayout>
