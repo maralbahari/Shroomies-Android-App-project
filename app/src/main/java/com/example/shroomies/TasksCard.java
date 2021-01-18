@@ -2,74 +2,74 @@ package com.example.shroomies;
 
 public class TasksCard {
 
-    String taskDescription, taskTitle, taskDueDate, taskImportance, members, date, taskCardId;
+    String description, title,dueDate, importance, members, date, cardId;
 
     public TasksCard() {
     }
 
     public TasksCard(String description, String taskTitle, String taskDueDate, String taskImportance, String date, String taskCardId, String members) {
-        this.taskCardId = taskCardId;
+        this.cardId = taskCardId;
         this.date = date;
-        this.taskDescription = description;
-        this.taskImportance = taskImportance;
+        this.description = description;
+        this.importance = taskImportance;
         this.members = members;
-        this.taskTitle = taskTitle;
-        this.taskDueDate = taskDueDate;
+        this.title = taskTitle;
+        this.dueDate = taskDueDate;
     }
 
-    public void setTaskDescription(String taskDescription) {
-        this.taskDescription = taskDescription;
+    public String getDescription() {
+        return description;
     }
 
-    public void setTaskTitle(String taskTitle) {
-        this.taskTitle = taskTitle;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
-    public void setTaskDueDate(String taskDueDate) {
-        this.taskDueDate = taskDueDate;
+    public String getTitle() {
+        return title;
     }
 
-    public void setTaskImportance(String taskImportance) {
-        this.taskImportance = taskImportance;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
-    public void setMembers(String members) {
-        this.members = members;
+    public String getDueDate() {
+        return dueDate;
     }
 
-    public void setDate(String date) {
-        this.date = date;
+    public void setDueDate(String dueDate) {
+        this.dueDate = dueDate;
     }
 
-    public void setTaskCardId(String taskCardId) {
-        this.taskCardId = taskCardId;
+    public String getImportance() {
+        return importance;
     }
 
-    public String getTaskDescription() {
-        return taskDescription;
-    }
-
-    public String getTaskTitle() {
-        return taskTitle;
-    }
-
-    public String getTaskDueDate() {
-        return taskDueDate;
-    }
-
-    public String getTaskImportance() {
-        return taskImportance;
+    public void setImportance(String importance) {
+        this.importance = importance;
     }
 
     public String getMembers() {
         return members;
     }
 
+    public void setMembers(String members) {
+        this.members = members;
+    }
+
     public String getDate() {
         return date;
     }
 
-    public String getTaskCardId() {
-        return taskCardId;
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    public String getCardId() {
+        return cardId;
+    }
+
+    public void setCardId(String cardId) {
+        this.cardId = cardId;
     }
 }

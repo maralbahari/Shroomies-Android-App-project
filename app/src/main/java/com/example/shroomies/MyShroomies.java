@@ -43,8 +43,11 @@ public class MyShroomies extends Fragment {
     FragmentManager fm;
     DatabaseReference rootRef;
     FirebaseAuth mAuth;
+    ArrayList<TasksCard> tasksCardsList;
     ArrayList<ExpensesCard> expensesCardsList;
+    TasksCardAdapter tasksCardAdapter;
     ExpensesCardAdapter expensesCardAdapter;
+    String tabSelected;
 
 
     @Override
@@ -83,11 +86,15 @@ public class MyShroomies extends Fragment {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 if(tab.getPosition()==0){
+                    tabSelected="expenses";
                     expensesCardsList = new ArrayList<>();
                     retreiveExpensesCards();
 
+
                 }
                 else if(tab.getPosition()==1){
+                    tabSelected="tasks";
+                    tasksCardsList=new ArrayList<>();
                    retrieveTaskCards();
                 }
             }
@@ -111,16 +118,17 @@ public class MyShroomies extends Fragment {
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 switch (i) {
                     case 0:
-                        sortAccordingtoImportance();
+
+                        sortAccordingtoImportance(tabSelected);
                         break;
                     case 1:
-                        sortAccordingToLatest();
+                        sortAccordingToLatest(tabSelected);
                         break;
                     case 2:
-                        sortAccordingToOldest();
+                        sortAccordingToOldest(tabSelected);
                         break;
                     case 3:
-                        sortAccordingToTitle();
+                        sortAccordingToTitle(tabSelected);
                         break;
                 }
             }
@@ -152,16 +160,40 @@ public class MyShroomies extends Fragment {
     }
 
     private void retrieveTaskCards() {
+        tasksCardsList=new ArrayList<>();
+
+         tasksCardAdapter= new TasksCardAdapter(tasksCardsList,getContext());
+        myShroomiesRecyclerView.setAdapter(tasksCardAdapter);
+        rootRef.child("apartments").child(mAuth.getCurrentUser().getUid()).child("tasksCards").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                tasksCardsList.clear();
+                if (snapshot.exists()) {
+
+                    for (DataSnapshot sp : snapshot.getChildren()) {
+                        TasksCard tasksCard = sp.getValue(TasksCard.class);
+                        tasksCardsList.add(tasksCard);
+
+
+                    }
+
+                    tasksCardAdapter.notifyDataSetChanged();
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
 
     public void retreiveExpensesCards(){
 //        Toast.makeText(getContext(),"HKOADKOSKAD",Toast.LENGTH_SHORT).show();
         expensesCardsList=new ArrayList<>();
-
         expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList,getContext());
         myShroomiesRecyclerView.setAdapter(expensesCardAdapter);
-        rootRef.child("expensesCards").child(mAuth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+        rootRef.child("apartments").child(mAuth.getCurrentUser().getUid()).child("expensesCards").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 expensesCardsList.clear();
@@ -185,83 +217,169 @@ public class MyShroomies extends Fragment {
 
     }
 
-    private void sortAccordingToOldest() {
-        expensesCardsList.sort(new Comparator<ExpensesCard>() {
-            @Override
-            public int compare(ExpensesCard o1, ExpensesCard o2) {
-                Date dateO1 = null;
-                Date dateO2 = null;
-                String d1 = o1.getDate();
-                String d2 = o2.getDate();
-                SimpleDateFormat format = new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
-                try {
-                    dateO1 = format.parse(d1);
-                    dateO2 = format.parse(d2);
 
-                } catch (ParseException | java.text.ParseException e) {
+    private void sortAccordingToOldest(String tab) {
+        if(tab.equals("expenses")){
+            expensesCardsList.sort(new Comparator<ExpensesCard>() {
+                @Override
+                public int compare(ExpensesCard o1, ExpensesCard o2) {
+                    Date dateO1 = null;
+                    Date dateO2 = null;
+                    String d1 = o1.getDate();
+                    String d2 = o2.getDate();
+                    SimpleDateFormat format = new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
+                    try {
+                        dateO1 = format.parse(d1);
+                        dateO2 = format.parse(d2);
+
+                    } catch (ParseException | java.text.ParseException e) {
+
+                    }
+
+                    return dateO2.compareTo(dateO1);
+
+                }
+            });
+            expensesCardAdapter.notifyDataSetChanged();
+        }else if(tab.equals("tasks")){
+            tasksCardsList.sort(new Comparator<TasksCard>() {
+                @Override
+                public int compare(TasksCard o1, TasksCard o2) {
+                    Date dateO1 = null;
+                    Date dateO2 = null;
+                    String d1 = o1.getDate();
+                    String d2 = o2.getDate();
+                    SimpleDateFormat format = new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
+                    try {
+                        dateO1 = format.parse(d1);
+                        dateO2 = format.parse(d2);
+
+                    } catch (ParseException | java.text.ParseException e) {
+
+                    }
+
+                    return dateO2.compareTo(dateO1);
+                }
+
+            });
+            tasksCardAdapter.notifyDataSetChanged();
+
+        }
+        }
+
+
+    private void sortAccordingToLatest(String tab) {
+        if(tab.equals("expenses")){
+            expensesCardsList.sort(new Comparator<ExpensesCard>() {
+                @Override
+                public int compare(ExpensesCard o1, ExpensesCard o2) {
+                    Date dateO1 = null;
+                    Date dateO2 = null;
+                    String d1 = o1.getDate();
+                    String d2 = o2.getDate();
+                    SimpleDateFormat format = new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
+                    try {
+                        dateO1 = format.parse(d1);
+                        dateO2 = format.parse(d2);
+
+                    } catch (ParseException | java.text.ParseException e) {
+
+                    }
+
+                    return dateO1.compareTo(dateO2);
+
+                }
+            });
+            expensesCardAdapter.notifyDataSetChanged();
+        }
+        else if(tab.equals("tasks")){
+
+            tasksCardsList.sort(new Comparator<TasksCard>() {
+                @Override
+                public int compare(TasksCard o1, TasksCard o2) {
+                    Date dateO1 = null;
+                    Date dateO2 = null;
+                    String d1 = o1.getDate();
+                    String d2 = o2.getDate();
+                    SimpleDateFormat format = new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
+                    try {
+                        dateO1 = format.parse(d1);
+                        dateO2 = format.parse(d2);
+
+                    } catch (ParseException | java.text.ParseException e) {
+
+                    }
+
+                    return dateO1.compareTo(dateO2);
+                }
+
+            });
+            tasksCardAdapter.notifyDataSetChanged();
+        }
+
+    }
+
+
+
+    private void sortAccordingtoImportance(String tab){
+        if(tab.equals("expenses")){
+            expensesCardsList.sort(new Comparator<ExpensesCard>() {
+                @Override
+                public int compare(ExpensesCard o1, ExpensesCard o2) {
+                    int colorO1=Integer.parseInt(o1.getImportance());
+                    int colorO2=Integer.parseInt(o2.getImportance());
+
+                    if (colorO1<colorO2){
+                        return 1;
+                    }else {
+                        return -1;
+                    }
 
                 }
 
-                return dateO2.compareTo(dateO1);
+            });
+            expensesCardAdapter.notifyDataSetChanged();
+        }
+        else if(tab.equals("tasks")){
+            tasksCardsList.sort(new Comparator<TasksCard>() {
+                @Override
+                public int compare(TasksCard o1, TasksCard o2) {
+                    int colorO1=Integer.parseInt(o1.getImportance());
+                    int colorO2=Integer.parseInt(o2.getImportance());
 
-            }
-        });
-        expensesCardAdapter.notifyDataSetChanged();
-    }
-
-    private void sortAccordingToLatest() {
-        expensesCardsList.sort(new Comparator<ExpensesCard>() {
-            @Override
-            public int compare(ExpensesCard o1, ExpensesCard o2) {
-                Date dateO1 = null;
-                Date dateO2 = null;
-                String d1 = o1.getDate();
-                String d2 = o2.getDate();
-                SimpleDateFormat format = new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
-                try {
-                    dateO1 = format.parse(d1);
-                    dateO2 = format.parse(d2);
-
-                } catch (ParseException | java.text.ParseException e) {
-
+                    if (colorO1<colorO2){
+                        return 1;
+                    }else {
+                        return -1;
+                    }
                 }
+            });
+            tasksCardAdapter.notifyDataSetChanged();
+        }
 
-                return dateO1.compareTo(dateO2);
 
-            }
-        });
-        expensesCardAdapter.notifyDataSetChanged();
     }
 
+   private void sortAccordingToTitle(String tab){
+        if(tab.equals("expenses")){
+            expensesCardsList.sort(new Comparator<ExpensesCard>() {
+                @Override
+                public int compare(ExpensesCard o1, ExpensesCard o2) {
 
-    private void sortAccordingtoImportance(){
-         expensesCardsList.sort(new Comparator<ExpensesCard>() {
-             @Override
-             public int compare(ExpensesCard o1, ExpensesCard o2) {
-                 int colorO1=Integer.parseInt(o1.getImportance());
-                 int colorO2=Integer.parseInt(o2.getImportance());
+                    return o1.getTitle().compareToIgnoreCase(o2.getTitle());
+                }
+            });
+            expensesCardAdapter.notifyDataSetChanged();
 
-                 if (colorO1<colorO2){
-                     return 1;
-                 }else {
-                     return -1;
-                 }
-
-             }
-
-         });
-         expensesCardAdapter.notifyDataSetChanged();
-    }
-
-   private void sortAccordingToTitle(){
-        expensesCardsList.sort(new Comparator<ExpensesCard>() {
-            @Override
-            public int compare(ExpensesCard o1, ExpensesCard o2) {
-
-                return o1.getTitle().compareToIgnoreCase(o2.getTitle());
-            }
-        });
-        expensesCardAdapter.notifyDataSetChanged();
+        }else if(tab.equals("tasks")){
+            tasksCardsList.sort(new Comparator<TasksCard>() {
+                @Override
+                public int compare(TasksCard o1, TasksCard o2) {
+                    return o1.getTitle().compareToIgnoreCase(o2.getTitle());
+                }
+            });
+            tasksCardAdapter.notifyDataSetChanged();
+        }
 
     }
 

@@ -26,6 +26,11 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
     private DatabaseReference rootRef;
     private FirebaseAuth mAuth;
 
+    public TasksCardAdapter(ArrayList<TasksCard> tasksCardsList, Context context) {
+        this.tasksCardsList = tasksCardsList;
+        this.context = context;
+    }
+
     public class TasksCardViewHolder extends RecyclerView.ViewHolder {
 
         View taskImportanceView;
