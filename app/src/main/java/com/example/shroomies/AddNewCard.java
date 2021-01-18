@@ -282,8 +282,18 @@ public class AddNewCard extends DialogFragment  {
             filePath.putFile(imgUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    String imgLink = taskSnapshot.getMetadata().getReference().getPath(); //if not succesful add .getReference
-                    saveToFireBase(title,  description,  dueDate,  imgLink, importance);
+
+                }
+            }).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                   task.getResult().getMetadata().getReference().getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            saveToFireBase(title,  description,  dueDate,  uri.toString(), importance);
+                        }
+                    });
+
                 }
             });
         }

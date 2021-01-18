@@ -47,7 +47,7 @@ public class MyShroomies extends Fragment {
     ArrayList<ExpensesCard> expensesCardsList;
     TasksCardAdapter tasksCardAdapter;
     ExpensesCardAdapter expensesCardAdapter;
-    String tabSelected;
+    String tabSelected="expenses";
 
 
     @Override
@@ -79,7 +79,7 @@ public class MyShroomies extends Fragment {
         myShroomiesRecyclerView.setHasFixedSize(true);
         myShroomiesRecyclerView.setLayoutManager(linearLayoutManager);
         expensesCardsList = new ArrayList<>();
-        expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList,getContext());
+        expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList,getContext(),false);
         shroomieSpinnerFilter = v.findViewById(R.id.shroomie_spinner_filter);
         retreiveExpensesCards();
         myShroomiesTablayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -118,7 +118,6 @@ public class MyShroomies extends Fragment {
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 switch (i) {
                     case 0:
-
                         sortAccordingtoImportance(tabSelected);
                         break;
                     case 1:
@@ -161,8 +160,7 @@ public class MyShroomies extends Fragment {
 
     private void retrieveTaskCards() {
         tasksCardsList=new ArrayList<>();
-
-         tasksCardAdapter= new TasksCardAdapter(tasksCardsList,getContext());
+        tasksCardAdapter= new TasksCardAdapter(tasksCardsList,getContext(),false);
         myShroomiesRecyclerView.setAdapter(tasksCardAdapter);
         rootRef.child("apartments").child(mAuth.getCurrentUser().getUid()).child("tasksCards").addValueEventListener(new ValueEventListener() {
             @Override
@@ -191,7 +189,7 @@ public class MyShroomies extends Fragment {
     public void retreiveExpensesCards(){
 //        Toast.makeText(getContext(),"HKOADKOSKAD",Toast.LENGTH_SHORT).show();
         expensesCardsList=new ArrayList<>();
-        expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList,getContext());
+        expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList,getContext(), false);
         myShroomiesRecyclerView.setAdapter(expensesCardAdapter);
         rootRef.child("apartments").child(mAuth.getCurrentUser().getUid()).child("expensesCards").addValueEventListener(new ValueEventListener() {
             @Override
@@ -352,9 +350,13 @@ public class MyShroomies extends Fragment {
                     }else {
                         return -1;
                     }
+
                 }
             });
             tasksCardAdapter.notifyDataSetChanged();
+
+        }else {
+
         }
 
 
@@ -379,6 +381,8 @@ public class MyShroomies extends Fragment {
                 }
             });
             tasksCardAdapter.notifyDataSetChanged();
+        }else{
+
         }
 
     }
