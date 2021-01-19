@@ -28,7 +28,8 @@ import com.google.firebase.database.ValueEventListener;
 
 public class FireBase_recycler_adapter extends FirebaseRecyclerAdapter<Model_personal, FireBase_recycler_adapter.MyViewHolder> {
     private Context context;
-    DatabaseReference rootRef;
+    DatabaseReference rootRef, favRef;
+    Boolean checkClick;
 
     public FireBase_recycler_adapter(@NonNull FirebaseRecyclerOptions<Model_personal> options, Context context) {
         super(options);
@@ -42,7 +43,7 @@ public class FireBase_recycler_adapter extends FirebaseRecyclerAdapter<Model_per
 
     // setting data to
     @Override
-    protected void onBindViewHolder(@NonNull final MyViewHolder holder, final int position, @NonNull Model_personal model) {
+    protected void onBindViewHolder(@NonNull final MyViewHolder holder, final int position, @NonNull final Model_personal model) {
         holder.TV_userDescription.setText(model.getDescription());
         holder.TV_DatePosted.setText(model.getDate());
         String id = model.getUserId();
@@ -87,7 +88,7 @@ public class FireBase_recycler_adapter extends FirebaseRecyclerAdapter<Model_per
         // getting cur user
 
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        String Uid = firebaseUser.getUid();
+        final String Uid = firebaseUser.getUid();
 
         if(id.equals(Uid)){
             holder.BT_message.setVisibility(View.GONE);
@@ -97,11 +98,38 @@ public class FireBase_recycler_adapter extends FirebaseRecyclerAdapter<Model_per
             holder.BT_message.setVisibility(View.VISIBLE);
             holder.BT_fav.setVisibility(View.VISIBLE);
         }
+        // to see the status of my favorite button
+        checkClick = false;
+        favRef = FirebaseDatabase.getInstance().getReference().child("Favorite");
 
         holder.BT_fav.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                holder.favorite(getRef(position).getKey(),position);
+                checkClick = true;
+                favRef.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if(checkClick){
+                            if(snapshot.child(Uid).child("PersonalPost").hasChild(model.getUserId())){
+                                    favRef.child(Uid).child("PersonalPost").child(model.getUserId()).removeValue();
+                                    checkClick = false;
+                            }
+                            else {
+                                    favRef.child(Uid).child("PersonalPost")
+                                            .child(model.getUserId()).setValue(model.getUserId());
+                                            checkClick = false;
+
+                            }
+
+
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
             }
         });
 
@@ -157,23 +185,31 @@ public class FireBase_recycler_adapter extends FirebaseRecyclerAdapter<Model_per
             BT_message = itemView.findViewById(R.id.start_chat_button);
             BT_fav = itemView.findViewById(R.id.BUT_fav);
 
+//            favorite(getRef(getAdapterPosition()).getKey());
+
+
 
         }
         DatabaseReference myFavRef;
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         String CurrentUserId = firebaseUser.getUid();
 
+
+        // checking status of favorite button
         public void favorite(final String postId, final int position) {
 
-            myFavRef = rootRef.child("Favorites");
+            myFavRef = rootRef.child("Favorite");
+
             myFavRef.addValueEventListener(new ValueEventListener(){
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if(snapshot.child(CurrentUserId).child("PersonalPosts").hasChild(postId)){
+                    //if the postkey is already in the favorite personal post node
+                        if(snapshot.child(CurrentUserId).child("PersonalPost").hasChild(postId)){
                             BT_fav.setImageResource(R.drawable.ic_icon_awesome_star_checked);
 
 
                         }
+                        // not already favourite
                         else{
                             BT_fav.setImageResource(R.drawable.ic_icon_awesome_star_unchecked);
 
