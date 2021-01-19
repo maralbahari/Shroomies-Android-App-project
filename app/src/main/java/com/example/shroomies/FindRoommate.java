@@ -206,7 +206,7 @@ public class FindRoommate extends Fragment {
         bundle.putString("myQuery",query);
 
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        PersonalPage personalFrag = new PersonalPage();
+        fragmentPersonalPostTab personalFrag = new fragmentPersonalPostTab();
         personalFrag.setArguments(bundle);
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.frame_layout_search, new fragmentPersonalPostTab());

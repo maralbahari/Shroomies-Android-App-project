@@ -6,6 +6,8 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -22,6 +24,7 @@ public class fragmentPersonalPostTab extends Fragment {
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
+    RecyclerView personalRecView;
 
     public fragmentPersonalPostTab() {
         // Required empty public constructor
@@ -58,6 +61,10 @@ public class fragmentPersonalPostTab extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_personal_post_tab, container, false);
+        View view = inflater.inflate(R.layout.fragment_personal_post_tab, container, false);
+        personalRecView = view.findViewById(R.id.personalRecView);
+        personalRecView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        return view;
     }
 }
