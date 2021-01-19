@@ -590,7 +590,7 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
         post.put("id" ,userUid+postUniqueName);
         // add the time of the post
         Calendar calendar = Calendar.getInstance();
-        post.put("date",new SimpleDateFormat("dd-MMMM-yyyy").format(calendar.getTime()));
+        post.put("date",new SimpleDateFormat("dd-MMMM-yyyy HH:mm:ss aa").format(calendar.getTime()));
 
         //add image and date and user profile
 
@@ -656,7 +656,7 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
         // add the time of the post
         Calendar calendar = Calendar.getInstance();
 
-        post.put("date",new SimpleDateFormat("dd-MMMM-yyyy").format(calendar.getTime()));
+        post.put("date",new SimpleDateFormat("dd-MMMM-yyyy HH:mm:ss aa").format(calendar.getTime()));
         //add image and date and user profile
         postUniqueName = getUniqueName();
 
