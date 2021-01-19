@@ -46,20 +46,20 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
        String fromUserID=messages.getFrom();
        String fromMessageType=messages.getType();
        if(fromMessageType.equals("text")){
-           holder.receiverLinearLayout.setVisibility(View.INVISIBLE);
            if(fromUserID.equals(senderID)){
+               holder.receiverLinearLayout.setVisibility(View.GONE);
               holder.senderTextView.setText(messages.getMessage());
               holder.senderDate.setText(messages.getDate());
            }
            else{
-               holder.senderLinearLayout.setVisibility(View.INVISIBLE);
+               holder.senderLinearLayout.setVisibility(View.GONE);
                holder.receiverLinearLayout.setVisibility(View.VISIBLE);
                holder.receiverTextView.setText(messages.getMessage());
                holder.receiverDate.setText(messages.getDate());
            }
        }if(fromMessageType.equals("image")) {
-            holder.senderTextView.setVisibility(View.INVISIBLE);
-            holder.receiverTextView.setVisibility(View.INVISIBLE);
+            holder.senderLinearLayout.setVisibility(View.GONE);
+            holder.receiverLinearLayout.setVisibility(View.GONE);
             StorageReference storageReference = FirebaseStorage.getInstance().getReference(messages.getMessage());
             if (fromUserID.equals(senderID)) {
                 holder.senderImageView.setVisibility(View.VISIBLE);

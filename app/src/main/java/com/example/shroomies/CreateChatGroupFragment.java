@@ -47,6 +47,8 @@ public class CreateChatGroupFragment extends DialogFragment {
 
     static ArrayList<User>  selectedMembers;
 
+
+
     @Override
     public void onStart() {
         super.onStart();
@@ -92,8 +94,8 @@ public class CreateChatGroupFragment extends DialogFragment {
             groupID = extras.getString("GROUPID");
 
         }
-        getMessageInboxListIntoAdapter();
         selectedMembers = new ArrayList<>();
+        getMessageInboxListIntoAdapter();
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -118,7 +120,6 @@ public class CreateChatGroupFragment extends DialogFragment {
             @Override
             public void onClick(View v) {
                 if(fromGroupInfo){
-
                     Intent intent = new Intent(getContext(),GroupInfoActivity.class);
                     intent.putExtra("GROUPID" , groupID);
                     intent.putParcelableArrayListExtra("ListOfSelectedUsers",selectedMembers);
@@ -158,22 +159,29 @@ public class CreateChatGroupFragment extends DialogFragment {
         });
     }
 
-    private void addInboxUsersToRecycler(List<String> inboxListUsers) {
-
+    private void addInboxUsersToRecycler(final List<String> inboxListUsers) {
         suggestedUser = new ArrayList<>();
+        suggestedUser.clear();
         suggestedUser.addAll(selectedMembers);
-        userRecyclerAdapter=new UserRecyclerAdapter(suggestedUser,getContext(),"SEARCH_PAGE");
+        userRecyclerAdapter=new UserRecyclerAdapter(suggestedUser,getContext(),"SEARCH_PAGE"  , selectedMembers);
+        userListSuggestionRecyclerView.setAdapter(userRecyclerAdapter);
+
         for(String id
         :inboxListUsers){
             rootRef.child("Users").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     if(snapshot.exists()){
-                        suggestedUser.add(snapshot.getValue(User.class));
-                        userRecyclerAdapter.notifyDataSetChanged();
-                        Toast.makeText(getContext() , "we reaching" , Toast.LENGTH_LONG).show();
+                        User user = snapshot.getValue(User.class);
+                        if(!suggestedUser.contains(user)){
+                            suggestedUser.add(user);
+                            userRecyclerAdapter.notifyDataSetChanged();
+                        }
+
+
+
                     }
-                    userListSuggestionRecyclerView.setAdapter(userRecyclerAdapter);
+
                 }
 
                 @Override
@@ -196,10 +204,10 @@ public class CreateChatGroupFragment extends DialogFragment {
 
                     for (DataSnapshot ds : snapshot.getChildren()) {
                         User user = ds.getValue(User.class);
+
                         suggestedUser.add(user);
                     }
                     //add the members already selected
-                    suggestedUser.addAll(selectedMembers);
                     userRecyclerAdapter.notifyDataSetChanged();
                 }
 
@@ -219,6 +227,9 @@ public class CreateChatGroupFragment extends DialogFragment {
            // add member already selected exception
        }
 
+    }
+    public static void removeSelectedMember(User user) {
+        selectedMembers.remove(user);
     }
 
 }

@@ -74,14 +74,23 @@
             android:elevation="10dp"
             android:padding="10dp"
             android:text=" Create Group "
-
             android:textColor="@color/white"
             android:textStyle="bold" />
-        <ImageButton
+        <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
-            android:background="@drawable/circle_white_button_small"
+            android:text="cancel"
+            android:textStyle="bold"
+            android:elevation="3dp"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
+            android:textColor="@color/white"
+           android:textSize="10dp"
+            android:padding="5dp"
+
+
+            android:background="@drawable/button_round_corner_cancel"
             android:src="@android:drawable/ic_menu_close_clear_cancel"/>
 
     </RelativeLayout>

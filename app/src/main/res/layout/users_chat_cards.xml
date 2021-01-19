@@ -36,18 +36,19 @@
             android:textStyle="normal"
             android:layout_gravity="right"
             />
-        <ImageView
-            android:id="@+id/receiver_image_view"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:layout_marginLeft="20dp"
-            android:adjustViewBounds="true"
-            android:background="@drawable/receiver_message_background"
-            android:padding="15dp"
-            android:scaleType="fitCenter"
-            tools:srcCompat="@drawable/ic_icon_awesome_image"
-            android:visibility="gone"/>
+
     </LinearLayout>
+    <ImageView
+        android:id="@+id/receiver_image_view"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_marginLeft="20dp"
+        android:adjustViewBounds="true"
+        android:background="@drawable/receiver_message_background"
+        android:padding="15dp"
+        android:scaleType="fitCenter"
+        tools:srcCompat="@drawable/ic_icon_awesome_image"
+        android:visibility="gone"/>
 
     <LinearLayout
         android:id="@+id/sender_box_card_layout"
@@ -84,23 +85,23 @@
             android:textStyle="normal"
             android:layout_gravity="right"
             />
-        <ImageView
-            android:id="@+id/sender_image_view"
-            android:layout_width="200dp"
-            android:layout_height="200dp"
-            android:layout_marginLeft="20dp"
-            android:adjustViewBounds="true"
-            android:background="@drawable/sender_background_message"
-            android:padding="15dp"
-            android:layout_alignParentEnd="true"
-            android:layout_marginRight="20dp"
-            android:scaleType="fitCenter"
-            tools:srcCompat="@drawable/ic_icon_awesome_image"
-            android:visibility="gone"
-            />
-
 
     </LinearLayout>
+    <ImageView
+        android:id="@+id/sender_image_view"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:layout_marginLeft="20dp"
+        android:adjustViewBounds="true"
+        android:background="@drawable/sender_background_message"
+        android:padding="15dp"
+        android:layout_alignParentEnd="true"
+        android:layout_marginRight="20dp"
+        android:scaleType="fitCenter"
+        tools:srcCompat="@drawable/ic_icon_awesome_image"
+        android:visibility="gone"
+        />
+
 
 
 
