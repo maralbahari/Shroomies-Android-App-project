@@ -14,12 +14,9 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.Window;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -231,7 +228,7 @@ public class ChattingActivity extends AppCompatActivity {
 
     }
     private void sendNotification(final String receiverID,final String senderName,final String message) {
-        rootRef.child("Tokens").orderByKey().equalTo(receiverID).addValueEventListener(new ValueEventListener() {
+        rootRef.child("Token").orderByKey().equalTo(receiverID).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
@@ -244,6 +241,11 @@ public class ChattingActivity extends AppCompatActivity {
                             JsonObjectRequest jsonObjectRequest=new JsonObjectRequest("https://fcm.googleapis.com/fcm/send", senderJsonObj, new Response.Listener<JSONObject>() {
                                 @Override
                                 public void onResponse(JSONObject response) {
+                                    try {
+                                        Toast.makeText(getApplicationContext(),response.get("success").toString(),Toast.LENGTH_LONG).show();
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
                                     Log.d("JSON_RESPONSE","onResponse:"+response.toString());
                                 }
 
@@ -264,7 +266,8 @@ public class ChattingActivity extends AppCompatActivity {
                                 }
 
                             };
-
+                            requestQueue.add(jsonObjectRequest);
+                            requestQueue.start();
                         }catch (JSONException e){
                             e.printStackTrace();
                         }
