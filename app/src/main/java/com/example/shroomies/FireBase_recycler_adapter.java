@@ -41,7 +41,7 @@ public class FireBase_recycler_adapter extends FirebaseRecyclerAdapter<Model_per
 
     // setting data to
     @Override
-    protected void onBindViewHolder(@NonNull final MyViewHolder holder, int position, @NonNull Model_personal model) {
+    protected void onBindViewHolder(@NonNull final MyViewHolder holder, final int position, @NonNull Model_personal model) {
         holder.TV_userDescription.setText(model.getDescription());
         holder.TV_DatePosted.setText(model.getDate());
         String id = model.getUserId();
@@ -97,6 +97,13 @@ public class FireBase_recycler_adapter extends FirebaseRecyclerAdapter<Model_per
             holder.BT_fav.setVisibility(View.VISIBLE);
         }
 
+        holder.BT_fav.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                favorite(getRef(position).getKey(),position);
+            }
+        });
+
 
 
 }
@@ -146,7 +153,12 @@ public class FireBase_recycler_adapter extends FirebaseRecyclerAdapter<Model_per
             IV_pet = itemView.findViewById(R.id.pets_allowd_image_view_apartment);
             IV_smoke = itemView.findViewById(R.id.non_smoking_image_view_apartment);
             BT_message = itemView.findViewById(R.id.start_chat_button);
-            BT_fav = (ImageButton) itemView.findViewById(R.id.BUT_fav);
+            BT_fav = itemView.findViewById(R.id.BUT_fav);
+
+
         }
+    }
+
+    public void favorite(final String postId, final int position) {
     }
 }
