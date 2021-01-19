@@ -38,7 +38,6 @@ public class Archive extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
        view=inflater.inflate(R.layout.fragment_my_archive, container, false);
-
        mAuth = FirebaseAuth.getInstance();
        rootRef = FirebaseDatabase.getInstance().getReference();
 
