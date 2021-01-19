@@ -22,7 +22,8 @@
             android:background="@drawable/search_border"
             android:contextClickable="true"
             android:orientation="vertical"
-            app:queryHint=" search usernames" />
+            app:queryHint=" search usernames"
+            android:elevation="8dp"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/suggestion_list_create_group"
@@ -40,8 +41,11 @@
             android:layout_alignParentRight="true"
             android:layout_margin="20dp"
             android:layout_alignParentBottom="true"
-            android:background="@drawable/button_circle_yellow"
-            app:srcCompat="@drawable/ic_arrow_forward" />
+            android:padding="10dp"
+            android:background="@drawable/button_circle_yello_small"
+            app:srcCompat="@drawable/ic_arrow_forward"
+            android:elevation="5dp"
+            />
 
 
     </RelativeLayout>

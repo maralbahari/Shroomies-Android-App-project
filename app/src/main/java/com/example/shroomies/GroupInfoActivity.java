@@ -67,7 +67,6 @@ public class GroupInfoActivity extends AppCompatActivity {
         groupMembersRecycler.setLayoutManager(linearLayoutManager);
        groupImage=findViewById(R.id.group_chat_info_image);
        numberOfParticipants=findViewById(R.id.number_of_participants);
-        backToChattingActivity=findViewById(R.id.back_button_group_info);
        rootRef= FirebaseDatabase.getInstance().getReference();
        mAuth=FirebaseAuth.getInstance();
         Bundle extras = getIntent().getExtras();
@@ -115,14 +114,14 @@ public class GroupInfoActivity extends AppCompatActivity {
                leaveGroup();
            }
        });
-        backToChattingActivity.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent= new Intent(getApplicationContext(),GroupChattingActivity.class);
-                intent.putExtra("GROUPID",groupID);
-                startActivity(intent);
-            }
-        });
+//        backToChattingActivity.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent intent= new Intent(getApplicationContext(),GroupChattingActivity.class);
+//                intent.putExtra("GROUPID",groupID);
+//                startActivity(intent);
+//            }
+//        });
 
     }
     private void leaveGroup(){
@@ -167,12 +166,14 @@ public class GroupInfoActivity extends AppCompatActivity {
                     membersList = new ArrayList<>();
                     getMemberDetail(groupMembersID);
 
-                    GlideApp.with(getApplicationContext())
-                            .load(group.getGroupImage())
-                            .transform(new RoundedCorners(1))
-                            .fitCenter()
-                            .centerCrop()
-                            .into(groupImage);
+                    if(!group.groupImage.isEmpty()) {
+                        GlideApp.with(getApplicationContext())
+                                .load(group.getGroupImage())
+                                .fitCenter()
+                                .centerCrop()
+                                .into(groupImage);
+                        groupImage.setPadding(0, 0, 0, 0);
+                    }
                 }
             }
             @Override public void onCancelled(@NonNull DatabaseError error) { }
@@ -229,8 +230,14 @@ public class GroupInfoActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()) {
                     Group group = snapshot.getValue(Group.class);
+
                     List<String> currentMembers = group.getGroupMembers();
-                    currentMembers.addAll(ids);
+                    for (String id
+                    :ids){
+                        if(!currentMembers.contains(id)){
+                            currentMembers.add(id);
+                        }
+                    }
                     HashMap<String, Object> addUsers = new HashMap<>();
                     addUsers.put("groupMembers", currentMembers);
                     updateGroupMembers(addUsers);

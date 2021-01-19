@@ -42,7 +42,7 @@
                 android:layout_toRightOf="@+id/title_card"
                 android:scaleType="centerCrop"
                 android:elevation="15dp"
-                android:src="@drawable/imagepdf" />
+                />
 
             <TextView
                 android:id="@+id/shroomie_attachment_tv"
@@ -78,7 +78,7 @@
                 android:layout_below="@+id/card_img"
                 android:layout_alignParentRight="true"
                 android:layout_marginRight="140dp"
-                android:background="@drawable/mentions" />
+             />
 
             <TextView
                 android:id="@+id/card_description"

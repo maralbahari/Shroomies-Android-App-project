@@ -87,7 +87,7 @@
         android:id="@+id/my_shroomies_add_card_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="@drawable/ic_add_card"
+
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         />
