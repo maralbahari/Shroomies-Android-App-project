@@ -637,7 +637,7 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
 
             }
         });
-
+        postUniqueName = getUniqueName();
         uploadingProgress.setVisibility(View.VISIBLE);
         publishPostButton.setVisibility(View.INVISIBLE);
         uploadingProgress.playAnimation();
