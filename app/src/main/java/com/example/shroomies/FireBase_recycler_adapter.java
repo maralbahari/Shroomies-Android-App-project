@@ -28,6 +28,7 @@ import com.google.firebase.database.ValueEventListener;
 
 public class FireBase_recycler_adapter extends FirebaseRecyclerAdapter<Model_personal, FireBase_recycler_adapter.MyViewHolder> {
     private Context context;
+    DatabaseReference rootRef;
 
     public FireBase_recycler_adapter(@NonNull FirebaseRecyclerOptions<Model_personal> options, Context context) {
         super(options);
@@ -100,7 +101,7 @@ public class FireBase_recycler_adapter extends FirebaseRecyclerAdapter<Model_per
         holder.BT_fav.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                favorite(getRef(position).getKey(),position);
+                holder.favorite(getRef(position).getKey(),position);
             }
         });
 
@@ -113,6 +114,7 @@ public class FireBase_recycler_adapter extends FirebaseRecyclerAdapter<Model_per
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate
                 (R.layout.personal_post_custom_card, parent, false);
+            rootRef = FirebaseDatabase.getInstance().getReference();
 
 
         return new MyViewHolder(view);
@@ -157,8 +159,36 @@ public class FireBase_recycler_adapter extends FirebaseRecyclerAdapter<Model_per
 
 
         }
+        DatabaseReference myFavRef;
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        String CurrentUserId = firebaseUser.getUid();
+
+        public void favorite(final String postId, final int position) {
+
+            myFavRef = rootRef.child("Favorites");
+            myFavRef.addValueEventListener(new ValueEventListener(){
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if(snapshot.child(CurrentUserId).child("PersonalPosts").hasChild(postId)){
+                            BT_fav.setImageResource(R.drawable.ic_icon_awesome_star_checked);
+
+
+                        }
+                        else{
+                            BT_fav.setImageResource(R.drawable.ic_icon_awesome_star_unchecked);
+
+
+                        }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+
+        }
     }
 
-    public void favorite(final String postId, final int position) {
-    }
+
 }
