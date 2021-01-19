@@ -169,7 +169,7 @@ public class FindRoommate extends Fragment {
 
                     FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                    fragmentTransaction.replace(R.id.frame_layout_search, new PersonalPage());
+                    fragmentTransaction.replace(R.id.frame_layout_search, new fragmentPersonalPostTab());
                     fragmentTransaction.addToBackStack(null);
                     fragmentTransaction.commit();
 
@@ -209,7 +209,7 @@ public class FindRoommate extends Fragment {
         PersonalPage personalFrag = new PersonalPage();
         personalFrag.setArguments(bundle);
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.frame_layout_search, new PersonalPage());
+        fragmentTransaction.replace(R.id.frame_layout_search, new fragmentPersonalPostTab());
         fragmentTransaction.addToBackStack(null);
         fragmentTransaction.commit();
 
