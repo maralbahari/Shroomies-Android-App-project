@@ -9,14 +9,16 @@
         android:id="@+id/receiver_box_card_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:layout_marginBottom="5dp"
-        android:layout_marginRight="20dp"
         android:layout_marginLeft="20dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="5dp"
         android:background="@drawable/receiver_message_background"
-        android:orientation="vertical"
         android:elevation="3dp"
-        android:padding="10dp">
+        android:orientation="vertical"
+        android:padding="10dp"
+        android:visibility="visible">
+
         <TextView
             android:id="@+id/receiver_box_card"
             android:layout_width="wrap_content"
@@ -25,44 +27,35 @@
             android:textColor="@color/jetBlack"
             android:textSize="14sp"
             android:textStyle="bold" />
+
         <TextView
-            android:layout_marginTop="3dp"
             android:id="@+id/reciever_box_card_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_marginTop="3dp"
             android:text="14-20"
             android:textColor="@color/lightGrey"
             android:textSize="10sp"
-            android:textStyle="normal"
-            android:layout_gravity="right"
-            />
+            android:textStyle="normal" />
 
     </LinearLayout>
-    <ImageView
-        android:id="@+id/receiver_image_view"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
-        android:layout_marginLeft="20dp"
-        android:adjustViewBounds="true"
-        android:background="@drawable/receiver_message_background"
-        android:padding="15dp"
-        android:scaleType="fitCenter"
-        tools:srcCompat="@drawable/ic_icon_awesome_image"
-        android:visibility="gone"/>
+
 
     <LinearLayout
         android:id="@+id/sender_box_card_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
-        android:layout_marginBottom="5dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginLeft="20dp"
         android:layout_alignParentRight="true"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="5dp"
         android:background="@drawable/sender_background_message"
-        android:orientation="vertical"
         android:elevation="3dp"
-        android:padding="10dp">
+        android:orientation="vertical"
+        android:padding="10dp"
+        android:visibility="visible">
 
         <TextView
             android:id="@+id/sender_box_card"
@@ -72,35 +65,54 @@
             android:text="sender message"
             android:textColor="@color/jetBlack"
             android:textSize="14sp"
-            android:textStyle="bold"
-            />
+            android:textStyle="bold" />
+
         <TextView
-            android:layout_marginTop="3dp"
             android:id="@+id/sender_box_card_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:layout_marginTop="3dp"
             android:text="14-20"
             android:textColor="@color/lightGrey"
             android:textSize="10sp"
-            android:textStyle="normal"
-            android:layout_gravity="right"
-            />
+            android:textStyle="normal" />
 
     </LinearLayout>
+
     <ImageView
         android:id="@+id/sender_image_view"
         android:layout_width="200dp"
-        android:layout_height="200dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
         android:layout_marginLeft="20dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="5dp"
         android:adjustViewBounds="true"
         android:background="@drawable/sender_background_message"
-        android:padding="15dp"
-        android:layout_alignParentEnd="true"
-        android:layout_marginRight="20dp"
+        android:elevation="3dp"
+        android:padding="5dp"
         android:scaleType="fitCenter"
-        tools:srcCompat="@drawable/ic_icon_awesome_image"
-        android:visibility="gone"
-        />
+        android:visibility="invisible"
+        tools:srcCompat="@drawable/ic_icon_awesome_image" />
+
+    <ImageView
+        android:id="@+id/receiver_image_view"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="5dp"
+        android:adjustViewBounds="true"
+        android:background="@drawable/receiver_message_background"
+        android:elevation="3dp"
+        android:padding="5dp"
+        android:scaleType="fitCenter"
+        android:visibility="invisible"
+        tools:srcCompat="@drawable/ic_icon_awesome_image" />
+
 
 
 

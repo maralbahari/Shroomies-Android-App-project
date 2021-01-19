@@ -587,9 +587,7 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
         post.put("preferences" , property);
         post.put("image_url" , IMAGE_URL );
         post.put("userName" , userName);
-
-
-
+        post.put("id" ,userUid+postUniqueName);
         // add the time of the post
         Calendar calendar = Calendar.getInstance();
         post.put("date",new SimpleDateFormat("dd-MMMM-yyyy").format(calendar.getTime()));
@@ -653,6 +651,7 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
         post.put("longitude",locationLtLng.longitude);
         post.put("preferences" , property);
         post.put("userName" , userName);
+        post.put("id" , userUid+postUniqueName);
 
         // add the time of the post
         Calendar calendar = Calendar.getInstance();

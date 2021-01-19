@@ -47,37 +47,38 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
        String fromMessageType=messages.getType();
        if(fromMessageType.equals("text")){
            if(fromUserID.equals(senderID)){
-               holder.receiverLinearLayout.setVisibility(View.GONE);
+               holder.receiverLinearLayout.setVisibility(View.INVISIBLE);
               holder.senderTextView.setText(messages.getMessage());
               holder.senderDate.setText(messages.getDate());
            }
            else{
-               holder.senderLinearLayout.setVisibility(View.GONE);
+               holder.senderLinearLayout.setVisibility(View.INVISIBLE);
                holder.receiverLinearLayout.setVisibility(View.VISIBLE);
                holder.receiverTextView.setText(messages.getMessage());
                holder.receiverDate.setText(messages.getDate());
            }
        }if(fromMessageType.equals("image")) {
-            holder.senderLinearLayout.setVisibility(View.GONE);
-            holder.receiverLinearLayout.setVisibility(View.GONE);
+            holder.senderLinearLayout.setVisibility(View.INVISIBLE);
+            holder.receiverLinearLayout.setVisibility(View.INVISIBLE);
             StorageReference storageReference = FirebaseStorage.getInstance().getReference(messages.getMessage());
             if (fromUserID.equals(senderID)) {
+                holder.receiverImageView.setVisibility(View.INVISIBLE);
                 holder.senderImageView.setVisibility(View.VISIBLE);
                 GlideApp.with(context)
                         .load(storageReference)
-                        .transform(new RoundedCorners(10))
                         .fitCenter()
                         .centerCrop()
+                        .transform(new RoundedCorners(10))
                         .placeholder(R.drawable.ic_icon_awesome_image)
                         .into(holder.senderImageView);
             } else {
-                holder.senderImageView.setVisibility(View.GONE);
+                holder.senderImageView.setVisibility(View.INVISIBLE);
                 holder.receiverImageView.setVisibility(View.VISIBLE);
                 GlideApp.with(context)
                         .load(storageReference)
-                        .transform(new RoundedCorners(10))
                         .fitCenter()
                         .centerCrop()
+                        .transform(new RoundedCorners(10))
                         .placeholder(R.drawable.ic_icon_awesome_image)
                         .into(holder.receiverImageView);
             }
