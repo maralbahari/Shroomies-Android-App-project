@@ -14,7 +14,6 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.firebase.auth.FirebaseAuth;
@@ -44,94 +43,96 @@ public class FireBase_recycler_adapter extends FirebaseRecyclerAdapter<Model_per
     // setting data to
     @Override
     protected void onBindViewHolder(@NonNull final MyViewHolder holder, final int position, @NonNull final Model_personal model) {
-        holder.TV_userDescription.setText(model.getDescription());
-        holder.TV_DatePosted.setText(model.getDate());
-        String id = model.getUserId();
+//        holder.TV_userDescription.setText(model.getDescription());
+//        holder.TV_DatePosted.setText(model.getDate());
+//        String id = model.getUserId();
+//
+//        // getting data from user id
+//        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("Users");
+//         DatabaseReference myRef = ref.child(id);
+//        myRef.addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                if(snapshot.exists()){
+//
+//                    User user = snapshot.getValue(User.class);
+//                    holder.TV_userName.setText(user.getName());
+//                    holder.TV_userOccupation.setText(user.getBio());
+//
+//                    Glide.with(holder.IV_userPic.getContext()).
+//                            load(user.getImage())
+//                            .fitCenter()
+//                            .centerCrop()
+//                            .into(holder.IV_userPic);
+//                }
+//            }
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) { }
+//        });
+//        //setting preferences
+//        if(!model.getPreferences().get(0)){
+//            holder.IV_male.setVisibility(View.GONE); }
+//        else holder.IV_male.setVisibility(View.VISIBLE);
+//        if(!model.getPreferences().get(1)){
+//            holder.IV_female.setVisibility(View.GONE); }
+//        else holder.IV_female.setVisibility(View.VISIBLE);
+//        if(!model.getPreferences().get(2)){
+//            holder.IV_pet.setVisibility(View.GONE); }
+//        else holder.IV_pet.setVisibility(View.VISIBLE);
+//        if(!model.getPreferences().get(3)){
+//            holder.IV_smoke.setVisibility(View.GONE); }
+//        else holder.IV_smoke.setVisibility(View.VISIBLE);
+//
+//
+//        // getting cur user
+//
+//        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+//        final String Uid = firebaseUser.getUid();
+//
+//        if(id.equals(Uid)){
+//            holder.BT_message.setVisibility(View.GONE);
+//            holder.BT_fav.setVisibility(View.GONE);
+//        }
+//        else {
+//            holder.BT_message.setVisibility(View.VISIBLE);
+//            holder.BT_fav.setVisibility(View.VISIBLE);
+//        }
 
-        // getting data from user id
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("Users");
-         DatabaseReference myRef = ref.child(id);
-        myRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.exists()){
 
-                    User user = snapshot.getValue(User.class);
-                    holder.TV_userName.setText(user.getName());
-                    holder.TV_userOccupation.setText(user.getBio());
-
-                    Glide.with(holder.IV_userPic.getContext()).
-                            load(user.getImage())
-                            .fitCenter()
-                            .centerCrop()
-                            .into(holder.IV_userPic);
-                }
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) { }
-        });
-        //setting preferences
-        if(!model.getPreferences().get(0)){
-            holder.IV_male.setVisibility(View.GONE); }
-        else holder.IV_male.setVisibility(View.VISIBLE);
-        if(!model.getPreferences().get(1)){
-            holder.IV_female.setVisibility(View.GONE); }
-        else holder.IV_female.setVisibility(View.VISIBLE);
-        if(!model.getPreferences().get(2)){
-            holder.IV_pet.setVisibility(View.GONE); }
-        else holder.IV_pet.setVisibility(View.VISIBLE);
-        if(!model.getPreferences().get(3)){
-            holder.IV_smoke.setVisibility(View.GONE); }
-        else holder.IV_smoke.setVisibility(View.VISIBLE);
-
-
-        // getting cur user
-
-        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        final String Uid = firebaseUser.getUid();
-
-        if(id.equals(Uid)){
-            holder.BT_message.setVisibility(View.GONE);
-            holder.BT_fav.setVisibility(View.GONE);
-        }
-        else {
-            holder.BT_message.setVisibility(View.VISIBLE);
-            holder.BT_fav.setVisibility(View.VISIBLE);
-        }
         // to see the status of my favorite button
-        checkClick = false;
-        favRef = FirebaseDatabase.getInstance().getReference().child("Favorite");
-
-        holder.BT_fav.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                checkClick = true;
-                favRef.addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if(checkClick){
-                            if(snapshot.child(Uid).child("PersonalPost").hasChild(model.getUserId())){
-                                    favRef.child(Uid).child("PersonalPost").child(model.getUserId()).removeValue();
-                                    checkClick = false;
-                            }
-                            else {
-                                    favRef.child(Uid).child("PersonalPost")
-                                            .child(model.getUserId()).setValue(model.getUserId());
-                                            checkClick = false;
-
-                            }
-
-
-                        }
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
-                });
-            }
-        });
+//        checkClick = false;
+//        favRef = FirebaseDatabase.getInstance().getReference().child("Favorite");
+//
+//        holder.BT_fav.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                checkClick = true;
+//                favRef.addValueEventListener(new ValueEventListener() {
+//                    @Override
+//                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                        if(checkClick){
+//                            if(snapshot.child(Uid).child("PersonalPost").hasChild(model.getUserId())){
+//                                    favRef.child(Uid).child("PersonalPost").child(model.getUserId()).removeValue();
+//                                    checkClick = false;
+//                            }
+//                            else {
+//                                    favRef.child(Uid).child("PersonalPost")
+////                                            .child(model.getUserId()).setValue(model.getUserId());
+////                                            checkClick = false;
+////
+////                            }
+////
+////
+////                        }
+////                    }
+//
+//                    @Override
+//                    public void onCancelled(@NonNull DatabaseError error) {
+//
+//                    }
+//                });
+//            }
+//        });
 
 
 
