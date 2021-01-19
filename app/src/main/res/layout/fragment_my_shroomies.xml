@@ -12,6 +12,8 @@
         android:id="@+id/my_shroomies_tablayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:background="@drawable/background_text_white"
         app:tabIndicatorColor="@color/Alabaster">
 
         <com.google.android.material.tabs.TabItem
@@ -22,6 +24,8 @@
             android:text="Expenses" />
 
         <com.google.android.material.tabs.TabItem
+
+            android:id="@+id/my_shroomie_task_tab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
@@ -77,6 +81,7 @@
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
+        android:layout_margin="20dp"
         android:id="@+id/my_shroomies_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

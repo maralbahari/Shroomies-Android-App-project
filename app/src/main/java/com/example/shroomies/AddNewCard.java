@@ -25,7 +25,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -79,6 +78,8 @@ public class AddNewCard extends DialogFragment  {
         // Inflate the layout for this fragment
 
         v =inflater.inflate(R.layout.fragment_add_new_card, container, false);
+        mAuth = FirebaseAuth.getInstance();
+        rootRef = FirebaseDatabase.getInstance().getReference();
         return v;
     }
 
@@ -95,13 +96,13 @@ public class AddNewCard extends DialogFragment  {
         cameraPermissions=new String[]{Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE};
         storagePermissions=new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
         attachedFile = v.findViewById(R.id.attached_files);
-        mAuth = FirebaseAuth.getInstance();
-
-
-
-//        expensesCardSelected = savedInstanceState.getBoolean("expenses");
-        rootRef = FirebaseDatabase.getInstance().getReference();
-
+       Bundle bundle=this.getArguments();
+       if(bundle!=null){
+           expensesCardSelected=bundle.getBoolean("Expenses");
+           if(!expensesCardSelected){
+               attachButton.setVisibility(v.GONE);
+           }
+       }
 
         fTitle = title.getText().toString();
         fDescription = description.getText().toString();
@@ -119,16 +120,16 @@ public class AddNewCard extends DialogFragment  {
                 mdueDate = dueDate.getText().toString();
                 switch (newcardShroomieRadioGroup.getCheckedRadioButtonId()) {
                     case  R.id.newcard_green_radio_button:
-                        importantButton = "green";
+                        importantButton = "0";
                         break;
                     case  R.id.newcard_red_radio_button:
-                        importantButton = "red";
+                        importantButton = "2";
                         break;
                     case  R.id.newcard_orange_radio_button:
-                        importantButton = "orange";
+                        importantButton = "1";
                         break;
                     default:
-                        importantButton = "red";
+                        importantButton = "0";
                 }
 
                 mdescription = description.getText().toString();
@@ -136,8 +137,13 @@ public class AddNewCard extends DialogFragment  {
                 if (mtitle.isEmpty()){
                     Toast.makeText(getContext(),"Please insert Title",Toast.LENGTH_SHORT).show();
                 }else{
-                    uploadImgToFirebaseStorage(mtitle,mdescription,mdueDate,importantButton,chosenImage);
-                }
+                    if(expensesCardSelected==false){
+                        saveTaskCardToFirebase(mtitle,mdescription,mdueDate,importantButton);
+                    }else if (expensesCardSelected==true){
+                        uploadImgToFirebaseStorage(mtitle, mdescription, mdueDate, importantButton, chosenImage);
+                    }
+                    }
+
                 }
         });
 
@@ -169,7 +175,35 @@ public class AddNewCard extends DialogFragment  {
 
     }
 
+    private void saveTaskCardToFirebase(String mtitle, String mdescription, String mdueDate, String importance) {
 
+        DatabaseReference ref = rootRef.child("apartments").child(mAuth.getCurrentUser().getUid()).child("tasksCards").push();
+        HashMap<String ,Object> newCard = new HashMap<>();
+
+        Calendar calendarDate=Calendar.getInstance();
+        String uniqueID = ref.getKey();
+        SimpleDateFormat mcurrentDate=new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
+        saveCurrentDate=mcurrentDate.format(calendarDate.getTime());
+
+        newCard.put("description" , mdescription);
+        newCard.put("title" ,mtitle);
+        newCard.put("dueDate", mdueDate);
+        newCard.put("importance", importance);
+        newCard.put("date",saveCurrentDate);
+        newCard.put("cardId",uniqueID);
+
+
+        ref.updateChildren(newCard).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()){
+                    dismiss();
+                }
+            }
+        });
+
+
+    }
 
 
     private void chooseFile() {
@@ -192,36 +226,46 @@ public class AddNewCard extends DialogFragment  {
 
     }
 
-
+//    public void saveTaskCardToFireBase(String taskTitle, String taskDescription, String taskDueDate, String taskImportance){
+//
+//        DatabaseReference ref = rootRef.child("tasksCards").child(mAuth.getCurrentUser().getUid()).push();
+//        HashMap<String ,Object> newTaskCard = new HashMap<>();
+//
+//        Calendar mcalendarDate=Calendar.getInstance();
+//        SimpleDateFormat mcurrentDate=new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
+//        saveCurrentDate=mcurrentDate.format(calendarDate.getTime());
+//        Calendar calendarTime=Calendar.getInstance();
+//
+//        newTaskCard.put("taskTitle", taskTitle);
+//        newTaskCard.put("taskDescription", taskDescription);
+//        newTaskCard.put("taskDueDate",taskDueDate);
+//        newTaskCard.put("taskImportance",taskImportance);
+//
+//
+//    }
 
     public void saveToFireBase(String title, String description, String dueDate, String attachUrl, String importance ){
 
-        DatabaseReference ref = rootRef.child("expensesCards").child(mAuth.getCurrentUser().getUid()).push();
-        String newCardUniqueID=ref.getKey();
+        DatabaseReference ref = rootRef.child("apartments").child(mAuth.getCurrentUser().getUid()).child("expensesCards").push();
         HashMap<String ,Object> newCard = new HashMap<>();
 
         Calendar calendarDate=Calendar.getInstance();
-        SimpleDateFormat currentDate=new SimpleDateFormat("dd-MMMM-yyyy");
-        saveCurrentDate=currentDate.format(calendarDate.getTime());
-
-        if (title.trim().isEmpty()||description.trim().isEmpty()||dueDate.trim().isEmpty()||importance.trim().isEmpty()||attachUrl.trim().isEmpty()){
-            Toast.makeText(getActivity(),"Please fill all information",Toast.LENGTH_SHORT).show();
-            return;
-        }
+        String uniqueID = ref.getKey();
+        SimpleDateFormat mcurrentDate=new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
+        saveCurrentDate=mcurrentDate.format(calendarDate.getTime());
 
         newCard.put("description" , description);
         newCard.put("title" ,title);
         newCard.put("dueDate", dueDate);
         newCard.put("importance", importance);
         newCard.put("attachedFile", attachUrl);
-        newCard.put("members", "");
         newCard.put("date",saveCurrentDate);
+        newCard.put("cardId",uniqueID);
 
         ref.updateChildren(newCard).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()){
-//                    getFragment(new MyShroomies());
                     dismiss();
                 }
             }
@@ -231,15 +275,25 @@ public class AddNewCard extends DialogFragment  {
 
     public void uploadImgToFirebaseStorage(final String title,final String description, final String dueDate, final String importance,Uri imgUri){
         if (imgUri==null){
-            saveToFireBase( title,  description,  dueDate,  "no image", importance);
+            saveToFireBase( title,  description,  dueDate,  "", importance);
         }else {
             StorageReference storageReference= FirebaseStorage.getInstance().getReference();
             StorageReference filePath = storageReference.child("Card post image").child(imgUri.getLastPathSegment()+".jpg");
             filePath.putFile(imgUri).addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                    String imgLink = taskSnapshot.getMetadata().getReference().getPath(); //if not succesful add .getReference
-                    saveToFireBase(title,  description,  dueDate,  imgLink, importance);
+
+                }
+            }).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                   task.getResult().getMetadata().getReference().getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                        @Override
+                        public void onSuccess(Uri uri) {
+                            saveToFireBase(title,  description,  dueDate,  uri.toString(), importance);
+                        }
+                    });
+
                 }
             });
         }
@@ -335,12 +389,7 @@ public class AddNewCard extends DialogFragment  {
         }
     }
 
-    private void getFragment (Fragment fragment) {
-        fm = getChildFragmentManager();
-        ft = fm.beginTransaction();
-        ft.replace(R.id.fragmentContainer, fragment);
-        ft.commit();
-    }
+
 
 }
 
