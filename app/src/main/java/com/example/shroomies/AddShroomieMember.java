@@ -5,11 +5,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.SearchView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -20,6 +24,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 public class AddShroomieMember extends DialogFragment {
     View v;
@@ -32,6 +38,8 @@ public class AddShroomieMember extends DialogFragment {
     FirebaseAuth mAuth;
     ArrayList<User> suggestedUser;
     ArrayList<User> selectedUser;
+    ArrayList<String> inboxUser;
+
 
     @Nullable
     @Override
@@ -46,6 +54,11 @@ public class AddShroomieMember extends DialogFragment {
         memberSearchView = v.findViewById(R.id.search_member);
         addShroomieRecycler = v.findViewById(R.id.add_member_recyclerview);
         backToShroomie = v.findViewById(R.id.back_to_shroomie);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+        addShroomieRecycler.setHasFixedSize(true);
+        addShroomieRecycler.setLayoutManager(linearLayoutManager);
+        rootRef = FirebaseDatabase.getInstance().getReference();
+        getMessageInboxListIntoAdapter();
         backToShroomie.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -67,6 +80,16 @@ public class AddShroomieMember extends DialogFragment {
 
     }
 
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if(getDialog()!=null) {
+            getDialog().getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
+            getDialog().getWindow().setBackgroundDrawableResource(R.drawable.create_group_fragment_background);
+        }
+    }
+
     private void retreiveUser(String s) {
         suggestedUser = new ArrayList<>();
         userRecyclerAdapter= new UserAdapter(suggestedUser,getContext());
@@ -78,8 +101,8 @@ public class AddShroomieMember extends DialogFragment {
 
                     for (DataSnapshot ds : snapshot.getChildren()) {
                         User user = ds.getValue(User.class);
-
                         suggestedUser.add(user);
+                        Toast.makeText(getContext(),"HELooo"+suggestedUser,Toast.LENGTH_LONG).show();
                     }
                     //add the members already selected
                     userRecyclerAdapter.notifyDataSetChanged();
@@ -100,6 +123,59 @@ public class AddShroomieMember extends DialogFragment {
         super.onActivityCreated(savedInstanceState);
     }
 
+
+    private void addInboxUsersToRecycler(final List<String> inboxListUsers) {
+        suggestedUser = new ArrayList<>();
+        suggestedUser.clear();
+        userRecyclerAdapter=new UserAdapter(suggestedUser,getContext());
+        addShroomieRecycler.setAdapter(userRecyclerAdapter);
+        for(String id
+                :inboxListUsers){
+            rootRef.child("Users").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if(snapshot.exists()){
+                        User user = snapshot.getValue(User.class);
+                        if(!suggestedUser.contains(user)){
+                            suggestedUser.add(user);
+                            userRecyclerAdapter.notifyDataSetChanged();
+                        }
+
+                    }
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+        }
+    }
+
+    private void getMessageInboxListIntoAdapter() {
+        inboxUser = new ArrayList<>();
+        rootRef.child("PrivateChatList").child(mAuth.getInstance().getCurrentUser().getUid()).orderByChild("receiverID").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
+                    for(DataSnapshot dataSnapshot
+                            :snapshot.getChildren()){
+                        HashMap<String,String> recievers= (HashMap) dataSnapshot.getValue();
+                        inboxUser.add(recievers.get("receiverID"));
+                    }
+                    addInboxUsersToRecycler(inboxUser);
+
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
 
 
 }
