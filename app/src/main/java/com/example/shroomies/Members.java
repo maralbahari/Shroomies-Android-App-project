@@ -27,5 +27,13 @@ public class Members extends DialogFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        addMember=view.findViewById(R.id.add_shroomie_btn);
+        addMember.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                AddShroomieMember add=new AddShroomieMember();
+                add.show(getParentFragmentManager(),"add member to apartment");
+            }
+        });
     }
 }

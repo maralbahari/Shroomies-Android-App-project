@@ -25,7 +25,7 @@ public class AddShroomieMember extends DialogFragment {
     View v;
     SearchView memberSearchView;
     RecyclerView addShroomieRecycler;
-    UserRecyclerAdapter userRecyclerAdapter;
+    UserAdapter userRecyclerAdapter;
     Button backToShroomie;
     DatabaseReference rootRef;
     FirebaseDatabase firebaseDatabase;
@@ -46,7 +46,12 @@ public class AddShroomieMember extends DialogFragment {
         memberSearchView = v.findViewById(R.id.search_member);
         addShroomieRecycler = v.findViewById(R.id.add_member_recyclerview);
         backToShroomie = v.findViewById(R.id.back_to_shroomie);
-
+        backToShroomie.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+            }
+        });
         memberSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {
@@ -64,11 +69,22 @@ public class AddShroomieMember extends DialogFragment {
 
     private void retreiveUser(String s) {
         suggestedUser = new ArrayList<>();
-        userRecyclerAdapter= new UserRecyclerAdapter(suggestedUser,getContext(),"");
+        userRecyclerAdapter= new UserAdapter(suggestedUser,getContext());
         addShroomieRecycler.setAdapter(userRecyclerAdapter);
         rootRef.child("Users").orderByChild("name").equalTo(s).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+
+                    for (DataSnapshot ds : snapshot.getChildren()) {
+                        User user = ds.getValue(User.class);
+
+                        suggestedUser.add(user);
+                    }
+                    //add the members already selected
+                    userRecyclerAdapter.notifyDataSetChanged();
+                }
+
 
             }
 

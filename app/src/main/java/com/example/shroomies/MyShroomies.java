@@ -155,7 +155,13 @@ public class MyShroomies extends Fragment {
 
             }
         });
-
+        memberButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Members members=new Members();
+                members.show(getParentFragmentManager(),"show member");
+            }
+        });
     }
 
     private void retrieveTaskCards() {
