@@ -5,6 +5,7 @@ import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -30,6 +31,7 @@ import java.util.List;
 
 public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapter.UserDetailsViewHolder> {
     private List<User> usersList;
+    private List<User> selectedUserList;
     private Context context;
     private DatabaseReference rootRef;
     private View view;
@@ -38,13 +40,23 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapte
     private String currentUserId;
     private FirebaseAuth mAuth;
 
-    public UserRecyclerAdapter(List<User> usersList, Context context,String fromWhere , String groupID) {
+
+    public UserRecyclerAdapter(List<User> usersList, Context context,String fromWhere , String groupID ) {
         this.usersList = usersList;
         this.context = context;
         this.fromWhere = fromWhere;
         this.groupID = groupID;
         this.currentUserId = mAuth.getInstance().getCurrentUser().getUid();
+
         // create a new list to hold all selected users
+    }
+
+    public UserRecyclerAdapter(List<User> usersList, Context context, String fromWhere, List<User> selectedUserList ) {
+        this.usersList = usersList;
+        this.context = context;
+        this.fromWhere = fromWhere;
+        this.selectedUserList = selectedUserList;
+
     }
 
     public UserRecyclerAdapter(List<User> usersList, Context context,String fromWhere ) {
@@ -76,11 +88,13 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapte
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     String url = snapshot.child("image").getValue(String.class);
-                    GlideApp.with(context)
-                            .load(url)
-                            .fitCenter()
-                            .circleCrop()
-                            .into(holder.userImageProfile);
+                    if(!url.isEmpty()) {
+                        GlideApp.with(context)
+                                .load(url)
+                                .fitCenter()
+                                .circleCrop()
+                                .into(holder.userImageProfile);
+                    }
                 }
 
                 @Override
@@ -98,10 +112,17 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapte
      // if the page is edit group chat
         // enable the user to delte by setting the visiblity of the icon to visible
         // also the visibilty should be gone for the user himself
-     if(fromWhere.equals("EDIT_GROUP_INFO") && !usersList.get(position).getID().equals(currentUserId)){
-         holder.removeUserFromGroupChat.setVisibility(View.VISIBLE);
+     if(fromWhere.equals("EDIT_GROUP_INFO") ){
+         holder.removeUserFromGroupChat.setVisibility(View.GONE);
          holder.addUser.setVisibility(View.GONE);
 
+     }
+     // turn the check button on if the user is selected
+     // only for create chatgroupFragment
+     if(selectedUserList!=null){
+         if(selectedUserList.contains(usersList.get(position))){
+             holder.addUser.setChecked(true);
+         }
      }
     }
 
@@ -111,12 +132,10 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapte
     }
 
     public class UserDetailsViewHolder extends RecyclerView.ViewHolder{
-        ImageButton addUser , removeUserFromGroupChat;
+        ImageButton  removeUserFromGroupChat;
         ImageView userImageProfile;
         TextView username;
-
-
-
+        CheckBox addUser;
         public UserDetailsViewHolder(@NonNull View itemView) {
             super(itemView);
             addUser= itemView.findViewById(R.id.add_user_to_group_button);
@@ -141,7 +160,6 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapte
                                     rootRef.child("GroupChats").child(groupID).updateChildren(updateGroupMembers).addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
-                                            Toast.makeText(context , "Deleted this fucking doodool", Toast.LENGTH_LONG).show();
                                             usersList.remove(getAdapterPosition());
                                             notifyItemRemoved(getAdapterPosition());
                                         }
@@ -157,12 +175,16 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapte
                     }
                 });
             }
-
             addUser.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    addUser.setImageResource(R.drawable.ic_done_outline);
-                    CreateChatGroupFragment.addSelectedMembers(usersList.get(getAdapterPosition()));
+                    if(addUser.isChecked()){
+                        Toast.makeText(context , "user is checked" , Toast.LENGTH_LONG).show();
+                        CreateChatGroupFragment.addSelectedMembers(usersList.get(getAdapterPosition()));
+                    }else {
+                        Toast.makeText(context , "user is unchecked" , Toast.LENGTH_LONG).show();
+                        CreateChatGroupFragment.removeSelectedMember(usersList.get(getAdapterPosition()));
+                    }
                 }
             });
         }

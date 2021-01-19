@@ -256,7 +256,8 @@ class ViewPagerAdapterApartmentView extends PagerAdapter {
                 .load(storageReference)
                 .transform(new RoundedCorners(1))
                 .fitCenter()
-                .centerCrop()
+
+                .centerInside()
                 .into(imageView);
 
         ViewPager vp = (ViewPager) container;

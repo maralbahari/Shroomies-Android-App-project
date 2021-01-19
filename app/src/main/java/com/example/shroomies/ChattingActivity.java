@@ -94,6 +94,16 @@ public class ChattingActivity extends AppCompatActivity {
     Uri chosenImage=null;
     StorageReference filePathName;
     private String imageUrl;
+    private ValueEventListener seenLisenter;
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        rootRef.removeEventListener(seenLisenter);
+
+    }
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -119,6 +129,7 @@ public class ChattingActivity extends AppCompatActivity {
 
 
         retrieveMessages();
+
        addImage.setOnClickListener(new View.OnClickListener() {
            @Override
            public void onClick(View v) {
@@ -177,6 +188,7 @@ public class ChattingActivity extends AppCompatActivity {
             messageTextBody.put("date",saveCurrentDate);
             messageTextBody.put("type","text");
             messageTextBody.put("from",senderID);
+            messageTextBody.put("isSeen" , "false");
             Map messageBodyDetails=new HashMap();
             messageBodyDetails.put(messageSenderRef+"/"+messagePushId,messageTextBody);
            messageBodyDetails.put(messageReceiverRef+"/"+messagePushId,messageTextBody);
@@ -456,6 +468,7 @@ public class ChattingActivity extends AppCompatActivity {
         messageTextBody.put("date",saveCurrentDate);
         messageTextBody.put("type","image");
         messageTextBody.put("from",senderID);
+        messageTextBody.put("isSeen" , "false");
         Map messageBodyDetails=new HashMap();
         messageBodyDetails.put(messageSenderRef+"/"+messagePushId,messageTextBody);
         messageBodyDetails.put(messageReceiverRef+"/"+messagePushId,messageTextBody);
@@ -499,14 +512,17 @@ public class ChattingActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()) {
                     User recieverUser = snapshot.getValue(User.class);
-                    GlideApp.with(getApplicationContext())
-                            .load(recieverUser.getImage())
-                            .fitCenter()
-                            .circleCrop()
-                            .into(receiverProfileImage);
-                    receiverUsername.setText(recieverUser.getName());
-                }
+                    if(!recieverUser.getImage().isEmpty()) {
+                        GlideApp.with(getApplicationContext())
+                                .load(recieverUser.getImage())
+                                .fitCenter()
+                                .circleCrop()
+                                .into(receiverProfileImage);
 
+                    }
+                    receiverUsername.setText(recieverUser.getName());
+                    messageSeen(recieverID);
+                }
             }
 
             @Override
@@ -543,4 +559,30 @@ public class ChattingActivity extends AppCompatActivity {
         });
 
     }
+
+    private void messageSeen(final String receiverID){
+        seenLisenter =rootRef.child("Messages").child(senderID).child(receiverID).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
+                    for(DataSnapshot sp: snapshot.getChildren()){
+                        Messages messages=sp.getValue(Messages.class);
+                        if(messages!=null) {
+                            if (messages.getFrom().equals(senderID) || messages.getFrom().equals(receiverID)) {
+                                HashMap<String, Object> hash = new HashMap<>();
+                                hash.put("isSeen", "true");
+                                sp.getRef().updateChildren(hash);
+                            }
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
 }
