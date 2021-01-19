@@ -11,9 +11,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.List;
 
 public class PersonalPage extends Fragment {
 
@@ -23,12 +24,17 @@ public class PersonalPage extends Fragment {
     private String mParam1;
     private String mParam2;
     private RecyclerView myRecyclerView;
-    private FirebaseUser loggedInUser;
+    
+    //remove
     private FirebaseRecyclerAdapter myFirebaseAdapter;
+    
+    
+    // DO NOT REMOVE
     DatabaseReference favRef, favList;
     private String curUserId;
     Boolean favChecker = false;
-
+    
+    List<PersonalPostModel> personalPostList;
 
     public PersonalPage() {
         // Required empty public constructor
