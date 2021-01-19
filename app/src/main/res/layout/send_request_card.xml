@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_margin="20dp"
+    android:layout_height="wrap_content">
+
+    <androidx.cardview.widget.CardView
+        app:cardCornerRadius="15dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+
+            <ImageView
+                android:layout_margin="20dp"
+                android:id="@+id/request_member_photo"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:padding="10dp"
+                android:src="@drawable/ic_user_profile_svgrepo_com"
+                android:background="@drawable/circle_white_button"
+                />
+
+            <TextView
+                android:id="@+id/request_member_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Name"
+                android:layout_marginTop="35dp"
+                android:layout_toRightOf="@+id/request_member_photo"
+                />
+
+            <Button
+                android:id="@+id/send_request_btn"
+                android:layout_width="120dp"
+                android:layout_height="30dp"
+                android:background="@drawable/ic_send_request"
+                android:layout_marginTop="30dp"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="10dp"
+                android:text="Send request"
+                android:textColor="@color/white"
+                android:textSize="10sp"
+                android:drawableStart="@drawable/ic_request"
+                android:padding="5dp"
+                />
+
+        </RelativeLayout>
+
+    </androidx.cardview.widget.CardView>
+</RelativeLayout>

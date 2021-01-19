@@ -24,7 +24,6 @@ import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.messaging.FirebaseMessagingService;
 
 public class MainActivity extends AppCompatActivity {
     public static String updatedAdresses;
@@ -77,7 +76,7 @@ public class MainActivity extends AppCompatActivity {
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 drawerLayout.closeDrawer(GravityCompat.START);
                 if(menuItem.getItemId()==R.id.setting_menu){
-                    getFragment(new ShroomiesManager());
+                    getFragment(new MyShroomies());
                 }if(menuItem.getItemId()==R.id.my_archive_menu){
                     getFragment(new Archive());
                 }if(menuItem.getItemId()==R.id.my_favorite_menu){

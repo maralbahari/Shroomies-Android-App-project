@@ -7,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
@@ -29,11 +28,13 @@ public class FirebaseMessaging  extends FirebaseMessagingService {
         String user= remoteMessage.getData().get("user");
         if(sent.equals(currentUserID)){
             if(!currentUserID.equals(user)){
-                if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O){
-                    sendOAndAboveNotification(remoteMessage);
-                }else{
-                    sendNormalNotification(remoteMessage);
-                }
+                sendNormalNotification(remoteMessage);
+//                if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O){
+//                    sendNormalNotification(remoteMessage);
+//
+//                }else{
+//                    sendOAndAboveNotification(remoteMessage);
+//                }
             }
         }
     }
@@ -49,6 +50,7 @@ public class FirebaseMessaging  extends FirebaseMessagingService {
         intent.addFlags(intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent=PendingIntent.getActivity(this,i,intent,PendingIntent.FLAG_ONE_SHOT);
         Uri defSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        OreoandAboveNotifactaions oreoandAboveNotifactaions = new OreoandAboveNotifactaions(this);
         NotificationCompat.Builder builder= new NotificationCompat.Builder(this)
                 .setSmallIcon(Integer.parseInt(icon))
                 .setContentText(body)
@@ -78,6 +80,7 @@ public class FirebaseMessaging  extends FirebaseMessagingService {
         Uri defSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         OreoandAboveNotifactaions noti=new OreoandAboveNotifactaions(this);
         Notification.Builder builder= noti.getONotifications(title,body,pendingIntent,defSoundUri,icon);
+
         int j=0;
         if(i>0){
             j=i;

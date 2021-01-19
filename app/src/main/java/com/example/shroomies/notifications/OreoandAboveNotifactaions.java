@@ -17,6 +17,7 @@ private NotificationManager notificationManager;
     public OreoandAboveNotifactaions(Context base) {
         super(base);
         if(Build.VERSION.SDK_INT>Build.VERSION_CODES.O){
+
             createChannel();
         }
     }
@@ -26,7 +27,7 @@ private NotificationManager notificationManager;
         notificationChannel.enableLights(true);
         notificationChannel.enableVibration(true);
         notificationChannel.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
-
+        getManager().createNotificationChannel(notificationChannel);
     }
     public NotificationManager getManager(){
         if(notificationManager == null){
