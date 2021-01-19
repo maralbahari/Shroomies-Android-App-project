@@ -1,7 +1,6 @@
 package com.example.shroomies;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,13 +11,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -70,7 +66,10 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapte
     @Override
     public UserDetailsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(context);
-        view  = layoutInflater.inflate(R.layout.suggestion_user_list_,parent,false);
+
+            view  = layoutInflater.inflate(R.layout.suggestion_user_list_,parent,false);
+
+
         rootRef= FirebaseDatabase.getInstance().getReference();
         return new UserDetailsViewHolder(view);
     }
@@ -105,6 +104,7 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapte
 
 
         }
+
      // if navigating from create group dialog 2 then we dont need the add user button to be shown or accessible
      if(!fromWhere.equals("SEARCH_PAGE")){
          holder.addUser.setVisibility(view.GONE);

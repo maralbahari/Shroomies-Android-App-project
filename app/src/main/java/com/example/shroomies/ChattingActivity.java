@@ -14,12 +14,9 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.Window;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -158,7 +155,6 @@ public class ChattingActivity extends AppCompatActivity {
 
         linearLayoutManager=new LinearLayoutManager(this);
         linearLayoutManager.setStackFromEnd(true);
-        linearLayoutManager.setSmoothScrollbarEnabled(true);
         chattingRecycler.setHasFixedSize(true);
         chattingRecycler.setLayoutManager(linearLayoutManager);
 
@@ -198,7 +194,7 @@ public class ChattingActivity extends AppCompatActivity {
                public void onComplete(@NonNull Task task) {
                    if(task.isSuccessful()){
                        messageBody.setText("");
-                       chattingRecycler.smoothScrollToPosition(messagesAdapter.getItemCount());
+                       chattingRecycler.smoothScrollToPosition(messagesAdapter.getItemCount()-1);
                        if(firstChat){
                            addUserToInbox();
                        }
@@ -245,13 +241,18 @@ public class ChattingActivity extends AppCompatActivity {
                             JsonObjectRequest jsonObjectRequest=new JsonObjectRequest("https://fcm.googleapis.com/fcm/send", senderJsonObj, new Response.Listener<JSONObject>() {
                                 @Override
                                 public void onResponse(JSONObject response) {
-
+                                    try {
+                                        Toast.makeText(getApplicationContext(),response.get("success").toString(),Toast.LENGTH_LONG).show();
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                    Log.d("JSON_RESPONSE","onResponse:"+response.toString());
                                 }
 
                             }, new Response.ErrorListener() {
                                 @Override
                                 public void onErrorResponse(VolleyError error) {
-                                    Toast.makeText(getApplicationContext(), error.toString(), Toast.LENGTH_SHORT).show();
+                                    Log.d("JSON_RESPONSE","onResponse:"+error.toString());
 
                                 }
                             })
@@ -265,13 +266,11 @@ public class ChattingActivity extends AppCompatActivity {
                                 }
 
                             };
-
                             requestQueue.add(jsonObjectRequest);
                             requestQueue.start();
                         }catch (JSONException e){
                             e.printStackTrace();
                         }
-
                     }
                 }
 
@@ -289,7 +288,7 @@ public class ChattingActivity extends AppCompatActivity {
         messagesArrayList = new ArrayList<>();
        messagesAdapter=new MessagesAdapter(messagesArrayList , getApplication());
        chattingRecycler.setAdapter(messagesAdapter);
-        rootRef.child("Messages").child(senderID).child(receiverID).addListenerForSingleValueEvent(new ValueEventListener() {
+        rootRef.child("Messages").child(senderID).child(receiverID).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 messagesArrayList.clear();
@@ -308,7 +307,7 @@ public class ChattingActivity extends AppCompatActivity {
                     firstChat= true;
                 }else{
                     // scroll to the end of the recycler if there are messages
-                    chattingRecycler.smoothScrollToPosition(messagesAdapter.getItemCount());
+                    chattingRecycler.smoothScrollToPosition(messagesAdapter.getItemCount()-1);
                 }
 
                 }
@@ -481,7 +480,6 @@ public class ChattingActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task task) {
                 if(task.isSuccessful()){
                     messageBody.setText("");
-                    messagesAdapter.notifyDataSetChanged();
                 }else{
                     String message =task.getException().getMessage();
                     Toast.makeText(getApplicationContext(),"Error "+message,Toast.LENGTH_SHORT).show();
