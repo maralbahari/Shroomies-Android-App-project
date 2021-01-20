@@ -63,6 +63,7 @@ public class MyShroomies extends Fragment {
         v = inflater.inflate(R.layout.fragment_my_shroomies, container, false);
         rootRef = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
+        getUserRoomId();
         return v;
     }
 
@@ -81,8 +82,8 @@ public class MyShroomies extends Fragment {
         expensesCardsList = new ArrayList<>();
         expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList,getContext(),false);
         shroomieSpinnerFilter = v.findViewById(R.id.shroomie_spinner_filter);
-        getUserRoomId();
-        retreiveExpensesCards();
+
+
         myShroomiesTablayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
@@ -170,6 +171,7 @@ public class MyShroomies extends Fragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()){
                     apartmentID=snapshot.getValue().toString();
+                    retreiveExpensesCards();
                 }
             }
 

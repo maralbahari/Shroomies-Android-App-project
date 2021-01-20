@@ -91,7 +91,7 @@ public class AddShroomieMember extends DialogFragment {
 
     private void retreiveUser(String s) {
         suggestedUser = new ArrayList<>();
-        userRecyclerAdapter= new UserAdapter(suggestedUser,getContext());
+        userRecyclerAdapter= new UserAdapter(suggestedUser,getContext(),true);
         addShroomieRecycler.setAdapter(userRecyclerAdapter);
         rootRef.child("Users").orderByChild("name").equalTo(s).addValueEventListener(new ValueEventListener() {
             @Override
@@ -126,7 +126,7 @@ public class AddShroomieMember extends DialogFragment {
     private void addInboxUsersToRecycler(final List<String> inboxListUsers) {
         suggestedUser = new ArrayList<>();
         suggestedUser.clear();
-        userRecyclerAdapter=new UserAdapter(suggestedUser,getContext());
+        userRecyclerAdapter=new UserAdapter(suggestedUser,getContext(),true);
         addShroomieRecycler.setAdapter(userRecyclerAdapter);
         for(String id
                 :inboxListUsers){
