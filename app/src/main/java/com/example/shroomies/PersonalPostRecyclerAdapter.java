@@ -44,7 +44,7 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final PersonalPostViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final PersonalPostViewHolder holder, final int position) {
         holder.TV_userDescription.setText(personalPostModelList.get(position).getDescription());
         holder.TV_DatePosted.setText(personalPostModelList.get(position).getDate());
         String id = personalPostModelList.get(position).getUserID();
@@ -87,18 +87,51 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
 
 
         // getting cur user
-
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         final String Uid = firebaseUser.getUid();
 
         if(id.equals(Uid)){
             holder.BT_message.setVisibility(View.GONE);
-            holder.BT_fav.setVisibility(View.GONE);
+//            holder.BT_fav.setVisibility(View.GONE);
         }
         else {
             holder.BT_message.setVisibility(View.VISIBLE);
-            holder.BT_fav.setVisibility(View.VISIBLE);
+//            holder.BT_fav.setVisibility(View.VISIBLE);
         }
+        final Boolean[] checkClick = {false};
+        final String postkey = personalPostModelList.get(position).getId();
+        final DatabaseReference favRef = FirebaseDatabase.getInstance().getReference().child("Favorite");
+
+        holder.BT_fav.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                checkClick[0] = true;
+                favRef.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if(checkClick[0]){
+                            if(snapshot.child(Uid).child("PersonalPost").hasChild(personalPostModelList.get(position).getId())){
+                                favRef.child(Uid).child("PersonalPost").child(personalPostModelList.get(position).getId()).removeValue();
+                                checkClick[0] = false;
+                            }
+                            else {
+                                favRef.child(Uid).child("PersonalPost")
+                                        .child(personalPostModelList.get(position).getId()).setValue(personalPostModelList.get(position).getId());
+                                checkClick[0] = false;
+
+                            }
+
+
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+            }
+        });
 
 
 

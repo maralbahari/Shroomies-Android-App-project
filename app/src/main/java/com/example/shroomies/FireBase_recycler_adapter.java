@@ -99,7 +99,7 @@ public class FireBase_recycler_adapter extends FirebaseRecyclerAdapter<Model_per
 //        }
 
 
-        // to see the status of my favorite button
+//         to see the status of my favorite button
 //        checkClick = false;
 //        favRef = FirebaseDatabase.getInstance().getReference().child("Favorite");
 //
@@ -112,19 +112,19 @@ public class FireBase_recycler_adapter extends FirebaseRecyclerAdapter<Model_per
 //                    public void onDataChange(@NonNull DataSnapshot snapshot) {
 //                        if(checkClick){
 //                            if(snapshot.child(Uid).child("PersonalPost").hasChild(model.getUserId())){
-//                                    favRef.child(Uid).child("PersonalPost").child(model.getUserId()).removeValue();
-//                                    checkClick = false;
+//                                favRef.child(Uid).child("PersonalPost").child(model.getUserId()).removeValue();
+//                                checkClick = false;
 //                            }
 //                            else {
-//                                    favRef.child(Uid).child("PersonalPost")
-////                                            .child(model.getUserId()).setValue(model.getUserId());
-////                                            checkClick = false;
-////
-////                            }
-////
-////
-////                        }
-////                    }
+//                                favRef.child(Uid).child("PersonalPost")
+//                                        .child(model.getUserId()).setValue(model.getUserId());
+//                                checkClick = false;
+//
+//                            }
+//
+//
+//                        }
+//                    }
 //
 //                    @Override
 //                    public void onCancelled(@NonNull DatabaseError error) {
