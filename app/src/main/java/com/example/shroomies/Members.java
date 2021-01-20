@@ -192,7 +192,7 @@ public class Members extends DialogFragment {
     private void getRequestedUsersDetails(ArrayList<String> requestUsersIDs) {
         getRequestUsersList = new ArrayList<>();
         getRequestUsersList.addAll(membersList);
-        userAdapter = new UserAdapter(getRequestUsersList, getContext(),false);
+        userAdapter = new UserAdapter(getRequestUsersList, getContext(),false,true);
         membersRecycler.setAdapter(userAdapter);
         for (String id: requestUsersIDs){
             rootRef.child("Users").child(id).addValueEventListener(new ValueEventListener() {
