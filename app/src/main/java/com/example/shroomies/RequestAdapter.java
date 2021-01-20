@@ -16,8 +16,11 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,11 +31,29 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
     FirebaseAuth mAuth;
     DatabaseReference rootRef;
     private ArrayList<User> usersList;
+    String currentUserAppartmentId;
 
     public RequestAdapter(Context context,ArrayList<User> usersList) {
         this.context = context;
         this.usersList=usersList;
     }
+
+    private void getUserRoomId(){
+        rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
+                    currentUserAppartmentId=snapshot.getValue().toString();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
 
     @NonNull
     @Override
@@ -41,6 +62,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
         v = layoutInflater.inflate(R.layout.request_card,parent,false);
         rootRef= FirebaseDatabase.getInstance().getReference();
         mAuth= FirebaseAuth.getInstance();
+        getUserRoomId();
         return  new RequestViewHolder(v);
     }
 
@@ -75,7 +97,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
             accept.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(usersList.get(getAdapterPosition()).getIsPartOfRoom().equals("false")){
+                    if(currentUserAppartmentId.equals(mAuth.getCurrentUser().getUid())){
                         acceptRequest(usersList.get(getAdapterPosition()).getID(),usersList.get(getAdapterPosition()).getName());
 
                     }else{
@@ -91,6 +113,9 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
                 }
             });
         }
+
+
+
         private void rejectRequest(final String senderID){
             rootRef.child("shroomieRequests").child(mAuth.getCurrentUser().getUid()).child(senderID).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override

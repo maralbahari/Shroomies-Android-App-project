@@ -48,7 +48,7 @@ public class MyShroomies extends Fragment {
     TasksCardAdapter tasksCardAdapter;
     ExpensesCardAdapter expensesCardAdapter;
     String tabSelected="expenses";
-    String apartmentID=null;
+    String apartmentID="";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
