@@ -1,8 +1,6 @@
 package com.example.shroomies;
 
 import android.content.Context;
-import android.graphics.Color;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,24 +43,24 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
        Messages messages=userMessagesList.get(position);
        String fromUserID=messages.getFrom();
        String fromMessageType=messages.getType();
+        holder.senderLinearLayout.setVisibility(View.GONE);
+        holder.receiverLinearLayout.setVisibility(View.GONE);
+        holder.receiverImageView.setVisibility(View.GONE);
+        holder.senderImageView.setVisibility(View.GONE);
        if(fromMessageType.equals("text")){
            if(fromUserID.equals(senderID)){
-               holder.receiverLinearLayout.setVisibility(View.INVISIBLE);
+               holder.senderLinearLayout.setVisibility(View.VISIBLE);
               holder.senderTextView.setText(messages.getMessage());
               holder.senderDate.setText(messages.getDate());
            }
            else{
-               holder.senderLinearLayout.setVisibility(View.INVISIBLE);
                holder.receiverLinearLayout.setVisibility(View.VISIBLE);
                holder.receiverTextView.setText(messages.getMessage());
                holder.receiverDate.setText(messages.getDate());
            }
        }if(fromMessageType.equals("image")) {
-            holder.senderLinearLayout.setVisibility(View.INVISIBLE);
-            holder.receiverLinearLayout.setVisibility(View.INVISIBLE);
             StorageReference storageReference = FirebaseStorage.getInstance().getReference(messages.getMessage());
             if (fromUserID.equals(senderID)) {
-                holder.receiverImageView.setVisibility(View.INVISIBLE);
                 holder.senderImageView.setVisibility(View.VISIBLE);
                 GlideApp.with(context)
                         .load(storageReference)
@@ -72,7 +70,6 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
                         .placeholder(R.drawable.ic_icon_awesome_image)
                         .into(holder.senderImageView);
             } else {
-                holder.senderImageView.setVisibility(View.INVISIBLE);
                 holder.receiverImageView.setVisibility(View.VISIBLE);
                 GlideApp.with(context)
                         .load(storageReference)

@@ -2,25 +2,24 @@ package com.example.shroomies;
 
 import java.util.List;
 
-public class Model_personal {
+public class PersonalPostModel {
 
-
-    String date, description,  userID;
+    String date, description,  userID, id;
     int price;
     long latitude, longitude;
 
     List<Boolean> preferences;
 
-    public Model_personal() {
-    }
+    public PersonalPostModel() {}
 
-    public Model_personal(String date, String description, String userID, long latitude, long longitude, int price, List<Boolean> preferences) {
+    public PersonalPostModel(String date, String description, String userID, String id, int price, long latitude, long longitude, List<Boolean> preferences) {
         this.date = date;
         this.description = description;
         this.userID = userID;
+        this.id = id;
+        this.price = price;
         this.latitude = latitude;
         this.longitude = longitude;
-        this.price = price;
         this.preferences = preferences;
     }
 
@@ -40,12 +39,28 @@ public class Model_personal {
         this.description = description;
     }
 
-    public String getUserId() {
+    public String getUserID() {
         return userID;
     }
 
-    public void setUserId(String userId) {
+    public void setUserID(String userID) {
         this.userID = userID;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public int getPrice() {
+        return price;
+    }
+
+    public void setPrice(int price) {
+        this.price = price;
     }
 
     public long getLatitude() {
@@ -62,14 +77,6 @@ public class Model_personal {
 
     public void setLongitude(long longitude) {
         this.longitude = longitude;
-    }
-
-    public int getPrice() {
-        return price;
-    }
-
-    public void setPrice(int price) {
-        this.price = price;
     }
 
     public List<Boolean> getPreferences() {

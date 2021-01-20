@@ -1,5 +1,6 @@
 package com.example.shroomies;
 
+import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -10,17 +11,23 @@ public class User implements Parcelable {
     private String bio;
     private String image;
     private String ID;
-
+    private Context context;
     public User() {
 
     }
-    public User(String name, String email, String username, String bio, String imageurl, String id) {
+
+    public Context getContext() {
+        return context;
+    }
+
+    public User(String name, String email, String username, String bio, String imageurl, String id, Context context) {
         this.name = name;
         this.email = email;
 
         this.bio = bio;
         this.image = imageurl;
         this.ID = id;
+        this.context = context;
     }
 
     protected User(Parcel in) {

@@ -63,20 +63,17 @@
                 android:textSize="22sp" />
 
 
-                    <com.like.LikeButton
-                        app:icon_type="star"
-                        app:icon_size="15dp"
-                        android:id="@+id/star_button"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@id/IW_People"
-                        android:layout_toRightOf="@id/IW_People"
-                        android:layout_marginHorizontal="170dp"
-                        app:liked="true"
-                        app:dots_primary_color="@color/Black"
-                        app:dots_secondary_color="#F5CB5C"
-                        />
-
+            <ImageButton
+                android:id="@+id/BUT_fav_apt"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_above="@id/start_chat_button_apartment_card"
+                android:layout_alignParentRight="true"
+                android:layout_marginRight="36dp"
+                android:layout_marginBottom="-9dp"
+                android:background="@android:color/transparent"
+                android:paddingRight="30dp"
+                android:src="@drawable/ic_icon_awesome_star_unchecked" />
 
             <ImageView
                 android:id="@+id/IW_People"
