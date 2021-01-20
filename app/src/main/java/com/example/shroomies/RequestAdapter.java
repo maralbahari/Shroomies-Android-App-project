@@ -98,10 +98,10 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
                 @Override
                 public void onClick(View v) {
                     if(currentUserAppartmentId.equals(mAuth.getCurrentUser().getUid())){
-                        acceptRequest(usersList.get(getAdapterPosition()).getID(),usersList.get(getAdapterPosition()).getName());
+                        acceptRequest(usersList.get(getAdapterPosition()).getID(),usersList.get(getAdapterPosition()).getName(),usersList.get(getAdapterPosition()).getIsPartOfRoom());
 
                     }else{
-                        Toast.makeText(context,"You cannot accept requests  "+senderName+" apartment",Toast.LENGTH_LONG).show();
+                        Toast.makeText(context,"You cannot accept requests, you are part of an apartment already",Toast.LENGTH_LONG).show();
 
                     }
                 }
@@ -120,7 +120,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
             rootRef.child("shroomieRequests").child(mAuth.getCurrentUser().getUid()).child(senderID).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
-                    rootRef.child("shroomieRequest").child(senderID).child(mAuth.getCurrentUser().getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    rootRef.child("shroomieRequests").child(senderID).child(mAuth.getCurrentUser().getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
                             usersList.remove(getAdapterPosition());
@@ -130,15 +130,15 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
                 }
             });
         }
-        private void acceptRequest(final String senderID,final String senderName){
-            rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").setValue(senderID).addOnCompleteListener(new OnCompleteListener<Void>() {
+        private void acceptRequest(final String senderID,final String senderName,final String senderApartmentID){
+            rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").setValue(senderApartmentID).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     if(task.isSuccessful()){
                         rootRef.child("shroomieRequests").child(mAuth.getCurrentUser().getUid()).child(senderID).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                rootRef.child("shroomieRequest").child(senderID).child(mAuth.getCurrentUser().getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                rootRef.child("shroomieRequests").child(senderID).child(mAuth.getCurrentUser().getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
                                         final HashMap<String, Object> addUsers = new HashMap<>();

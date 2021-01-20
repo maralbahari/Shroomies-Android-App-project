@@ -33,7 +33,14 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
    private FirebaseAuth mAuth;
    Boolean fromSearchMember ;
    String apartmentID="";
+   Boolean fromMemberPageWithRequestMember;
 
+    public UserAdapter(ArrayList<User> userList, Context context, Boolean fromSearchMember,Boolean fromMemberPageWithRequestMember) {
+        this.userList = userList;
+        this.context = context;
+        this.fromSearchMember=fromSearchMember;
+        this.fromMemberPageWithRequestMember=fromMemberPageWithRequestMember;
+    }
     public UserAdapter(ArrayList<User> userList, Context context, Boolean fromSearchMember) {
         this.userList = userList;
         this.context = context;
@@ -54,9 +61,34 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     }
 
     @Override
-    public void onBindViewHolder(@NonNull UserAdapter.UserViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull UserAdapter.UserViewHolder holder, final int position) {
         if (fromSearchMember){
             holder.sendRequest.setVisibility(View.VISIBLE);
+            holder.msgMember.setVisibility(View.GONE);
+            holder.removeMember.setVisibility(View.GONE);
+        }
+        if(fromMemberPageWithRequestMember){
+            holder.sendRequest.setVisibility(View.VISIBLE);
+            holder.sendRequest.setText("requested");
+            holder.msgMember.setVisibility(View.GONE);
+            holder.removeMember.setVisibility(View.GONE);
+            holder.sendRequest.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    rootRef.child("shroomieRequests").child(mAuth.getCurrentUser().getUid()).child(userList.get(position).getID()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            rootRef.child("shroomieRequests").child(userList.get(position).getID()).child(mAuth.getCurrentUser().getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    userList.remove(position);
+                                    notifyItemRemoved(position);
+                                }
+                            });
+                        }
+                    });
+                }
+            });
         }
 
        holder.userName.setText(userList.get(position).getName());
