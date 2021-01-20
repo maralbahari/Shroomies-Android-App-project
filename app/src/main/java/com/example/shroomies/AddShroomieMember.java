@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -102,7 +101,6 @@ public class AddShroomieMember extends DialogFragment {
                     for (DataSnapshot ds : snapshot.getChildren()) {
                         User user = ds.getValue(User.class);
                         suggestedUser.add(user);
-                        Toast.makeText(getContext(),"HELooo"+suggestedUser,Toast.LENGTH_LONG).show();
                     }
                     //add the members already selected
                     userRecyclerAdapter.notifyDataSetChanged();
