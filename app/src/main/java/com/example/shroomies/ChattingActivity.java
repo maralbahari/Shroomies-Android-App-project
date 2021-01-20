@@ -43,6 +43,7 @@ import com.example.shroomies.notifications.Token;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -125,7 +126,7 @@ public class ChattingActivity extends AppCompatActivity {
         });
 
 
-        retrieveMessages();
+//        retrieveMessages();
 
        addImage.setOnClickListener(new View.OnClickListener() {
            @Override
@@ -284,24 +285,26 @@ public class ChattingActivity extends AppCompatActivity {
 
     }
 
-   public void retrieveMessages(){
+    @Override
+    protected void onStart() {
+        super.onStart();
+        retrieveMessages();
+    }
+
+    public void retrieveMessages(){
         messagesArrayList = new ArrayList<>();
        messagesAdapter=new MessagesAdapter(messagesArrayList , getApplication());
        chattingRecycler.setAdapter(messagesAdapter);
-        rootRef.child("Messages").child(senderID).child(receiverID).addValueEventListener(new ValueEventListener() {
+        rootRef.child("Messages").child(senderID).child(receiverID).addChildEventListener(new ChildEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 messagesArrayList.clear();
                 if(snapshot.exists()){
-                    for (DataSnapshot dataSnapshot
-                    :snapshot.getChildren()){
-                        Messages messages = dataSnapshot.getValue(Messages.class);
+                        Messages messages = snapshot.getValue(Messages.class);
                         messagesArrayList.add(messages);
                     }
                     messagesAdapter.notifyDataSetChanged();
-
-
-                }
+                    chattingRecycler.smoothScrollToPosition(chattingRecycler.getAdapter().getItemCount());
                 if (messagesArrayList.size()==0|| messagesArrayList==null){
 
                     firstChat= true;
@@ -310,7 +313,25 @@ public class ChattingActivity extends AppCompatActivity {
                     chattingRecycler.smoothScrollToPosition(messagesAdapter.getItemCount()-1);
                 }
 
-                }
+
+            }
+
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
 

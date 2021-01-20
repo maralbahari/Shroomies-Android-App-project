@@ -19,6 +19,8 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -254,10 +256,7 @@ class ViewPagerAdapterApartmentView extends PagerAdapter {
         // Load the image using Glide
         GlideApp.with(this.context)
                 .load(storageReference)
-                .transform(new RoundedCorners(1))
-                .fitCenter()
-
-                .centerInside()
+                .transform(new CenterCrop())
                 .into(imageView);
 
         ViewPager vp = (ViewPager) container;

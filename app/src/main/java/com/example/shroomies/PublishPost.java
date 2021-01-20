@@ -587,12 +587,10 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
         post.put("preferences" , property);
         post.put("image_url" , IMAGE_URL );
         post.put("userName" , userName);
-
-
-
+        post.put("id" ,userUid+postUniqueName);
         // add the time of the post
         Calendar calendar = Calendar.getInstance();
-        post.put("date",new SimpleDateFormat("dd-MMMM-yyyy").format(calendar.getTime()));
+        post.put("date",new SimpleDateFormat("dd-MMMM-yyyy HH:mm:ss aa").format(calendar.getTime()));
 
         //add image and date and user profile
 
@@ -639,7 +637,7 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
 
             }
         });
-
+        postUniqueName = getUniqueName();
         uploadingProgress.setVisibility(View.VISIBLE);
         publishPostButton.setVisibility(View.INVISIBLE);
         uploadingProgress.playAnimation();
@@ -653,11 +651,12 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
         post.put("longitude",locationLtLng.longitude);
         post.put("preferences" , property);
         post.put("userName" , userName);
+        post.put("id" , userUid+postUniqueName);
 
         // add the time of the post
         Calendar calendar = Calendar.getInstance();
 
-        post.put("date",new SimpleDateFormat("dd-MMMM-yyyy").format(calendar.getTime()));
+        post.put("date",new SimpleDateFormat("dd-MMMM-yyyy HH:mm:ss aa").format(calendar.getTime()));
         //add image and date and user profile
         postUniqueName = getUniqueName();
 

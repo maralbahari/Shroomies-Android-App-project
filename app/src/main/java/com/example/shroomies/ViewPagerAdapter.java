@@ -11,6 +11,10 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.viewpager.widget.PagerAdapter;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.MultiTransformation;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.google.android.gms.maps.model.Circle;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
@@ -46,12 +50,17 @@ public class ViewPagerAdapter extends PagerAdapter {
         imageView.setPadding(5,5,5,5);
 //        Transformation transformation = new context.getDrawable(R.drawable.post_card_rectangle_round));
 
-        Picasso.get().load(imageUris.get(position))
-                .fit()
-                .centerCrop()
-                .transform(
-                        new RoundedCornersTransformation(50 ,0)
-                )
+
+        MultiTransformation multiLeft = new MultiTransformation(new CenterCrop(), new RoundedCorners(25));
+
+//        Glide.with(context)
+//                .load(message.imageUrl)
+//                .apply(bitmapTransform(multiLeft))
+//                .into(aq.id(R.id.ivSingleImage).getImageView());
+
+        Glide.with(context)
+                .load(imageUris.get(position))
+                .transform(multiLeft)
                 .into(imageView);
         container.addView(imageView);
 
