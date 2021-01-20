@@ -34,6 +34,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
@@ -65,6 +66,7 @@ public class GroupChattingActivity extends AppCompatActivity {
     private DatabaseReference rootRef;
     private String senderID;
     private String saveCurrentDate,saveCurrentTime;
+    private Group group;
     private List<Group> groupMessagesArrayList=new ArrayList<>();
     private LinearLayoutManager linearLayoutManager;
     private GroupMessagesAdapter groupMessagesAdapter;
@@ -77,6 +79,15 @@ public class GroupChattingActivity extends AppCompatActivity {
     Uri chosenImage=null;
     StorageReference filePathName;
     private String imageUrl;
+    private ValueEventListener seenListener;
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        rootRef.removeEventListener(seenListener);
+
+    }
+
 
 
     @Override
@@ -113,6 +124,8 @@ public class GroupChattingActivity extends AppCompatActivity {
         Bundle extras = getIntent().getExtras();
         if(!(extras==null)){
             groupID=extras.getString("GROUPID");
+
+            //gets the  group details and sets them to the group variable
             getGroupDetails();
             loadMessages();
         }
@@ -160,6 +173,17 @@ public class GroupChattingActivity extends AppCompatActivity {
             messageDetails.put("date",saveCurrentDate);
             messageDetails.put("type","text");
             messageDetails.put("from",senderID);
+            HashMap<String, Object> seenBy = new HashMap<>();
+            // add each members id with false next to it
+            // this is going to act like the is isseen in the chatting  activity
+            for(String id
+                    :group.getGroupMembers()){
+                seenBy.put(id ,"false");
+            }
+
+            messageDetails.put("seenBy" ,seenBy );
+
+
             reference.updateChildren(messageDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
@@ -204,7 +228,7 @@ public class GroupChattingActivity extends AppCompatActivity {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     if(snapshot.exists()){
-                            Group group = snapshot.getValue(Group.class);
+                            group = snapshot.getValue(Group.class);
                             groupNameTextview.setText(group.getGroupName());
 
                             GlideApp.with(getApplicationContext())
@@ -213,6 +237,7 @@ public class GroupChattingActivity extends AppCompatActivity {
                                     .circleCrop()
                                     .into(groupImage);
                             groupNameTextview.setText(group.getGroupName());
+                            messageSeen();
                     }
                 }
 
@@ -293,6 +318,8 @@ public class GroupChattingActivity extends AppCompatActivity {
                     boolean storageAccepted=grantResults[1]==PackageManager.PERMISSION_GRANTED;
                     if(cameraAccepted && storageAccepted){
                         pickFromCamera();
+
+
                     }else{
                         requestPermissions(new String[]{Manifest.permission.CAMERA}, CAMERA_REQUEST_CODE);
                         Toast.makeText(this,"Camera and storage both permissions are neccessary....",Toast.LENGTH_SHORT).show();
@@ -371,6 +398,19 @@ public class GroupChattingActivity extends AppCompatActivity {
         messageDetails.put("date",saveCurrentDate);
         messageDetails.put("type","image");
         messageDetails.put("from",senderID);
+
+        // create a seen by node and add it inside the message
+        HashMap<String, Object> seenBy = new HashMap<>();
+        // add each members id with false next to it
+        // this is going to act like the is isseen in the chatting  activity
+        for(String id
+        :group.getGroupMembers()){
+            seenBy.put(id ,"false");
+        }
+
+        messageDetails.put("seenBy" ,seenBy );
+
+
         reference.updateChildren(messageDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
@@ -385,6 +425,32 @@ public class GroupChattingActivity extends AppCompatActivity {
             }
         });
     }
+
+    private void messageSeen() {
+        seenListener = rootRef.child("GroupChats").child(groupID).child("messages").child("seenBy").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
+                    for(DataSnapshot dataSnapshot
+                        :snapshot.getChildren()){
+                        if(dataSnapshot.getKey().equals(mAuth.getCurrentUser())){
+                            dataSnapshot.getRef().setValue("true");
+                        }
+                    }
+                    MainActivity.setBadgeToNumberOfNotifications(rootRef, mAuth);
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+
+    }
+
 
 
 

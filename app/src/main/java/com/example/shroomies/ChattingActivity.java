@@ -285,11 +285,7 @@ public class ChattingActivity extends AppCompatActivity {
 
     }
 
-//    @Override
-//    protected void onStart() {
-//        super.onStart();
-//        retrieveMessages();
-//    }
+
 
     public void retrieveMessages(){
         messagesArrayList = new ArrayList<>();

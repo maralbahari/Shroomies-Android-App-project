@@ -10,7 +10,10 @@ public class Group implements Parcelable {
     String groupImage;
     String groupID;
     List<String> groupMembers;
+
     public String date,time,type,message,from;
+
+    public String seenBy;
     Group(){
 
     }
