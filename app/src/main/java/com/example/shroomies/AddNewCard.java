@@ -21,7 +21,9 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
@@ -82,6 +84,22 @@ public class AddNewCard extends DialogFragment  {
         rootRef = FirebaseDatabase.getInstance().getReference();
         return v;
     }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getDialog().getWindow().setWindowAnimations(R.style.DialogAnimation);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if(getDialog()!=null) {
+            getDialog().getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.WRAP_CONTENT);
+            getDialog().getWindow().setBackgroundDrawableResource(R.drawable.create_group_fragment_background);
+        }
+    }
+
 
 
     @Override

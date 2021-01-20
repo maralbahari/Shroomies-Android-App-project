@@ -16,6 +16,8 @@ import androidx.recyclerview.widget.RecyclerView;
 public class Members extends DialogFragment {
     View v;
     Button addMember, leaveRoom;
+
+
     RecyclerView membersRecycler;
 
 
@@ -30,10 +32,11 @@ public class Members extends DialogFragment {
     public void onStart() {
         super.onStart();
         if(getDialog()!=null) {
-            getDialog().getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
+            getDialog().getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.WRAP_CONTENT);
             getDialog().getWindow().setBackgroundDrawableResource(R.drawable.create_group_fragment_background);
         }
     }
+
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -46,5 +49,13 @@ public class Members extends DialogFragment {
                 add.show(getParentFragmentManager(),"add member to apartment");
             }
         });
+
     }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getDialog().getWindow().setWindowAnimations(R.style.DialogAnimation);
+    }
+
 }
