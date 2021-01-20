@@ -39,7 +39,7 @@ public class Members extends DialogFragment {
     private void getMember(){
         membersId = new ArrayList<>();
 
-        rootRef.child("apartments").child(apartmentID).child("apartmentMember").addValueEventListener(new ValueEventListener() {
+        rootRef.child("apartments").child(apartmentID).child("apartmentMembers").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()){
