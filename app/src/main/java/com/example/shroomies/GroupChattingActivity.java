@@ -77,6 +77,8 @@ public class GroupChattingActivity extends AppCompatActivity {
     Uri chosenImage=null;
     StorageReference filePathName;
     private String imageUrl;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -104,6 +106,7 @@ public class GroupChattingActivity extends AppCompatActivity {
         groupImage=findViewById(R.id.receiver_image_profile);
         chattingRecycler=findViewById(R.id.recycler_view_group_chatting);
         linearLayoutManager=new LinearLayoutManager(this);
+        linearLayoutManager.setStackFromEnd(true);
         chattingRecycler.setHasFixedSize(true);
         chattingRecycler.setLayoutManager(linearLayoutManager);
         chattingRecycler.setAdapter(groupMessagesAdapter);
@@ -141,23 +144,23 @@ public class GroupChattingActivity extends AppCompatActivity {
             Toast.makeText(getApplicationContext(),"please enter a message",Toast.LENGTH_LONG).show();
         }else {
             DatabaseReference reference = rootRef.child("GroupChats").child(groupID).child("Messages").push();
-//            //now making a unique id for each single message so that they wont be replaced and we save everything
-//            String messagePushId=reference.getKey();
-//            Calendar calendarDate=Calendar.getInstance();
-//            SimpleDateFormat currentDate=new SimpleDateFormat("dd-MMMM-yyyy");
-//            saveCurrentDate=currentDate.format(calendarDate.getTime());
-//            Calendar calendarTime=Calendar.getInstance();
-//            SimpleDateFormat currentTime=new SimpleDateFormat("HH:mm aa");
-//            saveCurrentTime=currentTime.format(calendarTime.getTime());
-//            //unique name for each message
-//            final String uniqueName=messagePushId+saveCurrentDate+saveCurrentTime;
+            //now making a unique id for each single message so that they wont be replaced and we save everything
+            String messagePushId=reference.getKey();
+            Calendar calendarDate=Calendar.getInstance();
+            SimpleDateFormat currentDate=new SimpleDateFormat("dd-MMMM-yyyy");
+            saveCurrentDate=currentDate.format(calendarDate.getTime());
+            Calendar calendarTime=Calendar.getInstance();
+            SimpleDateFormat currentTime=new SimpleDateFormat("HH:mm aa");
+            saveCurrentTime=currentTime.format(calendarTime.getTime());
+            //unique name for each message
+            final String uniqueName=messagePushId+saveCurrentDate+saveCurrentTime;
             Map messageDetails= new HashMap();
             messageDetails.put("message",messageText);
             messageDetails.put("time",saveCurrentTime);
             messageDetails.put("date",saveCurrentDate);
             messageDetails.put("type","text");
             messageDetails.put("from",senderID);
-            reference.setValue(messageDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
+            reference.updateChildren(messageDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                     if(task.isSuccessful()){
@@ -368,7 +371,7 @@ public class GroupChattingActivity extends AppCompatActivity {
         messageDetails.put("date",saveCurrentDate);
         messageDetails.put("type","image");
         messageDetails.put("from",senderID);
-        reference.child(uniqueName).setValue(messageDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
+        reference.updateChildren(messageDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
@@ -382,4 +385,8 @@ public class GroupChattingActivity extends AppCompatActivity {
             }
         });
     }
+
+
+
+
 }

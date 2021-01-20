@@ -50,54 +50,45 @@ public class GroupMessagesAdapter extends RecyclerView.Adapter<GroupMessagesAdap
         String fromUserID=groupMessages.getFrom();
         String fromMessageType= groupMessages.getType();
 
+        holder.senderLinearLayout.setVisibility(View.GONE);
+        holder.receiverLinearLayout.setVisibility(View.GONE);
+        holder.receiverImageLinearLayout.setVisibility(View.GONE);
+        holder.senderImageLinearLayout.setVisibility(View.GONE);
         if(fromMessageType.equals("text")){
-            holder.receiverCardView.setVisibility(View.INVISIBLE);
             if(fromUserID.equals(senderID)){
-                holder.receiverInfoContainer.setVisibility(View.GONE);
-                holder.senderCardView.setVisibility(View.VISIBLE);
-                holder.senderCardView.setBackgroundResource(R.drawable.sender_background_message);
-                holder.senderCardView.setGravity(Gravity.LEFT);
-                holder.senderCardView.setText(groupMessages.getMessage());
+                holder.senderLinearLayout.setVisibility(View.VISIBLE);
+                holder.senderTextView.setText(groupMessages.getMessage());
+                holder.senderDate.setText(groupMessages.getTime());
             }
             else{
-                holder.receiverInfoContainer.setVisibility(View.VISIBLE);
-                holder.senderCardView.setVisibility(View.GONE);
-                holder.receiverCardView.setVisibility(View.VISIBLE);
-                holder.receiverCardView.setBackgroundResource(R.drawable.receiver_message_background);
-                holder.receiverCardView.setGravity(Gravity.LEFT);
-                holder.receiverCardView.setText(groupMessages.getMessage());
-                setUserName(fromUserID,holder);
+                holder.receiverLinearLayout.setVisibility(View.VISIBLE);
+                holder.receiverTextView.setText(groupMessages.getMessage());
+                holder.receiverDate.setText(groupMessages.getTime());
+                setUserName(groupMessages.getFrom() ,holder );
             }
-        }if(fromMessageType.equals("image")){
+        }if(fromMessageType.equals("image")) {
             StorageReference storageReference = FirebaseStorage.getInstance().getReference(groupMessages.getMessage());
-            if(fromUserID.equals(senderID)){
-                holder.receiverInfoContainer.setVisibility(View.GONE);
-                holder.senderCardView.setVisibility(View.GONE);
-                holder.senderImageView.setVisibility(View.VISIBLE);
-
+            if (fromUserID.equals(senderID)) {
+                holder.senderImageLinearLayout.setVisibility(View.VISIBLE);
                 GlideApp.with(context)
                         .load(storageReference)
-                        .transform(new RoundedCorners(10))
                         .fitCenter()
                         .centerCrop()
+                        .transform(new RoundedCorners(30))
                         .placeholder(R.drawable.ic_icon_awesome_image)
                         .into(holder.senderImageView);
-            }
-            else{
-                holder.receiverInfoContainer.setVisibility(View.VISIBLE);
-                holder.receiverCardView.setVisibility(View.GONE);
-                setUserName(fromUserID,holder);
-
+                holder.senderImageDate.setText(groupMessages.getTime());
+            } else {
+                holder.receiverImageLinearLayout.setVisibility(View.VISIBLE);
                 GlideApp.with(context)
                         .load(storageReference)
-                        .transform(new RoundedCorners(10))
                         .fitCenter()
                         .centerCrop()
+                        .transform(new RoundedCorners(30))
                         .placeholder(R.drawable.ic_icon_awesome_image)
                         .into(holder.receiverImageView);
-
+                holder.receiverImageDate.setText(groupMessages.getTime());
             }
-
         }
 
 
@@ -108,7 +99,7 @@ public class GroupMessagesAdapter extends RecyclerView.Adapter<GroupMessagesAdap
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()){
                     String name=snapshot.child("name").getValue().toString();
-                    holder.receiverNameTV.setText(name);
+                    holder.reciverName.setText(name);
                 }
             }
 
@@ -125,18 +116,26 @@ public class GroupMessagesAdapter extends RecyclerView.Adapter<GroupMessagesAdap
     }
 
     public class MessagesViewHolder extends RecyclerView.ViewHolder {
-        TextView senderCardView,receiverCardView,receiverNameTV;
-        LinearLayout receiverInfoContainer;
+        TextView senderTextView, receiverTextView, senderDate , receiverDate , receiverImageDate, reciverName , senderImageDate;
+        private LinearLayout receiverLinearLayout , receiverImageLinearLayout , senderImageLinearLayout;
+        private LinearLayout senderLinearLayout;
         ImageView senderImageView;
         ImageView receiverImageView;
         public MessagesViewHolder(@NonNull View itemView) {
             super(itemView);
-            senderCardView=itemView.findViewById(R.id.sender_card_message);
-            receiverCardView=itemView.findViewById(R.id.receiver_card_message);
-            receiverNameTV=itemView.findViewById(R.id.receiver_name_textView);
-            receiverInfoContainer=itemView.findViewById(R.id.linear_layout_receiver_card);
+            receiverLinearLayout= itemView.findViewById(R.id.receiver_box_card_layout);
+            senderLinearLayout = itemView.findViewById(R.id.sender_box_card_layout);
+            senderTextView =itemView.findViewById(R.id.sender_box_card);
+            senderDate = itemView.findViewById(R.id.sender_box_card_date);
+            receiverDate = itemView.findViewById(R.id.reciever_box_card_date);
+            receiverTextView =itemView.findViewById(R.id.receiver_box_card);
+            reciverName = itemView.findViewById(R.id.receiver_name_text_view);
             senderImageView=itemView.findViewById(R.id.sender_image_view);
             receiverImageView=itemView.findViewById(R.id.receiver_image_view);
+            receiverImageLinearLayout = itemView.findViewById(R.id.receiver_image_view_linear_layout);
+            senderImageLinearLayout = itemView.findViewById(R.id.sender_image_view_linear_layout);
+            receiverImageDate = itemView.findViewById(R.id.reciever_box_card_image_date);
+            senderImageDate = itemView.findViewById(R.id.sender_box_card_date);
         }
 
     }

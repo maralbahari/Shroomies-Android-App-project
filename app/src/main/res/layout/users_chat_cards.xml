@@ -71,6 +71,79 @@
             android:id="@+id/sender_box_card_date"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:layout_marginTop="3dp"
+            android:text="14-20"
+            android:textColor="@color/lightGrey"
+            android:textSize="10sp"
+            android:textStyle="normal" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:id="@+id/sender_image_view_linear_layout"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="5dp"
+        android:background="@drawable/sender_background_message"
+        android:layout_alignParentEnd="true"
+        android:elevation="3dp"
+        android:padding="5dp"
+        android:visibility="invisible">
+    <ImageView
+        android:id="@+id/sender_image_view"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
+
+        tools:srcCompat="@drawable/ic_icon_awesome_image" />
+        <TextView
+            android:id="@+id/sender_box_card_image_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left"
+            android:layout_marginTop="3dp"
+            android:text="14-20"
+            android:textColor="@color/lightGrey"
+            android:textSize="10sp"
+            android:textStyle="normal" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/receiver_image_view_linear_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/receiver_message_background"
+        android:orientation="vertical"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="5dp"
+        android:elevation="3dp"
+        android:layout_alignParentStart="true"
+        android:padding="5dp"
+        android:visibility="invisible">
+        <ImageView
+            android:id="@+id/receiver_image_view"
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
+
+            tools:srcCompat="@drawable/ic_icon_awesome_image" />
+
+        <TextView
+            android:id="@+id/reciever_box_card_image_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_gravity="right"
             android:layout_marginTop="3dp"
             android:text="14-20"
@@ -80,39 +153,6 @@
 
     </LinearLayout>
 
-    <ImageView
-        android:id="@+id/sender_image_view"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_marginLeft="20dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginBottom="5dp"
-        android:adjustViewBounds="true"
-        android:background="@drawable/sender_background_message"
-        android:elevation="3dp"
-        android:padding="5dp"
-        android:scaleType="fitCenter"
-        android:visibility="invisible"
-        tools:srcCompat="@drawable/ic_icon_awesome_image" />
-
-    <ImageView
-        android:id="@+id/receiver_image_view"
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="20dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginRight="20dp"
-        android:layout_marginBottom="5dp"
-        android:layout_alignParentStart="true"
-        android:adjustViewBounds="true"
-        android:background="@drawable/receiver_message_background"
-        android:elevation="3dp"
-        android:padding="5dp"
-        android:scaleType="fitCenter"
-        android:visibility="invisible"
-        tools:srcCompat="@drawable/ic_icon_awesome_image" />
 
 
 
