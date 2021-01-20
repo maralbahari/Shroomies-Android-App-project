@@ -53,18 +53,18 @@ public class AddShroomieMember extends DialogFragment {
         super.onViewCreated(view, savedInstanceState);
         memberSearchView = v.findViewById(R.id.search_member);
         addShroomieRecycler = v.findViewById(R.id.add_member_recyclerview);
-        backToShroomie = v.findViewById(R.id.back_to_shroomie);
+//        backToShroomie = v.findViewById(R.id.back_to_shroomie);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         addShroomieRecycler.setHasFixedSize(true);
         addShroomieRecycler.setLayoutManager(linearLayoutManager);
         rootRef = FirebaseDatabase.getInstance().getReference();
         getMessageInboxListIntoAdapter();
-        backToShroomie.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dismiss();
-            }
-        });
+//        backToShroomie.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                dismiss();
+//            }
+//        });
         memberSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {
@@ -86,7 +86,7 @@ public class AddShroomieMember extends DialogFragment {
         super.onStart();
         if(getDialog()!=null) {
             getDialog().getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
-            getDialog().getWindow().setBackgroundDrawableResource(R.drawable.create_group_fragment_background);
+            getDialog().getWindow().setBackgroundDrawableResource(R.drawable.dialogfragment_add_member);
         }
     }
 
@@ -121,6 +121,7 @@ public class AddShroomieMember extends DialogFragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        getDialog().getWindow().setWindowAnimations(R.style.DialogAnimation);
     }
 
 
