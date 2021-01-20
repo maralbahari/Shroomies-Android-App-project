@@ -48,7 +48,7 @@ public class MyShroomies extends Fragment {
     TasksCardAdapter tasksCardAdapter;
     ExpensesCardAdapter expensesCardAdapter;
     String tabSelected="expenses";
-
+    String apartmentID=null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -81,6 +81,7 @@ public class MyShroomies extends Fragment {
         expensesCardsList = new ArrayList<>();
         expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList,getContext(),false);
         shroomieSpinnerFilter = v.findViewById(R.id.shroomie_spinner_filter);
+        getUserRoomId();
         retreiveExpensesCards();
         myShroomiesTablayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -163,12 +164,27 @@ public class MyShroomies extends Fragment {
             }
         });
     }
+    private void getUserRoomId(){
+        rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
+                    apartmentID=snapshot.getValue().toString();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
 
     private void retrieveTaskCards() {
         tasksCardsList=new ArrayList<>();
         tasksCardAdapter= new TasksCardAdapter(tasksCardsList,getContext(),false);
         myShroomiesRecyclerView.setAdapter(tasksCardAdapter);
-        rootRef.child("apartments").child(mAuth.getCurrentUser().getUid()).child("tasksCards").addValueEventListener(new ValueEventListener() {
+        rootRef.child("apartments").child(apartmentID).child("tasksCards").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 tasksCardsList.clear();

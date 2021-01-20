@@ -214,7 +214,7 @@ public class LoginActivity extends AppCompatActivity {
                         userDetails.put("email", user.getEmail());
                         userDetails.put("ID", mAuth.getCurrentUser().getUid());
                         userDetails.put("image",""); //add later in edit profile
-                        userDetails.put("isPartOfRoom","false");// change later
+                        userDetails.put("isPartOfRoom", mAuth.getCurrentUser().getUid());// change later
                         mRootref.child("Users").child(mAuth.getCurrentUser().getUid()).setValue(userDetails);
                     }
                     String userID =mAuth.getCurrentUser().getUid();
