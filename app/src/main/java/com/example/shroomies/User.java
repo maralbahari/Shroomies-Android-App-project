@@ -7,7 +7,7 @@ import android.os.Parcelable;
 public class User implements Parcelable {
     private String name;
     private String email;
-
+    private String isPartOfRoom;
     private String bio;
     private String image;
     private String ID;
@@ -20,14 +20,14 @@ public class User implements Parcelable {
         return context;
     }
 
-    public User(String name, String email, String username, String bio, String imageurl, String id, Context context) {
+    public User(String name, String email, String username, String bio, String imageurl, String id, Context context,String isPartOfRoom) {
         this.name = name;
         this.email = email;
-
         this.bio = bio;
         this.image = imageurl;
         this.ID = id;
         this.context = context;
+        this.isPartOfRoom=isPartOfRoom;
     }
 
     protected User(Parcel in) {
@@ -66,7 +66,13 @@ public class User implements Parcelable {
         this.email = email;
     }
 
+    public String getIsPartOfRoom() {
+        return isPartOfRoom;
+    }
 
+    public void setIsPartOfRoom(String isPartOfRoom) {
+        this.isPartOfRoom = isPartOfRoom;
+    }
 
     public String getBio() {
         return bio;
