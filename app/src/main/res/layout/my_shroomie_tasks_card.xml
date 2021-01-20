@@ -76,10 +76,9 @@
                 android:src="@drawable/ic_delete"
                 android:layout_width="15dp"
                 android:layout_height="15dp"
-                android:layout_below="@+id/task_checkbox"
-                android:layout_toRightOf="@+id/task_archive"
-                android:layout_marginTop="10dp"
-                android:layout_marginLeft="25dp"
+
+                android:layout_marginTop="194dp"
+                android:layout_marginLeft="70dp"
                 android:layout_marginBottom="10dp"
                 />
 
@@ -87,7 +86,7 @@
                 android:id="@+id/task_card_duedate"
                 android:layout_width="101dp"
                 android:layout_height="20dp"
-                android:layout_toRightOf="@+id/task_card_title"
+                android:layout_marginLeft="220dp"
                 android:layout_marginTop="30dp"
                 android:text="Due date"
                 android:textSize="10sp"

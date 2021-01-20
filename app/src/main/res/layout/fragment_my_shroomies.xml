@@ -11,9 +11,12 @@
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/my_shroomies_tablayout"
         android:layout_width="match_parent"
+        android:elevation="5dp"
+        android:layout_marginTop="10dp"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
         android:background="@drawable/background_text_white"
         app:tabIndicatorColor="@color/Alabaster">
 
@@ -35,14 +38,12 @@
 
 
     <Button
-        android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
         android:id="@+id/my_shroomies_member_btn"
         android:layout_width="wrap_content"
         android:layout_marginLeft="220dp"
         android:layout_height="45dp"
         android:layout_below="@+id/my_shroomies_tablayout"
-
         android:background="@drawable/rounded_button_myshroomies_layout"
         android:text="Members"
         android:textSize="10sp"
@@ -58,9 +59,8 @@
         android:layout_height="45dp"
         android:layout_below="@+id/my_shroomies_tablayout"
         android:layout_toRightOf="@+id/my_shroomies_member_btn"
-        android:layout_marginTop="10dp"
         android:layout_marginLeft="5dp"
-        android:layout_marginBottom="10dp"
+        android:layout_marginBottom="5dp"
         android:orientation="horizontal"
         android:background="@drawable/rounded_button_myshroomies_layout"
         >
@@ -86,16 +86,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
-
             android:layout_marginTop="15dp"
             />
-
-
 
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:layout_margin="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="20dp"
         android:id="@+id/my_shroomies_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -106,9 +105,8 @@
         android:id="@+id/my_shroomies_add_card_btn"
         android:layout_width="80dp"
         android:layout_height="80dp"
-
+        android:layout_marginTop="550dp"
         android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"
         android:background="@drawable/ic_add_card" />
 
 
