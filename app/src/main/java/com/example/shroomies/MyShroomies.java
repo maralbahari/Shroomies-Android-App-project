@@ -213,7 +213,7 @@ public class MyShroomies extends Fragment {
         expensesCardsList=new ArrayList<>();
         expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList,getContext(), false);
         myShroomiesRecyclerView.setAdapter(expensesCardAdapter);
-        rootRef.child("apartments").child(mAuth.getCurrentUser().getUid()).child("expensesCards").addValueEventListener(new ValueEventListener() {
+        rootRef.child("apartments").child(apartmentID).child("expensesCards").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 expensesCardsList.clear();

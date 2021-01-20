@@ -34,8 +34,11 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -72,7 +75,25 @@ public class AddNewCard extends DialogFragment  {
     FirebaseAuth mAuth;
     Boolean expensesCardSelected;
     String saveCurrentDate, saveCurrentTime;
-    String cdate;
+    String cdate ;
+    String currentUserAppartmentId = "";
+
+
+    private void getUserRoomId(){
+        rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
+                    currentUserAppartmentId=snapshot.getValue().toString();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -82,6 +103,7 @@ public class AddNewCard extends DialogFragment  {
         v =inflater.inflate(R.layout.fragment_add_new_card, container, false);
         mAuth = FirebaseAuth.getInstance();
         rootRef = FirebaseDatabase.getInstance().getReference();
+
         return v;
     }
 
@@ -114,6 +136,7 @@ public class AddNewCard extends DialogFragment  {
         cameraPermissions=new String[]{Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE};
         storagePermissions=new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
         attachedFile = v.findViewById(R.id.attached_files);
+        getUserRoomId();
        Bundle bundle=this.getArguments();
        if(bundle!=null){
            expensesCardSelected=bundle.getBoolean("Expenses");
@@ -195,7 +218,7 @@ public class AddNewCard extends DialogFragment  {
 
     private void saveTaskCardToFirebase(String mtitle, String mdescription, String mdueDate, String importance) {
 
-        DatabaseReference ref = rootRef.child("apartments").child(mAuth.getCurrentUser().getUid()).child("tasksCards").push();
+        DatabaseReference ref = rootRef.child("apartments").child(currentUserAppartmentId).child("tasksCards").push();
         HashMap<String ,Object> newCard = new HashMap<>();
 
         Calendar calendarDate=Calendar.getInstance();
@@ -264,7 +287,7 @@ public class AddNewCard extends DialogFragment  {
 
     public void saveToFireBase(String title, String description, String dueDate, String attachUrl, String importance ){
 
-        DatabaseReference ref = rootRef.child("apartments").child(mAuth.getCurrentUser().getUid()).child("expensesCards").push();
+        DatabaseReference ref = rootRef.child("apartments").child(currentUserAppartmentId).child("expensesCards").push();
         HashMap<String ,Object> newCard = new HashMap<>();
 
         Calendar calendarDate=Calendar.getInstance();
