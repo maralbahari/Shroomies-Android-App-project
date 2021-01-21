@@ -72,6 +72,8 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             holder.removeMember.setVisibility(View.GONE);
         }
         if(fromMemberPageWithRequestMember){
+            holder.msgMember.setVisibility(View.GONE);
+            holder.removeMember.setVisibility(View.GONE);
             holder.sendRequest.setVisibility(View.VISIBLE);
             holder.sendRequest.setText("requested");
             holder.msgMember.setVisibility(View.GONE);
