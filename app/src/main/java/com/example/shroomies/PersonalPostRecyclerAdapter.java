@@ -8,6 +8,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
@@ -112,11 +113,13 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
                         if(checkClick[0]){
                             if(snapshot.child(Uid).child("PersonalPost").hasChild(personalPostModelList.get(position).getId())){
                                 favRef.child(Uid).child("PersonalPost").child(personalPostModelList.get(position).getId()).removeValue();
+                                Toast.makeText(context,"Post removed from favorites",Toast.LENGTH_LONG).show();
                                 checkClick[0] = false;
                             }
                             else {
                                 favRef.child(Uid).child("PersonalPost")
                                         .child(personalPostModelList.get(position).getId()).setValue(personalPostModelList.get(position).getId());
+                                Toast.makeText(context,"Post added to favorites",Toast.LENGTH_LONG).show();
                                 checkClick[0] = false;
 
                             }
