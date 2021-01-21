@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
@@ -32,8 +33,16 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.example.shroomies.notifications.Data;
+import com.example.shroomies.notifications.Sender;
+import com.example.shroomies.notifications.Token;
 import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -48,6 +57,10 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.google.gson.Gson;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -82,6 +95,9 @@ public class GroupChattingActivity extends AppCompatActivity {
     StorageReference filePathName;
     private String imageUrl;
     private ValueEventListener seenListener;
+    private boolean notification;
+    RequestQueue requestQueue;
+
 
     @Override
     protected void onStop() {
@@ -120,6 +136,8 @@ public class GroupChattingActivity extends AppCompatActivity {
         chattingRecycler.setHasFixedSize(true);
         chattingRecycler.setLayoutManager(linearLayoutManager);
         chattingRecycler.setAdapter(groupMessagesAdapter);
+        requestQueue= Volley.newRequestQueue(getApplicationContext());
+
         Bundle extras = getIntent().getExtras();
         if(!(extras==null)){
             groupID=extras.getString("GROUPID");
@@ -155,6 +173,7 @@ public class GroupChattingActivity extends AppCompatActivity {
         if(TextUtils.isEmpty(messageText)){
             Toast.makeText(getApplicationContext(),"please enter a message",Toast.LENGTH_LONG).show();
         }else {
+            notification=true;
             DatabaseReference reference = rootRef.child("GroupChats").child(groupID).child("Messages").push();
             //now making a unique id for each single message so that they wont be replaced and we save everything
             String messagePushId=reference.getKey();
@@ -188,6 +207,7 @@ public class GroupChattingActivity extends AppCompatActivity {
                 public void onComplete(@NonNull Task<Void> task) {
                     if(task.isSuccessful()){
                         messageBody.setText("");
+                        chattingRecycler.smoothScrollToPosition(groupMessagesAdapter.getItemCount()-1);
                     }else{
                         String message =task.getException().getMessage();
                         Toast.makeText(getApplicationContext(),"Error "+message,Toast.LENGTH_SHORT).show();
@@ -195,12 +215,22 @@ public class GroupChattingActivity extends AppCompatActivity {
                     }
                 }
             });
+            if(notification){
 
+                for (String id
+                     :group.getGroupMembers()){
+                    sendNotification(id,group.getGroupName(), messageText);
+                }
+            }else{
+                notification=false;
+
+            }
         }
         }
         void loadMessages(){
             groupMessagesArrayList = new ArrayList<>();
-
+            groupMessagesAdapter=new GroupMessagesAdapter(groupMessagesArrayList,getApplicationContext());
+            chattingRecycler.setAdapter(groupMessagesAdapter);
             rootRef.child("GroupChats").child(groupID).child("Messages").addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -211,8 +241,8 @@ public class GroupChattingActivity extends AppCompatActivity {
                             Group groupMessages = dataSnapshot.getValue(Group.class);
                             groupMessagesArrayList.add(groupMessages);
                         }
-                        groupMessagesAdapter=new GroupMessagesAdapter(groupMessagesArrayList,getApplicationContext());
-                        chattingRecycler.setAdapter(groupMessagesAdapter);
+                        groupMessagesAdapter.notifyDataSetChanged();
+
                     }else{ }
                 }
 
@@ -359,7 +389,7 @@ public class GroupChattingActivity extends AppCompatActivity {
 
     }
     private void sendImageMessage(Uri image){
-
+        notification=true;
         final ProgressDialog progressDialog=new ProgressDialog(this);
         progressDialog.setMessage("sending image...");
         progressDialog.show();
@@ -380,6 +410,7 @@ public class GroupChattingActivity extends AppCompatActivity {
 
     }
     private void addToRealTimeDataBase(String url){
+
         DatabaseReference reference = rootRef.child("GroupChats").child(groupID).child("Messages").push();
         //now making a unique id for each single message so that they wont be replaced and we save everything
         String messagePushId=reference.getKey();
@@ -423,8 +454,18 @@ public class GroupChattingActivity extends AppCompatActivity {
                 }
             }
         });
-    }
 
+        if(notification){
+
+            for (String id
+                    :group.getGroupMembers()){
+                sendNotification(id,group.getGroupName(), "image");
+            }
+        }else{
+            notification=false;
+
+        }
+    }
     private void messageSeen() {
         seenListener = rootRef.child("GroupChats").child(groupID).child("Messages").addValueEventListener(new ValueEventListener() {
             @Override
@@ -446,7 +487,63 @@ public class GroupChattingActivity extends AppCompatActivity {
 
 
     }
+    private void sendNotification(final String receiverID,final String senderName,final String message) {
+        rootRef.child("Token").orderByKey().equalTo(receiverID).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    for (DataSnapshot ds : snapshot.getChildren()) {
+                        Token token = (Token) ds.getValue(Token.class);
+                        Data data = new Data(senderID, senderName + ":" + message, "New Message", receiverID, (R.drawable.ic_notification_icon));
+                        Sender sender = new Sender(data, token.getToken());
+                        try {
+                            JSONObject senderJsonObj = new JSONObject(new Gson().toJson(sender));
+                            JsonObjectRequest jsonObjectRequest=new JsonObjectRequest("https://fcm.googleapis.com/fcm/send", senderJsonObj, new Response.Listener<JSONObject>() {
+                                @Override
+                                public void onResponse(JSONObject response) {
+                                    try {
+                                        Toast.makeText(getApplicationContext(),response.get("success").toString(),Toast.LENGTH_LONG).show();
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                    Log.d("JSON_RESPONSE","onResponse:"+response.toString());
+                                }
 
+                            }, new Response.ErrorListener() {
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+                                    Log.d("JSON_RESPONSE","onResponse:"+error.toString());
+
+                                }
+                            })
+                            {
+                                @Override
+                                public Map<String,String> getHeaders() throws AuthFailureError {
+                                    Map<String,String> headers= new HashMap<>();
+                                    headers.put("Content-type","application/json");
+                                    headers.put("Authorization","Key=AAAAyn_kPyQ:APA91bGLxMB-HGP-qd_EPD3wz_apYs4ZJIB2vyAvH5JbaTVlyLExgYn7ye-076FJxjfrhQ-1HJBmptN3RWHY4FoBdY08YRgplZSAN0Mnj6sLbS6imKa7w0rqPsLtc-aXMaPOhlxnXqPs");
+                                    return headers;
+                                }
+
+                            };
+
+                            requestQueue.add(jsonObjectRequest);
+                            requestQueue.start();
+                        }catch (JSONException e){
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+    }
 
 
 

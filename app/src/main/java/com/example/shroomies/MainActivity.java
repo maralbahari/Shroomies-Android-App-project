@@ -77,8 +77,6 @@ public class MainActivity extends AppCompatActivity {
 
         }
         rootRef = FirebaseDatabase.getInstance().getReference();
-
-
         btm_view = findViewById(R.id.bottomNavigationView);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -171,7 +169,6 @@ public class MainActivity extends AppCompatActivity {
                     }
                     btm_view.getOrCreateBadge(R.id.message_inbox_menu).setNumber(unSeenMessageList.size());
                     unSeenMessageList.clear();
-
                 }
 
                 getUnseenGroupMessages(rootRef, mAuth);
@@ -192,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
                 if (snapshot.exists()){
                     for (final DataSnapshot ds:
                             snapshot.getChildren()) {
-                        rootRef.child("GroupChats").child(ds.getKey()).child("Messages").addListenerForSingleValueEvent(new ValueEventListener() {
+                        rootRef.child("GroupChats").child(ds.getKey()).child("Messages").addValueEventListener(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot snapshot) {
                                 if (snapshot.exists()){
@@ -200,12 +197,13 @@ public class MainActivity extends AppCompatActivity {
                                             :snapshot.getChildren()){
                                         for (DataSnapshot snapshot1
                                                 :dataSnapshot.child("seenBy").getChildren()){
-                                            if(snapshot1.getValue().equals("false")){
+                                            if(snapshot1.getKey().equals(mAuth.getInstance().getCurrentUser().getUid())&&snapshot1.getValue().equals("false")){
                                                 unseenGroupMessages[0] +=1;
                                             }
                                         }
                                     }
-                                    btm_view.getOrCreateBadge(R.id.message_inbox_menu).setNumber(btm_view.getOrCreateBadge(R.id.message_inbox_menu).getNumber());
+                                    int x = btm_view.getOrCreateBadge(R.id.message_inbox_menu).getNumber();
+                                    btm_view.getOrCreateBadge(R.id.message_inbox_menu).setNumber(x+unseenGroupMessages[0]);
                                 }
                             }
 
