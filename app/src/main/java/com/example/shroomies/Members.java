@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -12,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -63,6 +65,11 @@ public class Members extends DialogFragment {
         super.onViewCreated(view, savedInstanceState);
         addMember=view.findViewById(R.id.add_shroomie_btn);
         leaveRoom=view.findViewById(R.id.leave_room_btn);
+        membersRecycler = view.findViewById(R.id.members_recyclerView);
+        LinearLayoutManager linearLayoutManager=new LinearLayoutManager(getActivity());
+        membersRecycler.setHasFixedSize(true);
+        membersRecycler.setLayoutManager(linearLayoutManager);
+
         addMember.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -112,11 +119,33 @@ public class Members extends DialogFragment {
                     for (DataSnapshot sp : snapshot.getChildren()){
                         membersId.add(sp.getKey());
                         getMemberDetail(membersId);
-//                        getRequestedUsers(membersId);
+                        getRequestedUsers(membersId);
 
 
                     }
+                }else{
+                    getRequestedUsersNo();
                 }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void getRequestedUsersNo() {
+        membersId= new ArrayList<>();
+        rootRef.child("shroomieRequests").child(mAuth.getCurrentUser().getUid()).child("requestType").equalTo("sent").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for (DataSnapshot sp : snapshot.getChildren()){
+                    membersId.add(sp.getKey());
+
+                }
+                getRequestedUsersDetails(membersId);
+
             }
 
             @Override
@@ -148,7 +177,7 @@ public class Members extends DialogFragment {
                 }
             });
         }
-        getRequestedUsers(membersId);
+
     }
 
 
@@ -193,7 +222,7 @@ public class Members extends DialogFragment {
 
     private void getRequestedUsersDetails(ArrayList<String> requestUsersIDs) {
         getRequestUsersList = new ArrayList<>();
-        getRequestUsersList.addAll(membersList);
+//        getRequestUsersList.addAll(membersList);
         userAdapter = new UserAdapter(getRequestUsersList, getContext(),false,true);
         membersRecycler.setAdapter(userAdapter);
         for (String id: requestUsersIDs){
