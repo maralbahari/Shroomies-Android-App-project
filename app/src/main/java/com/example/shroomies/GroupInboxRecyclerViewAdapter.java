@@ -2,6 +2,7 @@ package com.example.shroomies;
 
 import android.content.Context;
 import android.content.Intent;
+import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,11 +11,17 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.List;
 
@@ -41,7 +48,17 @@ public class GroupInboxRecyclerViewAdapter extends RecyclerView.Adapter<GroupInb
     @Override
     public void onBindViewHolder(@NonNull final GroupChatViewHolder holder, final int position) {
         holder.groupName.setText(groupList.get(position).getGroupName());
-        holder.lastMessage.setText(getLastMessage(groupList.get(position).getGroupID()));
+        //get the last message of this group
+        getLastMessage(groupList.get(position).getGroupID() ,holder);
+        if(!groupList.get(position).getImage().isEmpty()) {
+            holder.groupImage.setPadding(0, 0, 0, 0);
+            GlideApp.with(context)
+                    .load(groupList.get(position).getGroupImage())
+                    .fitCenter()
+                    .circleCrop()
+                    .into(holder.groupImage);
+        }
+
     }
 
     @Override
@@ -64,7 +81,6 @@ public class GroupInboxRecyclerViewAdapter extends RecyclerView.Adapter<GroupInb
                 public void onClick(View v) {
                     Intent intent=new Intent(context,GroupChattingActivity.class);
                     intent.putExtra("GROUPID",groupList.get(getAdapterPosition()).getGroupID());
-                    intent.putExtra("GROUPNAME",groupList.get(getAdapterPosition()).getGroupName());
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     context.startActivity(intent);
 
@@ -73,8 +89,35 @@ public class GroupInboxRecyclerViewAdapter extends RecyclerView.Adapter<GroupInb
 
         }
     }
-    public String getLastMessage(String groupID){
-        return "";
+    public void getLastMessage(String groupID , final GroupChatViewHolder holder){
+       rootRef.child("GroupChats").child(groupID).child("Messages").orderByKey().limitToLast(1).addChildEventListener(new ChildEventListener() {
+           @Override
+           public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+               if(snapshot.exists()){
+                   Group groupMessages = snapshot.getValue(Group.class);
+                   if(groupMessages.getType().equals("text")){
+                        if(groupMessages.getMessage()!=null){
+                             holder.lastMessage.setText(groupMessages.getMessage());
+                        }
+                   }else{
+                       holder.lastMessage.setText("Photo");
+                   }
+
+               }
+           }
+           @Override public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+           }
+           @Override public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+
+           }
+           @Override public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+           }
+           @Override public void onCancelled(@NonNull DatabaseError error) {
+
+           }});
+
     }
 
 }

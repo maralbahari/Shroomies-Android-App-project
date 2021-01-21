@@ -1,26 +1,33 @@
 package com.example.shroomies;
 
+import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 public class User implements Parcelable {
     private String name;
     private String email;
-
+    private String isPartOfRoom;
     private String bio;
     private String image;
     private String ID;
-
+    private Context context;
     public User() {
 
     }
-    public User(String name, String email, String username, String bio, String imageurl, String id) {
+
+    public Context getContext() {
+        return context;
+    }
+
+    public User(String name, String email, String username, String bio, String imageurl, String id, Context context,String isPartOfRoom) {
         this.name = name;
         this.email = email;
-
         this.bio = bio;
         this.image = imageurl;
         this.ID = id;
+        this.context = context;
+        this.isPartOfRoom=isPartOfRoom;
     }
 
     protected User(Parcel in) {
@@ -59,7 +66,13 @@ public class User implements Parcelable {
         this.email = email;
     }
 
+    public String getIsPartOfRoom() {
+        return isPartOfRoom;
+    }
 
+    public void setIsPartOfRoom(String isPartOfRoom) {
+        this.isPartOfRoom = isPartOfRoom;
+    }
 
     public String getBio() {
         return bio;

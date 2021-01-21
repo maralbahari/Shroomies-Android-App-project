@@ -11,72 +11,62 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         />
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_alignParentBottom="true"
-        android:orientation="horizontal"
-        android:id="@+id/bottom_chatting_layout"
-        android:background="@color/lowerGradientColorForLoginBackground"
-    >
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:padding="10dp">
+
+        <RelativeLayout
+            android:id="@+id/bottom_chatting_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@color/LogoYellow"
+            android:padding="8dp"
+            android:layout_alignParentBottom="true">
 
             <EditText
                 android:id="@+id/messeg_body_edit_text"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="40dp"
-                android:layout_marginStart="50dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginEnd="50dp"
-                android:layout_marginBottom="10dp"
-                android:orientation="vertical"
+                android:layout_margin="5dp"
                 android:background="@drawable/background_text_white"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                android:padding="10dp"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                android:elevation="1dp"
+                android:inputType="textMultiLine"
+                android:layout_centerVertical="true"
+                android:scrollbars="vertical"
+                android:padding="5dp"
 
-            </EditText>
+                android:layout_toLeftOf="@id/send_message_button"
+                android:layout_toRightOf="@id/choose_file_button"/>
 
-            <Button
+            <ImageButton
+                android:layout_centerVertical="true"
                 android:id="@+id/choose_file_button"
-                android:layout_width="0dp"
-                android:layout_height="20dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginEnd="360dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="5dp"
                 android:layout_marginBottom="5dp"
-                android:layout_weight="1"
-                android:background="@drawable/ic_icon_awesome_image"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:src="@drawable/ic_photo_camera"
+                android:background="@null"
+               android:layout_alignParentStart="true" />
 
-            <Button
+            <ImageButton
+                android:layout_centerVertical="true"
                 android:id="@+id/send_message_button"
-                android:layout_width="0dp"
-                android:layout_height="25dp"
-                android:layout_marginStart="360dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:layout_weight="1"
-                android:background="@drawable/ic_send_"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:elevation="3dp"
+                android:src="@drawable/ic_send"
+                android:background="@drawable/circle_white_button_small"
+                android:layout_margin="5dp"
+              android:layout_alignParentRight="true" />
 
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        </RelativeLayout>
 
 
 
-    </LinearLayout>
+
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view_group_chatting"
@@ -84,7 +74,6 @@
         android:layout_height="wrap_content"
         android:layout_above="@id/bottom_chatting_layout"
         android:layout_below="@id/include"
-        android:layout_marginTop="2dp"
-        android:background="@color/Timeberwolf"
+        android:background="@color/Alabaster"
         app:stackFromEnd="true"/>
 </RelativeLayout>

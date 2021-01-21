@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".AddNewCard">
+
+    <TextView
+        android:id="@+id/new_card_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add a new card"
+        android:textSize="35sp"
+        android:textStyle="bold"
+
+        android:layout_marginLeft="50dp"
+        android:layout_marginTop="20dp"
+        />
+
+    <EditText
+        android:id="@+id/new_card_title"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:hint="Title:"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp"
+        android:background="@null"
+        android:layout_below="@+id/new_card_tv"
+        />
+
+    <EditText
+        android:id="@+id/new_card_description"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:hint="Description:"
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp"
+        android:background="@null"
+        android:layout_below="@+id/new_card_title"
+
+        />
+
+    <TextView
+        android:id="@+id/due_date"
+        android:layout_width="100dp"
+        android:layout_height="20dp"
+        android:layout_below="@+id/new_card_tv"
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="20dp"
+        android:background="@drawable/textbox_round"
+        android:text="Due date"
+        android:textAlignment="center"
+        />
+
+    <TextView
+        android:id="@+id/new_card_important"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Importance:"
+        android:textStyle="bold"
+        android:textColor="@color/Black"
+        android:layout_below="@+id/new_card_description"
+        android:layout_marginLeft="50dp"
+        />
+
+
+    <RadioGroup
+        android:id="@+id/newcard_radio_group"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/new_card_important"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/newcard_red_radio_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="50dp"
+            android:layout_marginTop="10dp"
+            android:background="@color/red"/>
+        <RadioButton
+            android:id="@+id/newcard_orange_radio_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:background="@color/orange"/>
+        <RadioButton
+            android:id="@+id/newcard_green_radio_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:background="@color/okGreen"
+            />
+
+    </RadioGroup>
+
+    <TextView
+        android:id="@+id/add_new_card_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tag a shroomie"
+        android:layout_below="@+id/new_card_important"
+        android:layout_marginTop="50dp"
+        android:layout_marginLeft="50dp"
+        android:textSize="20sp"
+        />
+
+    <TextView
+        android:id="@+id/tag_shroomie"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/textbox_round"
+        android:layout_below="@+id/add_new_card_tv"
+        android:layout_marginLeft="50dp"
+        android:layout_marginTop="20dp"
+        android:elevation="5dp"
+        />
+
+    <Button
+        android:id="@+id/my_shroomies_attach_button"
+        android:layout_width="70dp"
+        android:layout_height="30dp"
+        android:layout_below="@id/tag_shroomie"
+        android:layout_marginLeft="50dp"
+        android:layout_marginTop="20dp"
+        android:text="attach"
+        android:textSize="10sp"
+        android:padding="7dp"
+        android:background="@drawable/button_rounded_corner_attach"
+        android:drawableLeft="@drawable/ic_attach"
+        />
+
+    <TextView
+        android:id="@+id/attached_files"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tag_shroomie"
+        android:layout_marginTop="25dp"
+        android:visibility="gone"
+        android:text="1x file attached"
+        android:layout_marginLeft="5dp"
+        android:layout_toRightOf="@+id/my_shroomies_attach_button"
+        />
+
+    <Button
+        android:id="@+id/my_shroomies_add_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:text="Add card"
+        android:layout_below="@+id/my_shroomies_attach_button"
+        android:background="@color/LogoYellow"
+        />
+
+
+
+</RelativeLayout>

@@ -1,12 +1,11 @@
 package com.example.shroomies;
 
 import android.content.Context;
-import android.graphics.Color;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -44,45 +43,43 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
        Messages messages=userMessagesList.get(position);
        String fromUserID=messages.getFrom();
        String fromMessageType=messages.getType();
+        holder.senderLinearLayout.setVisibility(View.GONE);
+        holder.receiverLinearLayout.setVisibility(View.GONE);
+        holder.receiverImageLinearLayout.setVisibility(View.GONE);
+        holder.senderImageLinearLayout.setVisibility(View.GONE);
        if(fromMessageType.equals("text")){
-           holder.receiverCardView.setVisibility(View.INVISIBLE);
            if(fromUserID.equals(senderID)){
-              holder.senderCardView.setBackgroundResource(R.drawable.sender_background_message);
-              holder.senderCardView.setTextColor(Color.BLACK);
-              holder.senderCardView.setGravity(Gravity.LEFT);
-              holder.senderCardView.setText(messages.getMessage());
+               holder.senderLinearLayout.setVisibility(View.VISIBLE);
+              holder.senderTextView.setText(messages.getMessage());
+              holder.senderDate.setText(messages.getTime());
            }
            else{
-               holder.senderCardView.setVisibility(View.INVISIBLE);
-               holder.receiverCardView.setVisibility(View.VISIBLE);
-               holder.receiverCardView.setBackgroundResource(R.drawable.receiver_message_background);
-               holder.receiverCardView.setTextColor(Color.BLACK);
-               holder.receiverCardView.setGravity(Gravity.LEFT);
-               holder.receiverCardView.setText(messages.getMessage());
+               holder.receiverLinearLayout.setVisibility(View.VISIBLE);
+               holder.receiverTextView.setText(messages.getMessage());
+               holder.receiverDate.setText(messages.getTime());
            }
        }if(fromMessageType.equals("image")) {
-            holder.senderCardView.setVisibility(View.INVISIBLE);
-            holder.receiverCardView.setVisibility(View.INVISIBLE);
             StorageReference storageReference = FirebaseStorage.getInstance().getReference(messages.getMessage());
             if (fromUserID.equals(senderID)) {
-                holder.senderImageView.setVisibility(View.VISIBLE);
+                holder.senderImageLinearLayout.setVisibility(View.VISIBLE);
                 GlideApp.with(context)
                         .load(storageReference)
-                        .transform(new RoundedCorners(10))
                         .fitCenter()
                         .centerCrop()
+                        .transform(new RoundedCorners(30))
                         .placeholder(R.drawable.ic_icon_awesome_image)
                         .into(holder.senderImageView);
+                holder.senderImageDate.setText(messages.getTime());
             } else {
-                holder.senderImageView.setVisibility(View.GONE);
-                holder.receiverImageView.setVisibility(View.VISIBLE);
+                holder.receiverImageLinearLayout.setVisibility(View.VISIBLE);
                 GlideApp.with(context)
                         .load(storageReference)
-                        .transform(new RoundedCorners(10))
                         .fitCenter()
                         .centerCrop()
+                        .transform(new RoundedCorners(30))
                         .placeholder(R.drawable.ic_icon_awesome_image)
                         .into(holder.receiverImageView);
+                holder.receiverImageDate.setText(messages.getTime());
             }
         }
 
@@ -94,16 +91,26 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
     }
 
     public class MessageViewHolder extends RecyclerView.ViewHolder {
-        TextView senderCardView,receiverCardView;
+        TextView senderTextView, receiverTextView, senderDate , receiverDate , receiverImageDate , senderImageDate;
+        private LinearLayout receiverLinearLayout , receiverImageLinearLayout , senderImageLinearLayout;
+        private LinearLayout senderLinearLayout;
         ImageView senderImageView;
         ImageView receiverImageView;
         public MessageViewHolder(@NonNull View itemView) {
             super(itemView);
-
-            senderCardView=itemView.findViewById(R.id.sender_box_card);
-            receiverCardView=itemView.findViewById(R.id.receiver_box_card);
+            receiverLinearLayout= itemView.findViewById(R.id.receiver_box_card_layout);
+            senderLinearLayout = itemView.findViewById(R.id.sender_box_card_layout);
+            senderTextView =itemView.findViewById(R.id.sender_box_card);
+            senderDate = itemView.findViewById(R.id.sender_box_card_date);
+            receiverDate = itemView.findViewById(R.id.reciever_box_card_date);
+            receiverTextView =itemView.findViewById(R.id.receiver_box_card);
             senderImageView=itemView.findViewById(R.id.sender_image_view);
             receiverImageView=itemView.findViewById(R.id.receiver_image_view);
+            receiverImageLinearLayout = itemView.findViewById(R.id.receiver_image_view_linear_layout);
+            senderImageLinearLayout = itemView.findViewById(R.id.sender_image_view_linear_layout);
+            receiverImageDate = itemView.findViewById(R.id.reciever_box_card_image_date);
+            senderImageDate = itemView.findViewById(R.id.sender_box_card_date);
+
         }
 
     }

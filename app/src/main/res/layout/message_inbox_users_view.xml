@@ -3,39 +3,44 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/message_inbox_users_view_layout"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:elevation="3dp">
 
-    <ImageButton
+    <ImageView
+        android:layout_margin="5dp"
         android:id="@+id/inbox_chat_item_image"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:padding="10dp"
-        app:srcCompat="@drawable/ic_launcher_background" />
+        android:layout_width="50dp"
+        android:padding="5dp"
+        android:layout_height="50dp"
+        android:elevation="3dp"
+        android:background="@drawable/circle_white_button"
+        app:srcCompat="@drawable/ic_user_profile_svgrepo_com" />
 
     <TextView
         android:id="@+id/inbox_chat_item_name"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
         android:layout_marginTop="10dp"
         android:layout_marginRight="10dp"
         android:layout_toEndOf="@id/inbox_chat_item_image"
-        android:text="username"
+        android:text=""
         android:textColor="@android:color/black"
-        android:textSize="23sp"
+        android:textSize="18sp"
         android:textStyle="bold" />
 
     <TextView
         android:id="@+id/inbox_last_message"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/inbox_chat_item_name"
         android:layout_marginLeft="10dp"
-        android:layout_marginTop="10dp"
+        android:maxLines="1"
+            android:layout_marginTop="3dp"
         android:layout_marginRight="10dp"
         android:layout_toEndOf="@id/inbox_chat_item_image"
-        android:text="last message"
-        android:textSize="18sp" />
+
+        android:textSize="13sp" />
 
 
 </RelativeLayout>

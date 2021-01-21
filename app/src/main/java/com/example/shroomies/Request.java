@@ -1,29 +1,98 @@
 package com.example.shroomies;
 
 import android.os.Bundle;
-
-import androidx.fragment.app.Fragment;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
+
 
 public class Request extends Fragment {
-
    View v;
+   RecyclerView requestRecyvlerView;
+   FirebaseAuth mAuth;
+   DatabaseReference rootRef;
+   private ArrayList<User> senderUsers;
+   private ArrayList<String> senderIDs;
+   private RequestAdapter requestAdapter;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         v= inflater.inflate(R.layout.fragment_my_requests, container, false);
+        rootRef= FirebaseDatabase.getInstance().getReference();
+        mAuth=FirebaseAuth.getInstance();
     return v;
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        requestRecyvlerView = v.findViewById(R.id.request_recyclerview);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+        requestRecyvlerView.setHasFixedSize(true);
+        requestRecyvlerView.setLayoutManager(linearLayoutManager);
+        getSenderId();
+    }
 
+
+    private void getSenderId(){
+        senderIDs=new ArrayList<>();
+        rootRef.child("shroomieRequests").child(mAuth.getCurrentUser().getUid()).orderByChild("requestType").equalTo("received").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
+                    for(DataSnapshot ds:snapshot.getChildren()){
+                        senderIDs.add(ds.getKey());
+                        getSenderDetails(senderIDs);
+                    }
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+    private void getSenderDetails(final ArrayList<String> senderIDs){
+        senderUsers=new ArrayList<>();
+     requestAdapter= new RequestAdapter(getContext(),senderUsers);
+     requestRecyvlerView.setAdapter(requestAdapter);
+     for(String id: senderIDs){
+         rootRef.child("Users").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
+             @Override
+             public void onDataChange(@NonNull DataSnapshot snapshot) {
+             senderUsers.clear();
+             if(snapshot.exists()){
+                 User user= snapshot.getValue(User.class);
+                 senderUsers.add(user);
+             }
+             requestAdapter.notifyDataSetChanged();
+             }
+
+             @Override
+             public void onCancelled(@NonNull DatabaseError error) {
+
+             }
+         });
+     }
     }
 
 }

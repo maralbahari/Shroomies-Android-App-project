@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_margin="20dp"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:layout_margin="10dp"
+            android:id="@+id/member_card_photo"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:padding="10dp"
+            android:src="@drawable/ic_user_profile_svgrepo_com"
+            android:background="@drawable/circle_white_button"
+            />
+
+        <TextView
+            android:id="@+id/member_card_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Name"
+            android:textSize="25sp"
+            android:layout_toRightOf="@+id/member_card_photo"
+            android:layout_marginTop="20dp"
+            />
+
+        <TextView
+            android:id="@+id/member_card_bio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Bio"
+            android:layout_below="@id/member_card_name"
+            android:layout_toRightOf="@id/member_card_photo"/>
+
+    </RelativeLayout>
+
+    <Button
+        android:id="@+id/member_request_btn"
+        android:layout_width="match_parent"
+        android:layout_height="34dp"
+        android:background="@color/purple"
+        android:text="Send Request"
+        android:textColor="@color/white"
+        android:textSize="20sp"
+        android:drawableStart="@drawable/ic_request"
+        android:padding="5dp"
+        />
+
+
+</LinearLayout>

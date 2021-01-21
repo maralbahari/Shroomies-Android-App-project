@@ -14,6 +14,20 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.NumberPicker;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,24 +37,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager.widget.ViewPager;
-
-import android.provider.MediaStore;
-import android.util.Base64;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
-import android.view.animation.Animation;
-import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-
-import android.widget.NumberPicker;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -66,11 +62,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.make.dots.dotsindicator.DotsIndicator;
 
-
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -466,7 +458,6 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
         gallery.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         startActivityForResult(gallery, PICK_IMAGE_MULTIPLE);
 
-
     }
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data){
@@ -520,6 +511,7 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
         final List<String> IMAGE_URLS = new ArrayList<>();
         for (Uri uri:
                 imageUri ) {
+
             filePath = storageReference.child("apartment post image").child(uri.getLastPathSegment()
                     +postUniqueName+".jpg");
             filePath.putFile(uri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
@@ -594,17 +586,14 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
         post.put("longitude",locationLtLng.longitude);
         post.put("preferences" , property);
         post.put("image_url" , IMAGE_URL );
-        post.put("userName" , userName);
-
-
-
+        post.put("id" ,userUid+postUniqueName);
         // add the time of the post
         Calendar calendar = Calendar.getInstance();
-        post.put("date",new SimpleDateFormat("dd-MMMM-yyyy").format(calendar.getTime()));
+        post.put("date",new SimpleDateFormat("dd-MMMM-yyyy HH:mm:ss aa").format(calendar.getTime()));
 
         //add image and date and user profile
 
-
+Toast.makeText(getActivity(),"",Toast.LENGTH_SHORT).show();
         DatabaseReference firebaseDatabase = FirebaseDatabase.getInstance().getReference();
         firebaseDatabase.child("postApartment").child(userUid+postUniqueName).setValue(post).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
@@ -627,27 +616,7 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
 
     void publishPersonalPost(LatLng locationLtLng , String description , int price , List<Boolean> property ){
         String userUid =  FirebaseAuth.getInstance().getCurrentUser().getUid();
-
-        //get the username of the user
-        DatabaseReference getUsername = FirebaseDatabase.getInstance().getReference("Users").child(userUid);
-
-        getUsername.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.exists()){
-                    User user = snapshot.getValue(User.class);
-
-                    userName = user.getName();
-                    Toast.makeText(getActivity(), userName , Toast.LENGTH_LONG).show();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
+        postUniqueName = getUniqueName();
         uploadingProgress.setVisibility(View.VISIBLE);
         publishPostButton.setVisibility(View.INVISIBLE);
         uploadingProgress.playAnimation();
@@ -660,12 +629,10 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
         post.put("latitude", locationLtLng.latitude);
         post.put("longitude",locationLtLng.longitude);
         post.put("preferences" , property);
-        post.put("userName" , userName);
-
+        post.put("id" , userUid+postUniqueName);
         // add the time of the post
         Calendar calendar = Calendar.getInstance();
-
-        post.put("date",new SimpleDateFormat("dd-MMMM-yyyy").format(calendar.getTime()));
+        post.put("date",new SimpleDateFormat("dd-MMMM-yyyy HH:mm:ss aa").format(calendar.getTime()));
         //add image and date and user profile
         postUniqueName = getUniqueName();
 

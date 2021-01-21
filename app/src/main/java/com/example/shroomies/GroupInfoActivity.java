@@ -9,9 +9,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
@@ -20,15 +22,18 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-
+import java.util.List;
 public class GroupInfoActivity extends AppCompatActivity {
     private Button leave,delete,addParticipants,edit,backToChattingActivity;
     private Toolbar groupInfoToolbar;
@@ -37,10 +42,12 @@ public class GroupInfoActivity extends AppCompatActivity {
     private DatabaseReference rootRef;
     private FirebaseAuth mAuth;
     private String groupID;
-    private ArrayList<String> groupMembersID;
+    private List<String> groupMembersID;
     private UserRecyclerAdapter membersAdapter;
     private ArrayList<User> membersList;
+    private ArrayList<User> newUserList;
     private TextView numberOfParticipants;
+    private Group group;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,26 +62,29 @@ public class GroupInfoActivity extends AppCompatActivity {
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowHomeEnabled(true);
        groupMembersRecycler=findViewById(R.id.participants_recycler);
+        groupMembersRecycler.setHasFixedSize(true);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getApplication());
+        groupMembersRecycler.setLayoutManager(linearLayoutManager);
        groupImage=findViewById(R.id.group_chat_info_image);
        numberOfParticipants=findViewById(R.id.number_of_participants);
-        backToChattingActivity=findViewById(R.id.back_button_group_info);
        rootRef= FirebaseDatabase.getInstance().getReference();
        mAuth=FirebaseAuth.getInstance();
         Bundle extras = getIntent().getExtras();
         if(!(extras==null)){
             groupID=extras.getString("GROUPID");
-            membersList=(extras.getParcelableArrayList("ListOfSelectedUsers"));
+            newUserList=(extras.getParcelableArrayList("ListOfSelectedUsers"));
             loadGroupDetail();
-            if(membersList!=null){
-                addNewPatricipantToFirebase(membersList);
+            if(newUserList!=null){
+                addNewPatricipantToFirebase(newUserList);
             }
+
         }
         edit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 //edit group chat here
                 Intent intent= new Intent(getApplicationContext(),EditGroupInfo.class);
-                intent.putExtra("GROUPID",groupID);
+                intent.putExtra("GROUP" , group);
                 startActivity(intent);
             }
         });
@@ -84,6 +94,7 @@ public class GroupInfoActivity extends AppCompatActivity {
               CreateChatGroupFragment createChatGroupFragment=new CreateChatGroupFragment();
               Bundle bundle= new Bundle();
               bundle.putBoolean("FromGroupInfo",true);
+              bundle.putString("GROUPID" , groupID);
               createChatGroupFragment.setArguments(bundle);
               createChatGroupFragment.show(getSupportFragmentManager(),"create group dialog 1");
           }
@@ -103,86 +114,92 @@ public class GroupInfoActivity extends AppCompatActivity {
                leaveGroup();
            }
        });
-        backToChattingActivity.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent= new Intent(getApplicationContext(),GroupChattingActivity.class);
-                intent.putExtra("GROUPID",groupID);
-                startActivity(intent);
-            }
-        });
+//        backToChattingActivity.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent intent= new Intent(getApplicationContext(),GroupChattingActivity.class);
+//                intent.putExtra("GROUPID",groupID);
+//                startActivity(intent);
+//            }
+//        });
 
     }
     private void leaveGroup(){
-        rootRef.child("GroupChats").child(groupID).child("groupMembers").child(mAuth.getCurrentUser().getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+        final String userID = mAuth.getInstance().getCurrentUser().getUid();
+//        find the index of the current user in the group members list
+        rootRef.child("GroupChats").child(groupID).child("groupMembers").orderByValue().equalTo(userID).addChildEventListener(new ChildEventListener() {
             @Override
-            public void onSuccess(Void aVoid) {
-
-                Toast.makeText(getApplicationContext(),"you have left the group",Toast.LENGTH_SHORT).show();
-                Intent intent= new Intent(getApplicationContext(),MessageInbox.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-                finish();
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+                // once the index is found remove it
+                rootRef.child("GroupChats").child(groupID).child("groupMembers").child(snapshot.getKey()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        Intent intent= new Intent(getApplicationContext(),MessageInbox.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        startActivity(intent);
+                        finish();
+                    }
+                });
+            }
+            @Override public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
 
             }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(getApplicationContext(),e.getMessage(),Toast.LENGTH_SHORT).show();
+            @Override public void onChildRemoved(@NonNull DataSnapshot snapshot) {
 
             }
-        });
+            @Override public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+            @Override public void onCancelled(@NonNull DatabaseError error) {
+
+            }});
     }
     private void loadGroupDetail(){
-        rootRef.child("GroupChat").child(groupID).addValueEventListener(new ValueEventListener() {
+
+        rootRef.child("GroupChats").child(groupID).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()){
-                    for(DataSnapshot dataSnapshot
-                            : snapshot.getChildren()) {
-                        Group group = dataSnapshot.getValue(Group.class);
+                    group = snapshot.getValue(Group.class);
+                        //save members ID in array
+                    groupMembersID=  group.getGroupMembers();
+                    membersList = new ArrayList<>();
+                    getMemberDetail(groupMembersID);
+
+                    if(!group.groupImage.isEmpty()) {
                         GlideApp.with(getApplicationContext())
-                                .load(group.getImage())
-                                .transform(new RoundedCorners(1))
+                                .load(group.getGroupImage())
                                 .fitCenter()
                                 .centerCrop()
                                 .into(groupImage);
-                        //save members ID in array
-                        groupMembersID= (ArrayList<String>) group.groupMembers;
-
+                        groupImage.setPadding(0, 0, 0, 0);
                     }
                 }
             }
-
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
+            @Override public void onCancelled(@NonNull DatabaseError error) { }
         });
+    }
+    private void getMemberDetail(List<String> groupMembersID) {
+        membersAdapter=new UserRecyclerAdapter(membersList,getApplicationContext(),"GROUP_INFO_ACTIVITY");
+        groupMembersRecycler.setAdapter(membersAdapter);
         //look for each members details in firebase from the array we created in line 83 one by one
-        for(String memberId: groupMembersID){
-            rootRef.child("Users").child(memberId).addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    if(snapshot.exists()){
-                        User user=snapshot.getValue(User.class);
-                        //save each member's details in an array of User type to be able pass to adapter
-                        membersList.add(user);
+        numberOfParticipants.setText("Participants"+" ("+groupMembersID.size()+")");
+            for (String memberId
+            :groupMembersID) {
+                rootRef.child("Users").child(memberId).addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if (snapshot.exists()) {
+                            User user = snapshot.getValue(User.class);
+                            //save each member's details in an array of User type to be able pass to adapter
+                            membersList.add(user);
+                            membersAdapter.notifyDataSetChanged();
+                        }
                     }
-                }
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) { }});
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-
-                }
-            });
-            //finally add to the adapter
-            membersAdapter=new UserRecyclerAdapter(membersList,getApplicationContext(),false);
-            groupMembersRecycler.setAdapter(membersAdapter);
-            membersAdapter.notifyDataSetChanged();
-            numberOfParticipants.setText(numberOfParticipants.getText().toString()+" ("+membersAdapter.getItemCount()+") ");
-        }
+            }
 
     }
     private void deleteGroup(){
@@ -202,20 +219,54 @@ public class GroupInfoActivity extends AppCompatActivity {
          }
      });
     }
-    private void addNewPatricipantToFirebase(ArrayList<User> membersList){
-        ArrayList<String> ids=null;
-        for(User userAdded:membersList){
-          ids.add(userAdded.getID());
-        }
-        HashMap<String,Object> addUsers=new HashMap<>();
-        addUsers.put("groupMembers",addUsers);
-        rootRef.child("GroupChats").child(groupID).updateChildren(addUsers).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if(task.isSuccessful()){
-                    Toast.makeText(getApplicationContext(),"added members Successfully",Toast.LENGTH_SHORT).show();
 
+    private void addNewPatricipantToFirebase(ArrayList<User> membersList) {
+        final List<String> ids = new ArrayList<>();
+        for (User userAdded : membersList) {
+            ids.add(userAdded.getID());
+        }
+        rootRef.child("GroupChats").child(groupID).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()) {
+                    Group group = snapshot.getValue(Group.class);
+
+                    List<String> currentMembers = group.getGroupMembers();
+                    for (String id
+                    :ids){
+                        if(!currentMembers.contains(id)){
+                            currentMembers.add(id);
+                        }
+                    }
+                    HashMap<String, Object> addUsers = new HashMap<>();
+                    addUsers.put("groupMembers", currentMembers);
+                    updateGroupMembers(addUsers);
                 }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void updateGroupMembers(final HashMap<String, Object> addUsers) {
+        rootRef.child("GroupChats").child(groupID).updateChildren(addUsers).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                for (String memberId
+                :(ArrayList<String>)addUsers.get("groupMembers")){
+                    HashMap<String,Object> newGroup = new HashMap<>();
+                    newGroup.put(groupID , group.getGroupName());
+                    rootRef.child("GroupChatList").child(memberId).updateChildren(newGroup).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Toast.makeText(getApplicationContext(), "successfully added users", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+
             }
         });
     }

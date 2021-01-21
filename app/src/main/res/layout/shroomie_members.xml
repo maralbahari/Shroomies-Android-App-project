@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:id="@+id/shroomie_members"
+    android:layout_margin="5dp"
+    android:background="@drawable/dialogfragment_add_member"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:id="@+id/relative_layout_member"
+        android:layout_margin="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:id="@+id/shroomie"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Shroomies"
+            android:layout_marginTop="30dp"
+            android:layout_marginLeft="30dp"
+            android:layout_marginBottom="50dp"
+            android:textSize="30sp"
+            />
+
+        <Button
+            android:elevation="5dp"
+            android:id="@+id/add_shroomie_btn"
+            android:layout_width="200dp"
+            android:layout_height="30dp"
+            android:layout_marginLeft="50dp"
+            android:layout_marginTop="40dp"
+            android:layout_marginRight="10dp"
+            android:layout_toRightOf="@+id/shroomie"
+            android:background="@drawable/rounded_button_myshroomies_layout"
+            android:drawableStart="@drawable/ic_member"
+            android:padding="10dp"
+            android:layout_marginBottom="30dp"
+            android:text="Add shroomies"
+            android:textSize="10sp" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/members_recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/add_shroomie_btn"
+            />
+
+        <Button
+            android:layout_marginTop="20dp"
+            android:id="@+id/leave_room_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Leave room"
+            android:background="@color/canceRed"
+            android:textColor="@color/white"
+            android:layout_below="@+id/members_recyclerView"
+            android:layout_gravity="bottom"
+            />
+
+    </RelativeLayout>
+
+
+</LinearLayout>

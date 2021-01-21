@@ -5,7 +5,7 @@ import java.util.List;
 public class Model_personal {
 
 
-    String date, description,  userId;
+    String date, description,  userID;
     int price;
     long latitude, longitude;
 
@@ -14,10 +14,10 @@ public class Model_personal {
     public Model_personal() {
     }
 
-    public Model_personal(String date, String description, String userId, long latitude, long longitude, int price, List<Boolean> preferences) {
+    public Model_personal(String date, String description, String userID, long latitude, long longitude, int price, List<Boolean> preferences) {
         this.date = date;
         this.description = description;
-        this.userId = userId;
+        this.userID = userID;
         this.latitude = latitude;
         this.longitude = longitude;
         this.price = price;
@@ -41,11 +41,11 @@ public class Model_personal {
     }
 
     public String getUserId() {
-        return userId;
+        return userID;
     }
 
     public void setUserId(String userId) {
-        this.userId = userId;
+        this.userID = userID;
     }
 
     public long getLatitude() {

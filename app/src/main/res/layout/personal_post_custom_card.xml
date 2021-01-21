@@ -6,20 +6,21 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <androidx.cardview.widget.CardView
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="8dp"
+
         android:layout_marginVertical="7dp"
         app:cardCornerRadius="15dp"
+        android:background= "@android:color/transparent"
         android:id="@+id/personal_card_view"
         >
 
         <RelativeLayout
             android:id="@+id/relative_layout_personal_card"
-            android:layout_width="369dp"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
             android:background="@drawable/personal_post_relative_layout"
             android:elevation="5dp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -54,7 +55,7 @@
                     android:layout_marginBottom="3dp"
                     android:layout_weight="1"
                     android:gravity="right"
-                    android:text="Budget : 1000 - 200">
+                    android:text="Budget : 1000 - 2000">
 
                 </TextView>
 
@@ -73,13 +74,14 @@
             <TextView
 
                 android:id="@+id/personal_card_text_view"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="280dp"
+                android:layout_height="190dp"
                 android:layout_above="@id/start_chat_button"
                 android:layout_below="@id/top_bar_linear_layout"
-                android:layout_marginLeft="10dp"
+                android:layout_marginLeft="15dp"
                 android:layout_marginTop="15dp"
                 android:layout_marginRight="10dp"
+                android:layout_marginBottom="9dp"
                 android:layout_toRightOf="@id/user_image_personal_card"
                 android:background="@drawable/post_card_rectangle_round"
                 android:elevation="5dp"
@@ -94,7 +96,7 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginTop="5dp"
                 android:layout_toLeftOf="@id/personal_card_text_view"
-                android:text="Bader baswaid"
+                android:text="User name"
                 android:textSize="20dp" />
 
             <TextView
@@ -106,13 +108,25 @@
                 android:layout_toLeftOf="@id/personal_card_text_view"
                 android:text="Bsc in computer science" />
 
+            <!--            <androidx.appcompat.widget.AppCompatCheckBox-->
+            <!--                android:layout_width="wrap_content"-->
+            <!--                android:layout_height="wrap_content"-->
+            <!--                android:layout_below="@+id/bio_personal_card"-->
+            <!--                android:layout_alignParentRight="true"-->
+            <!--                android:layout_margin="20dp"-->
+            <!--                android:background="@drawable/start_check_button"-->
+            <!--                android:button="@android:color/transparent"-->
+
+            <!--                />-->
+
             <LinearLayout
                 android:id="@+id/properties_linear_layout"
-                android:layout_width="wrap_content"
+                android:layout_width="164dp"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/bio_personal_card"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp"
+                android:layout_marginLeft="8dp"
+                android:layout_marginTop="9dp"
+                android:layout_marginBottom="3dp"
                 android:orientation="horizontal"
                 android:padding="5dp">
 
@@ -175,8 +189,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/bio_personal_card"
-                android:layout_marginLeft="7dp"
-                android:layout_marginTop="15dp"
+                android:layout_marginLeft="21dp"
+                android:layout_marginTop="13dp"
+                android:layout_marginRight="8dp"
                 android:layout_marginBottom="5dp"
                 android:layout_toRightOf="@id/properties_linear_layout"
                 android:background="@drawable/button_round_corner_purple"
@@ -190,32 +205,20 @@
 
                 />
 
-            <!--            <androidx.appcompat.widget.AppCompatCheckBox-->
-            <!--                android:layout_width="wrap_content"-->
-            <!--                android:layout_height="wrap_content"-->
-            <!--                android:layout_below="@+id/bio_personal_card"-->
-            <!--                android:layout_alignParentRight="true"-->
-            <!--                android:layout_margin="20dp"-->
-            <!--                android:background="@drawable/start_check_button"-->
-            <!--                android:button="@android:color/transparent"-->
-
-            <!--                />-->
-
-            <com.like.LikeButton
-                android:id="@+id/star_button"
+            <ImageButton
+                android:id="@+id/BUT_fav"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/bio_personal_card"
+                android:layout_alignParentEnd="true"
                 android:layout_alignParentRight="true"
-                android:layout_marginHorizontal="3dp"
-                android:layout_marginVertical="12dp"
                 android:layout_toRightOf="@id/start_chat_button"
-
-                app:dots_primary_color="@color/Black"
-                app:dots_secondary_color="#F5CB5C"
-                app:icon_size="15dp"
-                app:icon_type="star"
-                app:liked="true" />
+                android:layout_marginLeft="1dp"
+                android:layout_marginTop="12dp"
+                android:layout_marginEnd="9dp"
+                android:layout_marginRight="8dp"
+                android:background="@android:color/transparent"
+                android:src="@drawable/ic_icon_awesome_star_unchecked" />
 
 
         </RelativeLayout>

@@ -14,4 +14,11 @@
     <string name="google_maps_api_key">AIzaSyBxsKC0T7r-jozZk-mZUScW7wPN5zB_7pg</string>
     <string name="Heading_discover">Discover</string>
     <string name="title_activity_group_chatting">GroupChattingActivity</string>
+
+    <string-array name="spinner_options">
+        <item>Importance</item>
+        <item>latest</item>
+        <item>Oldest</item>
+        <item>Title</item>
+    </string-array>
 </resources>

@@ -10,5 +10,12 @@
     <color name="okGreen">#5ABE07</color>
     <color name="purple">#794C74</color>
     <color name="Black">#000000</color>
+    <color name="jetBlack">#333533</color>
+    <color name="lightGrey">#7E807E</color>
+    <color name="canceRed">#F25454</color>
+    <color name="orange">#FF6D00</color>
+    <color name="y">#FEFCF8</color>
+    <color name="red">#D50000</color>
+
 
 </resources>

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -17,6 +18,7 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.shroomies.notifications.Data;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -32,7 +34,7 @@ import java.util.Map;
 
 
 public class MessageInbox extends AppCompatActivity {
-   private Button addgroupButton;
+   private ImageButton addgroupButton;
    private Toolbar inboxToolbar;
    private RecyclerView inboxListRecyclerView;
     private FragmentTransaction ft;
@@ -73,6 +75,7 @@ public class MessageInbox extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                CreateChatGroupFragment createChatGroupFragment=new CreateChatGroupFragment();
+
                createChatGroupFragment.show(getSupportFragmentManager(),"create group dialog 1");
             }
         });
@@ -105,6 +108,7 @@ public class MessageInbox extends AppCompatActivity {
 
     }
     public void getPrivateChatList(){
+        usersArrayList = new ArrayList<>();
         messageInboxRecycleViewAdapter=new PrivateInboxRecycleViewAdapter(usersArrayList,getApplicationContext());
         linearLayoutManager=new LinearLayoutManager(this);
         inboxListRecyclerView.setHasFixedSize(true);
@@ -113,6 +117,7 @@ public class MessageInbox extends AppCompatActivity {
         rootRef.child("PrivateChatList").child(mAuth.getInstance().getCurrentUser().getUid()).orderByChild("receiverID").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                usersArrayList.clear();
                 if (snapshot.exists()) {
                     for (DataSnapshot ds : snapshot.getChildren()) {
                         HashMap<String,String> recivers= (HashMap) ds.getValue();
@@ -131,31 +136,32 @@ public class MessageInbox extends AppCompatActivity {
     }
 
 
-
     private void getGroupChatList() {
+        groupList = new ArrayList<>();
         groupInboxRecyclerViewAdapter =new GroupInboxRecyclerViewAdapter(groupList,getApplicationContext());
         linearLayoutManager=new LinearLayoutManager(this);
         inboxListRecyclerView.setHasFixedSize(true);
         inboxListRecyclerView.setLayoutManager(linearLayoutManager);
         inboxListRecyclerView.setAdapter(groupInboxRecyclerViewAdapter);
-        rootRef.child("GroupChats").addValueEventListener(new ValueEventListener() {
+
+        rootRef.child("GroupChatList").child(mAuth.getInstance().getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()){
-                    String userId = mAuth.getInstance().getCurrentUser().getUid();
-                    for(DataSnapshot dataSnapshot
-                            : snapshot.getChildren()){
-                        Group group = dataSnapshot.getValue(Group.class);
-                        if(group.getGroupMembers().contains(userId)){
-                            groupList.add(group);
+                    for (DataSnapshot dataSnapshot:snapshot.getChildren()){
+                        rootRef.child("GroupChats").child(dataSnapshot.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                Group group = snapshot.getValue(Group.class);
+                                groupList.add(group);
+                                groupInboxRecyclerViewAdapter.notifyDataSetChanged();
+                            }
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
 
-                        }
-
+                            }
+                        });
                     }
-
-
-                    groupInboxRecyclerViewAdapter.notifyDataSetChanged();
-                }else{
 
                 }
             }
@@ -165,6 +171,7 @@ public class MessageInbox extends AppCompatActivity {
 
             }
         });
+
 
 
     }

@@ -14,8 +14,8 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -65,7 +65,8 @@ import java.util.Map;
 
 public class ChattingActivity extends AppCompatActivity {
     private boolean firstChat = false;
-    private Button sendMessage,addImage,backButton;
+
+    private ImageButton sendMessage,addImage;
     private EditText messageBody;
     private Toolbar chattingToolbar;
     private ImageView receiverProfileImage,attacheButton;
@@ -76,7 +77,7 @@ public class ChattingActivity extends AppCompatActivity {
     private DatabaseReference rootRef;
     private String senderID;
     private String saveCurrentDate,saveCurrentTime;
-    private final List<Messages> messagesArrayList=new ArrayList<>();
+    private List<Messages> messagesArrayList=new ArrayList<>();
     private LinearLayoutManager linearLayoutManager;
     private MessagesAdapter messagesAdapter;
     private boolean notify=false;
@@ -90,10 +91,22 @@ public class ChattingActivity extends AppCompatActivity {
     Uri chosenImage=null;
     StorageReference filePathName;
     private String imageUrl;
+    private ValueEventListener seenLisenter;
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        rootRef.removeEventListener(seenLisenter);
+
+    }
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_chatting);
+
         receiverUsername=findViewById(R.id.receiver_username);
         mAuth=FirebaseAuth.getInstance();
         senderID=mAuth.getCurrentUser().getUid();
@@ -113,6 +126,7 @@ public class ChattingActivity extends AppCompatActivity {
 
 
         retrieveMessages();
+
        addImage.setOnClickListener(new View.OnClickListener() {
            @Override
            public void onClick(View v) {
@@ -126,22 +140,24 @@ public class ChattingActivity extends AppCompatActivity {
         ActionBar actionBar=getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setDisplayShowHomeEnabled(true);
+        actionBar.setDisplayShowTitleEnabled(false);
         LayoutInflater inflater= (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         View actionbarView=inflater.inflate(R.layout.toolbar_chatting_layout,null);
         sendMessage=findViewById(R.id.send_message_button);
         addImage=findViewById(R.id.choose_file_button);
-        backButton=findViewById(R.id.back_button_chatting);
+
         messageBody=findViewById(R.id.messeg_body_edit_text);
         chattingRecycler=findViewById(R.id.recycler_view_group_chatting);
         receiverProfileImage=findViewById(R.id.receiver_image_profile);
         chattingRecycler=findViewById(R.id.recycler_view_group_chatting);
         cameraPermissions=new String[]{Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE};
         storagePermissions=new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
-        messagesAdapter=new MessagesAdapter(messagesArrayList , getApplication());
+
         linearLayoutManager=new LinearLayoutManager(this);
+        linearLayoutManager.setStackFromEnd(true);
         chattingRecycler.setHasFixedSize(true);
         chattingRecycler.setLayoutManager(linearLayoutManager);
-        chattingRecycler.setAdapter(messagesAdapter);
+
         requestQueue= Volley.newRequestQueue(getApplicationContext());
     }
     private void sendMessageToUser(){
@@ -169,6 +185,7 @@ public class ChattingActivity extends AppCompatActivity {
             messageTextBody.put("date",saveCurrentDate);
             messageTextBody.put("type","text");
             messageTextBody.put("from",senderID);
+            messageTextBody.put("isSeen" , "false");
             Map messageBodyDetails=new HashMap();
             messageBodyDetails.put(messageSenderRef+"/"+messagePushId,messageTextBody);
            messageBodyDetails.put(messageReceiverRef+"/"+messagePushId,messageTextBody);
@@ -177,6 +194,7 @@ public class ChattingActivity extends AppCompatActivity {
                public void onComplete(@NonNull Task task) {
                    if(task.isSuccessful()){
                        messageBody.setText("");
+                       chattingRecycler.smoothScrollToPosition(messagesAdapter.getItemCount()-1);
                        if(firstChat){
                            addUserToInbox();
                        }
@@ -210,13 +228,13 @@ public class ChattingActivity extends AppCompatActivity {
 
     }
     private void sendNotification(final String receiverID,final String senderName,final String message) {
-        rootRef.child("Tokens").orderByKey().equalTo(receiverID).addValueEventListener(new ValueEventListener() {
+        rootRef.child("Token").orderByKey().equalTo(receiverID).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
                     for (DataSnapshot ds : snapshot.getChildren()) {
                         Token token = (Token) ds.getValue(Token.class);
-                        Data data = new Data(senderID, senderName + ":" + message, "New Message", receiverID, (R.drawable.ic_mashroom_icon));
+                        Data data = new Data(senderID, senderName + ":" + message, "New Message", receiverID, (R.drawable.ic_notification_icon));
                         Sender sender = new Sender(data, token.getToken());
                         try {
                             JSONObject senderJsonObj = new JSONObject(new Gson().toJson(sender));
@@ -243,7 +261,8 @@ public class ChattingActivity extends AppCompatActivity {
                                 }
 
                             };
-
+                            requestQueue.add(jsonObjectRequest);
+                            requestQueue.start();
                         }catch (JSONException e){
                             e.printStackTrace();
                         }
@@ -259,29 +278,32 @@ public class ChattingActivity extends AppCompatActivity {
         });
 
     }
-
-   public void retrieveMessages(){
-
+    public void retrieveMessages(){
+        messagesArrayList = new ArrayList<>();
+       messagesAdapter=new MessagesAdapter(messagesArrayList , getApplication());
+       chattingRecycler.setAdapter(messagesAdapter);
         rootRef.child("Messages").child(senderID).child(receiverID).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                messagesArrayList.clear();
                 if(snapshot.exists()){
-                    for (DataSnapshot dataSnapshot
-                    :snapshot.getChildren()){
+                    for (DataSnapshot dataSnapshot:
+                    snapshot.getChildren()){
                         Messages messages = dataSnapshot.getValue(Messages.class);
                         messagesArrayList.add(messages);
-                        messagesAdapter.notifyDataSetChanged();
                     }
                 }
+                messagesAdapter.notifyDataSetChanged();
+                chattingRecycler.smoothScrollToPosition(chattingRecycler.getAdapter().getItemCount());
                 if (messagesArrayList.size()==0|| messagesArrayList==null){
 
                     firstChat= true;
                 }
-
-                }
-
-
-
+//                else{
+//                    // scroll to the end of the recycler if there are messages
+//                    chattingRecycler.smoothScrollToPosition(messagesAdapter.getItemCount()-1);
+//                }
+            }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
@@ -289,7 +311,6 @@ public class ChattingActivity extends AppCompatActivity {
             }
         });
 }
-
    private void showImagePickDialog(){
         String[] options={"Camera","Gallery"};
        AlertDialog.Builder builder=new AlertDialog.Builder(this);
@@ -358,6 +379,7 @@ public class ChattingActivity extends AppCompatActivity {
         switch (requestCode){
             case CAMERA_REQUEST_CODE:{
                 if(grantResults.length>0){
+
                     boolean cameraAccepted=grantResults[0]==PackageManager.PERMISSION_GRANTED;
                     boolean storageAccepted=grantResults[1]==PackageManager.PERMISSION_GRANTED;
                     if(cameraAccepted && storageAccepted){
@@ -442,6 +464,7 @@ public class ChattingActivity extends AppCompatActivity {
         messageTextBody.put("date",saveCurrentDate);
         messageTextBody.put("type","image");
         messageTextBody.put("from",senderID);
+        messageTextBody.put("isSeen" , "false");
         Map messageBodyDetails=new HashMap();
         messageBodyDetails.put(messageSenderRef+"/"+messagePushId,messageTextBody);
         messageBodyDetails.put(messageReceiverRef+"/"+messagePushId,messageTextBody);
@@ -485,14 +508,17 @@ public class ChattingActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()) {
                     User recieverUser = snapshot.getValue(User.class);
-                    GlideApp.with(getApplicationContext())
-                            .load(recieverUser.getImage())
-                            .circleCrop()
-                            .fitCenter()
-                            .into(receiverProfileImage);
-                    receiverUsername.setText(recieverUser.getName());
-                }
+                    if(!recieverUser.getImage().isEmpty()) {
+                        GlideApp.with(getApplicationContext())
+                                .load(recieverUser.getImage())
+                                .fitCenter()
+                                .circleCrop()
+                                .into(receiverProfileImage);
 
+                    }
+                    receiverUsername.setText(recieverUser.getName());
+                    messageSeen(recieverID);
+                }
             }
 
             @Override
@@ -529,4 +555,35 @@ public class ChattingActivity extends AppCompatActivity {
         });
 
     }
+
+    private void messageSeen(final String receiverID){
+        seenLisenter =rootRef.child("Messages").child(senderID).child(receiverID).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
+                    for(DataSnapshot sp: snapshot.getChildren()){
+                        Messages messages=sp.getValue(Messages.class);
+                        if(messages!=null) {
+                            if (messages.getFrom().equals(senderID) || messages.getFrom().equals(receiverID)) {
+                                HashMap<String, Object> hash = new HashMap<>();
+                                hash.put("isSeen", "true");
+                                sp.getRef().updateChildren(hash);
+
+                            }
+                        }
+                    }
+
+                    // once the user  sees the messages
+                    //update the number of unseen messages in the badge
+                    MainActivity.setBadgeToNumberOfNotifications(rootRef , mAuth);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
 }

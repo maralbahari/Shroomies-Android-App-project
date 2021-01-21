@@ -27,6 +27,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
@@ -68,6 +69,7 @@ public class CreateChatGroupDialogFrag2 extends DialogFragment {
         super.onStart();
         if(getDialog()!=null) {
             getDialog().getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
+            getDialog().getWindow().setBackgroundDrawableResource(R.drawable.create_group_fragment_2_background);
         }
     }
 
@@ -80,6 +82,12 @@ public class CreateChatGroupDialogFrag2 extends DialogFragment {
         storageReference = FirebaseStorage.getInstance().getReference();
         return v;
     }
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getDialog().getWindow().setWindowAnimations(R.style.DialogAnimation);
+    }
+
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -97,7 +105,7 @@ public class CreateChatGroupDialogFrag2 extends DialogFragment {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         selectedMembers.setHasFixedSize(true);
         selectedMembers.setLayoutManager(linearLayoutManager);
-        userRecyclerAdapter=new UserRecyclerAdapter(selectedUsers,getContext(),false);
+        userRecyclerAdapter=new UserRecyclerAdapter(selectedUsers,getContext(),"CREATE_GROUP_FRAG_2");
         selectedMembers.setAdapter(userRecyclerAdapter);
 
         createGroupButton.setOnClickListener(new View.OnClickListener() {
@@ -142,8 +150,13 @@ public class CreateChatGroupDialogFrag2 extends DialogFragment {
                 @Override
                 public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                     if(task.isSuccessful()) {
-                        String imageUrl = task.getResult().getMetadata().getReference().getPath();
-                        createGroupDatabase(groupName, membersId, imageUrl);
+                         task.getResult().getMetadata().getReference().getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
+                            @Override
+                            public void onComplete(@NonNull Task<Uri> task) {
+                                createGroupDatabase(groupName, membersId, task.getResult().toString());
+                            }
+                        });
+
                     }else{
                         Toast.makeText(getActivity(),task.getException().toString(),Toast.LENGTH_SHORT).show();
                     }
@@ -154,7 +167,7 @@ public class CreateChatGroupDialogFrag2 extends DialogFragment {
 
     }
 
-    public void createGroupDatabase(String groupName, final List<String> membersID , String imagePath){
+    public void createGroupDatabase(final String groupName, final List<String> membersID , String imagePath){
 
         // add the current user id to the list
         membersID.add(mAuth.getInstance().getCurrentUser().getUid());
@@ -166,7 +179,7 @@ public class CreateChatGroupDialogFrag2 extends DialogFragment {
         Calendar calendarTime=Calendar.getInstance();
         SimpleDateFormat currentTime=new SimpleDateFormat("HH:mm");
         saveCurrentTime=currentTime.format(calendarTime.getTime());
-        String groupID=groupName+"-"+saveCurrentDate+"-"+saveCurrentTime;
+        final String groupID=groupName+"-"+saveCurrentDate+"-"+saveCurrentTime;
         // ad dthe group name , members and id
         groupDetails.put("groupName",groupName);
         groupDetails.put("groupMembers",membersID);
@@ -177,14 +190,26 @@ public class CreateChatGroupDialogFrag2 extends DialogFragment {
             @Override
             public void onComplete(@NonNull Task task) {
                 if(task.isSuccessful()){
-                    Intent intent = new Intent(getContext(),MessageInbox.class);
-                    startActivity(intent);
+                    for (String memberId
+                            :membersID){
+                        HashMap<String,Object> newGroup = new HashMap<>();
+                        newGroup.put(groupID , groupName);
+                        rootRef.child("GroupChatList").child(memberId).updateChildren(newGroup).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Toast.makeText(getActivity(), "successfully added users", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+
+                    }
                 }else{
                     Toast.makeText(getActivity(), "something went wrong", Toast.LENGTH_SHORT).show();
                 }
 
             }
-        });
+
+    });
+
     }
 
     private void openGallery() {

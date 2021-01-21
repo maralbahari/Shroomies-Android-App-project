@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class SessionManager {
@@ -13,13 +14,14 @@ public class SessionManager {
     // we will keep a list of users to make the task of looking for logged in users easier.
     SharedPreferences listOfUsers;
     SharedPreferences.Editor listEditor;
+
+
     public Context context;
     int PRIVATE_MODE = 0;
     private static final String USERNAME_LIST = "USERNAME_LIST";
     private static final String LOGIN = "IS_LOGGED_IN";
     public static final String ID = "ID";
     public static final String EMAIL = "EMAIL";
-
     public static final String VERIFIED = "VERIFIED";
     //constructor gets the shared preferences or creates a new session if it doesn't exist
     // each user will have his/her own shared preferences folder
@@ -29,7 +31,6 @@ public class SessionManager {
         editor = sharedPreferences.edit();
     }
     public SessionManager(){
-
     }
 
     public void createSession(String id,String email) {
@@ -79,7 +80,6 @@ public class SessionManager {
         return null;
     }
 
-
     // keeps the user's data stored and changes his login status to false
     public void logout() {
 
@@ -92,7 +92,6 @@ public class SessionManager {
 
     // clears all  data , use this method only when user deletes account or wants to remove all shared preferences data.
     void deleteSession() {
-
         editor.clear();
         editor.apply();
 
