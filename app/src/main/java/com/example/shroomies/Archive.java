@@ -31,6 +31,7 @@ public class Archive extends Fragment {
    ArrayList<TasksCard> tasksCardsList ;
    TasksCardAdapter tasksCardAdapter;
    ExpensesCardAdapter expensesCardAdapter;
+   String currentUserAppartmentId = "";
 
 
     @Override
@@ -39,10 +40,28 @@ public class Archive extends Fragment {
         // Inflate the layout for this fragment
        view=inflater.inflate(R.layout.fragment_my_archive, container, false);
        mAuth = FirebaseAuth.getInstance();
+       getUserRoomId();
        rootRef = FirebaseDatabase.getInstance().getReference();
 
 
     return view;
+    }
+
+
+    private void getUserRoomId(){
+        rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
+                    currentUserAppartmentId=snapshot.getValue().toString();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     @Override
@@ -82,7 +101,7 @@ public class Archive extends Fragment {
         tasksCardAdapter = new TasksCardAdapter(tasksCardsList, getContext(),true);
         archiveRecyclerview.setAdapter(tasksCardAdapter);
 
-        rootRef.child("archive").child(mAuth.getCurrentUser().getUid()).child("tasksCards").addValueEventListener(new ValueEventListener() {
+        rootRef.child("archive").child(currentUserAppartmentId).child("tasksCards").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 tasksCardsList.clear();
@@ -108,7 +127,7 @@ public class Archive extends Fragment {
         expensesCardsList = new ArrayList<>();
         expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList, getContext(), true);
         archiveRecyclerview.setAdapter(expensesCardAdapter);
-        rootRef.child("archive").child(mAuth.getCurrentUser().getUid()).child("expensesCards").addValueEventListener(new ValueEventListener() {
+        rootRef.child("archive").child(currentUserAppartmentId).child("expensesCards").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 expensesCardsList.clear();

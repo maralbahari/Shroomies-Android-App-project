@@ -149,7 +149,7 @@ public class MessageInbox extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()){
                     for (DataSnapshot dataSnapshot:snapshot.getChildren()){
-                        rootRef.child("GroupChats").child(dataSnapshot.getKey()).addValueEventListener(new ValueEventListener() {
+                        rootRef.child("GroupChats").child(dataSnapshot.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot snapshot) {
                                 Group group = snapshot.getValue(Group.class);

@@ -27,7 +27,6 @@ import java.util.ArrayList;
 public class Members extends DialogFragment {
     View v;
     Button addMember, leaveRoom;
-    FirebaseDatabase firebaseDatabase;
     FirebaseAuth mAuth;
     DatabaseReference rootRef;
     RecyclerView membersRecycler;
@@ -39,15 +38,12 @@ public class Members extends DialogFragment {
     ArrayList<User> getRequestUsersList;
 
 
-
-
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         v =inflater.inflate(R.layout.shroomie_members, container, false);
         mAuth = FirebaseAuth.getInstance();
-        firebaseDatabase = FirebaseDatabase.getInstance();
+        rootRef = FirebaseDatabase.getInstance().getReference();
         getUserRoomId();
         return v;
     }

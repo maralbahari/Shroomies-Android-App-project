@@ -5,11 +5,14 @@ import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -36,6 +39,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
     private DatabaseReference rootRef;
     private FirebaseAuth mAuth;
     Boolean fromArchive;
+    String currentUserAppartmentId= "";
 
     public TasksCardAdapter(ArrayList<TasksCard> tasksCardsList, Context context,boolean fromArchive) {
         this.tasksCardsList = tasksCardsList;
@@ -46,10 +50,14 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
     public class TasksCardViewHolder extends RecyclerView.ViewHolder {
 
         View taskImportanceView;
-        TextView title, description, dueDate;
+        TextView title, description, dueDate, areYouSure;
         ImageButton delete, archive;
+        ImageView sadShroomie, stars;
+        Button cont, no;
 
-        public TasksCardViewHolder(@NonNull View v) {
+
+
+        public TasksCardViewHolder(@NonNull  View v) {
             super(v);
             taskImportanceView = v.findViewById(R.id.task_importance_view);
             title = v.findViewById(R.id.task_card_title);
@@ -58,10 +66,44 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
             delete = v.findViewById(R.id.task_delete);
             archive = v.findViewById(R.id.task_archive);
 
+
+//            delete.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View view) {
+//                    deleteCard(tasksCardsList.get(getAdapterPosition()).getCardId(),getAdapterPosition());
+//                }
+//            });
             delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    deleteCard(tasksCardsList.get(getAdapterPosition()).getCardId(),getAdapterPosition());
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    View alert = inflater.inflate(R.layout.are_you_sure,null);
+                    builder.setView(alert);
+                    final AlertDialog alertDialog = builder.create();
+                    alertDialog.show();
+                    sadShroomie = ((AlertDialog) alertDialog).findViewById(R.id.sad_shroomie);
+                    stars = ((AlertDialog) alertDialog).findViewById(R.id.stars);
+                    cont = ((AlertDialog) alertDialog).findViewById(R.id.button_continue);
+                    no = ((AlertDialog) alertDialog).findViewById(R.id.button_no);
+
+
+
+                    cont.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            deleteCard(tasksCardsList.get(getAdapterPosition()).getCardId(),getAdapterPosition());
+                            Toast.makeText(context,"Card deleted", Toast.LENGTH_LONG).show();
+                            alertDialog.cancel();
+                        }
+                    });
+                    no.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            alertDialog.cancel();
+                        }
+                    });
+
                 }
             });
 
@@ -76,11 +118,12 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
             });
 
 
+
         }
     }
 
     public void deleteCard(String cardID, final int position){
-        rootRef.child("apartments").child(mAuth.getCurrentUser().getUid()).child("tasksCards").child(cardID).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+        rootRef.child("apartments").child(currentUserAppartmentId).child("tasksCards").child(cardID).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 tasksCardsList.remove(position);
@@ -98,9 +141,29 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         view = layoutInflater.inflate(R.layout.my_shroomie_tasks_card, parent, false);
         rootRef = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
+        getUserRoomId();
         return new TasksCardViewHolder(view);
 
+
     }
+
+
+    private void getUserRoomId(){
+        rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
+                    currentUserAppartmentId=snapshot.getValue().toString();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
 
 
 
@@ -114,7 +177,19 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
 
         if (fromArchive){
             holder.archive.setVisibility(view.GONE);
+            holder.delete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    rootRef.child("apartments").child(currentUserAppartmentId).child("tasksCards").child(tasksCardsList.get(position).getCardId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Toast.makeText(context,"Task card deleted",Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
+            });
         }
+
         switch (importanceView) {
             case "0":
                 holder.taskImportanceView.setBackgroundColor(Color.GREEN);
@@ -133,6 +208,8 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
     }
 
 
+
+
     @Override
     public int getItemCount() {
         return tasksCardsList.size();
@@ -140,7 +217,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
 
 
     public void archive(final String cardId, final int position){
-        rootRef.child("apartments").child(mAuth.getCurrentUser().getUid()).child("tasksCards").child(cardId).addListenerForSingleValueEvent(new ValueEventListener() {
+        rootRef.child("apartments").child(currentUserAppartmentId).child("tasksCards").child(cardId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()){
@@ -185,4 +262,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
 
     }
 
-}
+
+    }
+
+

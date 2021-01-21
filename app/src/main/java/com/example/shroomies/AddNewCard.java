@@ -13,6 +13,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.RadioGroup;
@@ -56,10 +57,11 @@ public class AddNewCard extends DialogFragment  {
     Button attachButton, addCard;
     TextView newCardTv, dueDate, attachedFile;
     EditText title , description;
+    CheckBox done;
     RadioGroup newcardShroomieRadioGroup;
     Calendar calendar;
 //    String[] spinnerOption = {"Importance","Date","Title"};
-    String fTitle, fDescription, fDueDate, fAttachUrl, fImportance;
+    String fTitle, fDescription, fDueDate, fAttachUrl, fImportance, fDone;
     private static final int CAMERA_REQUEST_CODE=100;
     private static final int STORAGE_REQUEST_CODE=200;
     private static final int IMAGE_PICK_CAMERA_CODE=300;
@@ -75,8 +77,9 @@ public class AddNewCard extends DialogFragment  {
     FirebaseAuth mAuth;
     Boolean expensesCardSelected;
     String saveCurrentDate, saveCurrentTime;
-    String cdate ;
+    String cdate, doneCheckbox ;
     String currentUserAppartmentId = "";
+
 
 
     private void getUserRoomId(){
@@ -133,6 +136,7 @@ public class AddNewCard extends DialogFragment  {
         description = v.findViewById(R.id.new_card_description);
         newcardShroomieRadioGroup = v.findViewById(R.id.newcard_radio_group);
         dueDate = v.findViewById(R.id.due_date);
+        done = v.findViewById(R.id.task_done);
         cameraPermissions=new String[]{Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE};
         storagePermissions=new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
         attachedFile = v.findViewById(R.id.attached_files);
@@ -179,9 +183,9 @@ public class AddNewCard extends DialogFragment  {
                     Toast.makeText(getContext(),"Please insert Title",Toast.LENGTH_SHORT).show();
                 }else{
                     if(expensesCardSelected==false){
-                        saveTaskCardToFirebase(mtitle,mdescription,mdueDate,importantButton);
+                        saveTaskCardToFirebase(mtitle,mdescription,mdueDate,importantButton,doneCheckbox);
                     }else if (expensesCardSelected==true){
-                        uploadImgToFirebaseStorage(mtitle, mdescription, mdueDate, importantButton, chosenImage);
+                        uploadImgToFirebaseStorage(mtitle, mdescription, mdueDate, importantButton, chosenImage,doneCheckbox);
                     }
                     }
 
@@ -214,9 +218,12 @@ public class AddNewCard extends DialogFragment  {
             }
         });
 
+
+
+
     }
 
-    private void saveTaskCardToFirebase(String mtitle, String mdescription, String mdueDate, String importance) {
+    private void saveTaskCardToFirebase(String mtitle, String mdescription, String mdueDate, String importance, String mDone) {
 
         DatabaseReference ref = rootRef.child("apartments").child(currentUserAppartmentId).child("tasksCards").push();
         HashMap<String ,Object> newCard = new HashMap<>();
@@ -232,6 +239,7 @@ public class AddNewCard extends DialogFragment  {
         newCard.put("importance", importance);
         newCard.put("date",saveCurrentDate);
         newCard.put("cardId",uniqueID);
+        newCard.put("done", mDone);
 
 
         ref.updateChildren(newCard).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -285,7 +293,7 @@ public class AddNewCard extends DialogFragment  {
 //
 //    }
 
-    public void saveToFireBase(String title, String description, String dueDate, String attachUrl, String importance ){
+    public void saveToFireBase(String title, String description, String dueDate, String attachUrl, String importance, String done ){
 
         DatabaseReference ref = rootRef.child("apartments").child(currentUserAppartmentId).child("expensesCards").push();
         HashMap<String ,Object> newCard = new HashMap<>();
@@ -302,6 +310,7 @@ public class AddNewCard extends DialogFragment  {
         newCard.put("attachedFile", attachUrl);
         newCard.put("date",saveCurrentDate);
         newCard.put("cardId",uniqueID);
+        newCard.put("done", done);
 
         ref.updateChildren(newCard).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
@@ -314,9 +323,9 @@ public class AddNewCard extends DialogFragment  {
 
     }
 
-    public void uploadImgToFirebaseStorage(final String title,final String description, final String dueDate, final String importance,Uri imgUri){
+    public void uploadImgToFirebaseStorage(final String title,final String description,final String dueDate, final String importance,Uri imgUri,final String done){
         if (imgUri==null){
-            saveToFireBase( title,  description,  dueDate,  "", importance);
+            saveToFireBase( title,  description,  dueDate,  "", importance, done);
         }else {
             StorageReference storageReference= FirebaseStorage.getInstance().getReference();
             StorageReference filePath = storageReference.child("Card post image").child(imgUri.getLastPathSegment()+".jpg");
@@ -331,7 +340,7 @@ public class AddNewCard extends DialogFragment  {
                    task.getResult().getMetadata().getReference().getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                         @Override
                         public void onSuccess(Uri uri) {
-                            saveToFireBase(title,  description,  dueDate,  uri.toString(), importance);
+                            saveToFireBase(title,  description,  dueDate,  uri.toString(), importance, done);
                         }
                     });
 

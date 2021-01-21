@@ -43,7 +43,6 @@ import com.example.shroomies.notifications.Token;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -235,18 +234,13 @@ public class ChattingActivity extends AppCompatActivity {
                 if (snapshot.exists()) {
                     for (DataSnapshot ds : snapshot.getChildren()) {
                         Token token = (Token) ds.getValue(Token.class);
-                        Data data = new Data(senderID, senderName + ":" + message, "New Message", receiverID, (R.drawable.ic_mashroom_icon));
+                        Data data = new Data(senderID, senderName + ":" + message, "New Message", receiverID, (R.drawable.ic_notification_icon));
                         Sender sender = new Sender(data, token.getToken());
                         try {
                             JSONObject senderJsonObj = new JSONObject(new Gson().toJson(sender));
                             JsonObjectRequest jsonObjectRequest=new JsonObjectRequest("https://fcm.googleapis.com/fcm/send", senderJsonObj, new Response.Listener<JSONObject>() {
                                 @Override
                                 public void onResponse(JSONObject response) {
-                                    try {
-                                        Toast.makeText(getApplicationContext(),response.get("success").toString(),Toast.LENGTH_LONG).show();
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
                                     Log.d("JSON_RESPONSE","onResponse:"+response.toString());
                                 }
 
@@ -284,9 +278,6 @@ public class ChattingActivity extends AppCompatActivity {
         });
 
     }
-
-
-
     public void retrieveMessages(){
         messagesArrayList = new ArrayList<>();
        messagesAdapter=new MessagesAdapter(messagesArrayList , getApplication());
@@ -320,7 +311,6 @@ public class ChattingActivity extends AppCompatActivity {
             }
         });
 }
-
    private void showImagePickDialog(){
         String[] options={"Camera","Gallery"};
        AlertDialog.Builder builder=new AlertDialog.Builder(this);
