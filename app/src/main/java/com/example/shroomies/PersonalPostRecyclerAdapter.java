@@ -28,6 +28,7 @@ import java.util.List;
 public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPostRecyclerAdapter.PersonalPostViewHolder> {
     List <PersonalPostModel> personalPostModelList;
     Context context;
+    DatabaseReference db;
 
     public PersonalPostRecyclerAdapter(List<PersonalPostModel> personalPostModelList, Context context) {
         this.personalPostModelList = personalPostModelList;
@@ -52,7 +53,7 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
 
         // getting data from user id
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("Users");
-        DatabaseReference myRef = ref.child(id);
+        final DatabaseReference myRef = ref.child(id);
         myRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -106,21 +107,28 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
         holder.BT_fav.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                checkClick[0] = true;
+                checkClick[position] = true;
                 favRef.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if(checkClick[0]){
+                        if(checkClick[position]){
                             if(snapshot.child(Uid).child("PersonalPost").hasChild(personalPostModelList.get(position).getId())){
                                 favRef.child(Uid).child("PersonalPost").child(personalPostModelList.get(position).getId()).removeValue();
                                 Toast.makeText(context,"Post removed from favorites",Toast.LENGTH_LONG).show();
                                 checkClick[0] = false;
                             }
                             else {
-                                favRef.child(Uid).child("PersonalPost")
-                                        .child(personalPostModelList.get(position).getId()).setValue(personalPostModelList.get(position).getId());
+                                DatabaseReference anotherRef = favRef.child(Uid).child("PersonalPost").child(personalPostModelList.get(position).getId());
+                                anotherRef.child("PostID").setValue(personalPostModelList.get(position).getId());
+                                anotherRef.child("UID").setValue(personalPostModelList.get(position).getUserID());
+                                anotherRef.child("Price").setValue(personalPostModelList.get(position).getPrice());
+                                anotherRef.child("Date").setValue(personalPostModelList.get(position).getDate());
+                                anotherRef.child("Description").setValue(personalPostModelList.get(position).getDescription());
+                                anotherRef.child("Preferences").setValue(personalPostModelList.get(position).getPreferences());
+                                anotherRef.child("Lat").setValue(personalPostModelList.get(position).getLatitude());
+                                anotherRef.child("Long").setValue(personalPostModelList.get(position).getLongitude());
                                 Toast.makeText(context,"Post added to favorites",Toast.LENGTH_LONG).show();
-                                checkClick[0] = false;
+                                checkClick[position] = false;
 
                             }
 

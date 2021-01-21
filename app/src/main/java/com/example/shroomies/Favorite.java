@@ -8,20 +8,24 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabItem;
 import com.google.android.material.tabs.TabLayout;
+
+import java.util.ArrayList;
 
 
 public class Favorite extends Fragment {
 
     TabLayout tabFav;
     TabItem tabApt, tabPost;
-    ViewPager VPfav;
+    ArrayList<PersonalPostModel> personalPostModelList;
+    ArrayList <Apartment> apartmentList;
 
 
    View v;
+     PersonalPostRecyclerAdapter personalPostRecyclerAdapter;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -44,6 +48,8 @@ public class Favorite extends Fragment {
 
                 }
                 else if(tab.getPosition()==1){
+                    personalPostModelList = new ArrayList<>();
+                    retriveFavPersonalPost();
 
 
                 }
@@ -59,6 +65,11 @@ public class Favorite extends Fragment {
         });
 
 
+
+    }
+
+    private void retriveFavPersonalPost() {
+        personalPostModelList = new ArrayList<>();
 
     }
 
