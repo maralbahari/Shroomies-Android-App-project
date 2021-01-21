@@ -62,6 +62,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
             StorageReference storageReference = FirebaseStorage.getInstance().getReference(messages.getMessage());
             if (fromUserID.equals(senderID)) {
                 holder.senderImageLinearLayout.setVisibility(View.VISIBLE);
+                holder.senderImageDate.setText(messages.getTime());
                 GlideApp.with(context)
                         .load(storageReference)
                         .fitCenter()
@@ -79,6 +80,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
                         .transform(new RoundedCorners(30))
                         .placeholder(R.drawable.ic_icon_awesome_image)
                         .into(holder.receiverImageView);
+                holder.receiverImageDate.setText(messages.getTime());
                 holder.receiverImageDate.setText(messages.getTime());
             }
         }

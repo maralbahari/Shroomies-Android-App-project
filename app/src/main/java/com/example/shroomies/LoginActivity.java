@@ -103,7 +103,7 @@ public class LoginActivity extends AppCompatActivity {
     }
     private void loginUser(){
         progressBar.setVisibility(View.VISIBLE);
-        final String uname_txt = username.getText().toString();
+        final String uname_txt = username.getText().toString().trim();
         String pw_txt = password.getText().toString();
 
         if (TextUtils.isEmpty(uname_txt) || TextUtils.isEmpty(pw_txt)){

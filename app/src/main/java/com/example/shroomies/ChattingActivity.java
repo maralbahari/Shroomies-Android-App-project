@@ -514,6 +514,7 @@ public class ChattingActivity extends AppCompatActivity {
                                 .fitCenter()
                                 .circleCrop()
                                 .into(receiverProfileImage);
+                        receiverProfileImage.setPadding(0,0,0,0);
 
                     }
                     receiverUsername.setText(recieverUser.getName());
