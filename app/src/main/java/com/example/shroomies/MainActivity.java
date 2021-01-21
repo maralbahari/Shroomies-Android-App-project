@@ -20,6 +20,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.example.shroomies.notifications.Data;
 import com.example.shroomies.notifications.FirebaseMessaging;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.badge.BadgeDrawable;
@@ -36,6 +37,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -75,8 +77,6 @@ public class MainActivity extends AppCompatActivity {
 
         }
         rootRef = FirebaseDatabase.getInstance().getReference();
-
-
         btm_view = findViewById(R.id.bottomNavigationView);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -148,8 +148,9 @@ public class MainActivity extends AppCompatActivity {
         ft.commit();
     }
 
-   static void setBadgeToNumberOfNotifications(DatabaseReference rootRef , FirebaseAuth mAuth){
-
+   static void setBadgeToNumberOfNotifications(final DatabaseReference rootRef , final FirebaseAuth mAuth){
+        // get the number of unseen
+       // private messages
         final List<Messages> unSeenMessageList = new ArrayList<>();
         rootRef.child("Messages").child(mAuth.getInstance().getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
             @Override
@@ -170,6 +171,7 @@ public class MainActivity extends AppCompatActivity {
                     unSeenMessageList.clear();
                 }
 
+                getUnseenGroupMessages(rootRef, mAuth);
             }
 
             @Override
@@ -177,7 +179,49 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+    }
+    private static  void getUnseenGroupMessages(final DatabaseReference  rootRef ,final FirebaseAuth mAuth ){
+        //get the number of unseen group messages
+        final int[] unseenGroupMessages  = {0};
+        rootRef.child("GroupChatList").child(mAuth.getInstance().getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()){
+                    for (final DataSnapshot ds:
+                            snapshot.getChildren()) {
+                        rootRef.child("GroupChats").child(ds.getKey()).child("Messages").addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                if (snapshot.exists()){
+                                    for (DataSnapshot dataSnapshot
+                                            :snapshot.getChildren()){
+                                        for (DataSnapshot snapshot1
+                                                :dataSnapshot.child("seenBy").getChildren()){
+                                            if(snapshot1.getKey().equals(mAuth.getInstance().getCurrentUser().getUid())&&snapshot1.getValue().equals("false")){
+                                                unseenGroupMessages[0] +=1;
+                                            }
+                                        }
+                                    }
+                                    int x = btm_view.getOrCreateBadge(R.id.message_inbox_menu).getNumber();
+                                    btm_view.getOrCreateBadge(R.id.message_inbox_menu).setNumber(x+unseenGroupMessages[0]);
+                                }
+                            }
 
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+
+                            }
+                        });
+                    }
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
 
     }
 

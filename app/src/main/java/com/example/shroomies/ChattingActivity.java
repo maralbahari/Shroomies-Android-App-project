@@ -235,7 +235,7 @@ public class ChattingActivity extends AppCompatActivity {
                 if (snapshot.exists()) {
                     for (DataSnapshot ds : snapshot.getChildren()) {
                         Token token = (Token) ds.getValue(Token.class);
-                        Data data = new Data(senderID, senderName + ":" + message, "New Message", receiverID, (R.drawable.ic_mashroom_icon));
+                        Data data = new Data(senderID, senderName + ":" + message, "New Message", receiverID, (R.drawable.ic_notification_icon));
                         Sender sender = new Sender(data, token.getToken());
                         try {
                             JSONObject senderJsonObj = new JSONObject(new Gson().toJson(sender));
@@ -284,9 +284,6 @@ public class ChattingActivity extends AppCompatActivity {
         });
 
     }
-
-
-
     public void retrieveMessages(){
         messagesArrayList = new ArrayList<>();
        messagesAdapter=new MessagesAdapter(messagesArrayList , getApplication());
@@ -320,7 +317,6 @@ public class ChattingActivity extends AppCompatActivity {
             }
         });
 }
-
    private void showImagePickDialog(){
         String[] options={"Camera","Gallery"};
        AlertDialog.Builder builder=new AlertDialog.Builder(this);

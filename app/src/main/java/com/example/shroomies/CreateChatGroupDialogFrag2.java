@@ -27,6 +27,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
@@ -166,7 +167,7 @@ public class CreateChatGroupDialogFrag2 extends DialogFragment {
 
     }
 
-    public void createGroupDatabase(String groupName, final List<String> membersID , String imagePath){
+    public void createGroupDatabase(final String groupName, final List<String> membersID , String imagePath){
 
         // add the current user id to the list
         membersID.add(mAuth.getInstance().getCurrentUser().getUid());
@@ -178,7 +179,7 @@ public class CreateChatGroupDialogFrag2 extends DialogFragment {
         Calendar calendarTime=Calendar.getInstance();
         SimpleDateFormat currentTime=new SimpleDateFormat("HH:mm");
         saveCurrentTime=currentTime.format(calendarTime.getTime());
-        String groupID=groupName+"-"+saveCurrentDate+"-"+saveCurrentTime;
+        final String groupID=groupName+"-"+saveCurrentDate+"-"+saveCurrentTime;
         // ad dthe group name , members and id
         groupDetails.put("groupName",groupName);
         groupDetails.put("groupMembers",membersID);
@@ -189,14 +190,26 @@ public class CreateChatGroupDialogFrag2 extends DialogFragment {
             @Override
             public void onComplete(@NonNull Task task) {
                 if(task.isSuccessful()){
-                    Intent intent = new Intent(getContext(),MessageInbox.class);
-                    startActivity(intent);
+                    for (String memberId
+                            :membersID){
+                        HashMap<String,Object> newGroup = new HashMap<>();
+                        newGroup.put(groupID , groupName);
+                        rootRef.child("GroupChatList").child(memberId).updateChildren(newGroup).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Toast.makeText(getActivity(), "successfully added users", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+
+                    }
                 }else{
                     Toast.makeText(getActivity(), "something went wrong", Toast.LENGTH_SHORT).show();
                 }
 
             }
-        });
+
+    });
+
     }
 
     private void openGallery() {
