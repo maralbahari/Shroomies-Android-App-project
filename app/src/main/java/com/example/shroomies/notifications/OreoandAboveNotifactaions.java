@@ -32,19 +32,21 @@ private NotificationManager notificationManager;
     public NotificationManager getManager(){
         if(notificationManager == null){
             notificationManager= (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-
         }
         return notificationManager;
     }
 
 
     public Notification.Builder getONotifications(String title , String body , PendingIntent pendingIntent , Uri soundUri, String icon){
+
         return new Notification.Builder(getApplicationContext(),ID)
                 .setContentIntent(pendingIntent)
                 .setContentTitle(title)
+                .setContentText(body)
                 .setSound(soundUri)
                 .setAutoCancel(true)
                 .setSmallIcon(Integer.parseInt(icon));
+
     }
 
 

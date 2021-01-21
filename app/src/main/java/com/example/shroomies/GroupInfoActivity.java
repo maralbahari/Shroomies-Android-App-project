@@ -251,11 +251,22 @@ public class GroupInfoActivity extends AppCompatActivity {
         });
     }
 
-    private void updateGroupMembers(HashMap<String, Object> addUsers) {
+    private void updateGroupMembers(final HashMap<String, Object> addUsers) {
         rootRef.child("GroupChats").child(groupID).updateChildren(addUsers).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                Toast.makeText(getApplicationContext(), "successfully added users", Toast.LENGTH_SHORT).show();
+                for (String memberId
+                :(ArrayList<String>)addUsers.get("groupMembers")){
+                    HashMap<String,Object> newGroup = new HashMap<>();
+                    newGroup.put(groupID , group.getGroupName());
+                    rootRef.child("GroupChatList").child(memberId).updateChildren(newGroup).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Toast.makeText(getApplicationContext(), "successfully added users", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                }
+
             }
         });
     }

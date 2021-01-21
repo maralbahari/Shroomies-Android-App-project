@@ -23,7 +23,6 @@ public class Apartment implements Parcelable {
     List<String> image_url;
     List<Boolean> preferences;
     int price;
-    String userName;
 
     public String getUserID() {
         return userID;
@@ -61,9 +60,6 @@ public class Apartment implements Parcelable {
         return price;
     }
 
-    public String getUserName() {
-        return userName;
-    }
 
     public Apartment() {
 
@@ -79,7 +75,7 @@ public class Apartment implements Parcelable {
         longitude = in.readDouble();
         image_url = in.createStringArrayList();
         price = in.readInt();
-        userName = in.readString();
+
         id= in.readString();
     }
 
@@ -127,7 +123,6 @@ public class Apartment implements Parcelable {
         dest.writeDouble(longitude);
         dest.writeStringList(image_url);
         dest.writeInt(price);
-        dest.writeString(userName);
         dest.writeString(id);
     }
 }

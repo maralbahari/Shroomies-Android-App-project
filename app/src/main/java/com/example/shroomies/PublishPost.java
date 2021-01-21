@@ -586,7 +586,6 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
         post.put("longitude",locationLtLng.longitude);
         post.put("preferences" , property);
         post.put("image_url" , IMAGE_URL );
-        post.put("userName" , userName);
         post.put("id" ,userUid+postUniqueName);
         // add the time of the post
         Calendar calendar = Calendar.getInstance();
@@ -617,26 +616,6 @@ Toast.makeText(getActivity(),"",Toast.LENGTH_SHORT).show();
 
     void publishPersonalPost(LatLng locationLtLng , String description , int price , List<Boolean> property ){
         String userUid =  FirebaseAuth.getInstance().getCurrentUser().getUid();
-
-        //get the username of the user
-        DatabaseReference getUsername = FirebaseDatabase.getInstance().getReference("Users").child(userUid);
-
-        getUsername.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.exists()){
-                    User user = snapshot.getValue(User.class);
-
-                    userName = user.getName();
-                    Toast.makeText(getActivity(), userName , Toast.LENGTH_LONG).show();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
         postUniqueName = getUniqueName();
         uploadingProgress.setVisibility(View.VISIBLE);
         publishPostButton.setVisibility(View.INVISIBLE);
@@ -650,12 +629,9 @@ Toast.makeText(getActivity(),"",Toast.LENGTH_SHORT).show();
         post.put("latitude", locationLtLng.latitude);
         post.put("longitude",locationLtLng.longitude);
         post.put("preferences" , property);
-        post.put("userName" , userName);
         post.put("id" , userUid+postUniqueName);
-
         // add the time of the post
         Calendar calendar = Calendar.getInstance();
-
         post.put("date",new SimpleDateFormat("dd-MMMM-yyyy HH:mm:ss aa").format(calendar.getTime()));
         //add image and date and user profile
         postUniqueName = getUniqueName();

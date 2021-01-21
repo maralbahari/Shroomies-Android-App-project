@@ -3,6 +3,7 @@ package com.example.shroomies;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.HashMap;
 import java.util.List;
 
 public class Group implements Parcelable {
@@ -10,10 +11,8 @@ public class Group implements Parcelable {
     String groupImage;
     String groupID;
     List<String> groupMembers;
-
     public String date,time,type,message,from;
-
-    public String seenBy;
+    public HashMap<String , Object> seenBy;
     Group(){
 
     }
@@ -52,6 +51,9 @@ public class Group implements Parcelable {
 
     public void setTime(String time) {
         this.time = time;
+    }
+    public HashMap<String, Object>  getSeenBy(){
+        return seenBy;
     }
 
     public void setType(String type) {
