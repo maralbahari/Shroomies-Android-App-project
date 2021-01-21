@@ -2,14 +2,14 @@ package com.example.shroomies;
 
 public class ExpensesCard  {
 
-    String attachedFile, description, title, dueDate, importance,members, date, cardId;
+    String attachedFile, description, title, dueDate, importance,members, date, cardId, done;
 
     public ExpensesCard() {
 
     }
 
 
-    public ExpensesCard(String attachedFile, String description, String title, String dueDate, String importance, String members,String cardId) {
+    public ExpensesCard(String attachedFile, String description, String title, String dueDate, String importance, String members,String cardId, String done) {
         this.attachedFile = attachedFile;
         this.description = description;
         this.title = title;
@@ -17,22 +17,43 @@ public class ExpensesCard  {
         this.importance = importance;
         this.members = members;
         this.cardId = cardId;
+        this.done = done;
     }
 
-    public void setCardId(String cardId) {
-        this.cardId = cardId;
+    public void setAttachedFile(String attachedFile) {
+        this.attachedFile = attachedFile;
     }
 
-    public String getCardId() {
-        return cardId;
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setDueDate(String dueDate) {
+        this.dueDate = dueDate;
+    }
+
+    public void setImportance(String importance) {
+        this.importance = importance;
+    }
+
+    public void setMembers(String members) {
+        this.members = members;
     }
 
     public void setDate(String date) {
         this.date = date;
     }
 
-    public String getDate() {
-        return date;
+    public void setCardId(String cardId) {
+        this.cardId = cardId;
+    }
+
+    public void setDone(String done) {
+        this.done = done;
     }
 
     public String getAttachedFile() {
@@ -59,27 +80,15 @@ public class ExpensesCard  {
         return members;
     }
 
-    public void setAttachedFile(String attachedFile) {
-        this.attachedFile = attachedFile;
+    public String getDate() {
+        return date;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public String getCardId() {
+        return cardId;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public void setDueDate(String dueDate) {
-        this.dueDate = dueDate;
-    }
-
-    public void setImportance(String importance) {
-        this.importance = importance;
-    }
-
-    public void setMembers(String members) {
-        this.members = members;
+    public String getDone() {
+        return done;
     }
 }

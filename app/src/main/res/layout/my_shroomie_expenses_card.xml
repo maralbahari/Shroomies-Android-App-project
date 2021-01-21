@@ -88,7 +88,7 @@
 
             <CheckBox
                 android:buttonTint="@color/okGreen"
-                android:id="@+id/shroomie_checkbox"
+                android:id="@+id/expense_done"
                 android:layout_width="15dp"
                 android:layout_height="15dp"
                 android:layout_marginLeft="20dp"

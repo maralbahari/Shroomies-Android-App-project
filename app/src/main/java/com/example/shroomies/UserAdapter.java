@@ -62,6 +62,10 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull UserAdapter.UserViewHolder holder, final int position) {
+        if (userList.get(position).getID().equals(mAuth.getCurrentUser().getUid())){
+            userList.remove(position);
+            notifyItemRemoved(position);
+        }
         if (fromSearchMember){
             holder.sendRequest.setVisibility(View.VISIBLE);
             holder.msgMember.setVisibility(View.GONE);
