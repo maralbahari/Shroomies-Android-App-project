@@ -33,7 +33,7 @@
         android:id="@+id/TV_FavHead"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Favourites"
+        android:text="@string/favorites"
         android:textColor="@color/Black"
         android:textSize="30sp" />
     </LinearLayout>
@@ -65,13 +65,6 @@
 
 
     </com.google.android.material.tabs.TabLayout>
-    <androidx.viewpager.widget.ViewPager
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/VP_fav"
-
-        />
-
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/fav_recycler_view"

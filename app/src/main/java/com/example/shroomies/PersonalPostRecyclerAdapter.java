@@ -133,8 +133,6 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
             }
         });
 
-
-
     }
 
     @Override
@@ -189,7 +187,5 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
 
         }
     }
-
-
 
 }
