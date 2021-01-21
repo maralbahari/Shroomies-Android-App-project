@@ -71,6 +71,9 @@ public class Members extends DialogFragment {
             }
         });
         getMember();
+        if(mAuth.getCurrentUser().getUid().equals(apartmentID)){
+            leaveRoom.setVisibility(View.INVISIBLE);
+        }
         leaveRoom.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -107,9 +110,11 @@ public class Members extends DialogFragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()){
                     for (DataSnapshot sp : snapshot.getChildren()){
-                        membersId.add(sp.getValue().toString());
+                        membersId.add(sp.getKey());
                         getMemberDetail(membersId);
-                        getRequestedUsers(membersId);
+//                        getRequestedUsers(membersId);
+
+
                     }
                 }
             }
@@ -123,7 +128,7 @@ public class Members extends DialogFragment {
 
     private void getMemberDetail(final ArrayList<String> membersId) {
         membersList = new ArrayList<>();
-        userAdapter = new UserAdapter(membersList, getContext(),false);
+        userAdapter = new UserAdapter(membersList, getContext(),false,false);
         membersRecycler.setAdapter(userAdapter);
         for (String id: membersId){
             rootRef.child("Users").child(id).addValueEventListener(new ValueEventListener() {
@@ -143,6 +148,7 @@ public class Members extends DialogFragment {
                 }
             });
         }
+        getRequestedUsers(membersId);
     }
 
 
@@ -194,6 +200,7 @@ public class Members extends DialogFragment {
             rootRef.child("Users").child(id).addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    getRequestUsersList.clear();
                     if (snapshot.exists()){
                         User user = snapshot.getValue(User.class);
                         getRequestUsersList.add(user);
