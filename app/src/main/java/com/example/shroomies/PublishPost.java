@@ -594,7 +594,7 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
 
         //add image and date and user profile
 
-
+Toast.makeText(getActivity(),"",Toast.LENGTH_SHORT).show();
         DatabaseReference firebaseDatabase = FirebaseDatabase.getInstance().getReference();
         firebaseDatabase.child("postApartment").child(userUid+postUniqueName).setValue(post).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override

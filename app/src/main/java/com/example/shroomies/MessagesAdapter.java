@@ -45,39 +45,41 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
        String fromMessageType=messages.getType();
         holder.senderLinearLayout.setVisibility(View.GONE);
         holder.receiverLinearLayout.setVisibility(View.GONE);
-        holder.receiverImageView.setVisibility(View.GONE);
-        holder.senderImageView.setVisibility(View.GONE);
+        holder.receiverImageLinearLayout.setVisibility(View.GONE);
+        holder.senderImageLinearLayout.setVisibility(View.GONE);
        if(fromMessageType.equals("text")){
            if(fromUserID.equals(senderID)){
                holder.senderLinearLayout.setVisibility(View.VISIBLE);
               holder.senderTextView.setText(messages.getMessage());
-              holder.senderDate.setText(messages.getDate());
+              holder.senderDate.setText(messages.getTime());
            }
            else{
                holder.receiverLinearLayout.setVisibility(View.VISIBLE);
                holder.receiverTextView.setText(messages.getMessage());
-               holder.receiverDate.setText(messages.getDate());
+               holder.receiverDate.setText(messages.getTime());
            }
        }if(fromMessageType.equals("image")) {
             StorageReference storageReference = FirebaseStorage.getInstance().getReference(messages.getMessage());
             if (fromUserID.equals(senderID)) {
-                holder.senderImageView.setVisibility(View.VISIBLE);
+                holder.senderImageLinearLayout.setVisibility(View.VISIBLE);
                 GlideApp.with(context)
                         .load(storageReference)
                         .fitCenter()
                         .centerCrop()
-                        .transform(new RoundedCorners(10))
+                        .transform(new RoundedCorners(30))
                         .placeholder(R.drawable.ic_icon_awesome_image)
                         .into(holder.senderImageView);
+                holder.senderImageDate.setText(messages.getTime());
             } else {
-                holder.receiverImageView.setVisibility(View.VISIBLE);
+                holder.receiverImageLinearLayout.setVisibility(View.VISIBLE);
                 GlideApp.with(context)
                         .load(storageReference)
                         .fitCenter()
                         .centerCrop()
-                        .transform(new RoundedCorners(10))
+                        .transform(new RoundedCorners(30))
                         .placeholder(R.drawable.ic_icon_awesome_image)
                         .into(holder.receiverImageView);
+                holder.receiverImageDate.setText(messages.getTime());
             }
         }
 
@@ -89,8 +91,8 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
     }
 
     public class MessageViewHolder extends RecyclerView.ViewHolder {
-        TextView senderTextView, receiverTextView, senderDate , receiverDate;
-        private LinearLayout receiverLinearLayout;
+        TextView senderTextView, receiverTextView, senderDate , receiverDate , receiverImageDate , senderImageDate;
+        private LinearLayout receiverLinearLayout , receiverImageLinearLayout , senderImageLinearLayout;
         private LinearLayout senderLinearLayout;
         ImageView senderImageView;
         ImageView receiverImageView;
@@ -104,6 +106,11 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
             receiverTextView =itemView.findViewById(R.id.receiver_box_card);
             senderImageView=itemView.findViewById(R.id.sender_image_view);
             receiverImageView=itemView.findViewById(R.id.receiver_image_view);
+            receiverImageLinearLayout = itemView.findViewById(R.id.receiver_image_view_linear_layout);
+            senderImageLinearLayout = itemView.findViewById(R.id.sender_image_view_linear_layout);
+            receiverImageDate = itemView.findViewById(R.id.reciever_box_card_image_date);
+            senderImageDate = itemView.findViewById(R.id.sender_box_card_date);
+
         }
 
     }

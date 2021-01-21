@@ -57,16 +57,16 @@
                />
 
            <Button
+               android:id="@+id/accept_button"
                android:layout_width="70dp"
                android:layout_height="25dp"
-               android:text="Accept"
+               android:layout_below="@+id/request_user_photo"
                android:layout_marginRight="10dp"
-               android:textSize="12sp"
                android:layout_marginBottom="5dp"
                android:layout_toLeftOf="@+id/decline_btn"
-               android:layout_below="@+id/request_user_photo"
                android:background="@drawable/button_rounded_corner_attach"
-               />
+               android:text="Accept"
+               android:textSize="12sp" />
 
        </RelativeLayout>
 

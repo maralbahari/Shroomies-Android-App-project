@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -92,7 +91,7 @@ public class AddShroomieMember extends DialogFragment {
 
     private void retreiveUser(String s) {
         suggestedUser = new ArrayList<>();
-        userRecyclerAdapter= new UserAdapter(suggestedUser,getContext());
+        userRecyclerAdapter= new UserAdapter(suggestedUser,getContext(),true);
         addShroomieRecycler.setAdapter(userRecyclerAdapter);
         rootRef.child("Users").orderByChild("name").equalTo(s).addValueEventListener(new ValueEventListener() {
             @Override
@@ -102,7 +101,6 @@ public class AddShroomieMember extends DialogFragment {
                     for (DataSnapshot ds : snapshot.getChildren()) {
                         User user = ds.getValue(User.class);
                         suggestedUser.add(user);
-                        Toast.makeText(getContext(),"HELooo"+suggestedUser,Toast.LENGTH_LONG).show();
                     }
                     //add the members already selected
                     userRecyclerAdapter.notifyDataSetChanged();
@@ -128,7 +126,7 @@ public class AddShroomieMember extends DialogFragment {
     private void addInboxUsersToRecycler(final List<String> inboxListUsers) {
         suggestedUser = new ArrayList<>();
         suggestedUser.clear();
-        userRecyclerAdapter=new UserAdapter(suggestedUser,getContext());
+        userRecyclerAdapter=new UserAdapter(suggestedUser,getContext(),true);
         addShroomieRecycler.setAdapter(userRecyclerAdapter);
         for(String id
                 :inboxListUsers){

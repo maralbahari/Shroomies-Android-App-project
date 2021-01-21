@@ -4,8 +4,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="@android:color/transparent"
     android:orientation="vertical"
+    android:layout_margin="5dp"
     android:layout_height="wrap_content">
-
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"

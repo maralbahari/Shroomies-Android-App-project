@@ -126,7 +126,7 @@ public class ChattingActivity extends AppCompatActivity {
         });
 
 
-//        retrieveMessages();
+        retrieveMessages();
 
        addImage.setOnClickListener(new View.OnClickListener() {
            @Override
@@ -285,51 +285,33 @@ public class ChattingActivity extends AppCompatActivity {
 
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        retrieveMessages();
-    }
+
 
     public void retrieveMessages(){
         messagesArrayList = new ArrayList<>();
        messagesAdapter=new MessagesAdapter(messagesArrayList , getApplication());
        chattingRecycler.setAdapter(messagesAdapter);
-        rootRef.child("Messages").child(senderID).child(receiverID).addChildEventListener(new ChildEventListener() {
+        rootRef.child("Messages").child(senderID).child(receiverID).addValueEventListener(new ValueEventListener() {
             @Override
-            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
                 messagesArrayList.clear();
                 if(snapshot.exists()){
-                        Messages messages = snapshot.getValue(Messages.class);
+                    for (DataSnapshot dataSnapshot:
+                    snapshot.getChildren()){
+                        Messages messages = dataSnapshot.getValue(Messages.class);
                         messagesArrayList.add(messages);
                     }
-                    messagesAdapter.notifyDataSetChanged();
-                    chattingRecycler.smoothScrollToPosition(chattingRecycler.getAdapter().getItemCount());
+                }
+                messagesAdapter.notifyDataSetChanged();
+                chattingRecycler.smoothScrollToPosition(chattingRecycler.getAdapter().getItemCount());
                 if (messagesArrayList.size()==0|| messagesArrayList==null){
 
                     firstChat= true;
-                }else{
-                    // scroll to the end of the recycler if there are messages
-                    chattingRecycler.smoothScrollToPosition(messagesAdapter.getItemCount()-1);
                 }
-
-
-            }
-
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
+//                else{
+//                    // scroll to the end of the recycler if there are messages
+//                    chattingRecycler.smoothScrollToPosition(messagesAdapter.getItemCount()-1);
+//                }
             }
 
             @Override
@@ -596,9 +578,14 @@ public class ChattingActivity extends AppCompatActivity {
                                 HashMap<String, Object> hash = new HashMap<>();
                                 hash.put("isSeen", "true");
                                 sp.getRef().updateChildren(hash);
+
                             }
                         }
                     }
+
+                    // once the user  sees the messages
+                    //update the number of unseen messages in the badge
+                    MainActivity.setBadgeToNumberOfNotifications(rootRef , mAuth);
                 }
             }
 

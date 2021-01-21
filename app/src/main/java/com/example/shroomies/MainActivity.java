@@ -1,7 +1,10 @@
 package com.example.shroomies;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.style.AlignmentSpan;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -19,11 +22,21 @@ import androidx.fragment.app.FragmentTransaction;
 
 import com.example.shroomies.notifications.FirebaseMessaging;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.material.badge.BadgeDrawable;
+import com.google.android.material.badge.BadgeUtils;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     public static String updatedAdresses;
@@ -42,7 +55,10 @@ public class MainActivity extends AppCompatActivity {
     FirebaseAuth.AuthStateListener authStateListener;
     SessionManager sessionManager;
     FirebaseMessaging firebaseMessaging;
+    BadgeDrawable inboxNotificationBadge;
+    DatabaseReference rootRef;
 
+    @SuppressLint("RestrictedApi")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -58,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
             firebaseMessaging.onNewToken(FirebaseInstanceId.getInstance().getToken());
 
         }
+        rootRef = FirebaseDatabase.getInstance().getReference();
 
 
         btm_view = findViewById(R.id.bottomNavigationView);
@@ -118,7 +135,7 @@ public class MainActivity extends AppCompatActivity {
                 getFragment(new MyShroomies());
             }
         });
-
+        setBadgeToNumberOfNotifications(rootRef,mAuth);
 
     }
 
@@ -129,6 +146,39 @@ public class MainActivity extends AppCompatActivity {
         ft.addToBackStack(null);
         ft.replace(R.id.fragmentContainer, fragment);
         ft.commit();
+    }
+
+   static void setBadgeToNumberOfNotifications(DatabaseReference rootRef , FirebaseAuth mAuth){
+
+        final List<Messages> unSeenMessageList = new ArrayList<>();
+        rootRef.child("Messages").child(mAuth.getInstance().getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
+                    for (DataSnapshot dataSnapshot
+                    :snapshot.getChildren()){
+                        for (DataSnapshot dataSnapshot1:
+                        dataSnapshot.getChildren()){
+                            Messages message= dataSnapshot1.getValue(Messages.class);
+                            if (!message.getIsSeen().equals("true")){
+                                unSeenMessageList.add(message);
+                        }
+
+                        }
+                    }
+                    btm_view.getOrCreateBadge(R.id.message_inbox_menu).setNumber(unSeenMessageList.size());
+                    unSeenMessageList.clear();
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+
     }
 
 
