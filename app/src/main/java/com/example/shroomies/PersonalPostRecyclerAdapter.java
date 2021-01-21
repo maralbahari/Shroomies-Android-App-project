@@ -102,36 +102,36 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
 
         final DatabaseReference favRef = FirebaseDatabase.getInstance().getReference().child("Favorite");
 
-//        holder.BT_fav.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                checkClick[0] = true;
-//                favRef.addValueEventListener(new ValueEventListener() {
-//                    @Override
-//                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                        if(checkClick[0]){
-//                            if(snapshot.child(Uid).child("PersonalPost").hasChild(personalPostModelList.get(position).getId())){
-//                                favRef.child(Uid).child("PersonalPost").child(personalPostModelList.get(position).getId()).removeValue();
-//                                checkClick[0] = false;
-//                            }
-//                            else {
-//                                favRef.child(Uid).child("PersonalPost")
-//                                        .child(personalPostModelList.get(position).getId()).setValue(personalPostModelList.get(position).getId());
-//                                checkClick[0] = false;
-//
-//                            }
-//
-//
-//                        }
-//                    }
-//
-//                    @Override
-//                    public void onCancelled(@NonNull DatabaseError error) {
-//
-//                    }
-//                });
-//            }
-//        });
+        holder.BT_fav.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                checkClick[0] = true;
+                favRef.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if(checkClick[0]){
+                            if(snapshot.child(Uid).child("PersonalPost").hasChild(personalPostModelList.get(position).getId())){
+                                favRef.child(Uid).child("PersonalPost").child(personalPostModelList.get(position).getId()).removeValue();
+                                checkClick[0] = false;
+                            }
+                            else {
+                                favRef.child(Uid).child("PersonalPost")
+                                        .child(personalPostModelList.get(position).getId()).setValue(personalPostModelList.get(position).getId());
+                                checkClick[0] = false;
+
+                            }
+
+
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+            }
+        });
 
 
 
@@ -185,15 +185,11 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
             BT_message = itemView.findViewById(R.id.start_chat_button);
             BT_fav = itemView.findViewById(R.id.BUT_fav);
 
-            //fav check
 
-            BT_fav.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    favorite(personalPostModelList.get(getAdapterPosition()).getId(),getAdapterPosition());
-                }
-            });
+
         }
     }
+
+
 
 }
