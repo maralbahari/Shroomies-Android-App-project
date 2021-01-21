@@ -9,6 +9,8 @@ import android.content.ContextWrapper;
 import android.net.Uri;
 import android.os.Build;
 
+import androidx.core.app.NotificationCompat;
+
 public class OreoandAboveNotifactaions extends ContextWrapper {
 
 private static final String ID = "some_ID";
@@ -37,9 +39,9 @@ private NotificationManager notificationManager;
     }
 
 
-    public Notification.Builder getONotifications(String title , String body , PendingIntent pendingIntent , Uri soundUri, String icon){
+    public NotificationCompat.Builder getONotifications(String title , String body , PendingIntent pendingIntent , Uri soundUri, String icon){
 
-        return new Notification.Builder(getApplicationContext(),ID)
+        return new NotificationCompat.Builder(getApplicationContext(),ID)
                 .setContentIntent(pendingIntent)
                 .setContentTitle(title)
                 .setContentText(body)

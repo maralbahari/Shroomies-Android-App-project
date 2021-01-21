@@ -1,6 +1,5 @@
 package com.example.shroomies.notifications;
 
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -31,9 +30,9 @@ public class FirebaseMessaging  extends FirebaseMessagingService {
             if(!currentUserID.equals(user)){
                 sendNormalNotification(remoteMessage);
                 if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O){
-                    sendNormalNotification(remoteMessage);
-                }else{
                     sendOAndAboveNotification(remoteMessage);
+                }else{
+                    sendNormalNotification(remoteMessage);
                 }
             }
         }
@@ -50,7 +49,6 @@ public class FirebaseMessaging  extends FirebaseMessagingService {
         intent.addFlags(intent.FLAG_ACTIVITY_CLEAR_TOP);
         PendingIntent pendingIntent=PendingIntent.getActivity(this,i,intent,PendingIntent.FLAG_ONE_SHOT);
         Uri defSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        OreoandAboveNotifactaions oreoandAboveNotifactaions = new OreoandAboveNotifactaions(this);
         NotificationCompat.Builder builder= new NotificationCompat.Builder(this)
                 .setSmallIcon(Integer.parseInt(icon))
                 .setContentText(body)
@@ -81,7 +79,7 @@ public class FirebaseMessaging  extends FirebaseMessagingService {
         PendingIntent pendingIntent=PendingIntent.getActivity(this,i,intent,PendingIntent.FLAG_ONE_SHOT);
         Uri defSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         OreoandAboveNotifactaions noti=new OreoandAboveNotifactaions(this);
-        Notification.Builder builder= noti.getONotifications(title,body,pendingIntent,defSoundUri,icon);
+        NotificationCompat.Builder builder= noti.getONotifications(title,body,pendingIntent,defSoundUri,icon);
 
         int j=0;
         if(i>0){

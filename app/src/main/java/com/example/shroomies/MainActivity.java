@@ -3,8 +3,6 @@ package com.example.shroomies;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.style.AlignmentSpan;
-import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -20,11 +18,9 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.example.shroomies.notifications.Data;
 import com.example.shroomies.notifications.FirebaseMessaging;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.badge.BadgeDrawable;
-import com.google.android.material.badge.BadgeUtils;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -37,7 +33,6 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -167,11 +162,12 @@ public class MainActivity extends AppCompatActivity {
 
                         }
                     }
-                    btm_view.getOrCreateBadge(R.id.message_inbox_menu).setNumber(unSeenMessageList.size());
-                    unSeenMessageList.clear();
-                }
 
-                getUnseenGroupMessages(rootRef, mAuth);
+
+                }
+                getUnseenGroupMessages(rootRef, mAuth,unSeenMessageList.size());
+                unSeenMessageList.clear();
+
             }
 
             @Override
@@ -180,9 +176,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
-    private static  void getUnseenGroupMessages(final DatabaseReference  rootRef ,final FirebaseAuth mAuth ){
+    private static  void getUnseenGroupMessages(final DatabaseReference  rootRef , final FirebaseAuth mAuth, final int unseenPrivetMsgs ){
         //get the number of unseen group messages
-        final int[] unseenGroupMessages  = {0};
+        final ArrayList<String> unseenGroupMessages  = new ArrayList<>();
         rootRef.child("GroupChatList").child(mAuth.getInstance().getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -193,17 +189,19 @@ public class MainActivity extends AppCompatActivity {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot snapshot) {
                                 if (snapshot.exists()){
+                                    unseenGroupMessages.clear();
                                     for (DataSnapshot dataSnapshot
                                             :snapshot.getChildren()){
                                         for (DataSnapshot snapshot1
                                                 :dataSnapshot.child("seenBy").getChildren()){
                                             if(snapshot1.getKey().equals(mAuth.getInstance().getCurrentUser().getUid())&&snapshot1.getValue().equals("false")){
-                                                unseenGroupMessages[0] +=1;
+                                                unseenGroupMessages.add(snapshot1.getValue().toString());
                                             }
                                         }
                                     }
-                                    int x = btm_view.getOrCreateBadge(R.id.message_inbox_menu).getNumber();
-                                    btm_view.getOrCreateBadge(R.id.message_inbox_menu).setNumber(x+unseenGroupMessages[0]);
+
+                                    btm_view.getOrCreateBadge(R.id.message_inbox_menu).setNumber(unseenGroupMessages.size()+unseenPrivetMsgs);
+
                                 }
                             }
 
