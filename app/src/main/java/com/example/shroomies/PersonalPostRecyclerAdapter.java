@@ -60,12 +60,12 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
                     User user = snapshot.getValue(User.class);
                     holder.TV_userName.setText(user.getName());
                     holder.TV_userOccupation.setText(user.getBio());
-
+                    if (!user.getImage().isEmpty()){
                     Glide.with(holder.IV_userPic.getContext()).
                             load(user.getImage())
                             .fitCenter()
                             .centerCrop()
-                            .into(holder.IV_userPic);
+                            .into(holder.IV_userPic);}
                 }
             }
             @Override
