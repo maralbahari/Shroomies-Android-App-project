@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
@@ -29,16 +30,15 @@ public class FirebaseMessaging  extends FirebaseMessagingService {
         if(sent.equals(currentUserID)){
             if(!currentUserID.equals(user)){
                 sendNormalNotification(remoteMessage);
-//                if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O){
-//                    sendNormalNotification(remoteMessage);
-//
-//                }else{
-//                    sendOAndAboveNotification(remoteMessage);
-//                }
+                if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O){
+                    sendNormalNotification(remoteMessage);
+                }else{
+                    sendOAndAboveNotification(remoteMessage);
+                }
             }
         }
     }
-    private void sendOAndAboveNotification(RemoteMessage msg){
+    private void sendNormalNotification(RemoteMessage msg){
         String user=msg.getData().get("user");
         String icon=msg.getData().get("icon");
         String title=msg.getData().get("title");
@@ -56,17 +56,19 @@ public class FirebaseMessaging  extends FirebaseMessagingService {
                 .setContentText(body)
                 .setContentTitle(title)
                 .setAutoCancel(true)
+
                 .setSound(defSoundUri)
-                .setContentIntent(pendingIntent);
+                .setContentIntent(pendingIntent)
+                ;
+
         NotificationManager notificationManager=(NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
         int j=0;
         if(i>0){
             j=i;
         }
         notificationManager.notify(j,builder.build());
-
     }
-    private void sendNormalNotification(RemoteMessage msg){
+    private void sendOAndAboveNotification(RemoteMessage msg){
         String user=msg.getData().get("user");
         String icon=msg.getData().get("icon");
         String title=msg.getData().get("title");
@@ -85,6 +87,7 @@ public class FirebaseMessaging  extends FirebaseMessagingService {
         if(i>0){
             j=i;
         }
+
        noti.getManager().notify(j,builder.build());
     }
     @Override

@@ -33,6 +33,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import com.example.shroomies.notifications.Data;
+import com.google.android.gms.auth.api.Auth;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -87,9 +89,6 @@ public class GroupChattingActivity extends AppCompatActivity {
         rootRef.removeEventListener(seenListener);
 
     }
-
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -427,19 +426,16 @@ public class GroupChattingActivity extends AppCompatActivity {
     }
 
     private void messageSeen() {
-        seenListener = rootRef.child("GroupChats").child(groupID).child("messages").child("seenBy").addValueEventListener(new ValueEventListener() {
+        seenListener = rootRef.child("GroupChats").child(groupID).child("Messages").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()){
                     for(DataSnapshot dataSnapshot
-                        :snapshot.getChildren()){
-                        if(dataSnapshot.getKey().equals(mAuth.getCurrentUser())){
-                            dataSnapshot.getRef().setValue("true");
-                        }
+                            :snapshot.getChildren()){
+                        dataSnapshot.child("seenBy").child(mAuth.getCurrentUser().getUid()).getRef().setValue("true");
                     }
                     MainActivity.setBadgeToNumberOfNotifications(rootRef, mAuth);
                 }
-
             }
 
             @Override
