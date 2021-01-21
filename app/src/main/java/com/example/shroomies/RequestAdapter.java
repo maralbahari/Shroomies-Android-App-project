@@ -142,8 +142,8 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
                                     @Override
                                     public void onSuccess(Void aVoid) {
                                         final HashMap<String, Object> addUsers = new HashMap<>();
-                                        addUsers.put("apartmentMembers",mAuth.getCurrentUser().getUid());
-                                        rootRef.child("apartments").child(senderID).updateChildren(addUsers).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        addUsers.put(mAuth.getCurrentUser().getUid(),senderName);
+                                        rootRef.child("apartments").child(senderApartmentID).child("apartmentMembers").updateChildren(addUsers).addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void aVoid) {
                                                 rootRef.child("apartments").child(mAuth.getCurrentUser().getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
