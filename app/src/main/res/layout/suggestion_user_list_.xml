@@ -14,20 +14,25 @@
         android:background="@drawable/post_card_rectangle_round"
         android:elevation="5dp"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+
         android:padding="20dp"
         android:layout_margin="5dp">
 
 
         <ImageView
-            android:padding="5dp"
-            android:id="@+id/suggestion_list_image"
-            android:layout_width="wrap_content"
-            android:layout_height="70dp"
 
+            android:id="@+id/suggestion_list_image"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+
+            android:padding="10dp"
             android:layout_alignParentStart="true"
-            android:layout_marginLeft="5dp"
-            app:srcCompat="@drawable/ic_user_profile_svgrepo_com" />
+           android:layout_margin="5dp"
+            app:srcCompat="@drawable/ic_user_profile_small"
+            android:background="@drawable/button_round"
+            android:elevation="3dp"
+            />
 
         <TextView
             android:id="@+id/suggestion_list_username"
@@ -51,9 +56,12 @@
             android:layout_below="@id/suggestion_list_username"
             android:layout_alignParentRight="true"
             android:background="@drawable/add_user_check_button"
-            android:elevation="5dp"
+            android:elevation="2dp"
             android:checked="false"
+            android:drawablePadding="5dp"
             android:button="@android:color/transparent"
+            android:foreground="@drawable/ic_icon_awesome_check"
+            android:foregroundGravity="center"
 
             />
 
@@ -61,13 +69,14 @@
             android:id="@+id/remove_user_from_group_chat_image_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_margin="2dp"
             android:layout_below="@id/suggestion_list_username"
             android:layout_alignParentRight="true"
-            android:background="@drawable/circle_white_button_small"
-            android:elevation="2dp"
-            android:padding="10dp"
+            android:background="@drawable/button_round"
+            android:elevation="1dp"
+           android:padding="5dp"
             android:visibility="gone"
-            app:srcCompat="@drawable/ic_icon_material_remove_circle_outline" />
+            android:src="@drawable/remove_con_large" />
 
     </RelativeLayout>
 
