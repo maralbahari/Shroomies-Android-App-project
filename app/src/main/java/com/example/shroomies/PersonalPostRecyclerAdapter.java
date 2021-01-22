@@ -1,6 +1,7 @@
 package com.example.shroomies;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,6 +30,7 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
     List <PersonalPostModel> personalPostModelList;
     Context context;
     DatabaseReference db;
+    private User receiverUser;
 
     public PersonalPostRecyclerAdapter(List<PersonalPostModel> personalPostModelList, Context context) {
         this.personalPostModelList = personalPostModelList;
@@ -103,15 +105,18 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
         final Boolean[] checkClick = {false};
 
         final DatabaseReference favRef = FirebaseDatabase.getInstance().getReference().child("Favorite");
-
+//        if (favRef.child("PersonalPost").hasChild(personalPostModelList.get(position).getId())){
+//
+//
+//        }
         holder.BT_fav.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                checkClick[position] = true;
+                checkClick[0] = true;
                 favRef.addValueEventListener(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if(checkClick[position]){
+                        if(checkClick[0])
                             if(snapshot.child(Uid).child("PersonalPost").hasChild(personalPostModelList.get(position).getId())){
                                 favRef.child(Uid).child("PersonalPost").child(personalPostModelList.get(position).getId()).removeValue();
                                 Toast.makeText(context,"Post removed from favorites",Toast.LENGTH_LONG).show();
@@ -128,12 +133,12 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
                                 anotherRef.child("Lat").setValue(personalPostModelList.get(position).getLatitude());
                                 anotherRef.child("Long").setValue(personalPostModelList.get(position).getLongitude());
                                 Toast.makeText(context,"Post added to favorites",Toast.LENGTH_LONG).show();
-                                checkClick[position] = false;
+                                checkClick[0] = false;
 
                             }
 
 
-                        }
+
                     }
 
                     @Override
@@ -193,6 +198,30 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
             IV_smoke = itemView.findViewById(R.id.non_smoking_image_view_apartment);
             BT_message = itemView.findViewById(R.id.start_chat_button);
             BT_fav = itemView.findViewById(R.id.BUT_fav);
+
+            BT_message.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //get user details and pass to chatting activity
+                    DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(personalPostModelList.get(getAdapterPosition()).getUserID());
+
+                    databaseReference.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            receiverUser = new User();
+                            receiverUser = snapshot.getValue(User.class);
+                            Intent intent = new Intent(context, ChattingActivity.class);
+                            intent.putExtra("USERID", receiverUser.getID());
+                            context.startActivity(intent);
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
+                }
+            });
 
 
 
