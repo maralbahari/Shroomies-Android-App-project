@@ -32,10 +32,12 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
     DatabaseReference rootRef;
     private ArrayList<User> usersList;
     String currentUserAppartmentId;
+    Boolean receiverUsers;
 
-    public RequestAdapter(Context context,ArrayList<User> usersList) {
+    public RequestAdapter(Context context,ArrayList<User> usersList,Boolean receiverUsers) {
         this.context = context;
         this.usersList=usersList;
+        this.receiverUsers=receiverUsers;
     }
 
     private void getUserRoomId(){
@@ -76,6 +78,12 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
                    .fitCenter()
                    .circleCrop()
                    .into(holder.senderImage);
+       }
+       if(receiverUsers){
+           holder.reject.setVisibility(View.INVISIBLE);
+           holder.accept.setVisibility(View.INVISIBLE);
+           //set cancele request button here to visible
+
        }
     }
 

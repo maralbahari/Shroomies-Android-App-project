@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -80,6 +79,7 @@ public class Members extends DialogFragment {
         getMember();
         if(mAuth.getCurrentUser().getUid().equals(apartmentID)){
             leaveRoom.setVisibility(View.INVISIBLE);
+
         }
         leaveRoom.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -119,12 +119,10 @@ public class Members extends DialogFragment {
                     for (DataSnapshot sp : snapshot.getChildren()){
                         membersId.add(sp.getKey());
                         getMemberDetail(membersId);
-                        getRequestedUsers(membersId);
+
 
 
                     }
-                }else{
-                    getRequestedUsersNo();
                 }
             }
 
@@ -135,29 +133,11 @@ public class Members extends DialogFragment {
         });
     }
 
-    private void getRequestedUsersNo() {
-        membersId= new ArrayList<>();
-        rootRef.child("shroomieRequests").child(mAuth.getCurrentUser().getUid()).child("requestType").equalTo("sent").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for (DataSnapshot sp : snapshot.getChildren()){
-                    membersId.add(sp.getKey());
 
-                }
-                getRequestedUsersDetails(membersId);
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-    }
 
     private void getMemberDetail(final ArrayList<String> membersId) {
         membersList = new ArrayList<>();
-        userAdapter = new UserAdapter(membersList, getContext(),false,false);
+        userAdapter = new UserAdapter(membersList, getContext(),false);
         membersRecycler.setAdapter(userAdapter);
         for (String id: membersId){
             rootRef.child("Users").child(id).addValueEventListener(new ValueEventListener() {
@@ -195,55 +175,6 @@ public class Members extends DialogFragment {
 
             }
         });
-    }
-    private void getRequestedUsers(ArrayList<String> membersId){
-        requestUsersIDs=new ArrayList<>();
-        for(String id:membersId){
-            rootRef.child("shroomieRequests").child(id).orderByChild("requestType").equalTo("sent").addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    if(snapshot.exists()){
-                        for(DataSnapshot sp: snapshot.getChildren()){
-                            requestUsersIDs.add(sp.getKey());
-                            getRequestedUsersDetails(requestUsersIDs);
-                        }
-                    }
-
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-
-                }
-            });
-        }
-
-    }
-
-    private void getRequestedUsersDetails(ArrayList<String> requestUsersIDs) {
-        getRequestUsersList = new ArrayList<>();
-//        getRequestUsersList.addAll(membersList);
-        userAdapter = new UserAdapter(getRequestUsersList, getContext(),false,true);
-        membersRecycler.setAdapter(userAdapter);
-        for (String id: requestUsersIDs){
-            rootRef.child("Users").child(id).addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    getRequestUsersList.clear();
-                    if (snapshot.exists()){
-                        User user = snapshot.getValue(User.class);
-                        getRequestUsersList.add(user);
-                    }
-                    userAdapter.notifyDataSetChanged();
-
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-
-                }
-            });
-        }
     }
 
 }

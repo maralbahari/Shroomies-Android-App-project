@@ -29,6 +29,8 @@ public class Request extends Fragment {
    private ArrayList<User> senderUsers;
    private ArrayList<String> senderIDs;
    private RequestAdapter requestAdapter;
+   private ArrayList<String> receiverIDs;
+   private ArrayList<User> receiverUsers;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -73,7 +75,7 @@ public class Request extends Fragment {
     }
     private void getSenderDetails(final ArrayList<String> senderIDs){
         senderUsers=new ArrayList<>();
-     requestAdapter= new RequestAdapter(getContext(),senderUsers);
+     requestAdapter= new RequestAdapter(getContext(),senderUsers,false);
      requestRecyvlerView.setAdapter(requestAdapter);
      for(String id: senderIDs){
          rootRef.child("Users").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -93,6 +95,49 @@ public class Request extends Fragment {
              }
          });
      }
+    }
+    private void getReceiverID(){
+       receiverIDs=new ArrayList<>();
+        rootRef.child("shroomieRequests").child(mAuth.getCurrentUser().getUid()).orderByChild("requestType").equalTo("sent").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
+                    for(DataSnapshot ds:snapshot.getChildren()){
+                        receiverIDs.add(ds.getKey());
+                        getReceiverDetails(receiverIDs);
+                    }
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+    private void getReceiverDetails(final ArrayList<String> receiverIDs){
+        receiverUsers=new ArrayList<>();
+        requestAdapter= new RequestAdapter(getContext(),receiverUsers,true);
+        requestRecyvlerView.setAdapter(requestAdapter);
+        for(String id: receiverIDs){
+            rootRef.child("Users").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    receiverUsers.clear();
+                    if(snapshot.exists()){
+                        User user= snapshot.getValue(User.class);
+                        receiverUsers.add(user);
+                    }
+                    requestAdapter.notifyDataSetChanged();
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+        }
     }
 
 }

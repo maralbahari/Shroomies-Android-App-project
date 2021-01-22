@@ -35,12 +35,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
    String apartmentID="";
    Boolean fromMemberPageWithRequestMember;
 
-    public UserAdapter(ArrayList<User> userList, Context context, Boolean fromSearchMember,Boolean fromMemberPageWithRequestMember) {
-        this.userList = userList;
-        this.context = context;
-        this.fromSearchMember=fromSearchMember;
-        this.fromMemberPageWithRequestMember=fromMemberPageWithRequestMember;
-    }
+
     public UserAdapter(ArrayList<User> userList, Context context, Boolean fromSearchMember) {
         this.userList = userList;
         this.context = context;

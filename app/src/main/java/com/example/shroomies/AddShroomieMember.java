@@ -124,7 +124,6 @@ public class AddShroomieMember extends DialogFragment {
 
     private void addInboxUsersToRecycler(final List<String> inboxListUsers) {
         suggestedUser = new ArrayList<>();
-        suggestedUser.clear();
         userRecyclerAdapter=new UserAdapter(suggestedUser,getContext(),true);
         addShroomieRecycler.setAdapter(userRecyclerAdapter);
         for(String id
@@ -132,12 +131,12 @@ public class AddShroomieMember extends DialogFragment {
             rootRef.child("Users").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    suggestedUser.clear();
                     if(snapshot.exists()){
                         User user = snapshot.getValue(User.class);
-                        if(!suggestedUser.contains(user)){
                             suggestedUser.add(user);
                             userRecyclerAdapter.notifyDataSetChanged();
-                        }
+
 
                     }
 
