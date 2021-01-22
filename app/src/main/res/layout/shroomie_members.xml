@@ -48,19 +48,21 @@
             android:layout_below="@+id/add_shroomie_btn"
             />
 
+
+
         <Button
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="270dp"
             android:id="@+id/leave_room_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Leave room"
             android:background="@color/canceRed"
             android:textColor="@color/white"
-            android:layout_below="@+id/members_recyclerView"
             android:layout_gravity="bottom"
+            android:layout_below="@id/members_recyclerView"
             />
-
     </RelativeLayout>
+
 
 
 </LinearLayout>
