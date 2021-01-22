@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -24,6 +25,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+
+
 
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
    private ArrayList<User> userList;
@@ -66,31 +69,6 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             holder.msgMember.setVisibility(View.GONE);
             holder.removeMember.setVisibility(View.GONE);
         }
-        if(fromMemberPageWithRequestMember){
-            holder.msgMember.setVisibility(View.GONE);
-            holder.removeMember.setVisibility(View.GONE);
-            holder.sendRequest.setVisibility(View.VISIBLE);
-            holder.sendRequest.setText("requested");
-            holder.msgMember.setVisibility(View.GONE);
-            holder.removeMember.setVisibility(View.GONE);
-            holder.sendRequest.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    rootRef.child("shroomieRequests").child(mAuth.getCurrentUser().getUid()).child(userList.get(position).getID()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            rootRef.child("shroomieRequests").child(userList.get(position).getID()).child(mAuth.getCurrentUser().getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    userList.remove(position);
-                                    notifyItemRemoved(position);
-                                }
-                            });
-                        }
-                    });
-                }
-            });
-        }
 
        holder.userName.setText(userList.get(position).getName());
        if(!userList.get(position).getImage().isEmpty()){
@@ -129,7 +107,8 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     public class UserViewHolder extends RecyclerView.ViewHolder {
         ImageView userImage;
         TextView userName;
-        Button sendRequest, msgMember, removeMember;
+        Button sendRequest;
+        ImageButton msgMember, removeMember;
 
         public UserViewHolder(@NonNull View itemView) {
             super(itemView);
