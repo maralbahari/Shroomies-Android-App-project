@@ -15,6 +15,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -32,7 +33,7 @@ import java.util.Comparator;
 import java.util.Date;
 
 
-public class MyShroomies extends Fragment {
+public class MyShroomies extends Fragment  {
     View v;
     Button  memberButton, addCardButton;
     TabLayout myShroomiesTablayout;
@@ -82,6 +83,8 @@ public class MyShroomies extends Fragment {
         expensesCardsList = new ArrayList<>();
         expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList,getContext(),false);
         shroomieSpinnerFilter = v.findViewById(R.id.shroomie_spinner_filter);
+
+
 
 
         myShroomiesTablayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -182,9 +185,15 @@ public class MyShroomies extends Fragment {
         });
     }
 
+
     private void retrieveTaskCards() {
         tasksCardsList=new ArrayList<>();
         tasksCardAdapter= new TasksCardAdapter(tasksCardsList,getContext(),false);
+        ItemTouchHelper.Callback callback = new CardsTouchHelper(tasksCardAdapter);
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
+        tasksCardAdapter.setItemTouchHelper(itemTouchHelper);
+        itemTouchHelper.attachToRecyclerView(myShroomiesRecyclerView);
+
         myShroomiesRecyclerView.setAdapter(tasksCardAdapter);
         rootRef.child("apartments").child(apartmentID).child("tasksCards").addValueEventListener(new ValueEventListener() {
             @Override
@@ -214,6 +223,11 @@ public class MyShroomies extends Fragment {
 //        Toast.makeText(getContext(),"HKOADKOSKAD",Toast.LENGTH_SHORT).show();
         expensesCardsList=new ArrayList<>();
         expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList,getContext(), false);
+        ItemTouchHelper.Callback callback = new CardsTouchHelper(expensesCardAdapter);
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
+        expensesCardAdapter.setItemTouchHelper(itemTouchHelper);
+        itemTouchHelper.attachToRecyclerView(myShroomiesRecyclerView);
+
         myShroomiesRecyclerView.setAdapter(expensesCardAdapter);
         rootRef.child("apartments").child(apartmentID).child("expensesCards").addValueEventListener(new ValueEventListener() {
             @Override
@@ -410,6 +424,7 @@ public class MyShroomies extends Fragment {
         }
 
     }
+
 
 
 //    @Override

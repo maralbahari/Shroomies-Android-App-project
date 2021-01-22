@@ -2,17 +2,21 @@ package com.example.shroomies;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -31,13 +35,14 @@ import java.util.Calendar;
 import java.util.HashMap;
 
 
-public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.TasksCardViewHolder> {
+public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.TasksCardViewHolder> implements ItemTouchHelperAdapter  {
 
     private ArrayList<TasksCard> tasksCardsList;
     private Context context;
     private View view;
     private DatabaseReference rootRef;
     private FirebaseAuth mAuth;
+    private ItemTouchHelper itemTouchHelper;
     Boolean fromArchive;
     String currentUserAppartmentId= "";
 
@@ -47,13 +52,32 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         this.fromArchive = fromArchive;
     }
 
-    public class TasksCardViewHolder extends RecyclerView.ViewHolder {
+    @Override
+    public void onItemMove(int fromPosition, int toPosition) {
+        TasksCard fromTaskCard = tasksCardsList.get(fromPosition);
+        tasksCardsList.remove(fromTaskCard);
+        tasksCardsList.add(toPosition,fromTaskCard);
+        notifyItemMoved(fromPosition,toPosition);
+    }
+
+    @Override
+    public void onItemSwiped(int position) {
+        deleteCard(tasksCardsList.get(position).getCardId(),position);
+    }
+
+    public void setItemTouchHelper(ItemTouchHelper itemTouchHelper){
+        this.itemTouchHelper = itemTouchHelper;
+    }
+
+    public class TasksCardViewHolder extends RecyclerView.ViewHolder implements View.OnTouchListener, GestureDetector.OnGestureListener {
 
         View taskImportanceView;
         TextView title, description, dueDate, areYouSure;
         ImageButton delete, archive;
         ImageView sadShroomie, stars;
         Button cont, no;
+        GestureDetector gestureDetector;
+
 
 
 
@@ -66,6 +90,8 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
             delete = v.findViewById(R.id.task_delete);
             archive = v.findViewById(R.id.task_archive);
 
+            gestureDetector = new GestureDetector(v.getContext(),this);
+            v.setOnTouchListener(this);
 
 //            delete.setOnClickListener(new View.OnClickListener() {
 //                @Override
@@ -120,6 +146,42 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
 
 
         }
+
+        @Override
+        public boolean onDown(MotionEvent motionEvent) {
+            return false;
+        }
+
+        @Override
+        public void onShowPress(MotionEvent motionEvent) {
+
+        }
+
+        @Override
+        public boolean onSingleTapUp(MotionEvent motionEvent) {
+            return true;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1) {
+            return false;
+        }
+
+        @Override
+        public void onLongPress(MotionEvent motionEvent) {
+            itemTouchHelper.startDrag(this);
+        }
+
+        @Override
+        public boolean onFling(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1) {
+            return false;
+        }
+
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            gestureDetector.onTouchEvent(motionEvent);
+            return true;
+        }
     }
 
     public void deleteCard(String cardID, final int position){
@@ -136,7 +198,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
     @NonNull
     @Override
     public TasksCardAdapter.TasksCardViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-
+        LinearLayout task_card ;
         LayoutInflater layoutInflater = LayoutInflater.from(context);
         view = layoutInflater.inflate(R.layout.my_shroomie_tasks_card, parent, false);
         rootRef = FirebaseDatabase.getInstance().getReference();
@@ -239,7 +301,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()){
-                                rootRef.child("apartments").child(mAuth.getCurrentUser().getUid()).child("tasksCards").child(cardId).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                rootRef.child("apartments").child(currentUserAppartmentId).child("tasksCards").child(cardId).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
                                         Toast.makeText(context, "Card successfully Archived", Toast.LENGTH_SHORT).show();

@@ -36,7 +36,7 @@
                 android:layout_toRightOf="@+id/request_member_photo"
                 />
 
-            <Button
+            <androidx.appcompat.widget.AppCompatButton
                 android:id="@+id/send_request_btn"
                 android:layout_width="120dp"
                 android:layout_height="30dp"
