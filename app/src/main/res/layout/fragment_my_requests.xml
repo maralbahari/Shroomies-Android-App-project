@@ -12,13 +12,34 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <ImageView
+        <com.google.android.material.tabs.TabLayout
+            android:layout_below="@id/request_tv"
+            android:id="@+id/request_tablayout"
+            android:layout_width="match_parent"
+            android:elevation="5dp"
             android:layout_marginTop="10dp"
-            android:id="@+id/request_plus"
-            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_request_plus"
-            />
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:background="@color/white"
+            app:tabIndicatorColor="@color/Alabaster">
+
+            <com.google.android.material.tabs.TabItem
+                android:id="@+id/my_invitations"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="my invitiations" />
+
+            <com.google.android.material.tabs.TabItem
+                android:id="@+id/my_request_invitations"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="my requested"
+                />
+        </com.google.android.material.tabs.TabLayout>
 
         <TextView
             android:id="@+id/request_tv"
@@ -26,7 +47,6 @@
             android:layout_height="wrap_content"
             android:text="Request"
             android:textSize="30sp"
-            android:layout_toRightOf="@+id/request_plus"
             android:layout_marginLeft="20dp"
             />
 
@@ -34,7 +54,7 @@
             android:id="@+id/request_recyclerview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/request_plus"
+            android:layout_below="@id/request_tablayout"
             android:layout_marginTop="20dp"
             />
 

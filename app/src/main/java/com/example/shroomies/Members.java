@@ -12,6 +12,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -52,7 +53,7 @@ public class Members extends DialogFragment {
     public void onStart() {
         super.onStart();
         if(getDialog()!=null) {
-            getDialog().getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.WRAP_CONTENT);
+            getDialog().getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
             getDialog().getWindow().setBackgroundDrawableResource(R.drawable.dialogfragment_add_member);
         }
     }
@@ -63,6 +64,11 @@ public class Members extends DialogFragment {
         super.onViewCreated(view, savedInstanceState);
         addMember=view.findViewById(R.id.add_shroomie_btn);
         leaveRoom=view.findViewById(R.id.leave_room_btn);
+        membersRecycler = view.findViewById(R.id.members_recyclerView);
+        LinearLayoutManager linearLayoutManager=new LinearLayoutManager(getActivity());
+        membersRecycler.setHasFixedSize(true);
+        membersRecycler.setLayoutManager(linearLayoutManager);
+
         addMember.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -72,7 +78,7 @@ public class Members extends DialogFragment {
         });
         getMember();
         if(mAuth.getCurrentUser().getUid().equals(apartmentID)){
-            leaveRoom.setVisibility(View.INVISIBLE);
+            leaveRoom.setVisibility(View.GONE);
         }
         leaveRoom.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -112,7 +118,7 @@ public class Members extends DialogFragment {
                     for (DataSnapshot sp : snapshot.getChildren()){
                         membersId.add(sp.getKey());
                         getMemberDetail(membersId);
-//                        getRequestedUsers(membersId);
+
 
 
                     }
@@ -126,9 +132,11 @@ public class Members extends DialogFragment {
         });
     }
 
+
+
     private void getMemberDetail(final ArrayList<String> membersId) {
         membersList = new ArrayList<>();
-        userAdapter = new UserAdapter(membersList, getContext(),false,false);
+        userAdapter = new UserAdapter(membersList, getContext(),false);
         membersRecycler.setAdapter(userAdapter);
         for (String id: membersId){
             rootRef.child("Users").child(id).addValueEventListener(new ValueEventListener() {
@@ -148,7 +156,7 @@ public class Members extends DialogFragment {
                 }
             });
         }
-        getRequestedUsers(membersId);
+
     }
 
 
@@ -166,55 +174,6 @@ public class Members extends DialogFragment {
 
             }
         });
-    }
-    private void getRequestedUsers(ArrayList<String> membersId){
-        requestUsersIDs=new ArrayList<>();
-        for(String id:membersId){
-            rootRef.child("shroomieRequests").child(id).orderByChild("requestType").equalTo("sent").addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    if(snapshot.exists()){
-                        for(DataSnapshot sp: snapshot.getChildren()){
-                            requestUsersIDs.add(sp.getKey());
-                            getRequestedUsersDetails(requestUsersIDs);
-                        }
-                    }
-
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-
-                }
-            });
-        }
-
-    }
-
-    private void getRequestedUsersDetails(ArrayList<String> requestUsersIDs) {
-        getRequestUsersList = new ArrayList<>();
-        getRequestUsersList.addAll(membersList);
-        userAdapter = new UserAdapter(getRequestUsersList, getContext(),false,true);
-        membersRecycler.setAdapter(userAdapter);
-        for (String id: requestUsersIDs){
-            rootRef.child("Users").child(id).addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    getRequestUsersList.clear();
-                    if (snapshot.exists()){
-                        User user = snapshot.getValue(User.class);
-                        getRequestUsersList.add(user);
-                    }
-                    userAdapter.notifyDataSetChanged();
-
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-
-                }
-            });
-        }
     }
 
 }
