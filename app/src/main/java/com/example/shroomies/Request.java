@@ -11,6 +11,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -29,6 +30,9 @@ public class Request extends Fragment {
    private ArrayList<User> senderUsers;
    private ArrayList<String> senderIDs;
    private RequestAdapter requestAdapter;
+   private ArrayList<String> receiverIDs;
+   private ArrayList<User> receiverUsers;
+   TabLayout requestTab;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -44,10 +48,33 @@ public class Request extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         requestRecyvlerView = v.findViewById(R.id.request_recyclerview);
+        requestTab = v.findViewById(R.id.request_tablayout);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         requestRecyvlerView.setHasFixedSize(true);
         requestRecyvlerView.setLayoutManager(linearLayoutManager);
         getSenderId();
+        requestTab.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                if(tab.getPosition()==0){
+                    getSenderId();
+                }
+                else if(tab.getPosition()==1){
+                    getReceiverID();
+                }
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
+
     }
 
 
@@ -73,7 +100,7 @@ public class Request extends Fragment {
     }
     private void getSenderDetails(final ArrayList<String> senderIDs){
         senderUsers=new ArrayList<>();
-     requestAdapter= new RequestAdapter(getContext(),senderUsers);
+     requestAdapter= new RequestAdapter(getContext(),senderUsers,false);
      requestRecyvlerView.setAdapter(requestAdapter);
      for(String id: senderIDs){
          rootRef.child("Users").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -93,6 +120,49 @@ public class Request extends Fragment {
              }
          });
      }
+    }
+    private void getReceiverID(){
+       receiverIDs=new ArrayList<>();
+        rootRef.child("shroomieRequests").child(mAuth.getCurrentUser().getUid()).orderByChild("requestType").equalTo("sent").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
+                    for(DataSnapshot ds:snapshot.getChildren()){
+                        receiverIDs.add(ds.getKey());
+                        getReceiverDetails(receiverIDs);
+                    }
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+    private void getReceiverDetails(final ArrayList<String> receiverIDs){
+        receiverUsers=new ArrayList<>();
+        requestAdapter= new RequestAdapter(getContext(),receiverUsers,true);
+        requestRecyvlerView.setAdapter(requestAdapter);
+        for(String id: receiverIDs){
+            rootRef.child("Users").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    receiverUsers.clear();
+                    if(snapshot.exists()){
+                        User user= snapshot.getValue(User.class);
+                        receiverUsers.add(user);
+                    }
+                    requestAdapter.notifyDataSetChanged();
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+        }
     }
 
 }

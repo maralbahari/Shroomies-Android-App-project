@@ -254,11 +254,15 @@ public class GroupChattingActivity extends AppCompatActivity {
                             group = snapshot.getValue(Group.class);
                             groupNameTextview.setText(group.getGroupName());
 
-                            GlideApp.with(getApplicationContext())
-                                    .load(group.getGroupImage())
-                                    .fitCenter()
-                                    .circleCrop()
-                                    .into(groupImage);
+
+                            if(!group.getImage().isEmpty()) {
+                                GlideApp.with(getApplicationContext())
+                                        .load(group.getGroupImage())
+                                        .fitCenter()
+                                        .circleCrop()
+                                        .into(groupImage);
+                                groupImage.setPadding(0,0,0,0);
+                            }
                             groupNameTextview.setText(group.getGroupName());
                             messageSeen();
                     }
