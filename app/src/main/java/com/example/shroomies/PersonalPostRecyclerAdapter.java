@@ -105,10 +105,23 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
         final Boolean[] checkClick = {false};
 
         final DatabaseReference favRef = FirebaseDatabase.getInstance().getReference().child("Favorite");
-//        if (favRef.child("PersonalPost").hasChild(personalPostModelList.get(position).getId())){
-//
-//
-//        }
+
+        DatabaseReference anotherFavRef = FirebaseDatabase.getInstance().getReference().child("Favorite");
+        anotherFavRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.child(Uid).child("PersonalPost").hasChild(personalPostModelList.get(position).getId())){
+                    holder.BT_fav.setImageResource(R.drawable.ic_icon_awesome_star_checked);
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
         holder.BT_fav.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -119,6 +132,7 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
                         if(checkClick[0])
                             if(snapshot.child(Uid).child("PersonalPost").hasChild(personalPostModelList.get(position).getId())){
                                 favRef.child(Uid).child("PersonalPost").child(personalPostModelList.get(position).getId()).removeValue();
+                                holder.BT_fav.setImageResource(R.drawable.ic_icon_awesome_star_unchecked);
                                 Toast.makeText(context,"Post removed from favorites",Toast.LENGTH_LONG).show();
                                 checkClick[0] = false;
                             }
@@ -133,6 +147,7 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
                                 anotherRef.child("Lat").setValue(personalPostModelList.get(position).getLatitude());
                                 anotherRef.child("Long").setValue(personalPostModelList.get(position).getLongitude());
                                 Toast.makeText(context,"Post added to favorites",Toast.LENGTH_LONG).show();
+                                holder.BT_fav.setImageResource(R.drawable.ic_icon_awesome_star_checked);
                                 checkClick[0] = false;
 
                             }
