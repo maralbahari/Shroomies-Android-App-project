@@ -77,9 +77,7 @@ public class Members extends DialogFragment {
             }
         });
         getMember();
-        if(mAuth.getCurrentUser().getUid().equals(apartmentID)){
-            leaveRoom.setVisibility(View.GONE);
-        }
+
         leaveRoom.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -166,6 +164,9 @@ public class Members extends DialogFragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()){
                     apartmentID=snapshot.getValue().toString();
+                    if(mAuth.getCurrentUser().getUid().equals(apartmentID)){
+                        leaveRoom.setVisibility(View.GONE);
+                    }
                 }
             }
 
