@@ -17,7 +17,7 @@
         android:layout_marginBottom="10dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:background="@drawable/background_text_white"
+        android:background="@color/white"
         app:tabIndicatorColor="@color/Alabaster">
 
         <com.google.android.material.tabs.TabItem
@@ -94,9 +94,20 @@
         android:layout_marginRight="20dp"
         android:layout_marginTop="5dp"
         android:layout_marginLeft="20dp"
-        android:id="@+id/my_shroomies_recycler_view"
+        android:id="@+id/my_expenses_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@+id/my_shroomies_member_btn"
+        />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_marginRight="20dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="20dp"
+        android:id="@+id/my_tasks_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
         android:layout_below="@+id/my_shroomies_member_btn"
         />
 

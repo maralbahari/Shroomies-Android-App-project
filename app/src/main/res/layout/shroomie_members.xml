@@ -6,13 +6,13 @@
     android:id="@+id/shroomie_members"
     android:layout_margin="5dp"
     android:background="@drawable/dialogfragment_add_member"
-    android:layout_height="wrap_content">
+    android:layout_height="match_parent">
 
     <RelativeLayout
         android:id="@+id/relative_layout_member"
         android:layout_margin="10dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
 
         <TextView
             android:id="@+id/shroomie"

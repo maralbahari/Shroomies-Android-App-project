@@ -15,6 +15,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -32,11 +33,12 @@ import java.util.Comparator;
 import java.util.Date;
 
 
-public class MyShroomies extends Fragment {
+public class MyShroomies extends Fragment  {
     View v;
     Button  memberButton, addCardButton;
     TabLayout myShroomiesTablayout;
-    RecyclerView myShroomiesRecyclerView;
+    RecyclerView myExpensesRecyclerView;
+    RecyclerView myTasksRecyclerView;
     Spinner shroomieSpinnerFilter;
     ArrayList<String> options = new ArrayList<>();
     FragmentTransaction ft;
@@ -71,23 +73,30 @@ public class MyShroomies extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-
+        myTasksRecyclerView = v.findViewById(R.id.my_tasks_recycler_view);
         memberButton = v.findViewById(R.id.my_shroomies_member_btn);
         addCardButton = v.findViewById(R.id.my_shroomies_add_card_btn);
         myShroomiesTablayout = v.findViewById(R.id.my_shroomies_tablayout);
-        myShroomiesRecyclerView = v.findViewById(R.id.my_shroomies_recycler_view);
+        myExpensesRecyclerView = v.findViewById(R.id.my_expenses_recycler_view);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
-        myShroomiesRecyclerView.setHasFixedSize(true);
-        myShroomiesRecyclerView.setLayoutManager(linearLayoutManager);
-        expensesCardsList = new ArrayList<>();
-        expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList,getContext(),false);
+        myExpensesRecyclerView.setHasFixedSize(true);
+        myExpensesRecyclerView.setLayoutManager(linearLayoutManager);
         shroomieSpinnerFilter = v.findViewById(R.id.shroomie_spinner_filter);
+
+        LinearLayoutManager linearLayoutManager1 =new LinearLayoutManager(getContext());
+
+        retreiveExpensesCards();
+        myTasksRecyclerView.setHasFixedSize(true);
+        myTasksRecyclerView.setLayoutManager(linearLayoutManager1);
+
 
 
         myShroomiesTablayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 if(tab.getPosition()==0){
+                    myExpensesRecyclerView.setVisibility(View.VISIBLE);
+                    myTasksRecyclerView.setVisibility(View.GONE);
                     tabSelected="expenses";
                     expensesCardsList = new ArrayList<>();
                     retreiveExpensesCards();
@@ -95,6 +104,8 @@ public class MyShroomies extends Fragment {
 
                 }
                 else if(tab.getPosition()==1){
+                    myTasksRecyclerView.setVisibility(View.VISIBLE);
+                    myExpensesRecyclerView.setVisibility(View.GONE);
                     tabSelected="tasks";
                     tasksCardsList=new ArrayList<>();
                    retrieveTaskCards();
@@ -182,23 +193,25 @@ public class MyShroomies extends Fragment {
         });
     }
 
+
     private void retrieveTaskCards() {
         tasksCardsList=new ArrayList<>();
         tasksCardAdapter= new TasksCardAdapter(tasksCardsList,getContext(),false);
-        myShroomiesRecyclerView.setAdapter(tasksCardAdapter);
+        ItemTouchHelper.Callback callback = new CardsTouchHelper(tasksCardAdapter);
+        ItemTouchHelper itemTouchHelperTask = new ItemTouchHelper(callback);
+        tasksCardAdapter.setItemTouchHelper(itemTouchHelperTask);
+        itemTouchHelperTask.attachToRecyclerView(myTasksRecyclerView);
+
+        myTasksRecyclerView.setAdapter(tasksCardAdapter);
         rootRef.child("apartments").child(apartmentID).child("tasksCards").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 tasksCardsList.clear();
                 if (snapshot.exists()) {
-
                     for (DataSnapshot sp : snapshot.getChildren()) {
                         TasksCard tasksCard = sp.getValue(TasksCard.class);
                         tasksCardsList.add(tasksCard);
-
-
                     }
-
                     tasksCardAdapter.notifyDataSetChanged();
                 }
             }
@@ -214,7 +227,12 @@ public class MyShroomies extends Fragment {
 //        Toast.makeText(getContext(),"HKOADKOSKAD",Toast.LENGTH_SHORT).show();
         expensesCardsList=new ArrayList<>();
         expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList,getContext(), false);
-        myShroomiesRecyclerView.setAdapter(expensesCardAdapter);
+        ItemTouchHelper.Callback callback = new CardsTouchHelper(expensesCardAdapter);
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
+        expensesCardAdapter.setItemTouchHelper(itemTouchHelper);
+        itemTouchHelper.attachToRecyclerView(myExpensesRecyclerView);
+
+        myExpensesRecyclerView.setAdapter(expensesCardAdapter);
         rootRef.child("apartments").child(apartmentID).child("expensesCards").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -410,6 +428,7 @@ public class MyShroomies extends Fragment {
         }
 
     }
+
 
 
 //    @Override
