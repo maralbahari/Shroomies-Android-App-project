@@ -69,7 +69,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RequestAdapter.RequestViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull RequestAdapter.RequestViewHolder holder, final int position) {
        holder.senderName.setText(usersList.get(position).getName());
        String imageUrl= usersList.get(position).getImage();
        if(!imageUrl.isEmpty()){
@@ -83,6 +83,26 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
            holder.reject.setVisibility(View.INVISIBLE);
            holder.accept.setVisibility(View.INVISIBLE);
            holder.requetsTv.setText("has been invited by you");
+           holder.cancel.setVisibility(View.VISIBLE);
+
+           holder.cancel.setOnClickListener(new View.OnClickListener() {
+               @Override
+               public void onClick(View view) {
+                   rootRef.child("shroomieRequests").child(mAuth.getCurrentUser().getUid()).child(usersList.get(position).getID()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                       @Override
+                       public void onSuccess(Void aVoid) {
+                           rootRef.child("shroomieRequests").child(usersList.get(position).getID()).child(mAuth.getCurrentUser().getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                               @Override
+                               public void onSuccess(Void aVoid) {
+                                   usersList.remove(position);
+                                   notifyItemRemoved(position);
+                               }
+                           });
+                       }
+                   });
+               }
+           });
+
            //set cancele request button here to visible
 
        }
@@ -94,7 +114,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
     }
 
     public class RequestViewHolder extends RecyclerView.ViewHolder {
-        Button accept,reject;
+        Button accept,reject,cancel;
         ImageView senderImage;
         TextView senderName,requetsTv;
         public RequestViewHolder(@NonNull View itemView) {
@@ -104,6 +124,10 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
             senderImage=itemView.findViewById(R.id.request_user_photo);
             senderName=itemView.findViewById(R.id.user_name);
             requetsTv=itemView.findViewById(R.id.requested_tv);
+            cancel=itemView.findViewById(R.id.cancel_request);
+
+
+
             accept.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -152,7 +176,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
                                     @Override
                                     public void onSuccess(Void aVoid) {
                                         final HashMap<String, Object> addUsers = new HashMap<>();
-                                        addUsers.put(mAuth.getCurrentUser().getUid(),senderName);
+                                        addUsers.put(mAuth.getCurrentUser().getUid(),mAuth.getCurrentUser().getUid());
                                         rootRef.child("apartments").child(senderApartmentID).child("apartmentMembers").updateChildren(addUsers).addOnSuccessListener(new OnSuccessListener<Void>() {
                                             @Override
                                             public void onSuccess(Void aVoid) {

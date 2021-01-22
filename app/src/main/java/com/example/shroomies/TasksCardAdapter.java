@@ -188,9 +188,14 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         rootRef.child("apartments").child(currentUserAppartmentId).child("tasksCards").child(cardID).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                tasksCardsList.remove(position);
-                notifyItemRemoved(position);
-            }
+                if (tasksCardsList.size()<=1){
+                    tasksCardsList = new ArrayList<>();
+                    notifyDataSetChanged();
+                }else {
+                    tasksCardsList.remove(position);
+                    notifyItemRemoved(position);
+                }
+                }
         });
 
     }

@@ -53,7 +53,7 @@ public class Members extends DialogFragment {
     public void onStart() {
         super.onStart();
         if(getDialog()!=null) {
-            getDialog().getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.WRAP_CONTENT);
+            getDialog().getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
             getDialog().getWindow().setBackgroundDrawableResource(R.drawable.dialogfragment_add_member);
         }
     }
@@ -78,8 +78,7 @@ public class Members extends DialogFragment {
         });
         getMember();
         if(mAuth.getCurrentUser().getUid().equals(apartmentID)){
-            leaveRoom.setVisibility(View.INVISIBLE);
-
+            leaveRoom.setVisibility(View.GONE);
         }
         leaveRoom.setOnClickListener(new View.OnClickListener() {
             @Override

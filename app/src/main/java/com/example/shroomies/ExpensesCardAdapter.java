@@ -217,18 +217,19 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
 
     }
 
-    public void deleteExpensesCard(String cardId, final int position){
+    public void deleteExpensesCard(final String cardId, final int position){
 
         rootRef.child("apartments").child(currentUserAppartmentId).child("expensesCards").child(cardId).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-
-                Toast.makeText(context,"Card deleted",Toast.LENGTH_SHORT).show();
-                cardsList.remove(position);
-                notifyItemRemoved(position);
-//                notifyItemRangeChanged(position,cardsList.size());
-//                notifyDataSetChanged();
-
+                if (cardsList.size()<=1){
+                    cardsList = new ArrayList<>();
+                    notifyDataSetChanged();
+                }else {
+                    Toast.makeText(context, "Card deleted", Toast.LENGTH_SHORT).show();
+                    cardsList.remove(position);
+                    notifyItemRemoved(position);
+                }
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override

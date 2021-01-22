@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -52,21 +53,17 @@ public class AddShroomieMember extends DialogFragment {
         super.onViewCreated(view, savedInstanceState);
         memberSearchView = v.findViewById(R.id.search_member);
         addShroomieRecycler = v.findViewById(R.id.add_member_recyclerview);
-//        backToShroomie = v.findViewById(R.id.back_to_shroomie);
+
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         addShroomieRecycler.setHasFixedSize(true);
         addShroomieRecycler.setLayoutManager(linearLayoutManager);
         rootRef = FirebaseDatabase.getInstance().getReference();
         getMessageInboxListIntoAdapter();
-//        backToShroomie.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                dismiss();
-//            }
-//        });
+
         memberSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String s) {
+
                 retreiveUser(s);
                 return false;
             }
@@ -93,6 +90,7 @@ public class AddShroomieMember extends DialogFragment {
         suggestedUser = new ArrayList<>();
         userRecyclerAdapter= new UserAdapter(suggestedUser,getContext(),true);
         addShroomieRecycler.setAdapter(userRecyclerAdapter);
+
         rootRef.child("Users").orderByChild("name").equalTo(s).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -102,7 +100,11 @@ public class AddShroomieMember extends DialogFragment {
                         suggestedUser.add(user);
                     }
                     //add the members already selected
+                    Toast.makeText(getContext(),""+suggestedUser,Toast.LENGTH_LONG).show();
                     userRecyclerAdapter.notifyDataSetChanged();
+
+                }else{
+                    Toast.makeText(getContext(),"User not found",Toast.LENGTH_LONG).show();
                 }
 
 
