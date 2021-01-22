@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -31,7 +32,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 
-public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapter.ExpensesViewHolder> {
+public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapter.ExpensesViewHolder> implements ItemTouchHelperAdapter {
 
 
     private ArrayList<ExpensesCard> cardsList;
@@ -39,6 +40,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
     private View view;
     private DatabaseReference rootRef;
     private FirebaseAuth mAuth;
+    private ItemTouchHelper itemTouchHelper;
     Boolean fromArchive;
     String currentUserAppartmentId = "";
 
@@ -120,6 +122,29 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
         return cardsList.size();
     }
 
+
+    public void setItemTouchHelper(ItemTouchHelper itemTouchHelper){
+        this.itemTouchHelper = itemTouchHelper;
+    }
+
+
+
+
+    @Override
+    public void onItemMove(int fromPosition, int toPosition) {
+        ExpensesCard fExpensesCard = cardsList.get(fromPosition);
+        cardsList.remove(fExpensesCard);
+        cardsList.add(toPosition,fExpensesCard);
+        notifyItemMoved(fromPosition,toPosition);
+    }
+
+    @Override
+    public void onItemSwiped(int position) {
+        deleteExpensesCard(cardsList.get(position).getCardId(),position);
+
+    }
+
+
     public class ExpensesViewHolder extends RecyclerView.ViewHolder {
         View importanceView;
         TextView title,description,dueDate,mention;
@@ -172,7 +197,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                     cont.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            deleteCard(cardsList.get(getAdapterPosition()).getCardId(),getAdapterPosition());
+                            deleteExpensesCard(cardsList.get(getAdapterPosition()).getCardId(),getAdapterPosition());
                             Toast.makeText(context,"Card deleted", Toast.LENGTH_LONG).show();
                             alertDialog.cancel();
                         }
@@ -188,9 +213,11 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
             });
         }
 
+
+
     }
 
-    public void deleteCard(String cardId, final int position){
+    public void deleteExpensesCard(String cardId, final int position){
 
         rootRef.child("apartments").child(currentUserAppartmentId).child("expensesCards").child(cardId).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
@@ -236,7 +263,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()){
-                                rootRef.child("apartments").child(mAuth.getCurrentUser().getUid()).child("expensesCards").child(cardId).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                rootRef.child("apartments").child(currentUserAppartmentId).child("expensesCards").child(cardId).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
                                         Toast.makeText(context, "Card successfully Archived", Toast.LENGTH_SHORT).show();
