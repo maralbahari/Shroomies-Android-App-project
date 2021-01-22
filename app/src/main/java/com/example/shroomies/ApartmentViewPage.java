@@ -1,13 +1,16 @@
 package com.example.shroomies;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -28,6 +31,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -42,7 +46,7 @@ import java.util.List;
 
 public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCallback {
     ViewPager viewPager;
-    Button messageButton;
+    ImageButton messageButton;
     DotsIndicator dotsIndicator;
     TextView priceTextView;
     TextView descriptionTextView;
@@ -56,6 +60,9 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
     TextView locationAddressTextView;
     Geocoder geocoder;
     Toolbar toolbar;
+    ImageView userImageView;
+    User user;
+    FirebaseAuth mAuth;
     private static final String MAPVIEW_BUNDLE_KEY = "MapViewBundleKey";
 
 
@@ -73,10 +80,12 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
             priceTextView = findViewById(R.id.price_text_view);
             descriptionTextView = findViewById(R.id.user_description_text_view);
             numberOfRoomMates = findViewById(R.id.number_of_roommates_text_view);
+            userImageView = findViewById(R.id.user_image_view);
             date = findViewById(R.id.date_of_post_text_view);
             username = findViewById(R.id.name_of_user_text_view);
             mapView = findViewById(R.id.apartment_post_page_map);
             toolbar = (Toolbar) findViewById(R.id.toolbar);
+            messageButton = findViewById(R.id.message_user_button);
             setSupportActionBar(toolbar);
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
             getSupportActionBar().setDisplayShowHomeEnabled(true);
@@ -87,9 +96,20 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
             //set the desicription
             descriptionTextView.setText(apartment.getDescription());
             //set the no of roommates
-            numberOfRoomMates.setText(Integer.toString(apartment.getNumberOfRoommates()));
+            numberOfRoomMates.setText(Integer.toString(apartment.getNumberOfRoommates() ) + " Room mates required ");
             // set the date
-            date.setText(apartment.getDate());
+            date.setText(apartment.getDate().split(" ")[0]);
+
+            messageButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Toast.makeText(getApplication() , "heree" , Toast.LENGTH_SHORT).show();
+                    if(user!=null){
+
+                        chatWithThisUser(user);
+                    }
+                }
+            });
 
             //set the location address
         geocoder = new Geocoder(getApplicationContext());
@@ -105,9 +125,22 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
             databaseReference.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    User user = new User();
+                    user = new User();
                     user = snapshot.getValue(User.class);
-                    username.setText(user.getName());
+                    if(mAuth.getInstance().getCurrentUser().getUid().equals(user.getID())){
+                        messageButton.setVisibility(View.INVISIBLE);
+                        username.setText("you");
+                    }else{
+                        username.setText(user.getName());
+                    }
+
+                    if(!user.getImage().isEmpty()){
+                        GlideApp.with(getApplication())
+                                .load(user.getImage())
+                                .transform( new CircleCrop())
+                                .into(userImageView);
+                    }
+
                 }
 
                 @Override
@@ -120,6 +153,14 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
             viewPager.setAdapter(viewPagerAdapterApartmentView);
             dotsIndicator.setViewPager(viewPager);
             viewPager.getAdapter().registerDataSetObserver(dotsIndicator.getDataSetObserver());
+
+    }
+
+    private void chatWithThisUser(User user) {
+
+        Intent intent = new Intent(getApplication(), ChattingActivity.class);
+        intent.putExtra("USERID", user.getID());
+        startActivity(intent);
 
     }
 
@@ -254,6 +295,7 @@ class ViewPagerAdapterApartmentView extends PagerAdapter {
         StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(imageUrls.get(position));
         Toast.makeText(context, imageUrls.get(position),Toast.LENGTH_LONG).show();
         // Load the image using Glide
+
         GlideApp.with(this.context)
                 .load(storageReference)
                 .transform(new CenterCrop())

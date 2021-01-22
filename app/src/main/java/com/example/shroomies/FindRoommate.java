@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.constraintlayout.motion.widget.MotionLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -39,7 +40,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FindRoommate extends Fragment {
+    private static final String MAP_FRAGMENT = "MAP_FRAGMENT";
+    private static final String  PERSONAL_SEARCH = "PERSONAL_SEARCH";
     View v;
+    MotionLayout findRoomMateMotionLayout;
     RecyclerView recyclerView;
     RecycleViewAdapterApartments recycleViewAdapterApartment;
     List<Apartment> apartmentList;
@@ -51,9 +55,13 @@ public class FindRoommate extends Fragment {
     final int apartmentPerPagination = 2;
     String lastCardKey ;
     boolean paginate;
+    boolean personalPostOpen;
+    boolean mapFragmentOpen;
     //    LottieAnimationView lottieAnimationProgressBar;
 //    LinearLayout animationWrapper;
     boolean searchState = false;
+    FragmentManager fragmentManager;
+    FragmentTransaction fragmentTransaction;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -73,12 +81,35 @@ public class FindRoommate extends Fragment {
         searchView = v.findViewById(R.id.SVsearch_disc);
         tabLayout = v.findViewById(R.id.tabLayout);
         locationListView = v.findViewById(R.id.list_view_search);
-//        lottieAnimationProgressBar = v.findViewById(R.id.find_room_mate_progress_bar);
-//        animationWrapper = v.findViewById(R.id.linearLayout);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+        findRoomMateMotionLayout = v.findViewById(R.id.find_roomMate_Motion_Layout);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
+        linearLayoutManager.setStackFromEnd(true);
+        recyclerView.setLayoutManager(linearLayoutManager);
+
         recyclerView.setAdapter(recycleViewAdapterApartment);
         getApartments();
+         fragmentManager =getParentFragmentManager();
 
+
+
+        findRoomMateMotionLayout.addTransitionListener(new MotionLayout.TransitionListener() {
+            @Override
+            public void onTransitionStarted(MotionLayout motionLayout, int i, int i1) {
+
+            }
+
+            @Override
+            public void onTransitionChange(MotionLayout motionLayout, int i, int i1, float v) {
+//                findRoomMateMotionLayout.getTransition(R.xml.fragment_find_roommate_scene).setEnable(false);
+
+            }
+
+            @Override
+            public void onTransitionCompleted(MotionLayout motionLayout, int i) {
+                findRoomMateMotionLayout.transitionToState(0);
+            }
+            @Override public void onTransitionTrigger(MotionLayout motionLayout, int i, boolean b, float v) {
+            }});
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -155,31 +186,47 @@ public class FindRoommate extends Fragment {
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
+                if (tab.getPosition()==0){
+                    // find any fragment that is in the frame
+                    Fragment fragment = fragmentManager.findFragmentById(R.id.frame_layout_search);
+                    if(fragment!=null){
+                        Toast.makeText(getActivity(),"exists " , Toast.LENGTH_LONG).show();
+                        fragmentTransaction = fragmentManager.beginTransaction();
+                        fragmentTransaction.remove(fragment);
+                        fragmentTransaction.commit();
+                        fragmentTransaction.addToBackStack(null);
+
+                    }
+                    // display the recycler view
+                    recyclerView.setVisibility(View.VISIBLE);
+                }
+
                 if (tab.getPosition() == 1) {
                     recyclerView.setVisibility(View.GONE);
-
-                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction = fragmentManager.beginTransaction();
                     fragmentTransaction.replace(R.id.frame_layout_search, new MapSearchFragment());
+                    // add tag to clear off of backstack
+                    fragmentTransaction.addToBackStack(MAP_FRAGMENT);
                     fragmentTransaction.commit();
                 }
                 if (tab.getPosition() == 2){
                     recyclerView.setVisibility(View.GONE);
-
-
-                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction = fragmentManager.beginTransaction();
                     fragmentTransaction.replace(R.id.frame_layout_search, new fragmentPersonalPostTab());
-                    fragmentTransaction.addToBackStack(null);
+                    fragmentTransaction.addToBackStack(PERSONAL_SEARCH);
                     fragmentTransaction.commit();
 
                 }
 
             }
             @Override
-            public void onTabUnselected(TabLayout.Tab tab) { }
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
             @Override
-            public void onTabReselected(TabLayout.Tab tab) { }
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
         });
 
 
@@ -289,26 +336,60 @@ public class FindRoommate extends Fragment {
     }
 
     void getApartmentsFromQuery(String query){
+        final List<String> userIds  = new ArrayList<>();
+        apartmentList = new ArrayList<>();
+
 //        animationWrapper.setVisibility(View.VISIBLE);
 //        lottieAnimationProgressBar.resumeAnimation();
-        apartmentList = new ArrayList<>();
-        recycleViewAdapterApartment = new RecycleViewAdapterApartments(apartmentList,getActivity());
-        recycleViewAdapterApartment.notifyDataSetChanged();
-        recyclerView.setAdapter(recycleViewAdapterApartment);
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("postApartment");
-        Query query1 = reference.orderByChild("userName").equalTo(query);
-        query1.addValueEventListener(new ValueEventListener() {
+        // the user will search for usernames
+        // first get a list of user ids
+        //of which their user names start with the query terms
+        DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
+       rootRef.child("Users").orderByChild("name").startAt(query)
+               .endAt(query+"\uf8ff").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                // if the user is searching , clear the all the
-                //stored data and add the new data to the adapter
-                setSearchAdapterData(snapshot);
+                if(snapshot.exists()){
+                    //store  all the ids in a list
+                    for (DataSnapshot dataSnapshot
+                    :snapshot.getChildren()){
+                      User user = dataSnapshot.getValue(User.class);
+                      userIds.add(user.getID());
+                    }
+                    // once all users are found find and load the posts that match with these ids
+                    for (String  id:
+                    userIds){
+
+                        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("postApartment");
+                        Query query1 = reference.orderByChild("userID").equalTo(id);
+                        query1.addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                // if the user is searching , clear the all the
+                                //stored data and add the new data to the adapter
+                                setSearchAdapterData(snapshot);
+                            }
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+                                Toast.makeText(getActivity(), error.getMessage() , Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+
+                }
+
             }
+
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getActivity(), error.getMessage() , Toast.LENGTH_SHORT).show();
+
             }
         });
+
+
+
+
+
     }
     void setSearchAdapterData(DataSnapshot snapshot){
 
@@ -321,7 +402,7 @@ public class FindRoommate extends Fragment {
                 Apartment apartment = dataSnapshot.getValue(Apartment.class);
                 apartmentList.add(apartment);
             }
-            recycleViewAdapterApartment = new RecycleViewAdapterApartments(apartmentList, getActivity());
+
             recycleViewAdapterApartment.notifyDataSetChanged();
             recyclerView.getLayoutManager().smoothScrollToPosition(recyclerView,new RecyclerView.State(), recyclerView.getAdapter().getItemCount());
 
