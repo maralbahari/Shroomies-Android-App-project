@@ -198,12 +198,14 @@ public class CreateChatGroupDialogFrag2 extends DialogFragment {
                             @Override
                             public void onSuccess(Void aVoid) {
                                 Toast.makeText(getActivity(), "successfully added users", Toast.LENGTH_SHORT).show();
+                                startActivity(new Intent(getActivity(), MessageInbox.class));
                             }
                         });
 
                     }
                 }else{
                     Toast.makeText(getActivity(), "something went wrong", Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(getActivity(), MessageInbox.class));
                 }
 
             }

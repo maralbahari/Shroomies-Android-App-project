@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -158,31 +159,26 @@ public class CreateChatGroupFragment extends DialogFragment {
     private void addInboxUsersToRecycler(final List<String> inboxListUsers) {
         suggestedUser = new ArrayList<>();
         suggestedUser.clear();
-        suggestedUser.addAll(selectedMembers);
         userRecyclerAdapter=new UserRecyclerAdapter(suggestedUser,getContext(),"SEARCH_PAGE"  , selectedMembers);
         userListSuggestionRecyclerView.setAdapter(userRecyclerAdapter);
-
         for(String id
         :inboxListUsers){
-            rootRef.child("Users").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    if(snapshot.exists()){
-                        User user = snapshot.getValue(User.class);
-                        if(!suggestedUser.contains(user)){
-                            suggestedUser.add(user);
+                    rootRef.child("Users").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            if(snapshot.exists()){
+                                User user = snapshot.getValue(User.class);
+                                suggestedUser.add(user);
+                            }
                             userRecyclerAdapter.notifyDataSetChanged();
+
                         }
 
-                    }
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
 
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-
-                }
-            });
+                        }
+                    });
         }
     }
 
@@ -190,6 +186,7 @@ public class CreateChatGroupFragment extends DialogFragment {
         suggestedUser = new ArrayList<>();
         userRecyclerAdapter=new UserRecyclerAdapter(suggestedUser,getContext(),"SEARCH_PAGE");
         userListSuggestionRecyclerView.setAdapter(userRecyclerAdapter);
+        
         //+"\uf8ff"
         rootRef.child("Users").orderByChild("name").equalTo(query).addValueEventListener(new ValueEventListener() {
             @Override
