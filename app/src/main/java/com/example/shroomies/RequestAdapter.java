@@ -82,6 +82,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
        if(receiverUsers){
            holder.reject.setVisibility(View.INVISIBLE);
            holder.accept.setVisibility(View.INVISIBLE);
+           holder.requetsTv.setText("has been invited by you");
            //set cancele request button here to visible
 
        }
@@ -95,13 +96,14 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
     public class RequestViewHolder extends RecyclerView.ViewHolder {
         Button accept,reject;
         ImageView senderImage;
-        TextView senderName;
+        TextView senderName,requetsTv;
         public RequestViewHolder(@NonNull View itemView) {
             super(itemView);
             accept=itemView.findViewById(R.id.accept_button);
             reject=itemView.findViewById(R.id.decline_btn);
             senderImage=itemView.findViewById(R.id.request_user_photo);
             senderName=itemView.findViewById(R.id.user_name);
+            requetsTv=itemView.findViewById(R.id.requested_tv);
             accept.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
