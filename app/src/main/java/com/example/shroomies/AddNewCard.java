@@ -219,8 +219,6 @@ public class AddNewCard extends DialogFragment  {
         });
 
 
-
-
     }
 
     private void saveTaskCardToFirebase(String mtitle, String mdescription, String mdueDate, String importance, String mDone) {
@@ -239,7 +237,7 @@ public class AddNewCard extends DialogFragment  {
         newCard.put("importance", importance);
         newCard.put("date",saveCurrentDate);
         newCard.put("cardId",uniqueID);
-        newCard.put("done", mDone);
+        newCard.put("done", "false");
 
 
         ref.updateChildren(newCard).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -310,7 +308,7 @@ public class AddNewCard extends DialogFragment  {
         newCard.put("attachedFile", attachUrl);
         newCard.put("date",saveCurrentDate);
         newCard.put("cardId",uniqueID);
-        newCard.put("done", done);
+        newCard.put("done", "false");
 
         ref.updateChildren(newCard).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override

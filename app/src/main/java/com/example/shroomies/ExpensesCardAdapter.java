@@ -2,10 +2,13 @@ package com.example.shroomies;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -87,8 +90,32 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
             holder.dueDate.setText(cardsList.get(position).getDueDate());
             String importanceViewColor = cardsList.get(position).getImportance();
 
-            if (fromArchive){
+
+
+        Boolean cardStatus = cardsList.get(position).getDone().equals("true");
+        if (cardStatus){
+            holder.done.setChecked(true);
+            holder.markAsDone.setText("Done!");
+        }else{
+            holder.done.setChecked(false);
+            holder.markAsDone.setText("Mark as done");
+        }
+
+
+        if (fromArchive){
                 holder.archive.setVisibility(view.GONE);
+                holder.done.setVisibility(View.GONE);
+            holder.delete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    rootRef.child("apartments").child(currentUserAppartmentId).child("expensesCards").child(cardsList.get(position).getCardId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Toast.makeText(context,"Expenses card deleted",Toast.LENGTH_LONG).show();
+                        }
+                    });
+                }
+            });
             }
 
         switch (importanceViewColor) {
@@ -145,13 +172,16 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
     }
 
 
-    public class ExpensesViewHolder extends RecyclerView.ViewHolder {
+
+    public class ExpensesViewHolder extends RecyclerView.ViewHolder implements  View.OnTouchListener, GestureDetector.OnGestureListener {
         View importanceView;
-        TextView title,description,dueDate,mention;
+        GestureDetector gestureDetector;
+        TextView title,description,dueDate,mention,markAsDone;
         ImageView cardImage;
         ImageButton archive, delete;
         ImageView sadShroomie, stars;
         Button cont, no;
+        CheckBox done;
 
         public ExpensesViewHolder(@NonNull View v) {
             super(v);
@@ -163,6 +193,36 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
             archive = v.findViewById(R.id.archive_card_btn);
             delete = v.findViewById(R.id.delete_card_btn);
             mention = v.findViewById(R.id.shroomie_mention);
+            done = v.findViewById(R.id.expense_done);
+            markAsDone = v.findViewById(R.id.shroomie_markasdone);
+
+            gestureDetector = new GestureDetector(v.getContext(),this);
+            v.setOnTouchListener(this);
+
+            done.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (done.isChecked()){
+                        rootRef.child("apartments").child(currentUserAppartmentId).child("expensesCards").child(cardsList.get(getAdapterPosition()).getCardId()).child("done").setValue("true").addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                markAsDone.setText("Done!");
+                                Toast.makeText(context,"expenses cards done", Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    }else{
+                        rootRef.child("apartments").child(currentUserAppartmentId).child("expensesCards").child(cardsList.get(getAdapterPosition()).getCardId()).child("done").setValue("false").addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Toast.makeText(context,"expenses cards not done", Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    }
+                }
+            });
+
+
+
 
             archive.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -214,7 +274,41 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
         }
 
 
+        @Override
+        public boolean onDown(MotionEvent motionEvent) {
+            return false;
+        }
 
+        @Override
+        public void onShowPress(MotionEvent motionEvent) {
+
+        }
+
+        @Override
+        public boolean onSingleTapUp(MotionEvent motionEvent) {
+            return true;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1) {
+            return false;
+        }
+
+        @Override
+        public void onLongPress(MotionEvent motionEvent) {
+            itemTouchHelper.startDrag(this);
+        }
+
+        @Override
+        public boolean onFling(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1) {
+            return false;
+        }
+
+        @Override
+        public boolean onTouch(View view, MotionEvent motionEvent) {
+            gestureDetector.onTouchEvent(motionEvent);
+            return true;
+        }
     }
 
     public void deleteExpensesCard(final String cardId, final int position){

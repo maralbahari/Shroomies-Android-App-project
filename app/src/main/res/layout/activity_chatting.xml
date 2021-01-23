@@ -11,8 +11,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         />
-
-
         <RelativeLayout
             android:id="@+id/bottom_chatting_layout"
             android:layout_width="wrap_content"
@@ -74,6 +72,7 @@
         android:layout_height="wrap_content"
         android:layout_above="@id/bottom_chatting_layout"
         android:layout_below="@id/include"
+        android:padding="5dp"
         android:background="@color/Alabaster"
         app:stackFromEnd="true"/>
 </RelativeLayout>

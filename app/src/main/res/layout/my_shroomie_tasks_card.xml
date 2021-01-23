@@ -10,6 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
+        android:elevation="5dp"
         app:cardCornerRadius="15dp">
 
         <RelativeLayout
@@ -25,6 +26,8 @@
                 />
 
             <TextView
+                android:textStyle="bold"
+                android:textColor="@color/Black"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Clean basment"
@@ -35,7 +38,7 @@
 
             <CheckBox
                 android:id="@+id/task_done"
-                android:layout_width="15dp"
+                android:layout_width="24dp"
                 android:layout_height="15dp"
                 android:layout_below="@+id/task_card_description"
                 android:layout_margin="25dp"
@@ -106,6 +109,7 @@
                 android:layout_marginTop="10dp"
                 android:textSize="10sp"
                 />
+
 
 
 

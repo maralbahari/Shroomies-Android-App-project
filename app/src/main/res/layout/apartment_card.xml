@@ -8,39 +8,51 @@
     <androidx.cardview.widget.CardView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="11dp"
-        android:layout_marginVertical="7dp"
-        app:cardCornerRadius="15dp"
+
         android:id="@+id/apartment_card_view"
         >
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="5dp">
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
 
-            <ImageView
-                android:id="@+id/Iv_RoomImg"
-                android:layout_width="match_parent"
-                android:layout_height="200dp"
-                android:layout_centerHorizontal="true"
-                android:elevation="10dp"
-                android:scaleType="centerCrop"
+    <ImageView
+        android:id="@+id/Iv_RoomImg"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:elevation="10dp"
+        android:scaleType="centerCrop"
+        android:layout_marginLeft="2dp"
+        android:layout_marginRight="2dp"
 
-                />
-
-            <ProgressBar
-                android:id="@+id/PB_progress"
-                style="@android:style/Widget.ProgressBar.Small"
+        />
+    <ProgressBar
+        android:id="@+id/PB_progress"
+        style="@android:style/Widget.ProgressBar.Small"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="70dp" />
+    </FrameLayout>
+            <RelativeLayout
+               android:layout_gravity="bottom"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_centerHorizontal="true"
-                android:layout_marginTop="70dp" />
-
+                android:background="@drawable/apartment_card_round_rectangle"
+                android:elevation="2dp"
+                android:layout_marginLeft="2dp"
+                android:layout_marginRight="2dp"
+               android:layout_marginTop="175dp"
+                android:layout_marginBottom="2dp">
             <TextView
                 android:id="@+id/TV_price"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/Iv_RoomImg"
+
                 android:fontFamily="@font/assistant_bold"
                 android:paddingLeft="16dp"
                 android:paddingTop="16dp"
@@ -69,17 +81,17 @@
                 android:layout_height="wrap_content"
                 android:layout_above="@id/start_chat_button_apartment_card"
                 android:layout_alignParentRight="true"
-                android:layout_marginRight="36dp"
-                android:layout_marginBottom="-9dp"
+                android:layout_marginRight="10dp"
+
                 android:background="@android:color/transparent"
-                android:paddingRight="30dp"
+
                 android:src="@drawable/ic_icon_awesome_star_unchecked" />
 
             <ImageView
                 android:id="@+id/IW_People"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/Iv_RoomImg"
+
                 android:layout_marginLeft="90dp"
                 android:layout_marginTop="16dp"
                 android:layout_toRightOf="@id/TV_price"
@@ -91,7 +103,7 @@
                 android:id="@+id/Room_mate_num"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/Iv_RoomImg"
+
                 android:layout_marginTop="30dp"
                 android:layout_toRightOf="@id/IW_People"
                 android:text="1"
@@ -106,7 +118,7 @@
                 android:layout_alignParentRight="true"
                 android:layout_marginTop="15dp"
                 android:layout_marginRight="20dp"
-                android:layout_marginBottom="10dp"
+                android:layout_marginBottom="15dp"
                 android:background="@drawable/button_round_corner_purple"
                 android:drawableStart="@drawable/ic_icon_feather_message_circle_small"
                 android:drawablePadding="5dp"
@@ -157,7 +169,7 @@
                 android:layout_marginRight="8dp"
                 android:layout_toRightOf="@id/female_image_apartment_card"
                 android:background="@drawable/circle_white_button_small"
-                android:elevation="1dp"
+                android:elevation="3dp"
                 android:padding="5dp"
                 android:src="@drawable/ic_icon_map_pet_store"
 
@@ -173,11 +185,17 @@
                 android:layout_marginVertical="10dp"
                 android:layout_toRightOf="@id/pets_allowd_image_apartment_card"
                 android:background="@drawable/circle_white_button_small"
-                android:elevation="1dp"
+                android:elevation="3dp"
                 android:padding="5dp"
                 android:src="@drawable/ic_icon_material_smoke_free"
 
                 />
-        </RelativeLayout>
+
+            </RelativeLayout>
+
+
+</RelativeLayout>
+
+
     </androidx.cardview.widget.CardView>
 </LinearLayout>

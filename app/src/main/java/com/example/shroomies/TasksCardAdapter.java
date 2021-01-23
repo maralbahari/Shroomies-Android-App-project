@@ -8,6 +8,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -72,10 +73,11 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
     public class TasksCardViewHolder extends RecyclerView.ViewHolder implements View.OnTouchListener, GestureDetector.OnGestureListener {
 
         View taskImportanceView;
-        TextView title, description, dueDate, areYouSure;
+        TextView title, description, dueDate, areYouSure, markAsDone;
         ImageButton delete, archive;
         ImageView sadShroomie, stars;
         Button cont, no;
+        CheckBox done;
         GestureDetector gestureDetector;
 
 
@@ -89,6 +91,31 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
             dueDate = v.findViewById(R.id.task_card_duedate);
             delete = v.findViewById(R.id.task_delete);
             archive = v.findViewById(R.id.task_archive);
+            done = v.findViewById(R.id.task_done);
+            markAsDone = v.findViewById(R.id.task_mark_as_done);
+
+
+            done.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (done.isChecked()){
+                        rootRef.child("apartments").child(currentUserAppartmentId).child("tasksCards").child(tasksCardsList.get(getAdapterPosition()).getCardId()).child("done").setValue("true").addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                markAsDone.setText("Done!");
+                                Toast.makeText(context,"done done",Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    }else{
+                        rootRef.child("apartments").child(currentUserAppartmentId).child("tasksCards").child(tasksCardsList.get(getAdapterPosition()).getCardId()).child("done").setValue("false").addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Toast.makeText(context,"not done",Toast.LENGTH_LONG).show();
+                            }
+                        });
+                    }
+                }
+            });
 
             gestureDetector = new GestureDetector(v.getContext(),this);
             v.setOnTouchListener(this);
@@ -241,9 +268,19 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         holder.description.setText(tasksCardsList.get(position).getDescription());
         holder.dueDate.setText(tasksCardsList.get(position).getDueDate());
         String importanceView = tasksCardsList.get(position).getImportance();
+        Boolean cardStatus = tasksCardsList.get(position).getDone().equals("true");
+            if (cardStatus){
+                holder.done.setChecked(cardStatus);
+                holder.markAsDone.setText("Done!");
+            }else{
+                holder.done.setChecked(false);
+                holder.markAsDone.setText("Mark as done");
+            }
+
 
         if (fromArchive){
             holder.archive.setVisibility(view.GONE);
+            holder.done.setVisibility(View.GONE);
             holder.delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -273,6 +310,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
 
 
     }
+
 
 
 

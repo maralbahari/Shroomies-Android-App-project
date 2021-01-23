@@ -89,7 +89,7 @@
             <CheckBox
                 android:buttonTint="@color/okGreen"
                 android:id="@+id/expense_done"
-                android:layout_width="15dp"
+                android:layout_width="24dp"
                 android:layout_height="15dp"
                 android:layout_marginLeft="20dp"
                 android:layout_marginTop="190dp" />

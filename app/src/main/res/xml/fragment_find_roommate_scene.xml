@@ -96,11 +96,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             motion:layout_constraintBottom_toTopOf="@+id/tabLayout"
-            android:layout_marginEnd="0dp"
-            android:layout_marginStart="0dp"
+            android:layout_marginEnd="5dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp"
             motion:layout_constraintStart_toStartOf="parent"
             motion:layout_constraintTop_toTopOf="parent"
-            android:layout_marginTop="0dp"
+
             android:id="@+id/SVsearch_disc" />
     </ConstraintSet>
 </MotionScene>

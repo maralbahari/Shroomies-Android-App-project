@@ -8,7 +8,8 @@
     android:layout_marginBottom="50dp"
     android:background="@drawable/background_discover"
     app:layoutDescription="@xml/fragment_find_roommate_scene"
-    tools:context=".FindRoommate">
+    tools:context=".FindRoommate"
+    android:id="@+id/find_roomMate_Motion_Layout">
 
     <TextView
         android:id="@+id/TWh1_dis"
@@ -51,6 +52,7 @@
         android:elevation="3dp"
         android:iconifiedByDefault="false"
         android:queryHint="Search.."
+        android:queryBackground="@android:color/transparent"
         app:layout_constraintBottom_toTopOf="@+id/tabLayout"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

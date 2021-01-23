@@ -236,6 +236,7 @@ public class GroupChattingActivity extends AppCompatActivity {
                             groupMessagesArrayList.add(groupMessages);
                         }
                         groupMessagesAdapter.notifyDataSetChanged();
+                        chattingRecycler.smoothScrollToPosition(groupMessagesAdapter.getItemCount()-1);
 
                     }else{ }
                 }

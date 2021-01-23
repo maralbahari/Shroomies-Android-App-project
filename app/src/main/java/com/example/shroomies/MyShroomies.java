@@ -33,7 +33,7 @@ import java.util.Comparator;
 import java.util.Date;
 
 
-public class MyShroomies extends Fragment  {
+public class MyShroomies extends Fragment   {
     View v;
     Button  memberButton, addCardButton;
     TabLayout myShroomiesTablayout;
@@ -45,6 +45,7 @@ public class MyShroomies extends Fragment  {
     FragmentManager fm;
     DatabaseReference rootRef;
     FirebaseAuth mAuth;
+
     ArrayList<TasksCard> tasksCardsList;
     ArrayList<ExpensesCard> expensesCardsList;
     TasksCardAdapter tasksCardAdapter;
@@ -57,6 +58,7 @@ public class MyShroomies extends Fragment  {
         super.onCreate(savedInstanceState);
 
     }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -84,10 +86,10 @@ public class MyShroomies extends Fragment  {
         shroomieSpinnerFilter = v.findViewById(R.id.shroomie_spinner_filter);
 
         LinearLayoutManager linearLayoutManager1 =new LinearLayoutManager(getContext());
-
-        retreiveExpensesCards();
         myTasksRecyclerView.setHasFixedSize(true);
         myTasksRecyclerView.setLayoutManager(linearLayoutManager1);
+        retreiveExpensesCards();
+
 
 
 
@@ -201,7 +203,6 @@ public class MyShroomies extends Fragment  {
         ItemTouchHelper itemTouchHelperTask = new ItemTouchHelper(callback);
         tasksCardAdapter.setItemTouchHelper(itemTouchHelperTask);
         itemTouchHelperTask.attachToRecyclerView(myTasksRecyclerView);
-
         myTasksRecyclerView.setAdapter(tasksCardAdapter);
         rootRef.child("apartments").child(apartmentID).child("tasksCards").addValueEventListener(new ValueEventListener() {
             @Override
@@ -231,7 +232,6 @@ public class MyShroomies extends Fragment  {
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
         expensesCardAdapter.setItemTouchHelper(itemTouchHelper);
         itemTouchHelper.attachToRecyclerView(myExpensesRecyclerView);
-
         myExpensesRecyclerView.setAdapter(expensesCardAdapter);
         rootRef.child("apartments").child(apartmentID).child("expensesCards").addValueEventListener(new ValueEventListener() {
             @Override
@@ -428,7 +428,6 @@ public class MyShroomies extends Fragment  {
         }
 
     }
-
 
 
 //    @Override

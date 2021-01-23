@@ -57,7 +57,7 @@ public class CreateChatGroupDialogFrag2 extends DialogFragment {
     private DatabaseReference rootRef;
     private List<User> selectedUsers;
     private UserRecyclerAdapter userRecyclerAdapter;
-    private Button createGroupButton;
+    private Button createGroupButton,cancelButton;
    private String saveCurrentDate,saveCurrentTime;
    private StorageReference storageReference;
    StorageReference filePath ;
@@ -102,6 +102,7 @@ public class CreateChatGroupDialogFrag2 extends DialogFragment {
         selectedMembers=v.findViewById(R.id.list_of_selected_members);
         createGroupButton=v.findViewById(R.id.create_group_chat_button);
         addGroupImage = v.findViewById(R.id.icon_add_group_image);
+        cancelButton = v.findViewById(R.id.cancelButton);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         selectedMembers.setHasFixedSize(true);
         selectedMembers.setLayoutManager(linearLayoutManager);
@@ -132,9 +133,16 @@ public class CreateChatGroupDialogFrag2 extends DialogFragment {
                 openGallery();
             }
         });
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity() , MessageInbox.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
 
 
-
+            }
+        });
     }
     void storeImage(final String groupName , final List<String>membersId){
         // storage referance to save the image path in firebase storage
@@ -233,21 +241,12 @@ public class CreateChatGroupDialogFrag2 extends DialogFragment {
 
             // store the image uri
             imageUri = selectedImageUri;
-//            GlideApp.with(this.context)
-//                    .load(storageReference)
-//                    .transform(new RoundedCorners(1))
-//                    .fitCenter()
-//                    .centerCrop()
-//                    .into(imageView);
+
             Glide.with(getContext())
                     .load(imageUri)
                     .circleCrop()
                     .into(groupChatImage);
-//            Picasso.get().load(selectedImageUri)
-//                    .fit()
-//                    .centerCrop()
-//                    .transform(new RoundedCornersTransformation(90 ,0))
-//                    .into(groupChatImage);
+
 
         } else {
             Toast.makeText(getActivity(), "an error occured", Toast.LENGTH_SHORT).show();

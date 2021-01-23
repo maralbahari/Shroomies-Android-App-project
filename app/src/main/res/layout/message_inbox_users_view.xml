@@ -4,7 +4,9 @@
     android:id="@+id/message_inbox_users_view_layout"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:elevation="3dp">
+   android:background="@drawable/rectangle_with_border"
+
+    >
 
     <ImageView
         android:layout_margin="5dp"
@@ -13,6 +15,7 @@
         android:padding="5dp"
         android:layout_height="50dp"
         android:elevation="3dp"
+
         android:background="@drawable/circle_white_button"
         app:srcCompat="@drawable/ic_user_profile_svgrepo_com" />
 
@@ -21,10 +24,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="10dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="5dp"
         android:layout_marginRight="10dp"
         android:layout_toEndOf="@id/inbox_chat_item_image"
-        android:text=""
+
         android:textColor="@android:color/black"
         android:textSize="18sp"
         android:textStyle="bold" />
@@ -36,11 +39,33 @@
         android:layout_below="@id/inbox_chat_item_name"
         android:layout_marginLeft="10dp"
         android:maxLines="1"
+
             android:layout_marginTop="3dp"
         android:layout_marginRight="10dp"
         android:layout_toEndOf="@id/inbox_chat_item_image"
 
         android:textSize="13sp" />
+    <TextView
+        android:id="@+id/new_messages"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@drawable/button_round_corner_cancel"
+        android:text="New"
+        android:paddingLeft="2dp"
+        android:paddingRight="2dp"
+        android:paddingTop="1dp"
+        android:paddingBottom="1dp"
+        android:textSize="10dp"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:textColor="@color/white"
+        android:elevation="3dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="10dp"
+        android:visibility="gone"
+
+        />
 
 
 </RelativeLayout>
