@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -30,6 +29,7 @@ public class Favorite extends Fragment {
     ArrayList<PersonalPostModel> personalPostModelList;
     ArrayList <Apartment> apartmentList;
     RecyclerView favRecyclerView;
+    PersonalPostRecyclerAdapter favPersonalPostRecycler;
 
 
    View v;
@@ -61,31 +61,8 @@ public class Favorite extends Fragment {
 
                 }
                 else if(tab.getPosition()==1){
+                    retriveFavPersonalPost();
                     personalPostModelList = new ArrayList<>();
-//                    retriveFavPersonalPost();
-//                    personalPostModelList = new ArrayList<>();
-                    DatabaseReference myPersonalDatabaseRef = FirebaseDatabase.getInstance().getReference();
-                    DatabaseReference favPer = myPersonalDatabaseRef.child("Favorite").child("PersonalPost");
-                    favPer.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            for(DataSnapshot ds : snapshot.getChildren()){
-                                PersonalPostModel personalPost = ds.getValue(PersonalPostModel.class);
-                                personalPostModelList.add(personalPost);
-                            }
-                            personalPostRecyclerAdapter = new PersonalPostRecyclerAdapter(personalPostModelList, getContext());
-                            favRecyclerView.setAdapter(personalPostRecyclerAdapter);
-
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-                            Toast.makeText(getContext(), "An unexpected error occured", Toast.LENGTH_LONG);
-
-                        }
-                    });
-
-
                 }
             }
 
@@ -104,6 +81,29 @@ public class Favorite extends Fragment {
 
     private void retriveFavPersonalPost() {
         personalPostModelList = new ArrayList<>();
+        favPersonalPostRecycler = new PersonalPostRecyclerAdapter(personalPostModelList, getContext());
+        favRecyclerView.setAdapter(favPersonalPostRecycler);
+        DatabaseReference myPersonalDatabaseRef = FirebaseDatabase.getInstance().getReference();
+        DatabaseReference favPer = myPersonalDatabaseRef.child("Favorite").child("PersonalPost");
+        favPer.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                personalPostModelList.clear();
+                if(snapshot.exists()){
+                    for (DataSnapshot snapShot: snapshot.getChildren()){
+                        PersonalPostModel favPersonal = snapShot.getValue(PersonalPostModel.class);
+                        personalPostModelList.add(favPersonal);
+                    }
+                  favPersonalPostRecycler.notifyDataSetChanged();
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
 
     }
 
