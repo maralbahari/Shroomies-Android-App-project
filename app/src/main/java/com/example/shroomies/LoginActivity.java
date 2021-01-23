@@ -3,7 +3,6 @@ package com.example.shroomies;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -22,6 +21,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
@@ -42,6 +42,7 @@ public class LoginActivity extends AppCompatActivity {
     TextView signup;
     private final int RC_SIGN_IN = 7;
     GoogleSignInClient mGoogleSignInClient;
+
     FirebaseAuth mAuth;
     TextView forgotPassword;
     ProgressBar progressBar;
@@ -51,6 +52,7 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
         username=findViewById(R.id.email_login);
         password=findViewById(R.id.password_login);
         login=findViewById(R.id.login_button);
@@ -71,6 +73,7 @@ public class LoginActivity extends AppCompatActivity {
                 signIn();
             }
         });
+        mAuth = FirebaseAuth.getInstance();
         forgotPassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -80,7 +83,6 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         });
-        mAuth = FirebaseAuth.getInstance();
 
         signup.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -104,7 +106,7 @@ public class LoginActivity extends AppCompatActivity {
     private void loginUser(){
         progressBar.setVisibility(View.VISIBLE);
         final String uname_txt = username.getText().toString().trim();
-        String pw_txt = password.getText().toString();
+        String pw_txt = password.getText().toString().trim();
 
         if (TextUtils.isEmpty(uname_txt) || TextUtils.isEmpty(pw_txt)){
             Toast.makeText(LoginActivity.this, "Please fill in your details",Toast.LENGTH_SHORT).show();
@@ -188,7 +190,11 @@ public class LoginActivity extends AppCompatActivity {
         if (requestCode == RC_SIGN_IN) {
 
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            if(task.isSuccessful()){
+
+            }
             try {
+
                 GoogleSignInAccount account = task.getResult(ApiException.class);
 
                 firebaseAuthWithGoogle(account);
@@ -198,7 +204,6 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
     private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
-        Log.d("Login","firebaseAuthWithGoogle:" + acct.getId());
 
         AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
 
@@ -215,19 +220,38 @@ public class LoginActivity extends AppCompatActivity {
                         userDetails.put("ID", mAuth.getCurrentUser().getUid());
                         userDetails.put("image",""); //add later in edit profile
                         userDetails.put("isPartOfRoom", mAuth.getCurrentUser().getUid());// change later
-                        mRootref.child("Users").child(mAuth.getCurrentUser().getUid()).setValue(userDetails);
+                        mRootref.child("Users").child(mAuth.getCurrentUser().getUid()).setValue(userDetails).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                String userID =mAuth.getCurrentUser().getUid();
+                                String userEmail =mAuth.getCurrentUser().getEmail();
+                                sessionManager= new SessionManager(LoginActivity.this,userID);
+                                sessionManager.createSession(userID,userEmail);
+                                sessionManager.setVerifiedEmail(true);
+                                Intent intent= new Intent(getApplicationContext(),MainActivity.class);
+                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                startActivity(intent);
+                                Toast.makeText(LoginActivity.this, "signed in successfully", Toast.LENGTH_SHORT).show();
+                            }
+
+
+                        });
+                    }else{
+                        String userID =mAuth.getCurrentUser().getUid();
+                        String userEmail =mAuth.getCurrentUser().getEmail();
+                        sessionManager= new SessionManager(LoginActivity.this,userID);
+                        sessionManager.createSession(userID,userEmail);
+                        sessionManager.setVerifiedEmail(true);
+                        Intent intent= new Intent(getApplicationContext(),MainActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(intent);
+                        Toast.makeText(LoginActivity.this, "signed in successfully", Toast.LENGTH_SHORT).show();
                     }
-                    String userID =mAuth.getCurrentUser().getUid();
-                    String userEmail =mAuth.getCurrentUser().getEmail();
-                    sessionManager= new SessionManager(LoginActivity.this,userID);
-                    sessionManager.createSession(userID,userEmail);
-                    sessionManager.setVerifiedEmail(true);
-                    Intent intent= new Intent(getApplicationContext(),MainActivity.class);
-                    startActivity(intent);
-                    Toast.makeText(LoginActivity.this, "signed in successfully", Toast.LENGTH_SHORT).show();
+
+
                 }
                 else{
-                    Log.w("Login", "signInWithCredentail:Failure", task.getException());
+
                     Toast.makeText(LoginActivity.this, "Authentication Failed", Toast.LENGTH_SHORT).show();
                 }
             }
