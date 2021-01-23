@@ -48,6 +48,34 @@
             android:layout_below="@+id/add_shroomie_btn"
             />
 
+        <ImageView
+            android:id="@+id/member_sad_shroomie"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/add_shroomie_btn"
+            android:layout_marginLeft="110dp"
+            android:layout_marginTop="60dp"
+            android:src="@drawable/sad_shroomie"
+            />
+        <ImageView
+            android:id="@+id/member_star"
+            android:layout_below="@id/add_shroomie_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:layout_marginLeft="88dp"
+            android:src="@drawable/stars"/>
+        <TextView
+            android:id="@+id/no_members_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="You don't have any members"
+            android:textStyle="bold"
+            android:textColor="@color/Black"
+            android:layout_below="@id/member_sad_shroomie"
+            android:layout_marginLeft="90dp"
+
+            />
 
 
         <Button
