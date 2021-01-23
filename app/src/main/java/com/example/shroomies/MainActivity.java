@@ -115,8 +115,8 @@ public class MainActivity extends AppCompatActivity {
                 }if(menuItem.getItemId()==R.id.publish_post_menu){
                     getFragment(new PublishPost());
                 }if(menuItem.getItemId()==R.id.message_inbox_menu){
-                   Intent intent= new Intent(getApplicationContext(),MessageInbox.class);
-                   startActivity(intent);
+                    Intent intent= new Intent(getApplicationContext(),MessageInbox.class);
+                    startActivity(intent);
                 }if(menuItem.getItemId()==R.id.user_profile_menu){
                     getFragment(new UserProfile());
                 }
@@ -143,22 +143,22 @@ public class MainActivity extends AppCompatActivity {
         ft.commit();
     }
 
-   static void setBadgeToNumberOfNotifications(final DatabaseReference rootRef , final FirebaseAuth mAuth){
+    static void setBadgeToNumberOfNotifications(final DatabaseReference rootRef , final FirebaseAuth mAuth){
         // get the number of unseen
-       // private messages
+        // private messages
         final List<Messages> unSeenMessageList = new ArrayList<>();
         rootRef.child("Messages").child(mAuth.getInstance().getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()){
                     for (DataSnapshot dataSnapshot
-                    :snapshot.getChildren()){
+                            :snapshot.getChildren()){
                         for (DataSnapshot dataSnapshot1:
-                        dataSnapshot.getChildren()){
+                                dataSnapshot.getChildren()){
                             Messages message= dataSnapshot1.getValue(Messages.class);
                             if (!message.getIsSeen().equals("true")){
                                 unSeenMessageList.add(message);
-                        }
+                            }
 
                         }
                     }

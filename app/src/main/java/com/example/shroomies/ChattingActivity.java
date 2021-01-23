@@ -578,7 +578,7 @@ public class ChattingActivity extends AppCompatActivity {
 
                     // once the user  sees the messages
                     //update the number of unseen messages in the badge
-                    MainActivity.setBadgeToNumberOfNotifications(rootRef , mAuth);
+                MainActivity.setBadgeToNumberOfNotifications(rootRef , mAuth);
                 }
             }
 
