@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +34,15 @@ import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.example.shroomies.notifications.Data;
+import com.example.shroomies.notifications.Sender;
+import com.example.shroomies.notifications.Token;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -45,11 +55,16 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.google.gson.Gson;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Map;
 
 
 public class AddNewCard extends DialogFragment   {
@@ -85,7 +100,11 @@ public class AddNewCard extends DialogFragment   {
     String currentUserAppartmentId = "";
     ArrayList<String> memberList;
     ArrayList<String> memberUserNameList;
+    HashMap<String, String> userNameAndID;
     ArrayAdapter<String> userNamesList;
+    RequestQueue requestQueue ;
+
+    boolean notify = false;
 
 
 
@@ -211,6 +230,7 @@ public class AddNewCard extends DialogFragment   {
                 mdescription = description.getText().toString();
                 mtitle = title.getText().toString();
                 mMention = mention.getText().toString();
+
                 if (mtitle.isEmpty()){
 
                     Toast.makeText(getContext(),"Please insert Title",Toast.LENGTH_SHORT).show();
@@ -252,10 +272,12 @@ public class AddNewCard extends DialogFragment   {
         });
 
 
+        requestQueue= Volley.newRequestQueue(getActivity());
     }
 
     private void getMemberUserNames(final ArrayList<String> memberList) {
         memberUserNameList = new ArrayList<>();
+        userNameAndID = new HashMap<>();
         userNamesList = new ArrayAdapter<String>(getContext(), R.layout.support_simple_spinner_dropdown_item, memberUserNameList);
         for (String id : memberList) {
             rootRef.child("Users").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -264,6 +286,7 @@ public class AddNewCard extends DialogFragment   {
                     if (snapshot.exists()) {
                         User user = snapshot.getValue(User.class);
                         memberUserNameList.add(user.getName());
+                        userNameAndID.put(user.getName() , user.getID());
                     }
                     mention.setAdapter(userNamesList);
                     mention.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
@@ -280,8 +303,11 @@ public class AddNewCard extends DialogFragment   {
     }
 
 
-    private void saveTaskCardToFirebase(String mtitle, String mdescription, String mdueDate, String importance, String mMention) {
+    private void saveTaskCardToFirebase(String mtitle, String mdescription, String mdueDate, String importance, final String mMention) {
 
+        if (!mMention.isEmpty()){
+            notify = true;
+        }
         DatabaseReference ref = rootRef.child("apartments").child(currentUserAppartmentId).child("tasksCards").push();
         HashMap<String ,Object> newCard = new HashMap<>();
 
@@ -305,11 +331,23 @@ public class AddNewCard extends DialogFragment   {
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()){
                     dismiss();
+
                 }
             }
         });
+        if(notify){
+            String [] names = mMention.split(",");
 
+            for(String name
+                    :names) {
+                if(name.trim()!=null){
+//                    Toast.makeText(getActivity(), userNameAndID.get(name.trim()), Toast.LENGTH_SHORT).show();
+                    sendNotification(userNameAndID.get(name.trim()) , " Help! your shroomies need you" );
+                }
 
+            }
+        }
+        notify =false;
     }
 
 
@@ -351,8 +389,10 @@ public class AddNewCard extends DialogFragment   {
 //
 //    }
 
-    public void saveToFireBase(String title, String description, String dueDate, String attachUrl, String importance, String mMention ){
-
+    public void saveToFireBase(String title, String description, String dueDate, String attachUrl, String importance, final String mMention ){
+        if(!mMention.isEmpty()){
+            notify= true;
+        }
         DatabaseReference ref = rootRef.child("apartments").child(currentUserAppartmentId).child("expensesCards").push();
         HashMap<String ,Object> newCard = new HashMap<>();
 
@@ -376,11 +416,28 @@ public class AddNewCard extends DialogFragment   {
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()){
                     dismiss();
+
                 }
+
             }
         });
 
+        if(notify){
+            String [] names = mMention.split(",");
+
+            for(String name
+                    :names) {
+                if(name.trim()!=null){
+//                    Toast.makeText(getActivity(), userNameAndID.get(name.trim()), Toast.LENGTH_SHORT).show();
+                    sendNotification(userNameAndID.get(name.trim()) , " Help! your shroomies need you" );
+                }
+
+            }
+        }
+            notify =false;
     }
+
+
 
     public void uploadImgToFirebaseStorage(final String title,final String description,final String dueDate, final String importance,Uri imgUri,final String mMention){
         if (imgUri==null){
@@ -496,6 +553,61 @@ public class AddNewCard extends DialogFragment   {
             }
             break;
         }
+    }
+
+
+    private void sendNotification(final String receiverID,final String message) {
+        rootRef.child("Token").orderByKey().equalTo(receiverID).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    for (DataSnapshot ds : snapshot.getChildren()) {
+                        Token token = (Token) ds.getValue(Token.class);
+                        Data data = new Data( mAuth.getCurrentUser().getUid(),  message, "Card Added", receiverID, (R.drawable.ic_notification_icon)  ,"true" );
+                        Sender sender = new Sender(data, token.getToken());
+                        try {
+                            JSONObject senderJsonObj = new JSONObject(new Gson().toJson(sender));
+                            JsonObjectRequest jsonObjectRequest=new JsonObjectRequest("https://fcm.googleapis.com/fcm/send", senderJsonObj, new Response.Listener<JSONObject>() {
+                                @Override
+                                public void onResponse(JSONObject response) {
+
+                                    Log.d("JSON_RESPONSE","onResponse:"+response.toString());
+                                }
+
+                            }, new Response.ErrorListener() {
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+                                    Log.d("JSON_RESPONSE","onResponse:"+error.toString());
+
+                                }
+                            })
+                            {
+                                @Override
+                                public Map<String,String> getHeaders() throws AuthFailureError {
+                                    Map<String,String> headers= new HashMap<>();
+                                    headers.put("Content-type","application/json");
+                                    headers.put("Authorization","Key=AAAAyn_kPyQ:APA91bGLxMB-HGP-qd_EPD3wz_apYs4ZJIB2vyAvH5JbaTVlyLExgYn7ye-076FJxjfrhQ-1HJBmptN3RWHY4FoBdY08YRgplZSAN0Mnj6sLbS6imKa7w0rqPsLtc-aXMaPOhlxnXqPs");
+                                    return headers;
+                                }
+
+                            };
+
+                            requestQueue.add(jsonObjectRequest);
+                            requestQueue.start();
+                        }catch (JSONException e){
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
     }
 
 

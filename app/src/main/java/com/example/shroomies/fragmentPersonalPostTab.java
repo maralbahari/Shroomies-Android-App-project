@@ -28,11 +28,11 @@ public class fragmentPersonalPostTab extends Fragment {
 
     private String mParam1;
     private String mParam2;
-
+    DatabaseReference personalDatabaseRef;
     PersonalPostRecyclerAdapter personalPostRecyclerAdapter;
     List<PersonalPostModel> personalPostModelList;
     RecyclerView personalRecyclerView;
-    DatabaseReference personalDatabaseRef;
+
 
     public fragmentPersonalPostTab() {
         // Required empty public constructor

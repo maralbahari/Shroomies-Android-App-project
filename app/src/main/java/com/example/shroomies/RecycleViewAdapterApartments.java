@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
@@ -52,7 +53,7 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         //initialize geocoeder to get the location from the latlng
         geocoder = new Geocoder(context);
 
@@ -98,7 +99,7 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
 
         String id = apartmentList.get(position).getUserID();
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        String Uid = firebaseUser.getUid();
+        final String Uid = firebaseUser.getUid();
 
         if(id.equals(Uid)){
             holder.sendMessageButton.setVisibility(View.GONE);
@@ -108,6 +109,71 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
             holder.sendMessageButton.setVisibility(View.VISIBLE);
             holder.BUT_fav_apt.setVisibility(View.VISIBLE);
         }
+
+        //favorite
+        final Boolean[] checkClick = {false};
+
+        final DatabaseReference favRef = FirebaseDatabase.getInstance().getReference().child("Favorite");
+
+        DatabaseReference anotherFavRef = FirebaseDatabase.getInstance().getReference().child("Favorite");
+        anotherFavRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.child(Uid).child("ApartmentPost").hasChild(apartmentList.get(position).getId())){
+                    holder.BUT_fav_apt.setImageResource(R.drawable.ic_icon_awesome_star_checked);
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+        holder.BUT_fav_apt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                checkClick[0] = true;
+                favRef.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if(checkClick[0])
+                            if(snapshot.child(Uid).child("ApartmentPost").hasChild(apartmentList.get(position).getId())){
+                                favRef.child(Uid).child("ApartmentPost").child(apartmentList.get(position).getId()).removeValue();
+                                holder.BUT_fav_apt.setImageResource(R.drawable.ic_icon_awesome_star_unchecked);
+                                Toast.makeText(context,"Post removed from favorites",Toast.LENGTH_LONG).show();
+                                checkClick[0] = false;
+                            }
+                            else {
+                                DatabaseReference anotherRef = favRef.child(Uid).child("ApartmentPost").child(apartmentList.get(position).getId());
+                                anotherRef.child("id").setValue(apartmentList.get(position).getId());
+                                anotherRef.child("userID").setValue(apartmentList.get(position).getUserID());
+                                anotherRef.child("image_url").setValue(apartmentList.get(position).getImage_url());
+                                anotherRef.child("price").setValue(apartmentList.get(position).getPrice());
+                                anotherRef.child("date").setValue(apartmentList.get(position).getDate());
+                                anotherRef.child("description").setValue(apartmentList.get(position).getDescription());
+                                anotherRef.child("preferences").setValue(apartmentList.get(position).getPreferences());
+                                anotherRef.child("latitude").setValue(apartmentList.get(position).getLatitude());
+                                anotherRef.child("longitude").setValue(apartmentList.get(position).getLongitude());
+                                anotherRef.child("numberOfRoommates").setValue(apartmentList.get(position).getNumberOfRoommates());
+                                Toast.makeText(context,"Post added to favorites",Toast.LENGTH_LONG).show();
+                                holder.BUT_fav_apt.setImageResource(R.drawable.ic_icon_awesome_star_checked);
+                                checkClick[0] = false;
+
+                            }
+
+
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+            }
+        });
 
 
 
