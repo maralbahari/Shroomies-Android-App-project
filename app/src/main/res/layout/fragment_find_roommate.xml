@@ -87,6 +87,27 @@
             android:text="personal" />
 
     </com.google.android.material.tabs.TabLayout>
+    <Button
+        android:id="@+id/filter_button"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
+        android:background="@drawable/button_circle_timberwolf_small"
+
+        android:text="apply filters"
+        app:layout_constraintTop_toBottomOf="@id/tabLayout"
+        app:layout_constraintRight_toRightOf="parent"
+         android:layout_marginTop="3dp"
+        android:layout_marginBottom="3dp"
+        android:layout_marginRight="10dp"
+
+        android:padding="8dp"
+        android:elevation="3dp"
+
+        app:layout_constraintBottom_toTopOf="@id/apartment_recycler_view"
+        android:visibility="visible"
+        />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/apartment_recycler_view"
@@ -99,7 +120,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tabLayout" />
+        app:layout_constraintTop_toBottomOf="@+id/filter_button" />
     <FrameLayout
         android:layout_width="match_parent"
         android:id="@+id/frame_layout_search"

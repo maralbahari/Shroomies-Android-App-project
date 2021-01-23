@@ -124,7 +124,7 @@
                 android:drawablePadding="5dp"
                 android:minHeight="0dp"
                 android:padding="7dp"
-                android:text="send message"
+                android:text="message"
                 android:textColor="@color/white"
 
                 />

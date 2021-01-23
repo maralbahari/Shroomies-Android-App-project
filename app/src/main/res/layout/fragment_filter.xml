@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".FilterFragment">
+
+
+    <TextView
+        android:id="@+id/sort_by_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sort by"
+        android:textSize="20sp"
+        android:textColor="@color/jetBlack"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:layout_marginBottom="10dp"/>
+
+
+    <RadioGroup
+        android:id="@+id/radio_group"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:layout_below="@+id/sort_by_text_view"
+        android:layout_centerHorizontal="true"
+
+        >
+        <RadioButton
+            android:id="@+id/newest_r_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Newest"
+            android:layout_margin="10dp"
+
+            />
+        <RadioButton
+            android:id="@+id/oldest_r_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Oldest"
+
+            android:layout_margin="10dp"/>
+
+    </RadioGroup>
+
+    <LinearLayout
+        android:id="@+id/linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_below="@+id/radio_group"
+        android:layout_marginRight="20dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp">
+
+
+        <androidx.appcompat.widget.AppCompatCheckBox
+            android:id="@+id/male_check_box_filter"
+            android:drawableStart="@drawable/ic_icon_ionic_ios_male"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="5dp"
+            android:button="@android:color/transparent"
+            android:background="@drawable/property_radio_selector"
+            android:elevation="3dp"
+            android:padding="10dp"
+            />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <androidx.appcompat.widget.AppCompatCheckBox
+            android:id="@+id/female_check_box_filter"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="5dp"
+
+            android:elevation="3dp"
+            android:padding="10dp"
+            android:drawableStart="@drawable/ic_icon_ionic_ios_female"
+            android:button="@android:color/transparent"
+            android:background="@drawable/property_radio_selector"/>
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <androidx.appcompat.widget.AppCompatCheckBox
+            android:id="@+id/pets_allowd_check_box_filter"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/add_property"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="5dp"
+
+            android:elevation="3dp"
+            android:padding="10dp"
+            android:drawableStart="@drawable/ic_icon_map_pet_store"
+            android:button="@android:color/transparent"
+            android:background="@drawable/property_radio_selector"/>
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <androidx.appcompat.widget.AppCompatCheckBox
+            android:id="@+id/non_smoking_check_box_filter"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/add_property"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="5dp"
+
+            android:elevation="3dp"
+            android:padding="10dp"
+            android:drawableStart="@drawable/ic_icon_material_smoke_free"
+            android:button="@android:color/transparent"
+            android:background="@drawable/property_radio_selector"/>
+
+    </LinearLayout>
+
+
+    <Button
+
+        android:id="@+id/ok_button_filter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:text="ok"
+
+        android:layout_below="@id/linearLayout"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/button_circle_yello_small"
+        android:elevation="3dp"
+        android:layout_margin="10dp"
+        android:textColor="@color/red"
+        android:textStyle="bold"
+
+        />
+
+
+</RelativeLayout>
