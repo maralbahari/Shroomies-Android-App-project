@@ -11,12 +11,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:text="Looks like you have no favorite personal posts..."
-        android:textSize="28sp"
-        android:textColor="@color/Black"
-        android:gravity="center"        />
-<!--        android:visibility="gone"-->
-
+        android:textSize="26sp"
+        android:gravity="center"
+        android:visibility="gone"
+    />
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/favPersonalList"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 

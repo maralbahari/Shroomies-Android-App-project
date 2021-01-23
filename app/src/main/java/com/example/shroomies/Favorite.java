@@ -16,6 +16,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.tabs.TabItem;
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -23,6 +25,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 public class Favorite extends Fragment {
@@ -30,21 +33,48 @@ public class Favorite extends Fragment {
     TabLayout tabFav;
     TabItem tabApt, tabPost;
     ArrayList<PersonalPostModel> personalPostModelList;
-    ArrayList <Apartment> apartmentList;
-    RecyclerView favRecyclerView;
-    PersonalPostRecyclerAdapter favPersonalPostRecycler;
+    List<Apartment> apartmentList;
+    RecyclerView favAptRecyclerView;
+    RecycleViewAdapterApartments favAptRecyclerAdapter;
     FragmentManager fragmentManager;
     FragmentTransaction fragmentTransaction;
-
-
    View v;
-     PersonalPostRecyclerAdapter personalPostRecyclerAdapter;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         v=inflater.inflate(R.layout.fragment_my_favorite, container, false);
+
+        favAptRecyclerView = v.findViewById(R.id.fav_recycler_view);
+        favAptRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        apartmentList = new ArrayList<>();
+        
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        final String CurrUserId = firebaseUser.getUid();
+        DatabaseReference DatabaseRef = FirebaseDatabase.getInstance().getReference("Favorite");
+        DatabaseReference ref = DatabaseRef.child(CurrUserId).child("ApartmentPost");
+
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                for(DataSnapshot ds : snapshot.getChildren()){
+                    Apartment favApt = ds.getValue(Apartment.class);
+                    apartmentList.add(favApt);
+
+                }
+                favAptRecyclerAdapter = new RecycleViewAdapterApartments(apartmentList, getContext());
+                favAptRecyclerView.setAdapter(favAptRecyclerAdapter);
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(getContext(), "An unexpected error occured", Toast.LENGTH_LONG);
+
+            }
+        });
     return v;
     }
 
@@ -55,9 +85,9 @@ public class Favorite extends Fragment {
         tabApt = (TabItem) v.findViewById(R.id.tab_button_fav_apartment);
         tabPost = (TabItem) v.findViewById(R.id.tab_button_fav_personal);
 
-        favRecyclerView = v.findViewById(R.id.fav_recycler_view);
+        favAptRecyclerView = v.findViewById(R.id.fav_recycler_view);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
-        favRecyclerView.setLayoutManager(linearLayoutManager);
+        favAptRecyclerView.setLayoutManager(linearLayoutManager);
 
         tabFav.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -74,11 +104,11 @@ public class Favorite extends Fragment {
 
                     }
                     // display the recycler view
-                    favRecyclerView.setVisibility(View.VISIBLE);
+                    favAptRecyclerView.setVisibility(View.VISIBLE);
                 }
                 else if(tab.getPosition()==1){
 
-                    favRecyclerView.setVisibility(View.GONE);
+                    favAptRecyclerView.setVisibility(View.GONE);
                     fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
                     fragmentTransaction.replace(R.id.frame_layout_fav, new FavTabPersonal());
                     fragmentTransaction.commit();
@@ -98,33 +128,6 @@ public class Favorite extends Fragment {
 
     }
 
-    private void retriveFavPersonalPost() {
-        personalPostModelList = new ArrayList<>();
-        favPersonalPostRecycler = new PersonalPostRecyclerAdapter(personalPostModelList, getContext());
-        favRecyclerView.setAdapter(favPersonalPostRecycler);
-        DatabaseReference myPersonalDatabaseRef = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference favPer = myPersonalDatabaseRef.child("Favorite").child("PersonalPost");
-        favPer.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                personalPostModelList.clear();
-                if(snapshot.exists()){
-                    for (DataSnapshot snapShot: snapshot.getChildren()){
-                        PersonalPostModel favPersonal = snapShot.getValue(PersonalPostModel.class);
-                        personalPostModelList.add(favPersonal);
-                    }
-                  favPersonalPostRecycler.notifyDataSetChanged();
-                }
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
