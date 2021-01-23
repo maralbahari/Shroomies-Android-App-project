@@ -8,6 +8,7 @@
     tools:context=".FavTabPersonal">
 
     <TextView
+        android:id="@+id/TV_noFavPersonalPost"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:text="Looks like you have no favorite personal posts..."

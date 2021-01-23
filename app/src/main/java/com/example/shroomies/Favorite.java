@@ -40,7 +40,11 @@ public class Favorite extends Fragment {
     FragmentManager fragmentManager;
     FragmentTransaction fragmentTransaction;
     TextView favText;
-   View v;
+    View v;
+
+    RecyclerView favPersonalRecyclerView;
+    TextView personalPostText;
+    PersonalPostRecyclerAdapter personalPostRecyclerAdapter;
 
 
     @Override
@@ -59,7 +63,7 @@ public class Favorite extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-
+        // checking if there are any fav apt
                 if (snapshot.getValue() != null) {
 
                     favAptRecyclerView = v.findViewById(R.id.fav_recycler_view);
@@ -91,19 +95,11 @@ public class Favorite extends Fragment {
                 }
                 else {
                     favText = v.findViewById(R.id.FavNoAptText);
-                    favText.setVisibility(View.VISIBLE);
-
-
-                }
+                    favText.setVisibility(View.VISIBLE); }
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-
-
-        });
+            public void onCancelled(@NonNull DatabaseError error) { }});
     return v;
     }
 
@@ -138,10 +134,59 @@ public class Favorite extends Fragment {
                 }
                 else if(tab.getPosition()==1){
 
-                    favAptRecyclerView.setVisibility(View.GONE);
-                    fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
-                    fragmentTransaction.replace(R.id.frame_layout_fav, new FavTabPersonal());
-                    fragmentTransaction.commit();
+//                    favAptRecyclerView.setVisibility(View.GONE);
+//                    fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+//                    fragmentTransaction.replace(R.id.frame_layout_fav, new FavTabPersonal());
+//                    fragmentTransaction.commit();
+                    FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+                    final String CurrUserId = firebaseUser.getUid();
+                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Favorite").child(CurrUserId)
+                            .child("PersonalPost");
+                    ref.addListenerForSingleValueEvent(new ValueEventListener(){
+
+
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                            if(snapshot.getValue() != null){
+                                favAptRecyclerView = v.findViewById(R.id.fav_recycler_view);
+                                favAptRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+                                personalPostModelList = new ArrayList<>();
+                                DatabaseReference DatabaseRef = FirebaseDatabase.getInstance().getReference("Favorite");
+                                DatabaseReference ref = DatabaseRef.child(CurrUserId).child("PersonalPost");
+                                ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                        for(DataSnapshot ds : snapshot.getChildren()){
+                                            PersonalPostModel personalPost = ds.getValue(PersonalPostModel.class);
+                                            personalPostModelList.add(personalPost);
+                                        }
+                                        personalPostRecyclerAdapter = new PersonalPostRecyclerAdapter(personalPostModelList, getContext());
+                                        favPersonalRecyclerView.setAdapter(personalPostRecyclerAdapter);
+
+                                    }
+
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError error) {
+                                        Toast.makeText(getContext(), "An unexpected error occured", Toast.LENGTH_LONG);
+
+                                    }
+                                });
+                            }
+
+                            else{
+                                personalPostText = v.findViewById(R.id.TV_noFavPersonalPost);
+                                personalPostText.setVisibility(View.VISIBLE);
+
+                            }
+
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) { }
+                    });
+
+
                 }
             }
 

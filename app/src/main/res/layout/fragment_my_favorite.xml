@@ -75,6 +75,7 @@
         android:visibility="gone"
         android:text="@string/looks_like_you_have_no_favorite_apartment_posts" />
 
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/fav_recycler_view"
         android:layout_width="match_parent"
@@ -84,7 +85,8 @@
     <FrameLayout
         android:id="@+id/frame_layout_fav"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"/>
+        android:layout_height="match_parent"/>
+
 
 
 
