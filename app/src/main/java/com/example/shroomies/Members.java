@@ -5,6 +5,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -37,6 +39,8 @@ public class Members extends DialogFragment {
     UserAdapter userAdapter;
     ArrayList<String> requestUsersIDs;
     ArrayList<User> getRequestUsersList;
+    ImageView sadShroomie, stars;  // set visibility to gone if there are members in add members
+    TextView noMemberTv ;           // same visibility to gone
 
 
     @Nullable
@@ -62,6 +66,9 @@ public class Members extends DialogFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        sadShroomie = view.findViewById(R.id.member_sad_shroomie);  // set visibility to gone if there are members
+        stars = view.findViewById(R.id.member_star);                // set visibility to gone if there are members
+        noMemberTv = view.findViewById(R.id.no_members_tv);         // set visibility to gone if there are members
         addMember=view.findViewById(R.id.add_shroomie_btn);
         leaveRoom=view.findViewById(R.id.leave_room_btn);
         membersRecycler = view.findViewById(R.id.members_recyclerView);

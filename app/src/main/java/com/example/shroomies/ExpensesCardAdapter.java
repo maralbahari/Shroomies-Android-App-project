@@ -15,7 +15,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -52,6 +54,8 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
         this.context=context;
         this.fromArchive = fromArchive;
     }
+
+
 
 
     @NonNull
@@ -179,8 +183,8 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
         TextView title,description,dueDate,mention,markAsDone;
         ImageView cardImage;
         ImageButton archive, delete;
-        ImageView sadShroomie, stars;
-        Button cont, no;
+        ImageView sadShroomie, stars, shroomieArch;
+        Button cont, no,yesBtn,noBtn;
         CheckBox done;
 
         public ExpensesViewHolder(@NonNull View v) {
@@ -207,7 +211,33 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                             @Override
                             public void onSuccess(Void aVoid) {
                                 markAsDone.setText("Done!");
-                                Toast.makeText(context,"expenses cards done", Toast.LENGTH_LONG).show();
+                                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                View alert = inflater.inflate(R.layout.do_you_want_to_archive,null);
+                                builder.setView(alert);
+                                final AlertDialog alertDialog = builder.create();
+                                alertDialog.getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
+                                alertDialog.getWindow().setBackgroundDrawableResource(R.drawable.dialogfragment_add_member);
+                                alertDialog.show();
+                                yesBtn = ((AlertDialog) alertDialog).findViewById(R.id.btn_yes);
+                                noBtn = ((AlertDialog) alertDialog).findViewById(R.id.no_btn);
+                                shroomieArch = ((AlertDialog) alertDialog).findViewById(R.id.shroomie_archive);
+                                yesBtn.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        archive(cardsList.get(getAdapterPosition()).getCardId(),getAdapterPosition());
+                                        alertDialog.cancel();
+                                    }
+                                });
+                                noBtn.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        alertDialog.cancel();
+                                    }
+                                });
+
+
+
                             }
                         });
                     }else{
@@ -272,6 +302,8 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                 }
             });
         }
+
+
 
 
         @Override

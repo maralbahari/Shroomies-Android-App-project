@@ -16,7 +16,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -73,10 +75,10 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
     public class TasksCardViewHolder extends RecyclerView.ViewHolder implements View.OnTouchListener, GestureDetector.OnGestureListener {
 
         View taskImportanceView;
-        TextView title, description, dueDate, areYouSure, markAsDone;
+        TextView title, description, dueDate, markAsDone;
         ImageButton delete, archive;
-        ImageView sadShroomie, stars;
-        Button cont, no;
+        ImageView sadShroomie, stars, shroomieArchive;
+        Button cont, no, yesButton, noButton;
         CheckBox done;
         GestureDetector gestureDetector;
 
@@ -103,7 +105,31 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
                             @Override
                             public void onSuccess(Void aVoid) {
                                 markAsDone.setText("Done!");
-                                Toast.makeText(context,"done done",Toast.LENGTH_LONG).show();
+                                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                View alert = inflater.inflate(R.layout.do_you_want_to_archive,null);
+                                builder.setView(alert);
+                                final AlertDialog alertDialog = builder.create();
+                                alertDialog.getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
+                                alertDialog.getWindow().setBackgroundDrawableResource(R.drawable.dialogfragment_add_member);
+                                alertDialog.show();
+                                yesButton = ((AlertDialog) alertDialog).findViewById(R.id.btn_yes);
+                                noButton = ((AlertDialog) alertDialog).findViewById(R.id.no_btn);
+                                shroomieArchive = ((AlertDialog) alertDialog).findViewById(R.id.shroomie_archive);
+                                yesButton.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        archive(tasksCardsList.get(getAdapterPosition()).getCardId(),getAdapterPosition());
+                                        alertDialog.cancel();
+                                    }
+                                });
+                                noButton.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        alertDialog.cancel();
+                                    }
+                                });
+
                             }
                         });
                     }else{
