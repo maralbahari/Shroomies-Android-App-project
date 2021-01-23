@@ -10,6 +10,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="10dp"
+        android:elevation="5dp"
         app:cardCornerRadius="15dp">
 
         <RelativeLayout
@@ -25,6 +26,8 @@
                 />
 
             <TextView
+                android:textStyle="bold"
+                android:textColor="@color/Black"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Clean basment"
@@ -35,7 +38,7 @@
 
             <CheckBox
                 android:id="@+id/task_done"
-                android:layout_width="15dp"
+                android:layout_width="24dp"
                 android:layout_height="15dp"
                 android:layout_below="@+id/task_card_description"
                 android:layout_margin="25dp"
@@ -66,8 +69,7 @@
                 android:src="@drawable/ic_archive"
                 android:layout_width="15dp"
                 android:layout_height="15dp"
-                android:layout_below="@+id/task_done"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="194dp"
                 android:layout_marginLeft="28dp"
                 android:layout_marginBottom="10dp"
                 />
@@ -100,12 +102,26 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Mentions"
-                android:layout_below="@+id/task_done"
                 android:layout_alignParentRight="true"
-                android:layout_marginRight="100dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginRight="130dp"
+                android:layout_marginTop="194dp"
                 android:textSize="10sp"
                 />
+
+            <TextView
+                android:id="@+id/task_mention"
+                android:background="@drawable/textbox_round"
+                android:elevation="5dp"
+                android:layout_width="100dp"
+                android:textSize="10sp"
+                android:gravity="center"
+                android:textStyle="bold"
+                android:textColor="@color/Black"
+                android:layout_height="20dp"
+                android:layout_marginTop="190dp"
+                android:layout_marginLeft="230dp"
+                android:layout_marginRight="300dp"/>
+
 
 
 

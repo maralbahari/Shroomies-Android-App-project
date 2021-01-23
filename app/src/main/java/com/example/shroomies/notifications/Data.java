@@ -1,7 +1,7 @@
 package com.example.shroomies.notifications;
 
 public class Data {
-    private String user,body,title,sent;
+    private String user,body,title,sent , groupID;
     private Integer icon;
 
     public Data(String user, String body, String title, String sent, Integer icon) {
@@ -10,6 +10,22 @@ public class Data {
         this.title = title;
         this.sent = sent;
         this.icon = icon;
+    }
+    public Data(String groupID , String user, String body, String title, String sent, Integer icon) {
+        this.groupID = groupID;
+        this.user = user;
+        this.body = body;
+        this.title = title;
+        this.sent = sent;
+        this.icon = icon;
+    }
+
+    public void setGroupID(String groupID) {
+        this.groupID = groupID;
+    }
+
+    public String getGroupID() {
+        return groupID;
     }
 
     public Data() {

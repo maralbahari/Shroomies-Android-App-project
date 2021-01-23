@@ -48,19 +48,52 @@
             android:layout_below="@+id/add_shroomie_btn"
             />
 
+        <ImageView
+            android:visibility="gone"
+            android:id="@+id/member_sad_shroomie"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/add_shroomie_btn"
+            android:layout_marginLeft="110dp"
+            android:layout_marginTop="60dp"
+            android:src="@drawable/sad_shroomie"
+            />
+        <ImageView
+            android:id="@+id/member_star"
+            android:visibility="gone"
+            android:layout_below="@id/add_shroomie_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="40dp"
+            android:layout_marginLeft="88dp"
+            android:src="@drawable/stars"/>
+        <TextView
+            android:visibility="gone"
+            android:id="@+id/no_members_tv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="You don't have any members"
+            android:textStyle="bold"
+            android:textColor="@color/Black"
+            android:layout_below="@id/member_sad_shroomie"
+            android:layout_marginLeft="90dp"
+
+            />
+
+
         <Button
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="270dp"
             android:id="@+id/leave_room_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Leave room"
             android:background="@color/canceRed"
             android:textColor="@color/white"
-            android:layout_below="@+id/members_recyclerView"
             android:layout_gravity="bottom"
+            android:layout_below="@id/members_recyclerView"
             />
-
     </RelativeLayout>
+
 
 
 </LinearLayout>

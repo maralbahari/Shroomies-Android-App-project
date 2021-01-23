@@ -2,14 +2,14 @@ package com.example.shroomies;
 
 public class ExpensesCard  {
 
-    String attachedFile, description, title, dueDate, importance,members, date, cardId, done;
+    String attachedFile, description, title, dueDate, importance,members, date, cardId, done, mention;
 
     public ExpensesCard() {
 
     }
 
 
-    public ExpensesCard(String attachedFile, String description, String title, String dueDate, String importance, String members,String cardId, String done) {
+    public ExpensesCard(String attachedFile, String description, String title, String dueDate, String importance, String members,String cardId, String done, String mention) {
         this.attachedFile = attachedFile;
         this.description = description;
         this.title = title;
@@ -18,6 +18,15 @@ public class ExpensesCard  {
         this.members = members;
         this.cardId = cardId;
         this.done = done;
+        this.mention = mention;
+    }
+
+    public String getMention() {
+        return mention;
+    }
+
+    public void setMention(String mention) {
+        this.mention = mention;
     }
 
     public void setAttachedFile(String attachedFile) {

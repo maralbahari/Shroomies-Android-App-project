@@ -12,10 +12,12 @@ import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.MultiAutoCompleteTextView;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -45,11 +47,12 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 
 
-public class AddNewCard extends DialogFragment  {
+public class AddNewCard extends DialogFragment   {
 
     FragmentTransaction ft;
     FragmentManager fm;
@@ -57,6 +60,7 @@ public class AddNewCard extends DialogFragment  {
     Button attachButton, addCard;
     TextView newCardTv, dueDate, attachedFile;
     EditText title , description;
+    MultiAutoCompleteTextView mention;
     CheckBox done;
     RadioGroup newcardShroomieRadioGroup;
     Calendar calendar;
@@ -79,16 +83,38 @@ public class AddNewCard extends DialogFragment  {
     String saveCurrentDate, saveCurrentTime;
     String cdate, doneCheckbox ;
     String currentUserAppartmentId = "";
+    ArrayList<String> memberList;
+    ArrayList<String> memberUserNameList;
+    ArrayAdapter<String> userNamesList;
+
 
 
 
     private void getUserRoomId(){
+        memberList = new ArrayList<>();
         rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()){
                     currentUserAppartmentId=snapshot.getValue().toString();
+                    rootRef.child("apartments").child(currentUserAppartmentId).child("apartmentMembers").addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            if (snapshot.exists()){
+                                for (DataSnapshot sp : snapshot.getChildren()){
+                                    memberList.add(sp.getValue().toString());
+                                }
+                                getMemberUserNames(memberList);
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
                 }
+
             }
 
             @Override
@@ -106,7 +132,7 @@ public class AddNewCard extends DialogFragment  {
         v =inflater.inflate(R.layout.fragment_add_new_card, container, false);
         mAuth = FirebaseAuth.getInstance();
         rootRef = FirebaseDatabase.getInstance().getReference();
-
+        getUserRoomId();
         return v;
     }
 
@@ -136,11 +162,16 @@ public class AddNewCard extends DialogFragment  {
         description = v.findViewById(R.id.new_card_description);
         newcardShroomieRadioGroup = v.findViewById(R.id.newcard_radio_group);
         dueDate = v.findViewById(R.id.due_date);
+        mention = v.findViewById(R.id.tag_shroomie);
+
+//        mention.setThreshold(6);
         done = v.findViewById(R.id.task_done);
         cameraPermissions=new String[]{Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE};
         storagePermissions=new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
         attachedFile = v.findViewById(R.id.attached_files);
-        getUserRoomId();
+
+
+
        Bundle bundle=this.getArguments();
        if(bundle!=null){
            expensesCardSelected=bundle.getBoolean("Expenses");
@@ -161,7 +192,7 @@ public class AddNewCard extends DialogFragment  {
             @Override
             public void onClick(View view) {
 
-                String importantButton,mdescription,mtitle,mdueDate;
+                String importantButton,mdescription,mtitle,mdueDate,mMention;
                 mdueDate = dueDate.getText().toString();
                 switch (newcardShroomieRadioGroup.getCheckedRadioButtonId()) {
                     case  R.id.newcard_green_radio_button:
@@ -179,13 +210,15 @@ public class AddNewCard extends DialogFragment  {
 
                 mdescription = description.getText().toString();
                 mtitle = title.getText().toString();
+                mMention = mention.getText().toString();
                 if (mtitle.isEmpty()){
+
                     Toast.makeText(getContext(),"Please insert Title",Toast.LENGTH_SHORT).show();
                 }else{
                     if(expensesCardSelected==false){
-                        saveTaskCardToFirebase(mtitle,mdescription,mdueDate,importantButton,doneCheckbox);
+                        saveTaskCardToFirebase(mtitle,mdescription,mdueDate,importantButton,mMention);
                     }else if (expensesCardSelected==true){
-                        uploadImgToFirebaseStorage(mtitle, mdescription, mdueDate, importantButton, chosenImage,doneCheckbox);
+                        uploadImgToFirebaseStorage(mtitle, mdescription, mdueDate, importantButton, chosenImage,mMention);
                     }
                     }
 
@@ -219,11 +252,35 @@ public class AddNewCard extends DialogFragment  {
         });
 
 
-
-
     }
 
-    private void saveTaskCardToFirebase(String mtitle, String mdescription, String mdueDate, String importance, String mDone) {
+    private void getMemberUserNames(final ArrayList<String> memberList) {
+        memberUserNameList = new ArrayList<>();
+        userNamesList = new ArrayAdapter<String>(getContext(), R.layout.support_simple_spinner_dropdown_item, memberUserNameList);
+        for (String id : memberList) {
+            rootRef.child("Users").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (snapshot.exists()) {
+                        User user = snapshot.getValue(User.class);
+                        memberUserNameList.add(user.getName());
+                    }
+                    mention.setAdapter(userNamesList);
+                    mention.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+
+
+        }
+    }
+
+
+    private void saveTaskCardToFirebase(String mtitle, String mdescription, String mdueDate, String importance, String mMention) {
 
         DatabaseReference ref = rootRef.child("apartments").child(currentUserAppartmentId).child("tasksCards").push();
         HashMap<String ,Object> newCard = new HashMap<>();
@@ -239,7 +296,8 @@ public class AddNewCard extends DialogFragment  {
         newCard.put("importance", importance);
         newCard.put("date",saveCurrentDate);
         newCard.put("cardId",uniqueID);
-        newCard.put("done", mDone);
+        newCard.put("done", "false");
+        newCard.put("mention",mMention);
 
 
         ref.updateChildren(newCard).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -293,7 +351,7 @@ public class AddNewCard extends DialogFragment  {
 //
 //    }
 
-    public void saveToFireBase(String title, String description, String dueDate, String attachUrl, String importance, String done ){
+    public void saveToFireBase(String title, String description, String dueDate, String attachUrl, String importance, String mMention ){
 
         DatabaseReference ref = rootRef.child("apartments").child(currentUserAppartmentId).child("expensesCards").push();
         HashMap<String ,Object> newCard = new HashMap<>();
@@ -310,7 +368,8 @@ public class AddNewCard extends DialogFragment  {
         newCard.put("attachedFile", attachUrl);
         newCard.put("date",saveCurrentDate);
         newCard.put("cardId",uniqueID);
-        newCard.put("done", done);
+        newCard.put("done", "false");
+        newCard.put("mention",mMention);
 
         ref.updateChildren(newCard).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
@@ -323,9 +382,9 @@ public class AddNewCard extends DialogFragment  {
 
     }
 
-    public void uploadImgToFirebaseStorage(final String title,final String description,final String dueDate, final String importance,Uri imgUri,final String done){
+    public void uploadImgToFirebaseStorage(final String title,final String description,final String dueDate, final String importance,Uri imgUri,final String mMention){
         if (imgUri==null){
-            saveToFireBase( title,  description,  dueDate,  "", importance, done);
+            saveToFireBase( title,  description,  dueDate,  "", importance,mMention);
         }else {
             StorageReference storageReference= FirebaseStorage.getInstance().getReference();
             StorageReference filePath = storageReference.child("Card post image").child(imgUri.getLastPathSegment()+".jpg");
@@ -340,7 +399,7 @@ public class AddNewCard extends DialogFragment  {
                    task.getResult().getMetadata().getReference().getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                         @Override
                         public void onSuccess(Uri uri) {
-                            saveToFireBase(title,  description,  dueDate,  uri.toString(), importance, done);
+                            saveToFireBase(title,  description,  dueDate,  uri.toString(), importance,mMention);
                         }
                     });
 
@@ -441,5 +500,11 @@ public class AddNewCard extends DialogFragment  {
 
 
 
+
+
 }
+
+
+
+
 

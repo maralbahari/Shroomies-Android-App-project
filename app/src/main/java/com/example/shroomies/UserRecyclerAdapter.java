@@ -93,6 +93,7 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapte
                                 .fitCenter()
                                 .circleCrop()
                                 .into(holder.userImageProfile);
+                        holder.userImageProfile.setPadding(0,0,0,0);
                     }
                 }
 
@@ -113,7 +114,10 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapte
         // enable the user to delte by setting the visiblity of the icon to visible
         // also the visibilty should be gone for the user himself
      if(fromWhere.equals("EDIT_GROUP_INFO") ){
-         holder.removeUserFromGroupChat.setVisibility(View.GONE);
+         if (!usersList.get(position).getID().equals(mAuth.getInstance().getCurrentUser().getUid())){
+             holder.removeUserFromGroupChat.setVisibility(View.VISIBLE);
+         }
+
          holder.addUser.setVisibility(View.GONE);
 
      }

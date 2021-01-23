@@ -57,6 +57,7 @@
         android:src="@drawable/ic_icon_feather_message_circle"
         android:layout_marginRight="20dp"
         app:layout_constraintEnd_toEndOf="parent"
+        android:onClick="chatWithThisUser"
         app:layout_constraintTop_toBottomOf="@+id/dotsIndicator_apartment_view" />
 
     <androidx.core.widget.NestedScrollView
@@ -64,22 +65,29 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/view_pager_apartment_view">
+        app:layout_constraintTop_toBottomOf="@+id/view_pager_apartment_view"
+        >
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content"
+            android:paddingBottom="25dp"
+            >
 
             <TextView
                 android:id="@+id/price_text_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
-
+                android:textStyle="bold"
+                android:textColor="@color/jetBlack"
                 android:layout_marginStart="15dp"
                 android:layout_marginTop="15dp"
                 android:layout_marginEnd="0dp"
                 android:layout_marginBottom="0dp"
+
+                android:shadowColor="@color/lightGrey"
+                android:shadowRadius="2"
                 android:text="1000 RM"
                 android:textSize="24sp"
                 app:layout_constraintStart_toStartOf="parent" />
@@ -102,6 +110,8 @@
                 android:layout_marginStart="15dp"
                 android:layout_marginTop="15dp"
                 android:text="Post by"
+                android:textStyle="bold"
+
                 android:textSize="20sp" />
 
             <ImageView
@@ -111,13 +121,18 @@
                 android:layout_below="@+id/post_by_text_view"
                 android:layout_marginLeft="15dp"
                 android:layout_marginTop="5dp"
-                android:src="@drawable/ic_launcher_background" />
+                android:background="@drawable/circle_white_button"
+                android:padding="10dp"
+                android:elevation="3dp"
+                android:src="@drawable/ic_user_profile_svgrepo_com" />
 
             <TextView
+                android:layout_marginTop="5dp"
                 android:id="@+id/name_of_user_text_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/post_by_text_view"
+                android:textColor="@color/jetBlack"
                 android:layout_marginLeft="10dp"
                 android:layout_toRightOf="@id/user_image_view"
                 android:text="name of user"
@@ -135,12 +150,14 @@
 
             <TextView
                 android:id="@+id/about_user_final_text_View"
+                android:textStyle="bold"
+
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/user_image_view"
                 android:layout_marginLeft="15dp"
                 android:layout_marginTop="20dp"
-                android:text="About this user xxx"
+                android:text="About this post"
                 android:textSize="21dp" />
 
             <androidx.cardview.widget.CardView
@@ -170,6 +187,7 @@
                 android:id="@+id/location_text_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textStyle="bold"
                 android:layout_below="@id/description_card_view"
                 android:layout_marginLeft="15dp"
                 android:layout_marginTop="15dp"
@@ -212,7 +230,7 @@
                 android:layout_marginLeft="15dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginRight="15dp"
-                android:layout_marginBottom="15dp"
+                android:layout_marginBottom="20dp"
 
                 android:elevation="5dp"
                 android:orientation="horizontal"
@@ -275,25 +293,19 @@
 
                 <ImageView
                     android:id="@+id/non_smoking_image_view_apartment"
-
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-
                     android:layout_gravity="center_horizontal"
                     android:layout_margin="5dp"
                     android:background="@drawable/circle_white_button"
                     android:elevation="1dp"
                     android:padding="10dp"
                     android:src="@drawable/ic_icon_material_smoke_free"
-
                     />
-
             </LinearLayout>
 
-
-
-
         </RelativeLayout>
+
     </androidx.core.widget.NestedScrollView>
 
 

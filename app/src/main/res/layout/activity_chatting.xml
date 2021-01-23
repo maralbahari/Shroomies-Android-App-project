@@ -11,8 +11,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         />
-
-
         <RelativeLayout
             android:id="@+id/bottom_chatting_layout"
             android:layout_width="wrap_content"
@@ -65,15 +63,15 @@
         </RelativeLayout>
 
 
-
-
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view_group_chatting"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@id/bottom_chatting_layout"
         android:layout_below="@id/include"
-        android:background="@color/Alabaster"
-        app:stackFromEnd="true"/>
+        android:layout_marginTop="0dp"
+        android:layout_marginBottom="0dp"
+        android:background="@drawable/chatting_background"
+        android:padding="5dp"
+        app:stackFromEnd="true" />
 </RelativeLayout>
