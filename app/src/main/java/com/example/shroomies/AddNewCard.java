@@ -104,6 +104,8 @@ public class AddNewCard extends DialogFragment   {
     ArrayAdapter<String> userNamesList;
     RequestQueue requestQueue ;
 
+    boolean notify = false;
+
 
 
 
@@ -303,6 +305,9 @@ public class AddNewCard extends DialogFragment   {
 
     private void saveTaskCardToFirebase(String mtitle, String mdescription, String mdueDate, String importance, final String mMention) {
 
+        if (!mMention.isEmpty()){
+            notify = true;
+        }
         DatabaseReference ref = rootRef.child("apartments").child(currentUserAppartmentId).child("tasksCards").push();
         HashMap<String ,Object> newCard = new HashMap<>();
 
@@ -326,16 +331,23 @@ public class AddNewCard extends DialogFragment   {
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()){
                     dismiss();
-                    String [] names = mMention.split(",");
-                    for(String name
-                            :names) {
-                        sendNotification(userNameAndID.get(name) , " Help! your shroomies need you" );
-                    }
+
                 }
             }
         });
+        if(notify){
+            String [] names = mMention.split(",");
 
+            for(String name
+                    :names) {
+                if(name.trim()!=null){
+//                    Toast.makeText(getActivity(), userNameAndID.get(name.trim()), Toast.LENGTH_SHORT).show();
+                    sendNotification(userNameAndID.get(name.trim()) , " Help! your shroomies need you" );
+                }
 
+            }
+        }
+        notify =false;
     }
 
 
@@ -378,8 +390,9 @@ public class AddNewCard extends DialogFragment   {
 //    }
 
     public void saveToFireBase(String title, String description, String dueDate, String attachUrl, String importance, final String mMention ){
-
-
+        if(!mMention.isEmpty()){
+            notify= true;
+        }
         DatabaseReference ref = rootRef.child("apartments").child(currentUserAppartmentId).child("expensesCards").push();
         HashMap<String ,Object> newCard = new HashMap<>();
 
@@ -403,15 +416,25 @@ public class AddNewCard extends DialogFragment   {
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()){
                     dismiss();
-                    String [] names = mMention.split(",");
-                    for(String name
-                            :names) {
-                        sendNotification(userNameAndID.get(name) , " Help! your shroomies need you" );
-                    }
+
                 }
+
             }
         });
 
+        if(notify){
+            String [] names = mMention.split(",");
+
+            for(String name
+                    :names) {
+                if(name.trim()!=null){
+//                    Toast.makeText(getActivity(), userNameAndID.get(name.trim()), Toast.LENGTH_SHORT).show();
+                    sendNotification(userNameAndID.get(name.trim()) , " Help! your shroomies need you" );
+                }
+
+            }
+        }
+            notify =false;
     }
 
 
