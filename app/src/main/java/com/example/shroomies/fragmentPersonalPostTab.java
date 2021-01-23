@@ -15,6 +15,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ public class fragmentPersonalPostTab extends Fragment {
     PersonalPostRecyclerAdapter personalPostRecyclerAdapter;
     List<PersonalPostModel> personalPostModelList;
     RecyclerView personalRecyclerView;
+
 
 
     public fragmentPersonalPostTab() {
@@ -55,9 +57,79 @@ public class fragmentPersonalPostTab extends Fragment {
         if (getArguments() != null) {
             mParam1 = getArguments().getString(ARG_PARAM1);
             mParam2 = getArguments().getString(ARG_PARAM2);
+
+
         }
     }
+    @Override
+    public void onSaveInstanceState( Bundle outState) {
+        super.onSaveInstanceState(outState);
+        // getting query
+        Bundle bun = getArguments();
+        String personalQuery = (String) bun.get("myQuery");
+        Toast.makeText(getContext(),"made",Toast.LENGTH_LONG).show();
 
+
+
+        final List<String> userIds  = new ArrayList<>();
+        personalPostModelList = new ArrayList<>();
+
+
+        DatabaseReference myRootRef = FirebaseDatabase.getInstance().getReference();
+        myRootRef.child("Users").orderByChild("name").startAt(personalQuery).endAt(personalQuery+"\uf8ff").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
+                    for (DataSnapshot dataSnapshot :snapshot.getChildren()){
+                        User user = dataSnapshot.getValue(User.class);
+                        userIds.add(user.getID());
+                    }
+                    for (String  id: userIds){
+
+                        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("postPersonal");
+                        Query query1 = reference.orderByChild("userID").equalTo(id);
+                        query1.addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                                setSearchAdapterData(snapshot);
+                            }
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+                                Toast.makeText(getActivity(), error.getMessage() , Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+    void setSearchAdapterData(DataSnapshot snapshot){
+
+        if (snapshot.exists()) {
+            for (DataSnapshot dataSnapshot :
+                    snapshot.getChildren()) {
+
+                PersonalPostModel personalPost = dataSnapshot.getValue(PersonalPostModel.class);
+                personalPostModelList.add(personalPost);
+            }
+
+            personalPostRecyclerAdapter.notifyDataSetChanged();
+            personalPostRecyclerAdapter = new PersonalPostRecyclerAdapter(personalPostModelList, getContext());
+            personalRecyclerView.setAdapter(personalPostRecyclerAdapter);
+
+
+        }
+
+
+    }
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
