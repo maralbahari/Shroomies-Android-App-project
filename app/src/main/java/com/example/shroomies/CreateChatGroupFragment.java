@@ -30,18 +30,17 @@ import java.util.List;
 
 public class CreateChatGroupFragment extends DialogFragment {
 
-    private   View v;
+    private View v;
     private SearchView searchView;
     private RecyclerView userListSuggestionRecyclerView;
     private ImageButton nextButton;
     private DatabaseReference rootRef;
     private UserRecyclerAdapter userRecyclerAdapter;
     private String groupID;
-   private boolean fromGroupInfo;
-   private FirebaseAuth mAuth;
-   private  List <User> suggestedUser;
-   private List<String> inboxListUsers;
-
+    private boolean fromGroupInfo;
+    private FirebaseAuth mAuth;
+    private  List <User> suggestedUser;
+    private List<String> inboxListUsers;
     static ArrayList<User>  selectedMembers;
 
 
@@ -202,7 +201,8 @@ public class CreateChatGroupFragment extends DialogFragment {
         userListSuggestionRecyclerView.setAdapter(userRecyclerAdapter);
 
         //+"\uf8ff"
-        rootRef.child("Users").orderByChild("name").equalTo(query).addValueEventListener(new ValueEventListener() {
+        rootRef.child("Users").orderByChild("name").startAt(query)
+                .endAt(query+"\uf8ff").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {

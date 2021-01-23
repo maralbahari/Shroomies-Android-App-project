@@ -109,7 +109,8 @@
         android:textSize="20sp"
         />
 
-    <TextView
+    <MultiAutoCompleteTextView
+        android:gravity="center"
         android:id="@+id/tag_shroomie"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"

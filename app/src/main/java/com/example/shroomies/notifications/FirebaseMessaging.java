@@ -12,6 +12,9 @@ import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
 import com.example.shroomies.ChattingActivity;
+import com.example.shroomies.GroupChattingActivity;
+import com.example.shroomies.LoginActivity;
+import com.example.shroomies.MainActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -19,6 +22,8 @@ import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
 public class FirebaseMessaging  extends FirebaseMessagingService {
+
+    PendingIntent pendingIntent;
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
@@ -38,16 +43,26 @@ public class FirebaseMessaging  extends FirebaseMessagingService {
         }
     }
     private void sendNormalNotification(RemoteMessage msg){
+        String groupID = msg.getData().get("groupID");
         String user=msg.getData().get("user");
         String icon=msg.getData().get("icon");
         String title=msg.getData().get("title");
         String body=msg.getData().get("body");
         RemoteMessage.Notification notification=msg.getNotification();
         int i= Integer.parseInt(user.replaceAll("[\\D]",""));
-        Intent intent= new Intent(this, ChattingActivity.class);
-        intent.putExtra("USERID",user);
-        intent.addFlags(intent.FLAG_ACTIVITY_CLEAR_TOP);
-        PendingIntent pendingIntent=PendingIntent.getActivity(this,i,intent,PendingIntent.FLAG_ONE_SHOT);
+        if(groupID!=null){
+            Intent intent= new Intent(this, GroupChattingActivity.class);
+            intent.putExtra("GROUPID",groupID);
+            intent.addFlags(intent.FLAG_ACTIVITY_CLEAR_TOP);
+            pendingIntent =PendingIntent.getActivity(this,i,intent,PendingIntent.FLAG_ONE_SHOT);
+        }else{
+            Intent intent= new Intent(this, ChattingActivity.class);
+            intent.putExtra("USERID",user);
+            intent.addFlags(intent.FLAG_ACTIVITY_CLEAR_TOP);
+            pendingIntent =PendingIntent.getActivity(this,i,intent,PendingIntent.FLAG_ONE_SHOT);
+        }
+
+
         Uri defSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder builder= new NotificationCompat.Builder(this)
                 .setSmallIcon(Integer.parseInt(icon))
@@ -67,16 +82,36 @@ public class FirebaseMessaging  extends FirebaseMessagingService {
         notificationManager.notify(j,builder.build());
     }
     private void sendOAndAboveNotification(RemoteMessage msg){
+        String groupID = msg.getData().get("groupID");
+        String isCardNOtification =  msg.getData().get("cardNotification");
         String user=msg.getData().get("user");
         String icon=msg.getData().get("icon");
         String title=msg.getData().get("title");
         String body=msg.getData().get("body");
         RemoteMessage.Notification notification=msg.getNotification();
         int i= Integer.parseInt(user.replaceAll("[\\D]",""));
-        Intent intent= new Intent(this, ChattingActivity.class);
-        intent.putExtra("USERID",user);
-        intent.addFlags(intent.FLAG_ACTIVITY_CLEAR_TOP);
-        PendingIntent pendingIntent=PendingIntent.getActivity(this,i,intent,PendingIntent.FLAG_ONE_SHOT);
+
+        if(groupID!=null){
+
+            Intent intent= new Intent(this, GroupChattingActivity.class);
+            intent.putExtra("GROUPID",groupID);
+            intent.addFlags(intent.FLAG_ACTIVITY_CLEAR_TOP);
+            pendingIntent =PendingIntent.getActivity(this,i,intent,PendingIntent.FLAG_ONE_SHOT);
+        }else if(isCardNOtification.equals("true")){
+            Intent intent= new Intent(this, MainActivity.class);
+
+            intent.addFlags(intent.FLAG_ACTIVITY_CLEAR_TOP);
+            pendingIntent =PendingIntent.getActivity(this,i,intent,PendingIntent.FLAG_ONE_SHOT);
+
+        }else{
+            Intent intent= new Intent(this, ChattingActivity.class);
+            intent.putExtra("USERID",user);
+            intent.addFlags(intent.FLAG_ACTIVITY_CLEAR_TOP);
+            pendingIntent =PendingIntent.getActivity(this,i,intent,PendingIntent.FLAG_ONE_SHOT);
+        }
+
+
+
         Uri defSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         OreoandAboveNotifactaions noti=new OreoandAboveNotifactaions(this);
         NotificationCompat.Builder builder= noti.getONotifications(title,body,pendingIntent,defSoundUri,icon);
@@ -88,6 +123,7 @@ public class FirebaseMessaging  extends FirebaseMessagingService {
 
        noti.getManager().notify(j,builder.build());
     }
+
     @Override
     public void onNewToken(@NonNull String s){
         super.onNewToken(s);

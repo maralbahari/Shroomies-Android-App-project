@@ -78,7 +78,7 @@
                 android:scaleType="centerCrop"
                 android:text="Mention" />
 
-            <EditText
+            <TextView
                 android:id="@+id/expenses_mention_et"
                 android:background="@drawable/textbox_round"
                 android:elevation="5dp"

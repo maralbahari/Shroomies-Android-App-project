@@ -108,8 +108,8 @@
                 android:textSize="10sp"
                 />
 
-            <EditText
-                android:id="@+id/task_mention_et"
+            <TextView
+                android:id="@+id/task_mention"
                 android:background="@drawable/textbox_round"
                 android:elevation="5dp"
                 android:layout_width="100dp"

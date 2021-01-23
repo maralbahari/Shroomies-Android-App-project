@@ -86,12 +86,13 @@ public class AddShroomieMember extends DialogFragment {
         }
     }
 
-    private void retreiveUser(String s) {
+    private void retreiveUser(String query) {
         suggestedUser = new ArrayList<>();
         userRecyclerAdapter= new UserAdapter(suggestedUser,getContext(),true);
         addShroomieRecycler.setAdapter(userRecyclerAdapter);
 
-        rootRef.child("Users").orderByChild("name").equalTo(s).addValueEventListener(new ValueEventListener() {
+        rootRef.child("Users").orderByChild("name").startAt(query)
+                .endAt(query+"\uf8ff").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {

@@ -2,12 +2,12 @@ package com.example.shroomies;
 
 public class TasksCard {
 
-    String description, title,dueDate, importance, members, date, cardId, done;
+    String description, title,dueDate, importance, members, date, cardId, done,mention;
 
     public TasksCard() {
     }
 
-    public TasksCard(String description, String taskTitle, String taskDueDate, String taskImportance, String date, String taskCardId, String members, String done) {
+    public TasksCard(String description, String taskTitle, String taskDueDate, String taskImportance, String date, String taskCardId, String members, String done, String mention) {
         this.cardId = taskCardId;
         this.date = date;
         this.description = description;
@@ -16,6 +16,15 @@ public class TasksCard {
         this.title = taskTitle;
         this.dueDate = taskDueDate;
         this.done = done;
+        this.mention = mention;
+    }
+
+    public String getMention() {
+        return mention;
+    }
+
+    public void setMention(String mention) {
+        this.mention = mention;
     }
 
     public void setDescription(String description) {
