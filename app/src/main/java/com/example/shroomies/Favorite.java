@@ -4,10 +4,13 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -30,6 +33,8 @@ public class Favorite extends Fragment {
     ArrayList <Apartment> apartmentList;
     RecyclerView favRecyclerView;
     PersonalPostRecyclerAdapter favPersonalPostRecycler;
+    FragmentManager fragmentManager;
+    FragmentTransaction fragmentTransaction;
 
 
    View v;
@@ -58,11 +63,25 @@ public class Favorite extends Fragment {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 if(tab.getPosition()==0){
+                    // find any fragment that is in the frame
+                    Fragment fragment = getActivity().getSupportFragmentManager().findFragmentById(R.id.frame_layout_fav);
+                    if(fragment!=null){
+                        Toast.makeText(getActivity(),"exists " , Toast.LENGTH_LONG).show();
+                        fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+                        fragmentTransaction.remove(fragment);
+                        fragmentTransaction.commit();
+                        fragmentTransaction.addToBackStack(null);
 
+                    }
+                    // display the recycler view
+                    favRecyclerView.setVisibility(View.VISIBLE);
                 }
                 else if(tab.getPosition()==1){
-                    retriveFavPersonalPost();
-                    personalPostModelList = new ArrayList<>();
+
+                    favRecyclerView.setVisibility(View.GONE);
+                    fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+                    fragmentTransaction.replace(R.id.frame_layout_fav, new FavTabPersonal());
+                    fragmentTransaction.commit();
                 }
             }
 

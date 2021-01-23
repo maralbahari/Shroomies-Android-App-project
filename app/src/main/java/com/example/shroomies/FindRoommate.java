@@ -1,43 +1,44 @@
  package com.example.shroomies;
 
-import android.app.Activity;
-import android.content.Context;
-import android.location.Address;
-import android.location.Geocoder;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.SearchView;
-import android.widget.Toast;
+ import android.app.Activity;
+ import android.content.Context;
+ import android.location.Address;
+ import android.location.Geocoder;
+ import android.os.AsyncTask;
+ import android.os.Bundle;
+ import android.view.LayoutInflater;
+ import android.view.View;
+ import android.view.ViewGroup;
+ import android.view.inputmethod.InputMethodManager;
+ import android.widget.AdapterView;
+ import android.widget.ArrayAdapter;
+ import android.widget.FrameLayout;
+ import android.widget.ImageView;
+ import android.widget.ListView;
+ import android.widget.SearchView;
+ import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.constraintlayout.motion.widget.MotionLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+ import androidx.annotation.NonNull;
+ import androidx.annotation.Nullable;
+ import androidx.constraintlayout.motion.widget.MotionLayout;
+ import androidx.fragment.app.Fragment;
+ import androidx.fragment.app.FragmentManager;
+ import androidx.fragment.app.FragmentTransaction;
+ import androidx.recyclerview.widget.LinearLayoutManager;
+ import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.material.tabs.TabLayout;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
-import com.google.firebase.database.ValueEventListener;
+ import com.google.android.gms.maps.model.LatLng;
+ import com.google.android.material.tabs.TabLayout;
+ import com.google.firebase.database.DataSnapshot;
+ import com.google.firebase.database.DatabaseError;
+ import com.google.firebase.database.DatabaseReference;
+ import com.google.firebase.database.FirebaseDatabase;
+ import com.google.firebase.database.Query;
+ import com.google.firebase.database.ValueEventListener;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+ import java.io.IOException;
+ import java.util.ArrayList;
+ import java.util.List;
 
 public class FindRoommate extends Fragment {
     private static final String MAP_FRAGMENT = "MAP_FRAGMENT";
@@ -45,6 +46,7 @@ public class FindRoommate extends Fragment {
     View v;
     MotionLayout findRoomMateMotionLayout;
     RecyclerView recyclerView;
+    FrameLayout frame;
     RecycleViewAdapterApartments recycleViewAdapterApartment;
     List<Apartment> apartmentList;
     List<Address> addressList;
