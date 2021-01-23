@@ -33,7 +33,7 @@
         android:id="@+id/TV_FavHead"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Favourites"
+        android:text="@string/favorites"
         android:textColor="@color/Black"
         android:textSize="30sp" />
     </LinearLayout>
@@ -65,13 +65,15 @@
 
 
     </com.google.android.material.tabs.TabLayout>
-    <androidx.viewpager.widget.ViewPager
+    <TextView
+        android:id="@+id/FavNoAptText"
+        android:layout_marginTop="200dp"
+        android:textSize="24sp"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/VP_fav"
-
-        />
-
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal|center_vertical"
+        android:visibility="gone"
+        android:text="@string/looks_like_you_have_no_favorite_apartment_posts" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/fav_recycler_view"
@@ -79,7 +81,10 @@
         android:layout_height="match_parent"
         android:layout_margin="8dp"
         />
-
+    <FrameLayout
+        android:id="@+id/frame_layout_fav"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 
 
 

@@ -1,6 +1,7 @@
 package com.example.shroomies;
 
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,6 +9,7 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
@@ -27,6 +29,8 @@ import java.util.List;
 public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPostRecyclerAdapter.PersonalPostViewHolder> {
     List <PersonalPostModel> personalPostModelList;
     Context context;
+    DatabaseReference db;
+    private User receiverUser;
 
     public PersonalPostRecyclerAdapter(List<PersonalPostModel> personalPostModelList, Context context) {
         this.personalPostModelList = personalPostModelList;
@@ -44,14 +48,14 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final PersonalPostViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final PersonalPostViewHolder holder, final int position) {
         holder.TV_userDescription.setText(personalPostModelList.get(position).getDescription());
         holder.TV_DatePosted.setText(personalPostModelList.get(position).getDate());
         String id = personalPostModelList.get(position).getUserID();
 
         // getting data from user id
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("Users");
-        DatabaseReference myRef = ref.child(id);
+        final DatabaseReference myRef = ref.child(id);
         myRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -60,12 +64,12 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
                     User user = snapshot.getValue(User.class);
                     holder.TV_userName.setText(user.getName());
                     holder.TV_userOccupation.setText(user.getBio());
-
+                    if (!user.getImage().isEmpty()){
                     Glide.with(holder.IV_userPic.getContext()).
                             load(user.getImage())
                             .fitCenter()
                             .centerCrop()
-                            .into(holder.IV_userPic);
+                            .into(holder.IV_userPic);}
                 }
             }
             @Override
@@ -86,8 +90,7 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
         else holder.IV_smoke.setVisibility(View.VISIBLE);
 
 
-        // getting cur user
-
+        // getting current user
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         final String Uid = firebaseUser.getUid();
 
@@ -99,8 +102,67 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
             holder.BT_message.setVisibility(View.VISIBLE);
             holder.BT_fav.setVisibility(View.VISIBLE);
         }
+        final Boolean[] checkClick = {false};
+
+        final DatabaseReference favRef = FirebaseDatabase.getInstance().getReference().child("Favorite");
+
+        DatabaseReference anotherFavRef = FirebaseDatabase.getInstance().getReference().child("Favorite");
+        anotherFavRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.child(Uid).child("PersonalPost").hasChild(personalPostModelList.get(position).getId())){
+                    holder.BT_fav.setImageResource(R.drawable.ic_icon_awesome_star_checked);
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+        holder.BT_fav.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                checkClick[0] = true;
+                favRef.addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        if(checkClick[0])
+                            if(snapshot.child(Uid).child("PersonalPost").hasChild(personalPostModelList.get(position).getId())){
+                                favRef.child(Uid).child("PersonalPost").child(personalPostModelList.get(position).getId()).removeValue();
+                                holder.BT_fav.setImageResource(R.drawable.ic_icon_awesome_star_unchecked);
+                                Toast.makeText(context,"Post removed from favorites",Toast.LENGTH_LONG).show();
+                                checkClick[0] = false;
+                            }
+                            else {
+                                DatabaseReference anotherRef = favRef.child(Uid).child("PersonalPost").child(personalPostModelList.get(position).getId());
+                                anotherRef.child("id").setValue(personalPostModelList.get(position).getId());
+                                anotherRef.child("userID").setValue(personalPostModelList.get(position).getUserID());
+                                anotherRef.child("price").setValue(personalPostModelList.get(position).getPrice());
+                                anotherRef.child("date").setValue(personalPostModelList.get(position).getDate());
+                                anotherRef.child("description").setValue(personalPostModelList.get(position).getDescription());
+                                anotherRef.child("preferences").setValue(personalPostModelList.get(position).getPreferences());
+                                anotherRef.child("latitude").setValue(personalPostModelList.get(position).getLatitude());
+                                anotherRef.child("longitude").setValue(personalPostModelList.get(position).getLongitude());
+                                Toast.makeText(context,"Post added to favorites",Toast.LENGTH_LONG).show();
+                                holder.BT_fav.setImageResource(R.drawable.ic_icon_awesome_star_checked);
+                                checkClick[0] = false;
+
+                            }
 
 
+
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
+            }
+        });
 
     }
 
@@ -152,7 +214,32 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
             BT_message = itemView.findViewById(R.id.start_chat_button);
             BT_fav = itemView.findViewById(R.id.BUT_fav);
 
-            //fav check
+            BT_message.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    //get user details and pass to chatting activity
+                    DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(personalPostModelList.get(getAdapterPosition()).getUserID());
+
+                    databaseReference.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            receiverUser = new User();
+                            receiverUser = snapshot.getValue(User.class);
+                            Intent intent = new Intent(context, ChattingActivity.class);
+                            intent.putExtra("USERID", receiverUser.getID());
+                            context.startActivity(intent);
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
+                }
+            });
+
+
+
         }
     }
 
