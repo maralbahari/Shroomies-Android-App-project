@@ -2,6 +2,7 @@ package com.example.shroomies;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.ParseException;
 import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,10 +25,16 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 public class PrivateInboxRecycleViewAdapter extends RecyclerView.Adapter<PrivateInboxRecycleViewAdapter.UsersListViewHolder> {
     private List<String> receiverUsersList;
+    private List<Messages> messageList;
     private FirebaseAuth mAuth;
     private DatabaseReference rootRef;
     private String receiverID;
@@ -36,6 +43,7 @@ public class PrivateInboxRecycleViewAdapter extends RecyclerView.Adapter<Private
     public PrivateInboxRecycleViewAdapter(List<String> receiverUsersList, Context context) {
         this.receiverUsersList = receiverUsersList;
         this.context=context;
+
     }
 
     @NonNull
@@ -74,6 +82,7 @@ public class PrivateInboxRecycleViewAdapter extends RecyclerView.Adapter<Private
 
                 // set the last message
                  getLastMessage(receiverUsersList.get(position) , holder);
+                 getUnreadMessages(receiverUsersList.get(position) , holder);
 
     }
 
@@ -83,7 +92,7 @@ public class PrivateInboxRecycleViewAdapter extends RecyclerView.Adapter<Private
     }
 
     public class UsersListViewHolder extends RecyclerView.ViewHolder{
-        TextView lastMessage,receiverName;
+        TextView lastMessage,receiverName , newMessages;
         ImageView receiverImageView;
         RelativeLayout messageInboxViewHolderLayout;
         public UsersListViewHolder(@NonNull View itemView) {
@@ -91,6 +100,7 @@ public class PrivateInboxRecycleViewAdapter extends RecyclerView.Adapter<Private
             lastMessage=itemView.findViewById(R.id.inbox_last_message);
             receiverImageView=itemView.findViewById(R.id.inbox_chat_item_image);
             receiverName=itemView.findViewById(R.id.inbox_chat_item_name);
+            newMessages = itemView.findViewById(R.id.new_messages);
             messageInboxViewHolderLayout=itemView.findViewById(R.id.message_inbox_users_view_layout);
             messageInboxViewHolderLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -113,9 +123,15 @@ public class PrivateInboxRecycleViewAdapter extends RecyclerView.Adapter<Private
                  Messages messages = snapshot.getValue(Messages.class);
                  if(messages.getType().equals("text")){
                      viewHolder.lastMessage.setText(messages.getMessage());
+
                  }else{
                      viewHolder.lastMessage.setText("Photo");
                  }
+//                 if(messages.getIsSeen().equals("false")){
+//                        viewHolder.newMessages.setVisibility(View.VISIBLE);
+//                        viewHolder.newMessages.setText("New");
+//                 }
+
 
                 }
             }
@@ -134,4 +150,35 @@ public class PrivateInboxRecycleViewAdapter extends RecyclerView.Adapter<Private
         });
 
     }
+    void getUnreadMessages(final String receiverID , final UsersListViewHolder viewHolder){
+        final ArrayList<Messages> unseenMessages = new ArrayList<>();
+        rootRef.child("Messages").child(mAuth.getInstance().getCurrentUser().getUid()).child(receiverID).orderByChild("isSeen").equalTo("false").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                unseenMessages.clear();
+                if(snapshot.exists()) {
+                    for (DataSnapshot datasnapshot:
+                            snapshot.getChildren()) {
+                        Messages messages = datasnapshot.getValue(Messages.class);
+                        if(messages.getFrom().equals(receiverID)){
+                            unseenMessages.add(messages);
+                        }
+                    }
+                    if(unseenMessages.size()>0) {
+                        viewHolder.newMessages.setVisibility(View.VISIBLE);
+                        viewHolder.newMessages.setText(Integer.toString(unseenMessages.size()));
+                    }
+                }else{
+                    viewHolder.newMessages.setVisibility(View.GONE);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+
 }

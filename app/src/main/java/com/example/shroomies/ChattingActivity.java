@@ -154,17 +154,19 @@ public class ChattingActivity extends AppCompatActivity {
         storagePermissions=new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
 
         linearLayoutManager=new LinearLayoutManager(this);
-        linearLayoutManager.setStackFromEnd(true);
         chattingRecycler.setHasFixedSize(true);
+        linearLayoutManager.setStackFromEnd(true);
         chattingRecycler.setLayoutManager(linearLayoutManager);
 
         requestQueue= Volley.newRequestQueue(getApplicationContext());
     }
     private void sendMessageToUser(){
+
         final String messageText=messageBody.getText().toString();
         if(TextUtils.isEmpty(messageText)){
             Toast.makeText(getApplicationContext(),"please enter a message",Toast.LENGTH_LONG).show();
         }else{
+            messageBody.setText("");
             notify=true;
             // referencing to database which user is send message to whom
            String messageSenderRef="Messages/"+senderID+"/"+receiverID;
@@ -193,7 +195,7 @@ public class ChattingActivity extends AppCompatActivity {
                @Override
                public void onComplete(@NonNull Task task) {
                    if(task.isSuccessful()){
-                       messageBody.setText("");
+
                        chattingRecycler.smoothScrollToPosition(messagesAdapter.getItemCount()-1);
                        if(firstChat){
                            addUserToInbox();
@@ -201,7 +203,7 @@ public class ChattingActivity extends AppCompatActivity {
                    }else{
                        String message =task.getException().getMessage();
                        Toast.makeText(getApplicationContext(),"Error "+message,Toast.LENGTH_SHORT).show();
-                       messageBody.setText("");
+
                    }
 
                }

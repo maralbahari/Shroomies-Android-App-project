@@ -25,11 +25,22 @@
             app:queryHint=" search usernames"
             android:elevation="8dp"/>
 
+
+        <TextView
+            android:id="@+id/recent_users_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Recent Users"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:textColor="@color/jetBlack"
+            android:layout_below="@id/create_group_search_bar"/>
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/suggestion_list_create_group"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/create_group_search_bar"
+            android:layout_below="@id/recent_users_text_view"
             android:layout_marginTop="9dp"
             />
 
