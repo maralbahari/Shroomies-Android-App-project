@@ -63,16 +63,15 @@
         </RelativeLayout>
 
 
-
-
-
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view_group_chatting"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@id/bottom_chatting_layout"
         android:layout_below="@id/include"
+        android:layout_marginTop="0dp"
+        android:layout_marginBottom="0dp"
+        android:background="@drawable/chatting_background"
         android:padding="5dp"
-        android:background="@color/Alabaster"
-        app:stackFromEnd="true"/>
+        app:stackFromEnd="true" />
 </RelativeLayout>
