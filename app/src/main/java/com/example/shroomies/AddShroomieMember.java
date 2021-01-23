@@ -127,7 +127,7 @@ public class AddShroomieMember extends DialogFragment {
 
     private void addInboxUsersToRecycler(final List<String> inboxListUsers) {
         suggestedUser = new ArrayList<>();
-//        userRecyclerAdapter=new UserAdapter(suggestedUser,getContext(),true  , false);
+        userRecyclerAdapter=new UserAdapter(suggestedUser,getContext(),true);
         addShroomieRecycler.setAdapter(userRecyclerAdapter);
         for(String id
                 :inboxListUsers){

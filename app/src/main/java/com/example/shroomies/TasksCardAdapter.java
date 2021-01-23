@@ -75,7 +75,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
     public class TasksCardViewHolder extends RecyclerView.ViewHolder implements View.OnTouchListener, GestureDetector.OnGestureListener {
 
         View taskImportanceView;
-        TextView title, description, dueDate, markAsDone;
+        TextView title, description, dueDate, markAsDone, mention;
         ImageButton delete, archive;
         ImageView sadShroomie, stars, shroomieArchive;
         Button cont, no, yesButton, noButton;
@@ -95,6 +95,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
             archive = v.findViewById(R.id.task_archive);
             done = v.findViewById(R.id.task_done);
             markAsDone = v.findViewById(R.id.task_mark_as_done);
+            mention = v.findViewById(R.id.task_mention);
 
 
             done.setOnClickListener(new View.OnClickListener() {
@@ -293,6 +294,8 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         holder.title.setText(tasksCardsList.get(position).getTitle());
         holder.description.setText(tasksCardsList.get(position).getDescription());
         holder.dueDate.setText(tasksCardsList.get(position).getDueDate());
+        holder.mention.setText(tasksCardsList.get(position).getMention());
+//        holder.mention.setTextColor(R.co);
         String importanceView = tasksCardsList.get(position).getImportance();
         Boolean cardStatus = tasksCardsList.get(position).getDone().equals("true");
             if (cardStatus){

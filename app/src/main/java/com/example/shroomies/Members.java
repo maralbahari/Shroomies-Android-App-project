@@ -83,7 +83,7 @@ public class Members extends DialogFragment {
                 add.show(getParentFragmentManager(),"add member to apartment");
             }
         });
-        getMember();
+
 
         leaveRoom.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -120,13 +120,15 @@ public class Members extends DialogFragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()){
+
                     for (DataSnapshot sp : snapshot.getChildren()){
-                        membersId.add(sp.getKey());
-                        getMemberDetail(membersId);
+                        Toast.makeText(getContext(),""+sp.getValue().toString(),Toast.LENGTH_LONG).show();
+                        membersId.add(sp.getValue().toString());
 
 
 
                     }
+                    getMemberDetail(membersId);
                 }
             }
 
@@ -174,7 +176,9 @@ public class Members extends DialogFragment {
                     if(mAuth.getCurrentUser().getUid().equals(apartmentID)){
                         leaveRoom.setVisibility(View.GONE);
                     }
+                    getMember();
                 }
+
             }
 
             @Override

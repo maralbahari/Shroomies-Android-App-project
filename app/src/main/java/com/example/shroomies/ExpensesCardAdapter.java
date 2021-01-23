@@ -93,6 +93,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
             holder.description.setText(cardsList.get(position).getDescription());
             holder.dueDate.setText(cardsList.get(position).getDueDate());
             String importanceViewColor = cardsList.get(position).getImportance();
+            holder.mention.setText(cardsList.get(position).getMention());
 
 
 
