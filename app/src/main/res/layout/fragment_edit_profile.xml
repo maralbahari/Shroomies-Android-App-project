@@ -93,7 +93,7 @@
 
     </EditText>
 
-    <EditText
+    <Button
         android:id="@+id/edit_username"
         android:layout_width="wrap_content"
         android:layout_height="50dp"
@@ -108,23 +108,26 @@
         android:drawableEnd="@drawable/ic_icon_ionic_ios_arrow_back"
         android:elevation="3dp"
         android:padding="10dp"
-        android:text="Username">
+        android:text="Change Username">
 
-    </EditText>
-    <EditText
-        android:padding="10dp"
+    </Button>
+
+    <Button
         android:id="@+id/edit_email"
         android:layout_width="wrap_content"
         android:layout_height="50dp"
-        android:elevation="3dp"
-        android:background="@drawable/textbox_round"
-        android:layout_centerHorizontal="true"
-        android:text="Email"
         android:layout_below="@id/edit_username"
-        android:layout_margin="10dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/textbox_round"
         android:drawableEnd="@drawable/ic_icon_ionic_ios_arrow_back"
-        >
-    </EditText>
+        android:elevation="3dp"
+        android:padding="10dp"
+        android:text="Change Email"
+        android:textAllCaps="false"></Button>
 
     <Button
         android:id="@+id/edit_password"
@@ -153,8 +156,21 @@
         android:layout_centerHorizontal="true"
         android:background="@drawable/button_round"
         android:text="Save"
-        android:textColor="@color/colorAccent"
+        android:textColor="@color/Black"
         android:layout_below="@+id/edit_password"
+        />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btn_delete"
+        android:layout_marginTop="15dp"
+        android:padding="10dp"
+        android:layout_centerHorizontal="true"
+        android:background="@drawable/button_round"
+        android:text="Delete account"
+        android:textColor="@color/Black"
+        android:layout_below="@+id/btn_save"
         />
 </RelativeLayout>
 </androidx.core.widget.NestedScrollView>

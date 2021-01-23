@@ -8,7 +8,7 @@
    <androidx.cardview.widget.CardView
        android:id="@+id/username_card"
        android:layout_width="350dp"
-       android:layout_height="400dp"
+       android:layout_height="500dp"
        android:layout_marginTop="100dp"
        android:layout_centerHorizontal="true"
        android:layout_centerVertical="true"
@@ -19,7 +19,7 @@
 
        <RelativeLayout
            android:layout_width="match_parent"
-           android:layout_height="377dp">
+           android:layout_height="500dp">
 
            <TextView
                android:id="@+id/textview_username"
@@ -32,7 +32,7 @@
                android:padding="20dp"
                android:text="Username:"
                android:textColor="@color/Black"
-               android:textSize="20dp"
+               android:textSize="20sp"
                android:textStyle="bold" />
 
            <TextView
@@ -48,7 +48,7 @@
                android:layout_marginBottom="1dp"
                android:padding="20dp"
                android:text=""
-               android:textSize="20dp"
+               android:textSize="20sp"
                android:textStyle="bold" />
 
            <TextView
@@ -63,7 +63,7 @@
                android:padding="20dp"
                android:text="Enter a new username:"
                android:textColor="@color/Black"
-               android:textSize="20dp" />
+               android:textSize="20sp" />
 
            <EditText
                android:id="@+id/new_username"
@@ -76,9 +76,10 @@
                android:layout_marginRight="10dp"
                android:background="@drawable/textbox_round"
                android:elevation="3dp"
-               android:inputType="text"
+               android:inputType="textPersonName|textCapWords"
                android:padding="20dp"
-               android:textSize="20sp"></EditText>
+               android:textSize="20sp"
+               ></EditText>
 
            <Button
                android:id="@+id/change_username"
@@ -91,10 +92,27 @@
                android:padding="10dp"
                android:text="Change username"
                android:textColor="@color/white"
-               android:textSize="20dp"
+               android:textSize="20sp"
                android:textStyle="bold">
 
            </Button>
+
+           <Button
+               android:id="@+id/exit"
+               android:layout_width="250dp"
+               android:layout_height="50dp"
+               android:layout_below="@+id/change_username"
+               android:layout_centerInParent="true"
+               android:layout_marginTop="30dp"
+               android:background="@drawable/publish_post_button"
+               android:padding="10dp"
+               android:text="Exit"
+               android:textColor="@color/white"
+               android:textSize="20sp"
+               android:textStyle="bold">
+
+           </Button>
+
 
 
        </RelativeLayout>

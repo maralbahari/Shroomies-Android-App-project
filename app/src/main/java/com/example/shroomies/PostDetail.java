@@ -47,12 +47,31 @@ private List <Post> postList;
         recyclerView.setAdapter(postAdapter);
 
         readPost();
+        readPersonalPost();
 
         return view;
     }
 
     private void readPost(){
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("postApartment").child(postid);
+        reference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                postList.clear();
+                Post post = snapshot.getValue(Post.class);
+                postList.add(post);
+                postAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void readPersonalPost(){
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("postPersonal").child(postid);
         reference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {

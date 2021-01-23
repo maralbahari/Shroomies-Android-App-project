@@ -13,7 +13,6 @@ import androidx.viewpager.widget.ViewPager;
 import com.google.android.material.tabs.TabItem;
 import com.google.android.material.tabs.TabLayout;
 
-
 public class Favorite extends Fragment {
 
     TabLayout tabFav;
@@ -21,13 +20,13 @@ public class Favorite extends Fragment {
     ViewPager VPfav;
 
 
-   View v;
+    View v;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         v=inflater.inflate(R.layout.fragment_my_favorite, container, false);
-    return v;
+        return v;
     }
 
     @Override
@@ -40,7 +39,7 @@ public class Favorite extends Fragment {
         final FavoritePageAdapter pageAdapter = new FavoritePageAdapter(getChildFragmentManager(), tabFav.getTabCount());
         VPfav.setAdapter(pageAdapter);
 
-        tabFav.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+        tabFav.setOnTabSelectedListener(new TabLayout.BaseOnTabSelectedListener(){
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 VPfav.setCurrentItem(tab.getPosition());

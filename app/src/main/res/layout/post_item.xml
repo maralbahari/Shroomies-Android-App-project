@@ -18,6 +18,12 @@
         android:layout_below="@+id/date"
         />
 
+    <TextView
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:id="@+id/personal"
+        android:layout_alignParentEnd="true"/>
+
 
 
         <TextView
@@ -28,13 +34,13 @@
             android:id="@+id/description"
             android:layout_below="@+id/post_image"/>
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_below="@+id/description"
-        android:textColor="@color/colorPrimaryDark"
-        android:textStyle="bold"
-        android:id="@+id/userID"/>
+<!--    <TextView-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:layout_marginStart="8dp"-->
+<!--        android:layout_below="@+id/description"-->
+<!--        android:textColor="@color/colorPrimaryDark"-->
+<!--        android:textStyle="bold"-->
+<!--        android:id="@+id/userID"/>-->
 
 </RelativeLayout>

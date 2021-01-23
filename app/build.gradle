@@ -21,12 +21,13 @@ android {
     }
 
 
-        buildTypes {
+    buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
+    buildToolsVersion '29.0.2'
 }
 
 dependencies {
@@ -76,8 +77,5 @@ dependencies {
     implementation 'com.google.firebase:firebase-messaging:21.0.1'
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'com.google.android.material:material:1.2.0-alpha02'
-
-
-
 }
 apply plugin: 'com.google.gms.google-services'

@@ -5,6 +5,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -29,6 +30,7 @@ public class ChangePassword extends Fragment {
     private EditText new_password;
     private EditText rep_password;
     private ImageButton change_password;
+    private Button exit;
 
     private FirebaseUser mUser;
     private FirebaseAuth mAuth;
@@ -44,6 +46,16 @@ public class ChangePassword extends Fragment {
         cur_password = v.findViewById(R.id.current_password);
         new_password = v.findViewById(R.id.edit_password);
         rep_password = v.findViewById(R.id.edit_repeat_password);
+        exit = v.findViewById(R.id.exit);
+
+        exit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((FragmentActivity)getContext()).getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer,
+                        new EditProfile()).commit();
+            }
+        });
+
 
         change_password = v.findViewById(R.id.password_button);
 
@@ -61,7 +73,10 @@ public class ChangePassword extends Fragment {
     private void newPassword() {
         if (cur_password.toString().isEmpty() && new_password.toString().isEmpty() && rep_password.toString().isEmpty()){
             Toast.makeText(getContext(), "Please fill all fields", Toast.LENGTH_SHORT).show();
-        } else {
+        } else if(cur_password.length() < 6 ){
+            Toast.makeText(getContext(), "Password too short", Toast.LENGTH_SHORT).show();
+        }
+        else {
             if((new_password.getText().toString()).equals(rep_password.getText().toString())){
                 //final String userUid =  mAuth.getInstance().getCurrentUser().getUid();
                 mUser = mAuth.getInstance().getCurrentUser();
@@ -93,7 +108,10 @@ public class ChangePassword extends Fragment {
                 Toast.makeText(getContext(), "Password mismatch. Please enter the same password in new password and repeat password.", Toast.LENGTH_SHORT).show();
             }
         }
+        ((FragmentActivity)getContext()).getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer,
+                new EditProfile()).commit();
     }
+
 
 
     @Override

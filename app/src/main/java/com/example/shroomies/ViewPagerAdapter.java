@@ -51,7 +51,7 @@ public class ViewPagerAdapter extends PagerAdapter {
 //        Transformation transformation = new context.getDrawable(R.drawable.post_card_rectangle_round));
 
 
-        MultiTransformation multiLeft = new MultiTransformation(new CenterCrop(), new RoundedCorners(80));
+        MultiTransformation multiLeft = new MultiTransformation(new CenterCrop(), new RoundedCorners(25));
 
 //        Glide.with(context)
 //                .load(message.imageUrl)

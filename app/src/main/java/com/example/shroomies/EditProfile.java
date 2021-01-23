@@ -1,7 +1,9 @@
 package com.example.shroomies;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.ContentResolver;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,6 +15,8 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -61,12 +65,9 @@ public class EditProfile extends Fragment {
     private ImageView profileImage;
     private ImageButton editImage;
 
-    private EditText email;
     private EditText bio;
 
-    private Button pw;
-    private Button save;
-    private EditText username;
+    private Button pw, save, delete, username, email;
     private FirebaseUser mUser;
     private FirebaseDatabase mDataref;
     private FirebaseAuth mAuth;
@@ -76,13 +77,12 @@ public class EditProfile extends Fragment {
     private StorageReference storageRef;
 
     final String userUid =  mAuth.getInstance().getCurrentUser().getUid();
-
+    AlertDialog.Builder builder;
 
     private static final int IMAGE_REQUEST= 1;
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_edit_profile, container, false);
         MainActivity.btm_view.setBackgroundColor(getResources().getColor(R.color.lowerGradientColorForLoginBackground, getActivity().getTheme()));
@@ -94,11 +94,11 @@ public class EditProfile extends Fragment {
         pw = v.findViewById(R.id.edit_password);
         bio = v.findViewById(R.id.edit_bio);
         save = v.findViewById(R.id.btn_save);
-
+        delete = v.findViewById(R.id.btn_delete);
+        builder = new AlertDialog.Builder(getActivity());
 
 
         mRootref = mDataref.getInstance().getReference();
-
 
         mRootref.child("Users").child(userUid).addValueEventListener(new ValueEventListener() {
             @Override
@@ -122,11 +122,43 @@ public class EditProfile extends Fragment {
             }
         });
 
+        delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                builder.setMessage("Are you sure you want to delete your account?").setCancelable(false)
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int id) {
+                                mUser = mAuth.getInstance().getCurrentUser();
+                                mUser.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<Void> task) {
+                                        if (task.isSuccessful()){
+                                            Toast.makeText(getActivity(), "Account deleted", Toast.LENGTH_SHORT).show();
+                                            Intent intent = new Intent(getContext(), LoginActivity.class);
+                                            startActivity(intent);
+                                        }
+                                    }
+                                });
+                            }
+                        })
+                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.cancel();
+
+                            }
+                        });
+                AlertDialog alert = builder.create();
+                alert.show();
+            }
+        });
+
         profileImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 openImage();
-              //  CropImage.activity().setCropShape(CropImageView.CropShape.OVAL).start(getActivity());
+
             }
         });
 
@@ -134,7 +166,7 @@ public class EditProfile extends Fragment {
             @Override
             public void onClick(View v) {
                openImage();
-              //  CropImage.activity().setCropShape(CropImageView.CropShape.OVAL).start(getActivity());
+
             }
         });
 
@@ -159,6 +191,13 @@ public class EditProfile extends Fragment {
             }
         });
 
+        email.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getFragment(new ChangeEmail());
+            }
+        });
+
 
         return v;
 
@@ -175,19 +214,27 @@ public class EditProfile extends Fragment {
 
     private void updateProfile() {
 
-        String txtEmail = email.getText().toString();
-        String txtBio = bio.getText().toString();
+        final String txtEmail = email.getText().toString();
+        final String txtBio = bio.getText().toString();
+
+//        if ((old_email.toString()).equals((txtEmail))){
+//
+//        } else {
+//            sendEmailVerification();
+//        }
 
         HashMap<String, Object> updateDetails = new HashMap<>();
         updateDetails.put("email", txtEmail);
         updateDetails.put("bio", txtBio);
+
 
         mDataref.getInstance().getReference().child("Users").child(userUid).updateChildren(updateDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
 
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
-                    Toast.makeText(getActivity(), "Updated successfully", Toast.LENGTH_SHORT).show();
+                  Toast.makeText(getActivity(), "Updated successfully", Toast.LENGTH_SHORT).show();
+
                 }
 
             }
@@ -197,8 +244,26 @@ public class EditProfile extends Fragment {
                 Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+
+//        email.addTextChangedListener(new TextWatcher() {
+//            @Override
+//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//            }
+//
+//            @Override
+//            public void onTextChanged(CharSequence s, int start, int before, int count) {
+//
+//            }
+//            @Override
+//            public void afterTextChanged(Editable s) {
+
+//            }
+//        });
+
     }
-    
+
+
+
     private void openImage() {
         Intent intent = new Intent();
         intent.setType("image/*");
@@ -294,3 +359,4 @@ public class EditProfile extends Fragment {
     }
 
 }
+

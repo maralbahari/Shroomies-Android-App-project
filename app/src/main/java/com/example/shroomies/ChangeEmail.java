@@ -1,64 +1,139 @@
 package com.example.shroomies;
 
+import android.content.Intent;
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+import android.widget.Toast;
 
-/**
- * A simple {@link Fragment} subclass.
- * Use the {@link ChangeEmail#newInstance} factory method to
- * create an instance of this fragment.
- */
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.HashMap;
+
 public class ChangeEmail extends Fragment {
+    private FirebaseUser mUser;
+    private FirebaseDatabase mDataref;
+    private FirebaseAuth mAuth;
+    private DatabaseReference mRootref;
+    final String userUid =  mAuth.getInstance().getCurrentUser().getUid();
 
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
-    public ChangeEmail() {
-        // Required empty public constructor
-    }
-
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment ChnageEmail.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static ChangeEmail newInstance(String param1, String param2) {
-        ChangeEmail fragment = new ChangeEmail();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
+    private EditText  email;
+    private TextView currentEmail;
+    private Button saveEmail, exit;
+    CardView cardEmail;
+    View v;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_change_email, container, false);
+        v=inflater.inflate(R.layout.fragment_change_email, container, false);
+        email = v.findViewById(R.id.new_email);
+        currentEmail = v.findViewById(R.id.textview_cur_email);
+        saveEmail = v.findViewById(R.id.change_email);
+        cardEmail = v.findViewById(R.id.email_card);
+        exit = v.findViewById(R.id.exit);
+
+        mRootref = mDataref.getInstance().getReference();
+        mRootref.child("Users").child(userUid).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                User user = snapshot.getValue(User.class);
+                currentEmail.setText(user.getEmail());
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+        saveEmail.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                updateEmail();
+            }
+        });
+
+        exit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((FragmentActivity)getContext()).getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer,
+                        new EditProfile()).commit();
+            }
+        });
+
+        return v;
+    }
+    private void updateEmail() {
+
+        String txtEmail = email.getText().toString();
+
+        HashMap<String, Object> updateDetails = new HashMap<>();
+        updateDetails.put("email", txtEmail);
+
+        mDataref.getInstance().getReference().child("Users").child(userUid).updateChildren(updateDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
+
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    Toast.makeText(getActivity(), "Updated email successfully", Toast.LENGTH_SHORT).show();
+                    sendEmailVerification();
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void sendEmailVerification() {
+        mUser = mAuth.getInstance().getCurrentUser();
+
+        mUser.updateEmail(email.getText().toString()).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                   // Toast.makeText(getContext(), "Error! Try again", Toast.LENGTH_SHORT).show();
+                    final FirebaseUser user = mAuth.getInstance().getCurrentUser();
+                    user.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            if (task.isSuccessful()) {
+                                Toast.makeText(getActivity(), "Updated Successfully. Verification email sent to " + mUser.getEmail(), Toast.LENGTH_SHORT).show();
+                                Intent intent = new Intent(getActivity(), LoginActivity.class);
+                                startActivity(intent);
+
+                            } else {
+                                Toast.makeText(getActivity(), "Failed to send verification email", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                }
+                else {
+
+                }
+            }
+        });
+
     }
 }

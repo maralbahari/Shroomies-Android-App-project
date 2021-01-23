@@ -474,7 +474,7 @@ public class GroupChattingActivity extends AppCompatActivity {
                             :snapshot.getChildren()){
                         dataSnapshot.child("seenBy").child(mAuth.getCurrentUser().getUid()).getRef().setValue("true");
                     }
-                    MainActivity.setBadgeToNumberOfNotifications(rootRef, mAuth);
+//                    MainActivity.setBadgeToNumberOfNotifications(rootRef, mAuth);
                 }
             }
 

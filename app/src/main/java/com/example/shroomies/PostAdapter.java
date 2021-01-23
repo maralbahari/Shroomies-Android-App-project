@@ -4,6 +4,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -19,6 +20,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 import java.util.List;
 
@@ -48,9 +51,9 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
 
         firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         final Post post = mPosts.get(position);
-
-        Glide.with(mContext).load(post.getPostimage())
-                .apply(new RequestOptions().placeholder((R.drawable.ic_user_profile_svgrepo_com)))
+        StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(post.toString());
+        Glide.with(mContext).load(storageReference)
+                .fitCenter()
                 .into(holder.post_image);
 
         if (post.getDescription().equals("")){
@@ -62,6 +65,16 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
         }
 
         publisherInfo(holder.publisher, post.getUserID());
+        isPersonal(post.getPostid(), holder.personal);
+
+
+        holder.personal.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FirebaseDatabase.getInstance().getReference().child("postPersonal").child(firebaseUser.getUid())
+                        .child(post.getPostid()).setValue(true);
+            }
+        });
     }
 
     private void publisherInfo(final TextView publisher, final String userUid){
@@ -79,24 +92,54 @@ public class PostAdapter extends RecyclerView.Adapter<PostAdapter.ImageViewHolde
             }
         });
     }
+
+    private void isPersonal(final String postid, final TextView description){
+        final FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference().child("postPersonal").child(firebaseUser.getUid());
+        reference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.child(postid).exists()){
+                    description.setText(dataSnapshot.getValue(Post.class).getDescription());
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
     @Override
     public int getItemCount() {
         return mPosts.size();
     }
-public class ImageViewHolder extends RecyclerView.ViewHolder {
+    public class ImageViewHolder extends RecyclerView.ViewHolder {
 
     public ImageView post_image;
-    public TextView publisher, description;
+    public TextView publisher, description, date, personal;
 
     public ImageViewHolder(View itemView) {
         super(itemView);
 
         post_image = itemView.findViewById(R.id.post_image);
-
-        publisher = itemView.findViewById(R.id.userID);
+        date = itemView.findViewById(R.id.date);
+//        publisher = itemView.findViewById(R.id.userID);
         description = itemView.findViewById(R.id.description);
 
-
     }
+    }
+    private void getText(String postid, final EditText editText){
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Posts").child(postid);
+        reference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                editText.setText(dataSnapshot.getValue(Post.class).getDescription());
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 }

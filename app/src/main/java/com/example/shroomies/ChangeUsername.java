@@ -1,10 +1,12 @@
 package com.example.shroomies;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,7 +38,7 @@ public class ChangeUsername extends Fragment {
 
     private EditText username;
     private TextView currentUsername;
-    private Button saveUsername;
+    private Button saveUsername, exit;
     CardView cardUsername;
 
     View v;
@@ -50,6 +52,7 @@ public class ChangeUsername extends Fragment {
         currentUsername = v.findViewById(R.id.textview_cur_username);
         saveUsername = v.findViewById(R.id.change_username);
         cardUsername = v.findViewById(R.id.username_card);
+        exit = v.findViewById(R.id.exit);
 
         mRootref = mDataref.getInstance().getReference();
         mRootref.child("Users").child(userUid).addValueEventListener(new ValueEventListener() {
@@ -70,6 +73,15 @@ public class ChangeUsername extends Fragment {
                 updateUsername();
             }
         });
+
+        exit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((FragmentActivity)getContext()).getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer,
+                        new EditProfile()).commit();
+            }
+        });
+
         return v;
     }
 
@@ -85,6 +97,7 @@ public class ChangeUsername extends Fragment {
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
                     Toast.makeText(getActivity(), "Updated username successfully", Toast.LENGTH_SHORT).show();
+
                 }
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -93,5 +106,8 @@ public class ChangeUsername extends Fragment {
                 Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
             }
         });
+        ((FragmentActivity)getContext()).getSupportFragmentManager().beginTransaction().replace(R.id.fragmentContainer,
+                new EditProfile()).commit();
     }
+
 }
