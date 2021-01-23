@@ -66,6 +66,7 @@
 
     </com.google.android.material.tabs.TabLayout>
     <TextView
+        android:id="@+id/FavNoAptText"
         android:layout_marginTop="200dp"
         android:textSize="24sp"
         android:layout_width="match_parent"

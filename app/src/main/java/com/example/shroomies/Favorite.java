@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -38,6 +39,7 @@ public class Favorite extends Fragment {
     RecycleViewAdapterApartments favAptRecyclerAdapter;
     FragmentManager fragmentManager;
     FragmentTransaction fragmentTransaction;
+    TextView favText;
    View v;
 
 
@@ -47,36 +49,64 @@ public class Favorite extends Fragment {
         // Inflate the layout for this fragment
         v=inflater.inflate(R.layout.fragment_my_favorite, container, false);
 
-        favAptRecyclerView = v.findViewById(R.id.fav_recycler_view);
-        favAptRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        apartmentList = new ArrayList<>();
-        
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         final String CurrUserId = firebaseUser.getUid();
-        DatabaseReference DatabaseRef = FirebaseDatabase.getInstance().getReference("Favorite");
-        DatabaseReference ref = DatabaseRef.child(CurrUserId).child("ApartmentPost");
-
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Favorite").child(CurrUserId)
+                .child("ApartmentPost");
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
+
+
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot ds : snapshot.getChildren()){
-                    Apartment favApt = ds.getValue(Apartment.class);
-                    apartmentList.add(favApt);
+
+
+                if (snapshot.getValue() != null) {
+
+                    favAptRecyclerView = v.findViewById(R.id.fav_recycler_view);
+                    favAptRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+                    apartmentList = new ArrayList<>();
+
+
+                    DatabaseReference DatabaseRef = FirebaseDatabase.getInstance().getReference("Favorite");
+                    DatabaseReference ref = DatabaseRef.child(CurrUserId).child("ApartmentPost");
+                    ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            for (DataSnapshot ds : snapshot.getChildren()) {
+                                Apartment favApt = ds.getValue(Apartment.class);
+                                apartmentList.add(favApt);
+
+                            }
+                            favAptRecyclerAdapter = new RecycleViewAdapterApartments(apartmentList, getContext());
+                            favAptRecyclerView.setAdapter(favAptRecyclerAdapter);
+
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                            Toast.makeText(getContext(), "An unexpected error occured", Toast.LENGTH_LONG);
+
+                        }
+                    });
+                }
+                else {
+                    favText = v.findViewById(R.id.FavNoAptText);
+                    favText.setVisibility(View.VISIBLE);
+
 
                 }
-                favAptRecyclerAdapter = new RecycleViewAdapterApartments(apartmentList, getContext());
-                favAptRecyclerView.setAdapter(favAptRecyclerAdapter);
-
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getContext(), "An unexpected error occured", Toast.LENGTH_LONG);
 
             }
+
+
         });
     return v;
     }
+
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
