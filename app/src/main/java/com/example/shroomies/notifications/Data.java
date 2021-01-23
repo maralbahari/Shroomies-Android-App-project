@@ -1,7 +1,7 @@
 package com.example.shroomies.notifications;
 
 public class Data {
-    private String user,body,title,sent , groupID;
+    private String user,body,title,sent , groupID , cardNotification;
     private Integer icon;
 
     public Data(String user, String body, String title, String sent, Integer icon) {
@@ -18,6 +18,22 @@ public class Data {
         this.title = title;
         this.sent = sent;
         this.icon = icon;
+    }
+    public Data(String user, String body, String title, String sent, Integer icon , String cardNotification) {
+        this.user = user;
+        this.body = body;
+        this.title = title;
+        this.sent = sent;
+        this.icon = icon;
+        this.cardNotification = cardNotification;
+    }
+
+    public String isCardNotification() {
+        return cardNotification;
+    }
+
+    public void setCardNotification(String cardNotification) {
+        this.cardNotification = cardNotification;
     }
 
     public void setGroupID(String groupID) {

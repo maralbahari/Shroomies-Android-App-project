@@ -48,6 +48,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
@@ -524,13 +525,16 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
                         if(IMAGE_URLS.size() == imageUri.size()){
                             addToRealTimeDatabase(locationLtLng ,  description ,  numberRoomMate ,  price , property ,IMAGE_URLS);
                         }
-                    }else{
-                        uploadingProgress.pauseAnimation();
-                        uploadingProgress.setVisibility(View.GONE);
-                        publishPostButton.setVisibility(View.VISIBLE);
-                        nestedScrollView.setAlpha((float) 1);
-                        Toast.makeText(getActivity(), "we ran into a problem uploading your photos" , Toast.LENGTH_LONG).show();
                     }
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    uploadingProgress.pauseAnimation();
+                    uploadingProgress.setVisibility(View.GONE);
+                    publishPostButton.setVisibility(View.VISIBLE);
+                    nestedScrollView.setAlpha((float) 1);
+                    Toast.makeText(getActivity(), "we ran into a problem uploading your photos" , Toast.LENGTH_LONG).show();
                 }
             });
         }
