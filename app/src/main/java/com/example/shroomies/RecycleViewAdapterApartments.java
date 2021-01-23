@@ -147,15 +147,16 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
                             }
                             else {
                                 DatabaseReference anotherRef = favRef.child(Uid).child("ApartmentPost").child(apartmentList.get(position).getId());
-                                anotherRef.child("PostID").setValue(apartmentList.get(position).getId());
-                                anotherRef.child("UID").setValue(apartmentList.get(position).getUserID());
-                                anotherRef.child("Price").setValue(apartmentList.get(position).getPrice());
-                                anotherRef.child("Date").setValue(apartmentList.get(position).getDate());
-                                anotherRef.child("Description").setValue(apartmentList.get(position).getDescription());
-                                anotherRef.child("Preferences").setValue(apartmentList.get(position).getPreferences());
-                                anotherRef.child("Lat").setValue(apartmentList.get(position).getLatitude());
-                                anotherRef.child("Long").setValue(apartmentList.get(position).getLongitude());
-                                anotherRef.child("NumberOfRoomMates").setValue(apartmentList.get(position).getNumberOfRoommates());
+                                anotherRef.child("id").setValue(apartmentList.get(position).getId());
+                                anotherRef.child("userID").setValue(apartmentList.get(position).getUserID());
+                                anotherRef.child("image_url").setValue(apartmentList.get(position).getImage_url());
+                                anotherRef.child("price").setValue(apartmentList.get(position).getPrice());
+                                anotherRef.child("date").setValue(apartmentList.get(position).getDate());
+                                anotherRef.child("description").setValue(apartmentList.get(position).getDescription());
+                                anotherRef.child("preferences").setValue(apartmentList.get(position).getPreferences());
+                                anotherRef.child("latitude").setValue(apartmentList.get(position).getLatitude());
+                                anotherRef.child("longitude").setValue(apartmentList.get(position).getLongitude());
+                                anotherRef.child("numberOfRoommates").setValue(apartmentList.get(position).getNumberOfRoommates());
                                 Toast.makeText(context,"Post added to favorites",Toast.LENGTH_LONG).show();
                                 holder.BUT_fav_apt.setImageResource(R.drawable.ic_icon_awesome_star_checked);
                                 checkClick[0] = false;

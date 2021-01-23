@@ -138,14 +138,14 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
                             }
                             else {
                                 DatabaseReference anotherRef = favRef.child(Uid).child("PersonalPost").child(personalPostModelList.get(position).getId());
-                                anotherRef.child("PostID").setValue(personalPostModelList.get(position).getId());
-                                anotherRef.child("UID").setValue(personalPostModelList.get(position).getUserID());
-                                anotherRef.child("Price").setValue(personalPostModelList.get(position).getPrice());
-                                anotherRef.child("Date").setValue(personalPostModelList.get(position).getDate());
-                                anotherRef.child("Description").setValue(personalPostModelList.get(position).getDescription());
-                                anotherRef.child("Preferences").setValue(personalPostModelList.get(position).getPreferences());
-                                anotherRef.child("Lat").setValue(personalPostModelList.get(position).getLatitude());
-                                anotherRef.child("Long").setValue(personalPostModelList.get(position).getLongitude());
+                                anotherRef.child("id").setValue(personalPostModelList.get(position).getId());
+                                anotherRef.child("userID").setValue(personalPostModelList.get(position).getUserID());
+                                anotherRef.child("price").setValue(personalPostModelList.get(position).getPrice());
+                                anotherRef.child("date").setValue(personalPostModelList.get(position).getDate());
+                                anotherRef.child("description").setValue(personalPostModelList.get(position).getDescription());
+                                anotherRef.child("preferences").setValue(personalPostModelList.get(position).getPreferences());
+                                anotherRef.child("latitude").setValue(personalPostModelList.get(position).getLatitude());
+                                anotherRef.child("longitude").setValue(personalPostModelList.get(position).getLongitude());
                                 Toast.makeText(context,"Post added to favorites",Toast.LENGTH_LONG).show();
                                 holder.BT_fav.setImageResource(R.drawable.ic_icon_awesome_star_checked);
                                 checkClick[0] = false;
