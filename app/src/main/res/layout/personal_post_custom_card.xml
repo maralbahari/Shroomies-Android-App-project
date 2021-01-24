@@ -64,8 +64,8 @@
 
             <ImageView
                 android:id="@+id/user_image_personal_card"
-                android:layout_width="110dp"
-                android:layout_height="115dp"
+                android:layout_width="122dp"
+                android:layout_height="125dp"
                 android:layout_below="@id/top_bar_linear_layout"
                 android:layout_marginLeft="10dp"
                 android:layout_marginTop="10dp"
@@ -75,14 +75,14 @@
             <TextView
 
                 android:id="@+id/personal_card_text_view"
-                android:layout_width="280dp"
-                android:layout_height="190dp"
+                android:layout_width="248dp"
+                android:layout_height="179dp"
                 android:layout_above="@id/start_chat_button"
                 android:layout_below="@id/top_bar_linear_layout"
                 android:layout_marginLeft="15dp"
                 android:layout_marginTop="15dp"
                 android:layout_marginRight="10dp"
-                android:layout_marginBottom="9dp"
+                android:layout_marginBottom="11dp"
                 android:layout_toRightOf="@id/user_image_personal_card"
                 android:background="@drawable/post_card_rectangle_round"
                 android:elevation="5dp"
@@ -91,30 +91,31 @@
 
             <TextView
                 android:id="@+id/user_name_personal_card"
-                android:layout_width="140dp"
-                android:layout_height="wrap_content"
+                android:layout_width="138dp"
+                android:layout_height="52dp"
                 android:layout_below="@id/user_image_personal_card"
                 android:layout_marginLeft="10dp"
                 android:layout_marginTop="5dp"
+                android:layout_marginRight="-13dp"
                 android:layout_toLeftOf="@id/personal_card_text_view"
                 android:text="User name"
                 android:textSize="20dp" />
 
-            <TextView
-                android:id="@+id/bio_personal_card"
-                android:layout_width="140dp"
-                android:layout_height="wrap_content"
-                android:layout_below="@+id/user_name_personal_card"
-                android:layout_marginLeft="10dp"
-                android:layout_toLeftOf="@id/personal_card_text_view"
-                android:text="Bsc in computer science" />
+<!--            <TextView-->
+<!--                android:id="@+id/bio_personal_card"-->
+<!--                android:layout_width="140dp"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_below="@+id/user_name_personal_card"-->
+<!--                android:layout_marginLeft="10dp"-->
+<!--                android:layout_toLeftOf="@id/personal_card_text_view"-->
+<!--                android:text="Bsc in computer science" />-->
 
 
             <LinearLayout
                 android:id="@+id/properties_linear_layout"
                 android:layout_width="164dp"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/bio_personal_card"
+                android:layout_below="@+id/user_name_personal_card"
                 android:layout_marginLeft="8dp"
                 android:layout_marginTop="9dp"
                 android:layout_marginBottom="3dp"
@@ -179,7 +180,7 @@
                 android:id="@+id/start_chat_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/bio_personal_card"
+                android:layout_below="@id/user_name_personal_card"
                 android:layout_marginLeft="21dp"
                 android:layout_marginTop="13dp"
                 android:layout_marginRight="8dp"
@@ -200,7 +201,7 @@
                 android:id="@+id/BUT_fav"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/bio_personal_card"
+                android:layout_below="@+id/user_name_personal_card"
                 android:layout_alignParentEnd="true"
                 android:layout_alignParentRight="true"
                 android:layout_toRightOf="@id/start_chat_button"

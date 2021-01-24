@@ -16,6 +16,7 @@
     <string name="title_activity_group_chatting">GroupChattingActivity</string>
     <string name="favorites">Favorites</string>
     <string name="looks_like_you_have_no_favorite_apartment_posts">Looks like you have no favorite apartment posts....</string>
+    <string name="NoPersonalPostText">Looks like you have no favorite personal posts yet...</string>
 
     <string-array name="spinner_options">
         <item>Importance</item>

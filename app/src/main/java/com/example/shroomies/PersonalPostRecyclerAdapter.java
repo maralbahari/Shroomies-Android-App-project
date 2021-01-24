@@ -63,7 +63,7 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
 
                     User user = snapshot.getValue(User.class);
                     holder.TV_userName.setText(user.getName());
-                    holder.TV_userOccupation.setText(user.getBio());
+//                    holder.TV_userOccupation.setText(user.getBio());
                     if (!user.getImage().isEmpty()){
                     Glide.with(holder.IV_userPic.getContext()).
                             load(user.getImage())
@@ -182,7 +182,7 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
         //initializing
         ImageView IV_userPic;
         TextView TV_userName;
-        TextView TV_userOccupation;
+//        TextView TV_userOccupation;
         TextView TV_userBudget;
         TextView TV_DatePosted;
         TextView TV_userDescription;
@@ -201,7 +201,7 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
 
             IV_userPic = itemView.findViewById(R.id.user_image_personal_card);
             TV_userName = itemView.findViewById(R.id.user_name_personal_card);
-            TV_userOccupation = itemView.findViewById(R.id.bio_personal_card);
+//            TV_userOccupation = itemView.findViewById(R.id.bio_personal_card);
             TV_userBudget = itemView.findViewById(R.id.personal_post_budget_text_view);
             TV_DatePosted = itemView.findViewById(R.id.personal_post_date_text_view);
             TV_userDescription = itemView.findViewById(R.id.personal_card_text_view);

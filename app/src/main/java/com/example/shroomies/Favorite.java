@@ -10,12 +10,9 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.tabs.TabItem;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -32,17 +29,18 @@ import java.util.List;
 public class Favorite extends Fragment {
 
     TabLayout tabLayoutFavorite;
-    ArrayList<PersonalPostModel> personalPostModelList;
+    List<PersonalPostModel> personalPostModelList;
     List<Apartment> apartmentList;
     RecyclerView favAptRecyclerView;
     RecycleViewAdapterApartments favAptRecyclerAdapter;
-    FragmentManager fragmentManager;
-    FragmentTransaction fragmentTransaction;
     TextView favText;
-   View v;
+
+    View v;
     FirebaseUser firebaseUser;
     ArrayList<String> apartmentIds;
     DatabaseReference rootRef;
+    ArrayList<String> personalPostIds;
+    PersonalPostRecyclerAdapter personalPostRecyclerAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -89,8 +87,46 @@ public class Favorite extends Fragment {
 
     }
 
+    void getPersonal(){
+        personalPostIds = new ArrayList<>();
+        personalPostModelList = new ArrayList<>();
+        personalPostRecyclerAdapter = new PersonalPostRecyclerAdapter(personalPostModelList , getActivity());
+        favAptRecyclerView.setAdapter(personalPostRecyclerAdapter);
+        final String CurrUserId = firebaseUser.getUid();
+        rootRef.child("Favorite").child(CurrUserId).child("PersonalPost").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    for(DataSnapshot dataSnapshot : snapshot.getChildren()){
+                        String postId = dataSnapshot.getKey();
+                        personalPostIds.add(postId);
+                    }
 
-   void getApartments(){
+                    getPersonalPostFromId(personalPostIds);
+
+                }
+                else {
+                    favText = v.findViewById(R.id.FavNoAptText);
+                    favText.setText(R.string.NoPersonalPostText);
+                    favText.setVisibility(View.VISIBLE);
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(getContext(), "An unexpected error occurred", Toast.LENGTH_LONG);
+
+            }
+        });
+
+
+
+    }
+
+
+
+    void getApartments(){
         apartmentIds = new ArrayList<>();
         apartmentList = new ArrayList<>();
         favAptRecyclerAdapter = new RecycleViewAdapterApartments(apartmentList , getActivity());
@@ -122,6 +158,7 @@ public class Favorite extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(getContext(), "An unexpected error occurred", Toast.LENGTH_LONG);
 
             }
 
@@ -146,18 +183,37 @@ public class Favorite extends Fragment {
                 }
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
-                    Toast.makeText(getContext(), "An unexpected error occured", Toast.LENGTH_LONG);
+                    Toast.makeText(getContext(), "An unexpected error occurred", Toast.LENGTH_LONG);
 
                 }
             });
         }
 
     }
-    void getPersonal(){
-        // add code here
+    private void getPersonalPostFromId(ArrayList<String> personalPostIds) {
+    for (String id: personalPostIds){
+        rootRef.child("postPersonal").child(id).addListenerForSingleValueEvent(new ValueEventListener(){
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+            if(snapshot.exists()){
+                PersonalPostModel favPersonal = snapshot.getValue(PersonalPostModel.class);
+                personalPostModelList.add(favPersonal);
+                personalPostRecyclerAdapter.notifyDataSetChanged();
 
+
+            }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(getContext(), "An unexpected error occurred", Toast.LENGTH_LONG);
+
+            }
+        });
+    }
 
     }
+
 
 
 }
