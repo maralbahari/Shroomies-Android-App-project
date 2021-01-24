@@ -78,18 +78,20 @@
         android:layout_marginStart="100dp"
         android:layout_marginTop="40dp"
         android:layout_marginEnd="100dp"
+        android:layout_marginBottom="20dp"
         android:gravity="center"
         android:shadowColor="@android:color/black"
-        android:shadowDx="5"
-        android:shadowDy="5"
-        android:shadowRadius="5"
+        android:shadowDx="1"
+        android:shadowDy="1"
+        android:shadowRadius="2"
         android:text="Sign up"
         android:textAlignment="center"
         android:textSize="24sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/google_sign_up" />
+        app:layout_constraintTop_toBottomOf="@+id/google_sign_up"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
     <ImageButton
         android:id="@+id/login_button"
@@ -105,7 +107,7 @@
 
     <Button
         android:id="@+id/google_sign_up"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="52dp"
         android:layout_marginTop="142dp"
@@ -118,7 +120,6 @@
         android:maxWidth="400dp"
         android:padding="10dp"
         android:text="   Continue with Google"
-        android:textAlignment="textStart"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.428"

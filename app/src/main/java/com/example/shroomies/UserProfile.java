@@ -11,7 +11,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import com.bumptech.glide.Glide;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -41,30 +41,39 @@ public class UserProfile extends Fragment {
     private TextView numPosts;
     private TextView posts;
     private ImageView profileImage;
-
     private FirebaseUser mUser;
     private TabLayout profileTab;
     private FirebaseAuth mAuth;
     private FirebaseDatabase mDataref;
-    private DatabaseReference mRootref;
+    private DatabaseReference rootRef;
     TabItem apartment, personal;
-    final String userUid =  mAuth.getInstance().getCurrentUser().getUid();
-
     String profileid;
-    private RecyclerView recyclerView, recyclerViewPersonal;
-    private PhotosAdapter photosAdapter, photosAdapterPersonal;
-    private List<Post> postList, postListPersonal;
-
-    int currentTabPosition = 0;
-
+    private RecyclerView recyclerView;
+    private RecycleViewAdapterApartments apartmentAdapter;
+    private PersonalPostRecyclerAdapter personalPostRecyclerAdapter;
+    private List<Apartment> apartmentPostList;
+    private List<PersonalPostModel> postListPersonal;
     FragmentManager fm;
     FragmentTransaction ft;
+    View v;
 
-   View v;
+
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         v=inflater.inflate(R.layout.fragment_user_profile, container, false);
+        rootRef = FirebaseDatabase.getInstance().getReference();
+        mAuth = FirebaseAuth.getInstance();
+        getUserInfo();
+        return v;
+    }
+
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        // intialize views
         editProfile = v.findViewById(R.id.edit_profile_button_my_profile);
         profileImage = v.findViewById(R.id.profile_image);
         viewUsername = v.findViewById(R.id.view_username);
@@ -78,74 +87,27 @@ public class UserProfile extends Fragment {
         profileid = prefs.getString("profileid", "none");
 
         posts = v.findViewById(R.id.number_posts);
+
+
         recyclerView = v.findViewById(R.id.recycler_view);
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager mLayoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(mLayoutManager);
-        postList = new ArrayList<>();
-        photosAdapter = new PhotosAdapter(getContext(), postList);
-        recyclerView.setAdapter(photosAdapter);
-        recyclerView.setVisibility(View.VISIBLE);
-
-        recyclerViewPersonal = v.findViewById(R.id.recycler_view);
-        recyclerViewPersonal.setHasFixedSize(true);
-        LinearLayoutManager LayoutManager = new LinearLayoutManager(getContext());
-        recyclerViewPersonal.setLayoutManager(LayoutManager);
-        postListPersonal = new ArrayList<>();
-        photosAdapterPersonal = new PhotosAdapter(getContext(), postListPersonal);
-        recyclerViewPersonal.setAdapter(photosAdapter);
-        recyclerViewPersonal.setVisibility(View.GONE);
+        // initially get the apartments
+        getApartmentPosts();
 
 
         getNumPosts();
-        getPosts();
-        getPersonalPosts();
 
 
-        mRootref = mDataref.getInstance().getReference();
-        mRootref.child("Users").child(userUid).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                User user = snapshot.getValue(User.class);
-                viewUsername.setText(user.getName());
-                viewBio.setText(user.getBio());
-                String url = snapshot.child("image").getValue(String.class);
-                GlideApp.with(getActivity().getApplicationContext())
-                        .load(url)
-                        .circleCrop()
-                        .placeholder(R.drawable.ic_user_profile_svgrepo_com)
-                        .into(profileImage);
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
 
         profileTab.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 if(tab.getPosition()==1){
-//                    personal.setOnClickListener(new View.OnClickListener() {
-//                        @Override
-//                        public void onClick(View v) {
-                            recyclerViewPersonal.setVisibility(View.VISIBLE);
-                            recyclerView.setVisibility(View.GONE);
-                            currentTabPosition = 1;
-                            getPersonalPosts();
-//                        }
-//                    });
-
-                }else{
-//                    apartment.setOnClickListener(new View.OnClickListener() {
-//                        @Override
-//                        public void onClick(View v) {
-                            recyclerViewPersonal.setVisibility(View.GONE);
-                            recyclerView.setVisibility(View.VISIBLE);
-                            currentTabPosition = 0;
-//                        }
-//                    });
+                    getPersonalPosts();
+                }else if (tab.getPosition()==0){
+                    getApartmentPosts();
                 }
             }
 
@@ -160,12 +122,22 @@ public class UserProfile extends Fragment {
             }
         });
 
-        return v;
+
+
+
+
+        editProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getFragment(new EditProfile());
+            }
+        });
     }
 
+
+
     private void getNumPosts(){
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("postApartment");
-        reference.addValueEventListener(new ValueEventListener() {
+        rootRef.child("postApartment").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 int i=0;
@@ -176,7 +148,7 @@ public class UserProfile extends Fragment {
                     }
 
                 }
-               posts.setText("" +i + " Posts");
+               posts.setText(Integer.toString(i));
             }
 
             @Override
@@ -187,44 +159,54 @@ public class UserProfile extends Fragment {
 
     }
 
-    private void getPosts(){
-        profileid =  mAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("postApartment");
-        reference.addValueEventListener(new ValueEventListener() {
+    private void getApartmentPosts() {
+        apartmentPostList = new ArrayList<>();
+        apartmentAdapter = new RecycleViewAdapterApartments(apartmentPostList , getActivity());
+        recyclerView.setAdapter(apartmentAdapter);
+
+        profileid = mAuth.getInstance().getCurrentUser().getUid();
+        rootRef.child("postApartment").orderByChild("userID").equalTo(mAuth.getInstance().getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                postList.clear();
-                for(DataSnapshot snapshot: dataSnapshot.getChildren()){
-                    Post post = snapshot.getValue(Post.class);
-                    if (post.getUserID().equals(profileid)){
-                        postList.add(post);
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
+                    for(DataSnapshot dataSnapshot:
+                            snapshot.getChildren()){
+                        Apartment apartmentPost = dataSnapshot.getValue(Apartment.class);
+                        apartmentPostList.add(apartmentPost);
                     }
-                    }
-                Collections.reverse(postList);
-                photosAdapter.notifyDataSetChanged();
-          }
+                    Collections.reverse(apartmentPostList);
+                    apartmentAdapter.notifyDataSetChanged();
+                }
+
+            }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
 
             }
         });
+
+
     }
 
     private void getPersonalPosts(){
-        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("postPersonal");
-        reference.addValueEventListener(new ValueEventListener() {
+
+        postListPersonal = new ArrayList<>();
+        personalPostRecyclerAdapter = new PersonalPostRecyclerAdapter(postListPersonal , getActivity());
+        recyclerView.setAdapter(personalPostRecyclerAdapter);
+        rootRef.child("postPersonal").orderByChild("userID").equalTo(mAuth.getInstance().getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-               postListPersonal.clear();
-                for(DataSnapshot snapshot: dataSnapshot.getChildren()){
-                    Post post = snapshot.getValue(Post.class);
-                    if (post.getUserID().equals(profileid)){
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
+                    for(DataSnapshot dataSnapshot: snapshot.getChildren()){
+                        PersonalPostModel post = dataSnapshot.getValue(PersonalPostModel.class);
                         postListPersonal.add(post);
                     }
+                    Collections.reverse(postListPersonal);
+                    personalPostRecyclerAdapter.notifyDataSetChanged();
+
                 }
-                Collections.reverse(postListPersonal);
-                photosAdapterPersonal.notifyDataSetChanged();
+
             }
 
             @Override
@@ -234,16 +216,7 @@ public class UserProfile extends Fragment {
         });
     }
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        editProfile.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                getFragment(new EditProfile());
-            }
-        });
-    }
+
 
 
     private void getFragment (Fragment fragment) {
@@ -253,6 +226,37 @@ public class UserProfile extends Fragment {
         ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
         ft.replace(R.id.fragmentContainer, fragment);
         ft.commit();
+    }
+
+
+   void  getUserInfo(){
+       rootRef = mDataref.getInstance().getReference();
+       rootRef.child("Users").child(mAuth.getInstance().getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+           @Override
+           public void onDataChange(@NonNull DataSnapshot snapshot) {
+               if(snapshot.exists()) {
+                   User user = snapshot.getValue(User.class);
+                   viewUsername.setText(user.getName());
+                   viewBio.setText(user.getBio());
+                   String url = snapshot.child("image").getValue(String.class);
+                   if (user.getImage() != null) {
+                       GlideApp.with(getActivity().getApplicationContext())
+                               .load(url)
+                               .circleCrop()
+                               .into(profileImage);
+
+                       profileImage.setPadding(4,4,4,4);
+                   }
+
+               }
+
+           }
+
+           @Override
+           public void onCancelled(@NonNull DatabaseError error) {
+
+           }
+       });
     }
 
 }
