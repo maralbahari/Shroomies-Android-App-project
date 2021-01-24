@@ -73,7 +73,7 @@
         android:layout_height="wrap_content"
         android:gravity="center_horizontal|center_vertical"
         android:visibility="gone"
-        android:text="@string/looks_like_you_have_no_favorite_apartment_posts" />
+        android:text="Looks like you have no favorite posts yet" />
 
 
     <androidx.recyclerview.widget.RecyclerView
@@ -82,10 +82,7 @@
         android:layout_height="match_parent"
         android:layout_margin="8dp"
         />
-    <FrameLayout
-        android:id="@+id/frame_layout_fav"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+
 
 
 

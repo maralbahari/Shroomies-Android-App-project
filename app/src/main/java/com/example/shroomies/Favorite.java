@@ -107,7 +107,6 @@ public class Favorite extends Fragment {
                 }
                 else {
                     favText = v.findViewById(R.id.FavNoAptText);
-                    favText.setText(R.string.NoPersonalPostText);
                     favText.setVisibility(View.VISIBLE);
                 }
 
