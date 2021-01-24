@@ -197,7 +197,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
             cardImage= v.findViewById(R.id.card_img);
             archive = v.findViewById(R.id.archive_card_btn);
             delete = v.findViewById(R.id.delete_card_btn);
-            mention = v.findViewById(R.id.shroomie_mention);
+            mention = v.findViewById(R.id.expenses_mention_et);
             done = v.findViewById(R.id.expense_done);
             markAsDone = v.findViewById(R.id.shroomie_markasdone);
 
@@ -289,7 +289,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                         @Override
                         public void onClick(View view) {
                             deleteExpensesCard(getAdapterPosition());
-                            Toast.makeText(context,"Card deleted", Toast.LENGTH_LONG).show();
+                            Toast.makeText(context,"Card deletedddd", Toast.LENGTH_LONG).show();
                             alertDialog.cancel();
                         }
                     });

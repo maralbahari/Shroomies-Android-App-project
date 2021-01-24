@@ -316,7 +316,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
                     rootRef.child("apartments").child(currentUserAppartmentId).child("tasksCards").child(tasksCardsList.get(position).getCardId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            Toast.makeText(context,"Task card deleted",Toast.LENGTH_LONG).show();
+                            Toast.makeText(context,"Task carddd deleted",Toast.LENGTH_LONG).show();
                         }
                     });
                 }

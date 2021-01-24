@@ -8,17 +8,29 @@
     android:paddingTop="60dp"
     tools:context=".MyShroomies">
 
+    <ImageView
+        android:id="@+id/my_shroomie"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+        android:src="@drawable/black_mushroom"
+        android:alpha="0.4"
+        android:layout_marginTop="220dp"
+        android:layout_marginLeft="70dp"
+        />
+
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/my_shroomies_tablayout"
         android:layout_width="match_parent"
+        android:background="@drawable/tablayout_round"
         android:elevation="5dp"
         android:layout_marginTop="10dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
         android:layout_marginLeft="20dp"
         android:layout_marginRight="20dp"
-        android:background="@color/white"
-        app:tabIndicatorColor="@color/Alabaster">
+        app:tabIndicatorGravity="stretch"
+        app:tabIndicatorColor="@color/Alabaster"
+        >
 
         <com.google.android.material.tabs.TabItem
             android:id="@+id/my_shroomie_expense_tab"
@@ -41,7 +53,7 @@
         android:id="@+id/my_shroomies_member_btn"
         android:layout_width="wrap_content"
         android:layout_marginLeft="220dp"
-        android:layout_height="45dp"
+        android:layout_height="35dp"
         android:layout_below="@+id/my_shroomies_tablayout"
         android:background="@drawable/rounded_button_myshroomies_layout"
         android:text="Members"
@@ -55,7 +67,7 @@
     <LinearLayout
         android:id="@+id/shroomie_linearlayout_filter"
         android:layout_width="match_parent"
-        android:layout_height="45dp"
+        android:layout_height="35dp"
         android:layout_below="@+id/my_shroomies_tablayout"
         android:layout_toRightOf="@+id/my_shroomies_member_btn"
         android:layout_marginLeft="5dp"
@@ -69,14 +81,15 @@
             android:layout_height="15dp"
             android:background="@drawable/ic_filter"
             android:layout_marginLeft="10dp"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="13dp"
             />
         <TextView
-            android:layout_marginTop="9dp"
+            android:layout_marginTop="5dp"
             android:layout_marginLeft="4dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="10sp"
+            android:textStyle="bold"
             android:textColor="@color/Black"
             android:text="FILTER"/>
 
@@ -85,7 +98,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="10dp"
             />
 
     </LinearLayout>
