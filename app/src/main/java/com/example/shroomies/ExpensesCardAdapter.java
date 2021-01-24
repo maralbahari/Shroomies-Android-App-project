@@ -172,7 +172,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
 
     @Override
     public void onItemSwiped(int position) {
-        deleteExpensesCard(cardsList.get(position).getCardId(),position);
+        deleteExpensesCard(position);
 
     }
 
@@ -288,7 +288,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                     cont.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            deleteExpensesCard(cardsList.get(getAdapterPosition()).getCardId(),getAdapterPosition());
+                            deleteExpensesCard(getAdapterPosition());
                             Toast.makeText(context,"Card deleted", Toast.LENGTH_LONG).show();
                             alertDialog.cancel();
                         }
@@ -344,9 +344,10 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
         }
     }
 
-    public void deleteExpensesCard(final String cardId, final int position){
+    public void deleteExpensesCard( final int position){
 
-        rootRef.child("apartments").child(currentUserAppartmentId).child("expensesCards").child(cardId).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+
+        rootRef.child("apartments").child(currentUserAppartmentId).child("expensesCards").child( cardsList.get(position).getCardId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 if (cardsList.size()<=1){

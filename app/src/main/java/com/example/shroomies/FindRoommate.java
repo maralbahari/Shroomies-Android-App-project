@@ -2,6 +2,8 @@
 
  import android.app.Activity;
  import android.content.Context;
+ import android.content.DialogInterface;
+ import android.content.Intent;
  import android.location.Address;
  import android.location.Geocoder;
  import android.os.AsyncTask;
@@ -12,6 +14,7 @@
  import android.view.inputmethod.InputMethodManager;
  import android.widget.AdapterView;
  import android.widget.ArrayAdapter;
+ import android.widget.Button;
  import android.widget.FrameLayout;
  import android.widget.ImageView;
  import android.widget.ListView;
@@ -64,6 +67,7 @@ public class FindRoommate extends Fragment {
     boolean searchState = false;
     FragmentManager fragmentManager;
     FragmentTransaction fragmentTransaction;
+    Button filterButton;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -84,6 +88,7 @@ public class FindRoommate extends Fragment {
         tabLayout = v.findViewById(R.id.tabLayout);
         locationListView = v.findViewById(R.id.list_view_search);
         findRoomMateMotionLayout = v.findViewById(R.id.find_roomMate_Motion_Layout);
+        filterButton = v.findViewById(R.id.filter_button);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         linearLayoutManager.setStackFromEnd(true);
         recyclerView.setLayoutManager(linearLayoutManager);
@@ -91,6 +96,8 @@ public class FindRoommate extends Fragment {
         recyclerView.setAdapter(recycleViewAdapterApartment);
         getApartments();
          fragmentManager =getParentFragmentManager();
+
+         // get the bundle from the filter dialog fragment
 
 
 
@@ -247,7 +254,33 @@ public class FindRoommate extends Fragment {
         });
 
 
+
+        filterButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                FilterFragment filterFragment = new FilterFragment();
+                filterFragment.show(getChildFragmentManager(), null);
+                filterFragment.onDismiss(new DialogInterface() {
+                    @Override
+                    public void cancel() {
+
+                    }
+
+                    @Override
+                    public void dismiss() {
+                        if (getArguments()!=null){
+                            Toast.makeText(getActivity(), "yess " ,Toast.LENGTH_LONG).show();
+                        }
+
+                    }
+                });
+
+
+            }
+        });
     }
+
+
 
     void getPersonalPostsFromQuery(String query) {
 
@@ -331,13 +364,6 @@ public class FindRoommate extends Fragment {
 
     }
 
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        //if personal != null{
-        //
-        // }
-        super.onSaveInstanceState(outState);
-    }
 
     void getApartmentsFromQuery(String query){
         final List<String> userIds  = new ArrayList<>();

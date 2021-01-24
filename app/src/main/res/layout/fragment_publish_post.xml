@@ -145,6 +145,7 @@
 
 
                 </androidx.viewpager.widget.ViewPager>
+
                 <com.make.dots.dotsindicator.DotsIndicator
                     android:visibility="gone"
                     android:layout_below="@id/view_pager"
@@ -163,10 +164,6 @@
 
 
             </RelativeLayout>
-
-
-
-
 
 
             <EditText

@@ -81,7 +81,7 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapte
 
         // storage referance to load the user's image if the userhas an
         //uploaded image
-        if(!usersList.get(position).getImage().isEmpty()) {
+        if(usersList.get(position).getImage()!=null) {
             DatabaseReference firebaseDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(usersList.get(position).getID());
             firebaseDatabase.addValueEventListener(new ValueEventListener() {
                 @Override

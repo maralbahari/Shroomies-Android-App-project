@@ -13,8 +13,6 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY"/>
-
 
     <application
         android:name=".Home"
@@ -39,12 +37,11 @@
             android:enabled="true"
             android:exported="true">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+                <action android:name="com.google.firebase.MESSAGIN_EVENT" />
             </intent-filter>
         </service>
 
-        <activity android:name=".GroupChattingActivity"
-            android:parentActivityName=".MessageInbox"/>
+        <activity android:name=".GroupChattingActivity" />
         <activity android:name=".ChattingActivity" />
         <activity android:name=".ResetPassword" />
         <activity android:name=".MainActivity" />
