@@ -97,7 +97,6 @@ public class MyShroomies extends Fragment   {
 
 
 
-
         myShroomiesTablayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {

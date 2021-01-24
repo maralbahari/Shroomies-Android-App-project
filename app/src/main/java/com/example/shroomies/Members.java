@@ -7,7 +7,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -101,7 +100,7 @@ public class Members extends DialogFragment {
                 rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").setValue(mAuth.getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-                        Toast.makeText(getContext(),"you have left the room",Toast.LENGTH_LONG).show();
+
                     }
                 });
             }
@@ -116,13 +115,13 @@ public class Members extends DialogFragment {
     private void getMember(){
         membersId = new ArrayList<>();
 
-        rootRef.child("apartments").child(apartmentID).child("apartmentMembers").addValueEventListener(new ValueEventListener() {
+        rootRef.child("apartments").child(apartmentID).child("apartmentMembers").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()){
 
                     for (DataSnapshot sp : snapshot.getChildren()){
-                        Toast.makeText(getContext(),""+sp.getValue().toString(),Toast.LENGTH_LONG).show();
+
                         membersId.add(sp.getValue().toString());
 
 
@@ -146,7 +145,7 @@ public class Members extends DialogFragment {
         userAdapter = new UserAdapter(membersList, getContext(),false);
         membersRecycler.setAdapter(userAdapter);
         for (String id: membersId){
-            rootRef.child("Users").child(id).addValueEventListener(new ValueEventListener() {
+            rootRef.child("Users").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     if (snapshot.exists()){

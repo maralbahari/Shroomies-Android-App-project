@@ -313,10 +313,16 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
             holder.delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    rootRef.child("apartments").child(currentUserAppartmentId).child("tasksCards").child(tasksCardsList.get(position).getCardId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    rootRef.child("archive").child(mAuth.getInstance().getCurrentUser().getUid()).child("tasksCards").child(tasksCardsList.get(position).getCardId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            Toast.makeText(context,"Task carddd deleted",Toast.LENGTH_LONG).show();
+                            if (tasksCardsList.size()>=1) {
+                                notifyItemRemoved(position);
+                                Toast.makeText(context, "Expenses card deleted", Toast.LENGTH_LONG).show();
+                            }else{
+                                tasksCardsList.clear();
+                                notifyDataSetChanged();
+                            }
                         }
                     });
                 }
@@ -367,6 +373,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
                     newCard.put("importance", tasksCard.getImportance());
                     newCard.put("date",saveCurrentDate);
                     newCard.put("cardId",uniqueID);
+                    newCard.put("done", tasksCard.getDone());
                     ref.updateChildren(newCard).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {

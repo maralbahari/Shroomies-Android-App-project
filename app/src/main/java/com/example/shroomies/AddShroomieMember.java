@@ -65,6 +65,8 @@ public class AddShroomieMember extends DialogFragment {
             public boolean onQueryTextSubmit(String s) {
 
                 retreiveUser(s);
+
+
                 return false;
             }
 
@@ -92,16 +94,25 @@ public class AddShroomieMember extends DialogFragment {
         addShroomieRecycler.setAdapter(userRecyclerAdapter);
 
         rootRef.child("Users").orderByChild("name").startAt(query)
-                .endAt(query+"\uf8ff").addValueEventListener(new ValueEventListener() {
+                .endAt(query+"\uf8ff").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
                     for (DataSnapshot ds : snapshot.getChildren()) {
                         User user = ds.getValue(User.class);
-                        suggestedUser.add(user);
+                        Boolean duplicate = false;
+                        for (User user1: suggestedUser){
+                            if (user1.getID().equals(user.getID())){
+                                duplicate = true;
+                            }
+                        }
+                        if (!duplicate&&!user.getID().equals(mAuth.getInstance().getCurrentUser().getUid())){
+                            suggestedUser.add(user);
+                        }
                     }
+
                     //add the members already selected
-                    Toast.makeText(getContext(),""+suggestedUser,Toast.LENGTH_LONG).show();
+
                     userRecyclerAdapter.notifyDataSetChanged();
 
                 }else{

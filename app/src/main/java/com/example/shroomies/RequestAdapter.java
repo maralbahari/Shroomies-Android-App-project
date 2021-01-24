@@ -94,11 +94,8 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
                            rootRef.child("shroomieRequests").child(usersList.get(position).getID()).child(mAuth.getCurrentUser().getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                                @Override
                                public void onSuccess(Void aVoid) {
-                               if(usersList.size()>=1){
-                                   notifyItemRemoved(position);
-                               }else{
-                                   usersList.clear();
-                               }
+                               usersList.remove(position);
+                               notifyItemRemoved(position);
                                }
                            });
                        }
@@ -160,13 +157,8 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
                     rootRef.child("shroomieRequests").child(senderID).child(mAuth.getCurrentUser().getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-
-                            if(usersList.size()>=1){
+                                usersList.remove(getAdapterPosition());
                                 notifyItemRemoved(getAdapterPosition());
-                            }else{
-                                usersList.clear();
-                            }
-
 
                         }
                     });
@@ -193,11 +185,9 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
                                                     @Override
                                                     public void onSuccess(Void aVoid) {
                                                         Toast.makeText(context,"Your personal cards have been deleted you are part of  "+senderName+" apartment",Toast.LENGTH_LONG).show();
-                                                        if(usersList.size()>=1){
+                                                            usersList.remove(getAdapterPosition());
                                                             notifyItemRemoved(getAdapterPosition());
-                                                        }else{
-                                                            usersList.clear();
-                                                        }
+
 
                                                     }
                                                 });
