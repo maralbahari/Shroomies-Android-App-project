@@ -18,6 +18,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.bumptech.glide.Glide;
 import com.example.shroomies.notifications.FirebaseMessaging;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.badge.BadgeDrawable;
@@ -54,6 +55,9 @@ public class MainActivity extends AppCompatActivity {
     FirebaseMessaging firebaseMessaging;
     BadgeDrawable inboxNotificationBadge;
     DatabaseReference rootRef;
+    ImageView profilePic;
+
+    DatabaseReference myRef;
 
     @SuppressLint("RestrictedApi")
     @Override
@@ -75,7 +79,14 @@ public class MainActivity extends AppCompatActivity {
         btm_view = findViewById(R.id.bottomNavigationView);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
-        usernameDrawer=findViewById(R.id.drawer_nav_profile_name);
+
+
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        final String curUId = firebaseUser.getUid();
+
+//        updateNavHead(curUId);
+
+
         setSupportActionBar(toolbar);
         getFragment(new FindRoommate());
         barDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open, R.string.close);
@@ -220,6 +231,33 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
+    }
+    public void updateNavHead(String curUserId){
+        usernameDrawer=findViewById(R.id.drawer_nav_profile_name);
+        profilePic = findViewById(R.id.drawer_nav_profile_pic);
+        myRef = FirebaseDatabase.getInstance().getReference().child("Users").child((curUserId));
+
+        myRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
+
+                    User user = snapshot.getValue(User.class);
+                    usernameDrawer.setText(user.getName());
+
+                    if (!user.getImage().isEmpty()){
+                        Glide.with(profilePic.getContext()).
+                                load(user.getImage())
+                                .fitCenter()
+                                .centerCrop()
+                                .into(profilePic);}
+                }
+            }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) { }
+        });
+
 
     }
 

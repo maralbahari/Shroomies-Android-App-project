@@ -217,7 +217,6 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
             BT_message.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    //get user details and pass to chatting activity
                     DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(personalPostModelList.get(getAdapterPosition()).getUserID());
 
                     databaseReference.addValueEventListener(new ValueEventListener() {
