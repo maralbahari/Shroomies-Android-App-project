@@ -137,23 +137,7 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
         if(isFromAptFav){
 
             holder.BUT_fav_apt.setImageResource(R.drawable.ic_icon_awesome_star_checked);
-            holder.BUT_fav_apt.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    favRef.child(Uid).child("ApartmentPost").child(apartmentList.get(position).getId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                           if(apartmentList.size()>=1){
-                               notifyItemRemoved(position);
-                           }else{
-                               apartmentList.clear();
-                           }
 
-                        }
-                    });
-
-                }
-            });
         }
 
         else {
@@ -259,9 +243,33 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
                     });
                 }
             });
+
+            if(isFromAptFav){
+
+                FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+                final String Uid = firebaseUser.getUid();
+                final DatabaseReference favRef = FirebaseDatabase.getInstance().getReference().child("Favorite");
+
+            BUT_fav_apt.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+
+                    favRef.child(Uid).child("ApartmentPost").child(apartmentList.get(getAdapterPosition()).getId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+
+                               apartmentList.remove(getAdapterPosition());
+                                notifyItemRemoved(getAdapterPosition());
+
+                        }
+                    });
+
+                }
+            });
         }
     }
 
+}
 }
 
 

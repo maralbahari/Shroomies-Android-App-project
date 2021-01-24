@@ -130,27 +130,6 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
         if(isFromfav){
 
             holder.BT_fav.setImageResource(R.drawable.ic_icon_awesome_star_checked);
-            holder.BT_fav.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    favRef.child(Uid).child("PersonalPost").child(personalPostModelList.get(position).getId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            if(personalPostModelList.size()>=1){
-                                notifyItemRemoved(position);
-                            }else{
-                                personalPostModelList.clear();
-                            }
-
-                        }
-                    });
-
-                }
-            });
-
-
-
-
         }
 
 
@@ -265,9 +244,27 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
                 }
             });
 
+            if (isFromfav) {
+                FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+                final String Uid = firebaseUser.getUid();
+                final DatabaseReference favRef = FirebaseDatabase.getInstance().getReference().child("Favorite");
+                BT_fav.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        favRef.child(Uid).child("PersonalPost").child(personalPostModelList.get(getAdapterPosition()).getId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+
+                                personalPostModelList.remove(getAdapterPosition());
+                                notifyItemRemoved(getAdapterPosition());
+                            }
 
 
+            });
         }
-    }
+    });
 
+}
+}
+    }
 }
