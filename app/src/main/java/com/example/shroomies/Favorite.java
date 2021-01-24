@@ -98,7 +98,7 @@ public class Favorite extends Fragment {
     void getPersonal(){
         personalPostIds = new ArrayList<>();
         personalPostModelList = new ArrayList<>();
-        personalPostRecyclerAdapter = new PersonalPostRecyclerAdapter(personalPostModelList , getActivity());
+        personalPostRecyclerAdapter = new PersonalPostRecyclerAdapter(personalPostModelList , getActivity(), true);
         favAptRecyclerView.setAdapter(personalPostRecyclerAdapter);
         final String CurrUserId = firebaseUser.getUid();
         rootRef.child("Favorite").child(CurrUserId).child("PersonalPost").addListenerForSingleValueEvent(new ValueEventListener() {
@@ -137,7 +137,7 @@ public class Favorite extends Fragment {
     void getApartments(){
         apartmentIds = new ArrayList<>();
         apartmentList = new ArrayList<>();
-        favAptRecyclerAdapter = new RecycleViewAdapterApartments(apartmentList , getActivity());
+        favAptRecyclerAdapter = new RecycleViewAdapterApartments(apartmentList , getActivity(), true);
         favAptRecyclerView.setAdapter(favAptRecyclerAdapter);
         final String CurrUserId = firebaseUser.getUid();
         rootRef.child("Favorite").child(CurrUserId).child("ApartmentPost").addListenerForSingleValueEvent(new ValueEventListener() {

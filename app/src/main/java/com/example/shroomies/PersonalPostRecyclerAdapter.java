@@ -16,6 +16,7 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -33,11 +34,13 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
     private User receiverUser;
     DatabaseReference myRef;
     Boolean isFromPersonalProfile;
+    Boolean isFromfav;
 
 
-    public PersonalPostRecyclerAdapter(List<PersonalPostModel> personalPostModelList, Context context) {
+    public PersonalPostRecyclerAdapter(List<PersonalPostModel> personalPostModelList, Context context, Boolean isFromfav) {
         this.personalPostModelList = personalPostModelList;
         this.context = context;
+        this.isFromfav = isFromfav;
     }
 
     @NonNull
@@ -110,7 +113,7 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
         final DatabaseReference favRef = FirebaseDatabase.getInstance().getReference().child("Favorite");
 
         DatabaseReference anotherFavRef = FirebaseDatabase.getInstance().getReference().child("Favorite");
-        anotherFavRef.addValueEventListener(new ValueEventListener() {
+        anotherFavRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.child(Uid).child("PersonalPost").hasChild(personalPostModelList.get(position).getId())){
@@ -124,10 +127,35 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
 
             }
         });
+        if(isFromfav){
 
+            holder.BT_fav.setImageResource(R.drawable.ic_icon_awesome_star_checked);
+            holder.BT_fav.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    favRef.child(Uid).child("PersonalPost").child(personalPostModelList.get(position).getId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            personalPostModelList.remove(position);
+                            notifyItemRemoved(position);
+
+                        }
+                    });
+
+                }
+            });
+
+
+
+
+        }
+
+
+        else{
         holder.BT_fav.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 checkClick[0] = true;
                 favRef.addValueEventListener(new ValueEventListener() {
                     @Override
@@ -165,7 +193,7 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
                     }
                 });
             }
-        });
+        });}
 
     }
 

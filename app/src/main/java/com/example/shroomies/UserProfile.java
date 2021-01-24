@@ -3,6 +3,12 @@ package com.example.shroomies;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -11,13 +17,6 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.google.android.material.tabs.TabItem;
 import com.google.android.material.tabs.TabLayout;
@@ -161,7 +160,7 @@ public class UserProfile extends Fragment {
 
     private void getApartmentPosts() {
         apartmentPostList = new ArrayList<>();
-        apartmentAdapter = new RecycleViewAdapterApartments(apartmentPostList , getActivity());
+        apartmentAdapter = new RecycleViewAdapterApartments(apartmentPostList , getActivity(), false);
         recyclerView.setAdapter(apartmentAdapter);
 
         profileid = mAuth.getInstance().getCurrentUser().getUid();
@@ -192,7 +191,7 @@ public class UserProfile extends Fragment {
     private void getPersonalPosts(){
 
         postListPersonal = new ArrayList<>();
-        personalPostRecyclerAdapter = new PersonalPostRecyclerAdapter(postListPersonal , getActivity());
+        personalPostRecyclerAdapter = new PersonalPostRecyclerAdapter(postListPersonal , getActivity(), false);
         recyclerView.setAdapter(personalPostRecyclerAdapter);
         rootRef.child("postPersonal").orderByChild("userID").equalTo(mAuth.getInstance().getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
             @Override
