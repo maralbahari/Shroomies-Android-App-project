@@ -289,7 +289,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                         @Override
                         public void onClick(View view) {
                             deleteExpensesCard(getAdapterPosition());
-                            Toast.makeText(context,"Card deleted", Toast.LENGTH_LONG).show();
+                            Toast.makeText(context,"Card deletedddd", Toast.LENGTH_LONG).show();
                             alertDialog.cancel();
                         }
                     });
