@@ -293,7 +293,7 @@ public class FindRoommate extends Fragment {
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.frame_layout_search, personalFrag).commit();
-        Toast.makeText(getContext(),"sdsf", Toast.LENGTH_LONG).show();
+
 
 
 

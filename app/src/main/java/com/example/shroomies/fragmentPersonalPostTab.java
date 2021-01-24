@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -33,6 +34,7 @@ public class fragmentPersonalPostTab extends Fragment {
     PersonalPostRecyclerAdapter personalPostRecyclerAdapter;
     List<PersonalPostModel> personalPostModelList;
     RecyclerView personalRecyclerView;
+    View v;
 
 
 
@@ -40,104 +42,30 @@ public class fragmentPersonalPostTab extends Fragment {
         // Required empty public constructor
     }
 
-
-
-    public static fragmentPersonalPostTab newInstance(String param1, String param2) {
-        fragmentPersonalPostTab fragment = new fragmentPersonalPostTab();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
 
-        }
-    }
-    @Override
-    public void onSaveInstanceState( Bundle outState) {
-        super.onSaveInstanceState(outState);
-        // getting query
-        Bundle bun = getArguments();
-        String personalQuery = (String) bun.get("myQuery");
-        Toast.makeText(getContext(),"made",Toast.LENGTH_LONG).show();
-
-
-
-        final List<String> userIds  = new ArrayList<>();
-        personalPostModelList = new ArrayList<>();
-
-
-        DatabaseReference myRootRef = FirebaseDatabase.getInstance().getReference();
-        myRootRef.child("Users").orderByChild("name").startAt(personalQuery).endAt(personalQuery+"\uf8ff").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.exists()){
-                    for (DataSnapshot dataSnapshot :snapshot.getChildren()){
-                        User user = dataSnapshot.getValue(User.class);
-                        userIds.add(user.getID());
-                    }
-                    for (String  id: userIds){
-
-                        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("postPersonal");
-                        Query query1 = reference.orderByChild("userID").equalTo(id);
-                        query1.addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-
-                                setSearchAdapterData(snapshot);
-                            }
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
-                                Toast.makeText(getActivity(), error.getMessage() , Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    }
-
-                }
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-    }
-    void setSearchAdapterData(DataSnapshot snapshot){
-
-        if (snapshot.exists()) {
-            for (DataSnapshot dataSnapshot :
-                    snapshot.getChildren()) {
-
-                PersonalPostModel personalPost = dataSnapshot.getValue(PersonalPostModel.class);
-                personalPostModelList.add(personalPost);
-            }
-
-            personalPostRecyclerAdapter.notifyDataSetChanged();
-            personalPostRecyclerAdapter = new PersonalPostRecyclerAdapter(personalPostModelList, getContext());
-            personalRecyclerView.setAdapter(personalPostRecyclerAdapter);
-
-
-        }
-
-
-    }
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
-        View v = inflater.inflate(R.layout.fragment_personal_post_tab, container, false);
         personalRecyclerView = v.findViewById(R.id.personalRecView);
         personalRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        Bundle bun = getArguments();
+        if (bun != null) {
+            String personalQuery = (String) bun.get("myQuery");
+            Toast.makeText(getContext(),personalQuery+" ", Toast.LENGTH_LONG).show();
+            getSearch(personalQuery);
+        }
+
+
+        personalSearch();
+
+
+    }
+    public void personalSearch(){
+
         personalPostModelList = new ArrayList<>();
+        personalPostRecyclerAdapter = new PersonalPostRecyclerAdapter(personalPostModelList, getContext());
+        personalRecyclerView.setAdapter(personalPostRecyclerAdapter);
         personalDatabaseRef = FirebaseDatabase.getInstance().getReference("postPersonal");
         personalDatabaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -146,17 +74,79 @@ public class fragmentPersonalPostTab extends Fragment {
                     PersonalPostModel personalPost = ds.getValue(PersonalPostModel.class);
                     personalPostModelList.add(personalPost);
                 }
-                personalPostRecyclerAdapter = new PersonalPostRecyclerAdapter(personalPostModelList, getContext());
-                personalRecyclerView.setAdapter(personalPostRecyclerAdapter);
+                personalPostRecyclerAdapter.notifyDataSetChanged();
 
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getContext(), "An unexpected error occured", Toast.LENGTH_LONG);
+                Toast.makeText(getContext(), "An unexpected error occurred", Toast.LENGTH_LONG);
+
+            }
+        });}
+    private void getSearch(String personalQuery) {
+        final List<String> userIds  = new ArrayList<>();
+        personalPostModelList = new ArrayList<>();
+        personalPostRecyclerAdapter = new PersonalPostRecyclerAdapter(personalPostModelList, getContext());
+        personalRecyclerView.setAdapter(personalPostRecyclerAdapter);
+        DatabaseReference myRootRef = FirebaseDatabase.getInstance().getReference();
+        myRootRef.child("Users").orderByChild("name").startAt(personalQuery).endAt(personalQuery+"\uf8ff").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                        User user = dataSnapshot.getValue(User.class);
+                        userIds.add(user.getID());
+                        Toast.makeText(getContext(),user.getID(),Toast.LENGTH_LONG).show();
+                    }
+                    for (String id : userIds) {
+
+                        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("postPersonal");
+                        Query query1 = reference.orderByChild("userID").equalTo(id);
+                        query1.addValueEventListener(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                if (snapshot.exists()) {
+                                    for (DataSnapshot dataSnapshot :
+                                            snapshot.getChildren()) {
+
+                                        PersonalPostModel personalPost = dataSnapshot.getValue(PersonalPostModel.class);
+                                        personalPostModelList.add(personalPost);
+                                    }
+                                    personalPostRecyclerAdapter.notifyDataSetChanged();
+
+
+                            }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+                                Toast.makeText(getActivity(), error.getMessage(), Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
 
             }
         });
+
+
+    }
+
+
+
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        // Inflate the layout for this fragment
+         v = inflater.inflate(R.layout.fragment_personal_post_tab, container, false);
+
 
         return v;
     }
