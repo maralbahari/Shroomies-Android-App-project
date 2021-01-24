@@ -48,6 +48,9 @@ public class Favorite extends Fragment {
         // Inflate the layout for this fragment
         v=inflater.inflate(R.layout.fragment_my_favorite, container, false);
         rootRef = FirebaseDatabase.getInstance().getReference();
+        favText = v.findViewById(R.id.FavNoAptText);
+        favText.setVisibility(View.GONE);
+
     return v;
     }
 
@@ -63,14 +66,19 @@ public class Favorite extends Fragment {
         getApartments();
 
 
+
         tabLayoutFavorite.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 if(tab.getPosition()==0){
                     getApartments();
+                    favText.setVisibility(View.GONE);
+
+
                 }
                 else if(tab.getPosition()==1){
                     getPersonal();
+                    favText.setVisibility(View.GONE);
                 }
             }
 
@@ -97,6 +105,7 @@ public class Favorite extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
+
                     for(DataSnapshot dataSnapshot : snapshot.getChildren()){
                         String postId = dataSnapshot.getKey();
                         personalPostIds.add(postId);
