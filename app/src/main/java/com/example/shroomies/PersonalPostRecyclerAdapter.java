@@ -136,8 +136,11 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
                     favRef.child(Uid).child("PersonalPost").child(personalPostModelList.get(position).getId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            personalPostModelList.remove(position);
-                            notifyItemRemoved(position);
+                            if(personalPostModelList.size()>=1){
+                                notifyItemRemoved(position);
+                            }else{
+                                personalPostModelList.clear();
+                            }
 
                         }
                     });

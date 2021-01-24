@@ -143,8 +143,11 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
                     favRef.child(Uid).child("ApartmentPost").child(apartmentList.get(position).getId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            apartmentList.remove(position);
-                            notifyItemRemoved(position);
+                           if(apartmentList.size()>=1){
+                               notifyItemRemoved(position);
+                           }else{
+                               apartmentList.clear();
+                           }
 
                         }
                     });
