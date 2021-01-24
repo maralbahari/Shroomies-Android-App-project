@@ -82,8 +82,7 @@ public class MainActivity extends AppCompatActivity {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
 
         mAuth = FirebaseAuth.getInstance();
-//        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-//        final String curUId = firebaseUser.getUid();
+
 
 
 
