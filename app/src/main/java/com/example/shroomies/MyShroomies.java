@@ -48,8 +48,10 @@ public class MyShroomies extends Fragment   {
 
     ArrayList<TasksCard> tasksCardsList;
     ArrayList<ExpensesCard> expensesCardsList;
+
     TasksCardAdapter tasksCardAdapter;
     ExpensesCardAdapter expensesCardAdapter;
+
     String tabSelected="expenses";
     String apartmentID="";
 
@@ -80,6 +82,9 @@ public class MyShroomies extends Fragment   {
         addCardButton = v.findViewById(R.id.my_shroomies_add_card_btn);
         myShroomiesTablayout = v.findViewById(R.id.my_shroomies_tablayout);
         myExpensesRecyclerView = v.findViewById(R.id.my_expenses_recycler_view);
+
+
+
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         myExpensesRecyclerView.setHasFixedSize(true);
         myExpensesRecyclerView.setLayoutManager(linearLayoutManager);
@@ -242,8 +247,6 @@ public class MyShroomies extends Fragment   {
                     for (DataSnapshot sp : snapshot.getChildren()) {
                         ExpensesCard expensesCard = sp.getValue(ExpensesCard.class);
                         expensesCardsList.add(expensesCard);
-
-
                     }
 
                     expensesCardAdapter.notifyDataSetChanged();

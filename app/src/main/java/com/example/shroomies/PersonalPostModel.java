@@ -7,10 +7,11 @@ public class PersonalPostModel {
     String date, description,  userID, id;
     int price;
     long latitude, longitude;
-
     List<Boolean> preferences;
 
-    public PersonalPostModel() {}
+    public PersonalPostModel() {
+
+    }
 
     public PersonalPostModel(String date, String description, String userID, String id, int price, long latitude, long longitude, List<Boolean> preferences) {
         this.date = date;
