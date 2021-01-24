@@ -19,15 +19,17 @@
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/request_tablayout"
             android:layout_width="match_parent"
+            android:elevation="5dp"
             android:layout_height="wrap_content"
             android:layout_below="@id/request_photo"
+            android:background="@drawable/tablayout_round"
             android:layout_marginLeft="20dp"
             android:layout_marginTop="10dp"
             android:layout_marginRight="20dp"
-            android:layout_marginBottom="10dp"
-            android:background="@color/white"
-            android:elevation="5dp"
-            app:tabIndicatorColor="@color/Alabaster">
+            app:tabIndicatorGravity="stretch"
+            app:tabIndicatorColor="@color/Alabaster"
+            app:tabSelectedTextColor="@color/Black"
+            >
 
             <com.google.android.material.tabs.TabItem
                 android:id="@+id/my_invitations"
