@@ -56,8 +56,6 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
     }
 
 
-
-
     @NonNull
     @Override
     public ExpensesViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -159,9 +157,6 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
         this.itemTouchHelper = itemTouchHelper;
     }
 
-
-
-
     @Override
     public void onItemMove(int fromPosition, int toPosition) {
         ExpensesCard fExpensesCard = cardsList.get(fromPosition);
@@ -172,11 +167,9 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
 
     @Override
     public void onItemSwiped(int position) {
-        deleteExpensesCard(position);
+        deleteExpensesCard(position-1);
 
     }
-
-
 
     public class ExpensesViewHolder extends RecyclerView.ViewHolder implements  View.OnTouchListener, GestureDetector.OnGestureListener {
         View importanceView;
@@ -344,25 +337,19 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
         }
     }
 
-    public void deleteExpensesCard( final int position){
-
-
-        rootRef.child("apartments").child(currentUserAppartmentId).child("expensesCards").child( cardsList.get(position).getCardId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+    public void deleteExpensesCard(final int position){
+        rootRef.child("apartments").child(currentUserAppartmentId).child("expensesCards").child(cardsList.get(position).getCardId()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
-            public void onSuccess(Void aVoid) {
-                if (cardsList.size()<=1){
-                    cardsList = new ArrayList<>();
-                    notifyDataSetChanged();
-                }else {
-                    Toast.makeText(context, "Card deleted", Toast.LENGTH_SHORT).show();
-                    cardsList.remove(position);
-                    notifyItemRemoved(position);
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    if(cardsList.size()>=1){
+                        notifyItemRemoved(position);
+                    }else{
+                        cardsList.clear();
+                        notifyItemRemoved(0);
+
+                    }
                 }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                Toast.makeText(context,e.getMessage(),Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -373,7 +360,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()){
-                    ExpensesCard expensesCard = snapshot.getValue(ExpensesCard.class);
+                    final ExpensesCard expensesCard = snapshot.getValue(ExpensesCard.class);
                     DatabaseReference ref = rootRef.child("archive").child(mAuth.getCurrentUser().getUid()).child("expensesCards").push();
                     HashMap<String ,Object> newCard = new HashMap<>();
                     Calendar calendarDate=Calendar.getInstance();
@@ -396,12 +383,12 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                                     @Override
                                     public void onSuccess(Void aVoid) {
                                         Toast.makeText(context, "Card successfully Archived", Toast.LENGTH_SHORT).show();
-                                        if (cardsList.size()==1){
+                                        if(cardsList.size()>=1){
+                                            notifyItemRemoved(position);
+                                        }else{
                                             cardsList.clear();
-                                            notifyItemRemoved(position);
-                                        }else {
-                                            cardsList.remove(position);
-                                            notifyItemRemoved(position);
+                                            notifyItemRemoved(0);
+
                                         }
                                     }
                                 });

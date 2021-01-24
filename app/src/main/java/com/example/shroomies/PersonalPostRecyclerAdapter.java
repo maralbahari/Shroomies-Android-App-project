@@ -169,13 +169,6 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
     @Override
     public int getItemCount() { return personalPostModelList.size(); }
 
-
-
-
-
-
-
-
     // Viewholder class
     class PersonalPostViewHolder extends RecyclerView.ViewHolder{
 

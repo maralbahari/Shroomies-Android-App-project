@@ -97,7 +97,37 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
             markAsDone = v.findViewById(R.id.task_mark_as_done);
             mention = v.findViewById(R.id.task_mention);
 
+            delete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    View alert = inflater.inflate(R.layout.are_you_sure,null);
+                    builder.setView(alert);
+                    final AlertDialog alertDialog = builder.create();
+                    alertDialog.show();
+                    sadShroomie = ((AlertDialog) alertDialog).findViewById(R.id.sad_shroomie);
+                    stars = ((AlertDialog) alertDialog).findViewById(R.id.stars);
+                    cont = ((AlertDialog) alertDialog).findViewById(R.id.button_continue);
+                    no = ((AlertDialog) alertDialog).findViewById(R.id.button_no);
 
+                    cont.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            deleteCard(tasksCardsList.get(getAdapterPosition()).getCardId(),getAdapterPosition());
+                            Toast.makeText(context,"Card deleted", Toast.LENGTH_LONG).show();
+                            alertDialog.cancel();
+                        }
+                    });
+                    no.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            alertDialog.cancel();
+                        }
+                    });
+
+                }
+            });
             done.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -153,39 +183,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
 //                    deleteCard(tasksCardsList.get(getAdapterPosition()).getCardId(),getAdapterPosition());
 //                }
 //            });
-            delete.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                    LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                    View alert = inflater.inflate(R.layout.are_you_sure,null);
-                    builder.setView(alert);
-                    final AlertDialog alertDialog = builder.create();
-                    alertDialog.show();
-                    sadShroomie = ((AlertDialog) alertDialog).findViewById(R.id.sad_shroomie);
-                    stars = ((AlertDialog) alertDialog).findViewById(R.id.stars);
-                    cont = ((AlertDialog) alertDialog).findViewById(R.id.button_continue);
-                    no = ((AlertDialog) alertDialog).findViewById(R.id.button_no);
 
-
-
-                    cont.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            deleteCard(tasksCardsList.get(getAdapterPosition()).getCardId(),getAdapterPosition());
-                            Toast.makeText(context,"Card deleted", Toast.LENGTH_LONG).show();
-                            alertDialog.cancel();
-                        }
-                    });
-                    no.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            alertDialog.cancel();
-                        }
-                    });
-
-                }
-            });
 
             String mtitle = title.getText().toString();
             String mDescription = description.getText().toString();
@@ -238,19 +236,24 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         }
     }
 
-    public void deleteCard(String cardID, final int position){
-        rootRef.child("apartments").child(currentUserAppartmentId).child("tasksCards").child(cardID).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+    public void deleteCard(final String cardID, final int position){
+
+        rootRef.child("apartments").child(currentUserAppartmentId).child("tasksCards").child(cardID).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
-            public void onSuccess(Void aVoid) {
-                if (tasksCardsList.size()<=1){
-                    tasksCardsList = new ArrayList<>();
-                    notifyDataSetChanged();
-                }else {
-                    tasksCardsList.remove(position);
-                    notifyItemRemoved(position);
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    if(tasksCardsList.size()>=1){
+                        notifyItemRemoved(position);
+                    }else{
+                        tasksCardsList.clear();
+                        notifyItemRemoved(0);
+
+                    }
                 }
-                }
+
+            }
         });
+
 
     }
 
@@ -336,8 +339,6 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
             default:
                 holder.taskImportanceView.setBackgroundColor(Color.parseColor("#F5CB5C"));
         }
-
-
     }
 
 
@@ -377,8 +378,13 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
                                     @Override
                                     public void onSuccess(Void aVoid) {
                                         Toast.makeText(context, "Card successfully Archived", Toast.LENGTH_SHORT).show();
-                                        tasksCardsList.remove(position);
-                                        notifyItemRemoved(position);
+                                        if(tasksCardsList.size()>=1){
+                                            notifyItemRemoved(position);
+                                        }else{
+                                            tasksCardsList.clear();
+                                            notifyItemRemoved(0);
+
+                                        }
                                     }
                                 });
                             }
