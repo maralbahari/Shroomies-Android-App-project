@@ -55,16 +55,19 @@ public class fragmentPersonalPostTab extends Fragment {
             Toast.makeText(getContext(),personalQuery+" ", Toast.LENGTH_LONG).show();
             getSearch(personalQuery);
         }
+        else{
+            personalSearch();
+        }
 
 
-        personalSearch();
+
 
 
     }
     public void personalSearch(){
 
         personalPostModelList = new ArrayList<>();
-        personalPostRecyclerAdapter = new PersonalPostRecyclerAdapter(personalPostModelList, getContext());
+        personalPostRecyclerAdapter = new PersonalPostRecyclerAdapter(personalPostModelList, getContext(), false);
         personalRecyclerView.setAdapter(personalPostRecyclerAdapter);
         personalDatabaseRef = FirebaseDatabase.getInstance().getReference("postPersonal");
         personalDatabaseRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -87,7 +90,7 @@ public class fragmentPersonalPostTab extends Fragment {
     private void getSearch(String personalQuery) {
         final List<String> userIds  = new ArrayList<>();
         personalPostModelList = new ArrayList<>();
-        personalPostRecyclerAdapter = new PersonalPostRecyclerAdapter(personalPostModelList, getContext());
+        personalPostRecyclerAdapter = new PersonalPostRecyclerAdapter(personalPostModelList, getContext(), false);
         personalRecyclerView.setAdapter(personalPostRecyclerAdapter);
         DatabaseReference myRootRef = FirebaseDatabase.getInstance().getReference();
         myRootRef.child("Users").orderByChild("name").startAt(personalQuery).endAt(personalQuery+"\uf8ff").addValueEventListener(new ValueEventListener() {

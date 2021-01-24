@@ -82,7 +82,7 @@ public class FindRoommate extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         apartmentList = new ArrayList<>();
         recyclerView = v.findViewById(R.id.apartment_recycler_view);
-        recycleViewAdapterApartment = new RecycleViewAdapterApartments(apartmentList, getActivity());
+        recycleViewAdapterApartment = new RecycleViewAdapterApartments(apartmentList, getActivity(), false);
         searchView = v.findViewById(R.id.SVsearch_disc);
         tabLayout = v.findViewById(R.id.tabLayout);
         locationListView = v.findViewById(R.id.list_view_search);
@@ -320,7 +320,7 @@ public class FindRoommate extends Fragment {
         query.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                recycleViewAdapterApartment = new RecycleViewAdapterApartments(apartmentList, getActivity());
+                recycleViewAdapterApartment = new RecycleViewAdapterApartments(apartmentList, getActivity(), false);
                 // if the snapshot returns less than or equal to one child
                 // then no new apartment has been found
                 if(snapshot.getChildrenCount()<=1){
@@ -354,7 +354,7 @@ public class FindRoommate extends Fragment {
                 }
                 count++;
             }
-            recycleViewAdapterApartment = new RecycleViewAdapterApartments(apartmentList, getActivity());
+            recycleViewAdapterApartment = new RecycleViewAdapterApartments(apartmentList, getActivity(), false);
             recycleViewAdapterApartment.notifyDataSetChanged();
             recyclerView.setAdapter(recycleViewAdapterApartment);
         }

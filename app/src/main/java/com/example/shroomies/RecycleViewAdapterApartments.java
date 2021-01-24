@@ -17,6 +17,7 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -38,9 +39,12 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
     private User receiverUser;
     private DatabaseReference rootRef;
     private FirebaseAuth mAuth;
-    public RecycleViewAdapterApartments(List<Apartment> apartmentList, Context context){
+    Boolean isFromAptFav;
+
+    public RecycleViewAdapterApartments(List<Apartment> apartmentList, Context context, Boolean isFromAptFav){
         this.apartmentList = apartmentList;
         this.context = context;
+        this.isFromAptFav = isFromAptFav;
     }
 
     @NonNull
@@ -116,7 +120,7 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
         final DatabaseReference favRef = FirebaseDatabase.getInstance().getReference().child("Favorite");
 
         DatabaseReference anotherFavRef = FirebaseDatabase.getInstance().getReference().child("Favorite");
-        anotherFavRef.addValueEventListener(new ValueEventListener() {
+        anotherFavRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.child(Uid).child("ApartmentPost").hasChild(apartmentList.get(position).getId())){
@@ -130,50 +134,69 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
 
             }
         });
+        if(isFromAptFav){
 
-        holder.BUT_fav_apt.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                checkClick[0] = true;
-                favRef.addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if(checkClick[0])
-                            if(snapshot.child(Uid).child("ApartmentPost").hasChild(apartmentList.get(position).getId())){
-                                favRef.child(Uid).child("ApartmentPost").child(apartmentList.get(position).getId()).removeValue();
-                                holder.BUT_fav_apt.setImageResource(R.drawable.ic_icon_awesome_star_unchecked);
-                                Toast.makeText(context,"Post removed from favorites",Toast.LENGTH_LONG).show();
-                                checkClick[0] = false;
-                            }
-                            else {
-                                DatabaseReference anotherRef = favRef.child(Uid).child("ApartmentPost").child(apartmentList.get(position).getId());
-                                anotherRef.child("id").setValue(apartmentList.get(position).getId());
-                                anotherRef.child("userID").setValue(apartmentList.get(position).getUserID());
-                                anotherRef.child("image_url").setValue(apartmentList.get(position).getImage_url());
-                                anotherRef.child("price").setValue(apartmentList.get(position).getPrice());
-                                anotherRef.child("date").setValue(apartmentList.get(position).getDate());
-                                anotherRef.child("description").setValue(apartmentList.get(position).getDescription());
-                                anotherRef.child("preferences").setValue(apartmentList.get(position).getPreferences());
-                                anotherRef.child("latitude").setValue(apartmentList.get(position).getLatitude());
-                                anotherRef.child("longitude").setValue(apartmentList.get(position).getLongitude());
-                                anotherRef.child("numberOfRoommates").setValue(apartmentList.get(position).getNumberOfRoommates());
-                                Toast.makeText(context,"Post added to favorites",Toast.LENGTH_LONG).show();
-                                holder.BUT_fav_apt.setImageResource(R.drawable.ic_icon_awesome_star_checked);
-                                checkClick[0] = false;
+            holder.BUT_fav_apt.setImageResource(R.drawable.ic_icon_awesome_star_checked);
+            holder.BUT_fav_apt.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    favRef.child(Uid).child("ApartmentPost").child(apartmentList.get(position).getId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            apartmentList.remove(position);
+                            notifyItemRemoved(position);
 
-                            }
+                        }
+                    });
+
+                }
+            });
+        }
+
+        else {
+
+            holder.BUT_fav_apt.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    checkClick[0] = true;
+                    favRef.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            if (checkClick[0])
+                                if (snapshot.child(Uid).child("ApartmentPost").hasChild(apartmentList.get(position).getId())) {
+                                    favRef.child(Uid).child("ApartmentPost").child(apartmentList.get(position).getId()).removeValue();
+                                    holder.BUT_fav_apt.setImageResource(R.drawable.ic_icon_awesome_star_unchecked);
+                                    Toast.makeText(context, "Post removed from favorites", Toast.LENGTH_LONG).show();
+                                    checkClick[0] = false;
+                                } else {
+                                    DatabaseReference anotherRef = favRef.child(Uid).child("ApartmentPost").child(apartmentList.get(position).getId());
+                                    anotherRef.child("id").setValue(apartmentList.get(position).getId());
+                                    anotherRef.child("userID").setValue(apartmentList.get(position).getUserID());
+                                    anotherRef.child("image_url").setValue(apartmentList.get(position).getImage_url());
+                                    anotherRef.child("price").setValue(apartmentList.get(position).getPrice());
+                                    anotherRef.child("date").setValue(apartmentList.get(position).getDate());
+                                    anotherRef.child("description").setValue(apartmentList.get(position).getDescription());
+                                    anotherRef.child("preferences").setValue(apartmentList.get(position).getPreferences());
+                                    anotherRef.child("latitude").setValue(apartmentList.get(position).getLatitude());
+                                    anotherRef.child("longitude").setValue(apartmentList.get(position).getLongitude());
+                                    anotherRef.child("numberOfRoommates").setValue(apartmentList.get(position).getNumberOfRoommates());
+                                    Toast.makeText(context, "Post added to favorites", Toast.LENGTH_LONG).show();
+                                    holder.BUT_fav_apt.setImageResource(R.drawable.ic_icon_awesome_star_checked);
+                                    checkClick[0] = false;
+
+                                }
 
 
+                        }
 
-                    }
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
-                });
-            }
-        });
+                        }
+                    });
+                }
+            });
+        }
 
 
 

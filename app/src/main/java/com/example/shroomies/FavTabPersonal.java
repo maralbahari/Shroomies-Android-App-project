@@ -88,7 +88,7 @@ public class FavTabPersonal extends Fragment {
                                 PersonalPostModel personalPost = ds.getValue(PersonalPostModel.class);
                                 personalPostModelList.add(personalPost);
                             }
-                            personalPostRecyclerAdapter = new PersonalPostRecyclerAdapter(personalPostModelList, getContext());
+                            personalPostRecyclerAdapter = new PersonalPostRecyclerAdapter(personalPostModelList, getContext(), true);
                             favPersonalRecyclerView.setAdapter(personalPostRecyclerAdapter);
 
                         }
