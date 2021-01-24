@@ -31,6 +31,9 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
     Context context;
     DatabaseReference db;
     private User receiverUser;
+    DatabaseReference myRef;
+    Boolean isFromPersonalProfile;
+
 
     public PersonalPostRecyclerAdapter(List<PersonalPostModel> personalPostModelList, Context context) {
         this.personalPostModelList = personalPostModelList;
@@ -54,8 +57,8 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
         String id = personalPostModelList.get(position).getUserID();
 
         // getting data from user id
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("Users");
-        final DatabaseReference myRef = ref.child(id);
+         myRef = FirebaseDatabase.getInstance().getReference().child("Users").child(id);
+
         myRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -88,6 +91,7 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
         if(!personalPostModelList.get(position).getPreferences().get(3)){
             holder.IV_smoke.setVisibility(View.GONE); }
         else holder.IV_smoke.setVisibility(View.VISIBLE);
+//        if(isFromPersonalProfile){ holder.}
 
 
         // getting current user
@@ -103,7 +107,6 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
             holder.BT_fav.setVisibility(View.VISIBLE);
         }
         final Boolean[] checkClick = {false};
-
         final DatabaseReference favRef = FirebaseDatabase.getInstance().getReference().child("Favorite");
 
         DatabaseReference anotherFavRef = FirebaseDatabase.getInstance().getReference().child("Favorite");
@@ -182,6 +185,7 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
         CardView Lay_card;
         ImageButton BT_fav;
         Button BT_message;
+        ImageButton deletePost;
 
         ImageView IV_male;
         ImageView IV_female;

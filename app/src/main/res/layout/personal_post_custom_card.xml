@@ -58,6 +58,16 @@
                     android:text="Budget : 1000 - 2000">
 
                 </TextView>
+                <ImageButton
+                    android:id="@+id/IB_deletePost"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/cross"
+                    android:layout_marginRight="6dp"
+                    android:visibility="gone"
+                    android:background="@drawable/personal_post_linear_layout"
+
+                    />
 
             </LinearLayout>
 

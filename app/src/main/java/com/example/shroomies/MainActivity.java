@@ -56,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
     BadgeDrawable inboxNotificationBadge;
     DatabaseReference rootRef;
     ImageView profilePic;
+    View headerView;
 
     DatabaseReference myRef;
 
@@ -80,11 +81,13 @@ public class MainActivity extends AppCompatActivity {
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
 
+        mAuth = FirebaseAuth.getInstance();
+//        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+//        final String curUId = firebaseUser.getUid();
 
-        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        final String curUId = firebaseUser.getUid();
 
-//        updateNavHead(curUId);
+
+
 
 
         setSupportActionBar(toolbar);
@@ -94,6 +97,10 @@ public class MainActivity extends AppCompatActivity {
         drawerLayout.addDrawerListener(barDrawerToggle);
         barDrawerToggle.setDrawerIndicatorEnabled(true);
         navigationView = (NavigationView) findViewById(R.id.navigationView);
+        headerView = navigationView.getHeaderView(0);
+
+
+        updateNavHead();
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
@@ -142,6 +149,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         setBadgeToNumberOfNotifications(rootRef,mAuth);
+
+
 
     }
 
@@ -233,10 +242,10 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
-    public void updateNavHead(String curUserId){
-        usernameDrawer=findViewById(R.id.drawer_nav_profile_name);
-        profilePic = findViewById(R.id.drawer_nav_profile_pic);
-        myRef = FirebaseDatabase.getInstance().getReference().child("Users").child((curUserId));
+    public void updateNavHead(){
+        usernameDrawer= headerView.findViewById(R.id.drawer_nav_profile_name);
+        profilePic = headerView.findViewById(R.id.drawer_nav_profile_pic);
+        myRef = FirebaseDatabase.getInstance().getReference().child("Users").child((mAuth.getCurrentUser().getUid()));
 
         myRef.addValueEventListener(new ValueEventListener() {
             @Override
@@ -244,6 +253,7 @@ public class MainActivity extends AppCompatActivity {
                 if(snapshot.exists()){
 
                     User user = snapshot.getValue(User.class);
+
                     usernameDrawer.setText(user.getName());
 
                     if (!user.getImage().isEmpty()){
