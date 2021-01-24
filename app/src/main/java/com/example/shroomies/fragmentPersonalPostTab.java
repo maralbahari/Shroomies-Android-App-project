@@ -97,7 +97,7 @@ public class fragmentPersonalPostTab extends Fragment {
                     for (DataSnapshot dataSnapshot : snapshot.getChildren()) {
                         User user = dataSnapshot.getValue(User.class);
                         userIds.add(user.getID());
-                        Toast.makeText(getContext(),user.getID(),Toast.LENGTH_LONG).show();
+
                     }
                     for (String id : userIds) {
 

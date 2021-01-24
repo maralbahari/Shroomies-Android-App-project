@@ -135,6 +135,24 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
         numberOfRoomMatesNumberPicker = v.findViewById(R.id.roommate_number_picker);
         numberOfRoomMatesNumberPicker.setMinValue(1);
         numberOfRoomMatesNumberPicker.setMaxValue(7);
+
+        budgetNumberPicker = v.findViewById(R.id.budget_number_picker);
+
+        budgetNumberPicker.setMinValue(1);
+        budgetNumberPicker.setMaxValue(100);
+
+        // increase the step size of the number picker
+        NumberPicker.Formatter formatter = new NumberPicker.Formatter() {
+            @Override
+            public String format(int value) {
+                int temp = value * 100;
+                return "" + temp;
+            }
+        };
+
+
+        budgetNumberPicker.setFormatter(formatter);
+
         mMapView =v.findViewById(R.id.address_map_view);
         locationEditText = v.findViewById(R.id.location_search_view);
         cloudIconImageView = v.findViewById(R.id.cloud_icon_publish_post);
@@ -154,7 +172,7 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
         smokingCB = v.findViewById(R.id.non_smoking_image_button_post);
         petCB = v.findViewById(R.id.pets_allowd_image_button_post);
         descriptionEditText = v.findViewById(R.id.description_edit_text);
-        budgetNumberPicker = v.findViewById(R.id.budget_number_picker);
+
         uploadingProgress = v.findViewById(R.id.lottie_uploading_post);
         nestedScrollView = v.findViewById(R.id.nested);
         imageUri = new ArrayList<>();

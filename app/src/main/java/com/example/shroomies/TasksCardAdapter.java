@@ -82,9 +82,6 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         CheckBox done;
         GestureDetector gestureDetector;
 
-
-
-
         public TasksCardViewHolder(@NonNull  View v) {
             super(v);
             taskImportanceView = v.findViewById(R.id.task_importance_view);

@@ -22,7 +22,6 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -40,7 +39,7 @@ import java.util.HashMap;
 public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapter.ExpensesViewHolder> implements ItemTouchHelperAdapter {
 
 
-    private ArrayList<ExpensesCard> cardsList;
+    private ArrayList<ExpensesCard> expensesCardArrayList;
     private Context context;
     private View view;
     private DatabaseReference rootRef;
@@ -49,16 +48,53 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
     Boolean fromArchive;
     String currentUserAppartmentId = "";
 
-    public ExpensesCardAdapter(ArrayList<ExpensesCard> cardsList, Context context, Boolean fromArchive) {
-        this.cardsList = cardsList;
+    public ExpensesCardAdapter(ArrayList<ExpensesCard> expensesCardArrayList, Context context, Boolean fromArchive) {
+        this.expensesCardArrayList = expensesCardArrayList;
         this.context=context;
         this.fromArchive = fromArchive;
     }
 
+    public void setItemTouchHelper(ItemTouchHelper itemTouchHelper){
+        this.itemTouchHelper = itemTouchHelper;
+    }
+
+    @Override
+    public void onItemMove(int fromPosition, int toPosition) {
+        ExpensesCard fExpensesCard = expensesCardArrayList.get(fromPosition);
+        expensesCardArrayList.remove(fExpensesCard);
+        expensesCardArrayList.add(toPosition,fExpensesCard);
+        notifyItemMoved(fromPosition,toPosition);
+    }
+
+    @Override
+    public void onItemSwiped(int position) {
+        deleteExpensesCard(position);
+    }
+
+
+    public void deleteExpensesCard( final int position){
+        rootRef.child("apartments").child(currentUserAppartmentId).child("expensesCards").child(expensesCardArrayList.get(position).getCardId()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    if(expensesCardArrayList.size()>=1){
+                        notifyItemRemoved(position);
+                    }else{
+                        expensesCardArrayList.clear();
+                        notifyItemRemoved(0);
+
+                    }
+                }
+            }
+        });
+
+    }
+
+
 
     @NonNull
     @Override
-    public ExpensesViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public ExpensesCardAdapter.ExpensesViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(context);
         view  = layoutInflater.inflate(R.layout.my_shroomie_expenses_card,parent,false);
         rootRef= FirebaseDatabase.getInstance().getReference();
@@ -86,16 +122,16 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final ExpensesViewHolder holder, final int position) {
-            holder.title.setText(cardsList.get(position).getTitle());
-            holder.description.setText(cardsList.get(position).getDescription());
-            holder.dueDate.setText(cardsList.get(position).getDueDate());
-            String importanceViewColor = cardsList.get(position).getImportance();
-            holder.mention.setText(cardsList.get(position).getMention());
+    public void onBindViewHolder(@NonNull final ExpensesCardAdapter.ExpensesViewHolder holder, final int position) {
+        holder.title.setText(expensesCardArrayList.get(position).getTitle());
+        holder.description.setText(expensesCardArrayList.get(position).getDescription());
+        holder.dueDate.setText(expensesCardArrayList.get(position).getDueDate());
+        String importanceViewColor = expensesCardArrayList.get(position).getImportance();
+        holder.mention.setText(expensesCardArrayList.get(position).getMention());
 
 
 
-        Boolean cardStatus = cardsList.get(position).getDone().equals("true");
+        Boolean cardStatus = expensesCardArrayList.get(position).getDone().equals("true");
         if (cardStatus){
             holder.done.setChecked(true);
             holder.markAsDone.setText("Done!");
@@ -106,12 +142,12 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
 
 
         if (fromArchive){
-                holder.archive.setVisibility(view.GONE);
-                holder.done.setVisibility(View.GONE);
+            holder.archive.setVisibility(view.GONE);
+            holder.done.setVisibility(View.GONE);
             holder.delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    rootRef.child("apartments").child(currentUserAppartmentId).child("expensesCards").child(cardsList.get(position).getCardId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    rootRef.child("apartments").child(currentUserAppartmentId).child("expensesCards").child(expensesCardArrayList.get(position).getCardId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
                             Toast.makeText(context,"Expenses card deleted",Toast.LENGTH_LONG).show();
@@ -119,7 +155,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                     });
                 }
             });
-            }
+        }
 
         switch (importanceViewColor) {
             case "0":
@@ -135,9 +171,9 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                 holder.importanceView.setBackgroundColor(Color.parseColor("#F5CB5C"));
         }
 
-        if (!cardsList.get(position).getAttachedFile().isEmpty()) {
+        if (!expensesCardArrayList.get(position).getAttachedFile().isEmpty()) {
             GlideApp.with(context)
-                    .load(cardsList.get(position).getAttachedFile())
+                    .load(expensesCardArrayList.get(position).getAttachedFile())
                     .fitCenter()
                     .centerCrop()
 //                    .transform(new RoundedCornersTransformation(50))
@@ -149,27 +185,9 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
 
     @Override
     public int getItemCount() {
-        return cardsList.size();
+        return expensesCardArrayList.size();
     }
 
-
-    public void setItemTouchHelper(ItemTouchHelper itemTouchHelper){
-        this.itemTouchHelper = itemTouchHelper;
-    }
-
-    @Override
-    public void onItemMove(int fromPosition, int toPosition) {
-        ExpensesCard fExpensesCard = cardsList.get(fromPosition);
-        cardsList.remove(fExpensesCard);
-        cardsList.add(toPosition,fExpensesCard);
-        notifyItemMoved(fromPosition,toPosition);
-    }
-
-    @Override
-    public void onItemSwiped(int position) {
-        deleteExpensesCard(position-1);
-
-    }
 
     public class ExpensesViewHolder extends RecyclerView.ViewHolder implements  View.OnTouchListener, GestureDetector.OnGestureListener {
         View importanceView;
@@ -194,14 +212,13 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
             done = v.findViewById(R.id.expense_done);
             markAsDone = v.findViewById(R.id.shroomie_markasdone);
 
-            gestureDetector = new GestureDetector(v.getContext(),this);
-            v.setOnTouchListener(this);
+
 
             done.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     if (done.isChecked()){
-                        rootRef.child("apartments").child(currentUserAppartmentId).child("expensesCards").child(cardsList.get(getAdapterPosition()).getCardId()).child("done").setValue("true").addOnSuccessListener(new OnSuccessListener<Void>() {
+                        rootRef.child("apartments").child(currentUserAppartmentId).child("expensesCards").child(expensesCardArrayList.get(getAdapterPosition()).getCardId()).child("done").setValue("true").addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
                                 markAsDone.setText("Done!");
@@ -219,7 +236,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                                 yesBtn.setOnClickListener(new View.OnClickListener() {
                                     @Override
                                     public void onClick(View view) {
-                                        archive(cardsList.get(getAdapterPosition()).getCardId(),getAdapterPosition());
+                                        archive(expensesCardArrayList.get(getAdapterPosition()).getCardId(),getAdapterPosition());
                                         alertDialog.cancel();
                                     }
                                 });
@@ -235,7 +252,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                             }
                         });
                     }else{
-                        rootRef.child("apartments").child(currentUserAppartmentId).child("expensesCards").child(cardsList.get(getAdapterPosition()).getCardId()).child("done").setValue("false").addOnSuccessListener(new OnSuccessListener<Void>() {
+                        rootRef.child("apartments").child(currentUserAppartmentId).child("expensesCards").child(expensesCardArrayList.get(getAdapterPosition()).getCardId()).child("done").setValue("false").addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
                                 Toast.makeText(context,"expenses cards not done", Toast.LENGTH_LONG).show();
@@ -244,6 +261,8 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                     }
                 }
             });
+            gestureDetector = new GestureDetector(v.getContext(),this);
+            v.setOnTouchListener(this);
 
 
 
@@ -251,7 +270,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
             archive.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    archive(cardsList.get(getAdapterPosition()).getCardId(),getAdapterPosition());
+                    archive(expensesCardArrayList.get(getAdapterPosition()).getCardId(),getAdapterPosition());
                 }
             });
 
@@ -295,6 +314,9 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
 
                 }
             });
+
+
+
         }
 
 
@@ -337,23 +359,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
         }
     }
 
-    public void deleteExpensesCard(final int position){
-        rootRef.child("apartments").child(currentUserAppartmentId).child("expensesCards").child(cardsList.get(position).getCardId()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if(task.isSuccessful()){
-                    if(cardsList.size()>=1){
-                        notifyItemRemoved(position);
-                    }else{
-                        cardsList.clear();
-                        notifyItemRemoved(0);
 
-                    }
-                }
-            }
-        });
-
-    }
 
     public void archive(final String cardId, final int position){
         rootRef.child("apartments").child(currentUserAppartmentId).child("expensesCards").child(cardId).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -383,10 +389,10 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                                     @Override
                                     public void onSuccess(Void aVoid) {
                                         Toast.makeText(context, "Card successfully Archived", Toast.LENGTH_SHORT).show();
-                                        if(cardsList.size()>=1){
+                                        if(expensesCardArrayList.size()>=1){
                                             notifyItemRemoved(position);
                                         }else{
-                                            cardsList.clear();
+                                            expensesCardArrayList.clear();
                                             notifyItemRemoved(0);
 
                                         }

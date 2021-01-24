@@ -215,7 +215,8 @@
                         android:layout_height="wrap_content"
                         android:layout_below="@id/number_of_roommates_tv"
                         android:layout_centerInParent="true"
-                        android:layout_marginBottom="10dp">
+                        android:layout_marginBottom="10dp"
+                        android:selectionDividerHeight="0dp">
 
                     </NumberPicker>
 
@@ -241,19 +242,20 @@
                         android:layout_marginLeft="20dp"
                         android:layout_marginTop="20dp"
                         android:layout_marginBottom="10dp"
-
                         android:text="Price:">
 
                     </TextView>
 
                     <NumberPicker
                         android:id="@+id/budget_number_picker"
-                        android:layout_width="66dp"
-                        android:layout_height="73dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
                         android:layout_below="@id/budget_tv"
                         android:layout_centerInParent="true"
                         android:layout_marginBottom="10dp"
-                        android:selectionDividerHeight="0dp"
+                       android:selectionDividerHeight="0dp"
+                        android:orientation="horizontal"
+
                         >
 
                     </NumberPicker>
