@@ -124,6 +124,9 @@ public class FindRoommate extends Fragment {
                 // if  the user is searching in the apartment tab
                 if (tabLayout.getSelectedTabPosition() == 0) {
                     getApartmentsFromQuery(query);
+                    hideSoftKeyBoard();
+
+
                 }
                 else if(tabLayout.getSelectedTabPosition() == 2) {
                     getPersonalPostsFromQuery(query);
@@ -340,9 +343,12 @@ public class FindRoommate extends Fragment {
 
 
     void getApartmentsFromQuery(String query){
+        searchState = true;
         customLoadingProgressBar.show();
         final List<String> userIds  = new ArrayList<>();
         apartmentList = new ArrayList<>();
+        recycleViewAdapterApartment = new RecycleViewAdapterApartments(apartmentList , getActivity() ,false);
+        recyclerView.setAdapter(recycleViewAdapterApartment);
 
 //        animationWrapper.setVisibility(View.VISIBLE);
 //        lottieAnimationProgressBar.resumeAnimation();
