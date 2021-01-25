@@ -91,12 +91,34 @@ public class ChattingActivity extends AppCompatActivity {
     private String imageUrl;
     private ValueEventListener seenLisenter;
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        rootRef.removeEventListener(seenLisenter);
+//    @Override
+//    protected void onStop() {
+//        rootRef.removeEventListener(seenLisenter);
+//        super.onStop();
+//    }
+//
+//    @Override
+//    public void onBackPressed() {
+//        rootRef.removeEventListener(seenLisenter);
+//        super.onBackPressed();
+//
+//    }
+//
+//
+//
+//    @Override
+//    protected void onPause() {
+//        rootRef.removeEventListener(seenLisenter);
+//        super.onPause();
+//
+//    }
+//
+//    @Override
+//    protected void onDestroy() {
+//        rootRef.removeEventListener(seenLisenter);
+//        super.onDestroy();
+//    }
 
-    }
 
 
     @Override
@@ -459,7 +481,7 @@ public class ChattingActivity extends AppCompatActivity {
     }
 
     private void getUserDetail(final String recieverID){
-        rootRef.child("Users").child(recieverID).addValueEventListener(new ValueEventListener() {
+        rootRef.child("Users").child(recieverID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()) {
@@ -513,8 +535,10 @@ public class ChattingActivity extends AppCompatActivity {
 
     }
 
+
+
     private void messageSeen(final String receiverID){
-        seenLisenter =rootRef.child("Messages").child(senderID).child(receiverID).addValueEventListener(new ValueEventListener() {
+        rootRef.child("Messages").child(senderID).child(receiverID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()){

@@ -2,14 +2,12 @@ package com.example.shroomies;
 
 import android.Manifest;
 import android.app.ProgressDialog;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -88,17 +86,10 @@ public class GroupChattingActivity extends AppCompatActivity {
     Uri chosenImage=null;
     StorageReference filePathName;
     private String imageUrl;
-    private ValueEventListener seenListener;
     private boolean notification;
     RequestQueue requestQueue;
 
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        rootRef.removeEventListener(seenListener);
-
-    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -248,7 +239,7 @@ public class GroupChattingActivity extends AppCompatActivity {
             });
         }
         private void getGroupDetails(){
-            rootRef.child("GroupChats").child(groupID).addValueEventListener(new ValueEventListener() {
+            rootRef.child("GroupChats").child(groupID).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     if(snapshot.exists()){
@@ -422,7 +413,7 @@ public class GroupChattingActivity extends AppCompatActivity {
         }
     }
     private void messageSeen() {
-        seenListener = rootRef.child("GroupChats").child(groupID).child("Messages").addValueEventListener(new ValueEventListener() {
+        rootRef.child("GroupChats").child(groupID).child("Messages").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()){

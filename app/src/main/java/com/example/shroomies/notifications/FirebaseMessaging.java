@@ -98,7 +98,7 @@ public class FirebaseMessaging  extends FirebaseMessagingService {
             intent.putExtra("GROUPID", groupID);
             intent.addFlags(intent.FLAG_ACTIVITY_CLEAR_TOP);
             pendingIntent = PendingIntent.getActivity(this, i, intent, PendingIntent.FLAG_ONE_SHOT);
-        } else if (isCardNOtification.equals("true")) {
+        } else if (isCardNOtification != null) {
             Intent intent = new Intent(this, MainActivity.class);
 
             intent.addFlags(intent.FLAG_ACTIVITY_CLEAR_TOP);
