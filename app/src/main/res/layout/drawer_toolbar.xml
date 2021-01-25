@@ -44,10 +44,9 @@
             <ImageView
                 android:id="@+id/logo"
                 android:layout_width="0dp"
-
                 android:layout_height="30dp"
                 android:layout_marginStart="50dp"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="12dp"
                 android:layout_marginEnd="120dp"
                 android:src="@drawable/shroomies_text_logo_white_black"
                 app:layout_constraintEnd_toEndOf="parent"

@@ -3,15 +3,17 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:id="@+id/add_shroomies"
-    android:layout_height="wrap_content">
+    android:layout_height="match_parent">
 
     <RelativeLayout
         android:layout_margin="30dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="400dp">
 
         <androidx.appcompat.widget.SearchView
             android:id="@+id/search_member"
+            android:elevation="2dp"
+            android:layout_margin="3dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/button_round"
@@ -39,15 +41,6 @@
             android:layout_below="@+id/add_member_tv"
             />
 
-<!--        <Button-->
-<!--            android:id="@+id/back_to_shroomie"-->
-<!--            android:background="@drawable/back_to_shroomie"-->
-<!--            android:layout_width="50dp"-->
-<!--            android:layout_height="50dp"-->
-<!--            android:layout_below="@+id/add_member_recyclerview"-->
-<!--            android:layout_alignParentRight="true"-->
-<!--            android:layout_marginTop="10dp"-->
-<!--            />-->
 
 
     </RelativeLayout>

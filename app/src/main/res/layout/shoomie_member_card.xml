@@ -10,7 +10,8 @@
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:elevation="5dp"
+        android:elevation="2dp"
+        android:layout_margin="3dp"
         android:background="@drawable/dialogfragment_add_member"
         app:cardCornerRadius="30dp">
 
@@ -22,7 +23,7 @@
           <ImageView
               android:elevation="5dp"
               android:src="@drawable/ic_user_profile_svgrepo_com"
-              android:layout_margin="20dp"
+              android:layout_margin="10dp"
               android:id="@+id/member_photo"
               android:layout_width="80dp"
               android:layout_height="80dp"

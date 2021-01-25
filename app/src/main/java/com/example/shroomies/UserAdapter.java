@@ -74,6 +74,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                    .fitCenter()
                    .circleCrop()
                    .into(holder.userImage);
+                    holder.userImage.setPadding(2,2,2,2);
        }
 
 

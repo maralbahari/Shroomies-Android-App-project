@@ -139,8 +139,15 @@
         android:layout_below="@id/posts"
         android:id="@+id/tab_layout_user_profile"
         android:layout_width="match_parent"
+        android:background="@drawable/tablayout_round"
+        android:elevation="5dp"
+        android:layout_marginTop="10dp"
         android:layout_height="wrap_content"
-        app:tabBackground="@drawable/tab_backgorund_style"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        app:tabIndicatorGravity="stretch"
+        app:tabIndicatorColor="@color/Alabaster"
         >
 
         <com.google.android.material.tabs.TabItem
