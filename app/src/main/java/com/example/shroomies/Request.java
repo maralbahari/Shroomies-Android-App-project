@@ -89,6 +89,10 @@ public class Request extends Fragment {
                         getSenderDetails(senderIDs);
                     }
 
+                }else{
+                    senderUsers=new ArrayList<>();
+                    requestAdapter= new RequestAdapter(getContext(),senderUsers,false);
+                    requestRecyvlerView.setAdapter(requestAdapter);
                 }
             }
 
@@ -132,6 +136,10 @@ public class Request extends Fragment {
                         getReceiverDetails(receiverIDs);
                     }
 
+                }else{
+                    receiverUsers=new ArrayList<>();
+                    requestAdapter= new RequestAdapter(getContext(),receiverUsers,true);
+                    requestRecyvlerView.setAdapter(requestAdapter);
                 }
             }
 

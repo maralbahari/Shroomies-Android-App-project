@@ -1,5 +1,6 @@
 package com.example.shroomies;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +17,7 @@ import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -78,7 +80,11 @@ public class Members extends DialogFragment {
         addMember.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 AddShroomieMember add=new AddShroomieMember();
+                Bundle bundle = new Bundle();
+                bundle.putStringArrayList("MEMBERID",membersId);
+                add.setArguments(bundle);
                 add.show(getParentFragmentManager(),"add member to apartment");
             }
         });
@@ -94,17 +100,33 @@ public class Members extends DialogFragment {
     }
 
     private void leaveApartment() {
+        final CustomLoadingProgressBar customLoadingProgressBar = new CustomLoadingProgressBar(getActivity(),"Leaving room...",R.raw.loading_animation);
+        customLoadingProgressBar.show();
         rootRef.child("apartments").child(apartmentID).child("apartmentMembers").child(mAuth.getCurrentUser().getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").setValue(mAuth.getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
-
+                    customLoadingProgressBar.dismiss();
+                        Intent intent = new Intent(getContext(),MainActivity.class);
+                        startActivity(intent);
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception e) {
+                        customLoadingProgressBar.dismiss();
                     }
                 });
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                customLoadingProgressBar.dismiss();
             }
         });
+
     }
 
     @Override

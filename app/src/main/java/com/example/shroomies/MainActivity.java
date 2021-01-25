@@ -255,7 +255,7 @@ public class MainActivity extends AppCompatActivity {
 
                     usernameDrawer.setText(user.getName());
 
-                    if (!user.getImage().isEmpty()){
+                    if (user.getImage()!=null){
                         Glide.with(profilePic.getContext()).
                                 load(user.getImage())
                                 .fitCenter()

@@ -22,8 +22,6 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
-import com.bumptech.glide.load.resource.bitmap.CenterInside;
-import com.bumptech.glide.load.resource.bitmap.FitCenter;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -150,6 +148,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
         if (fromArchive){
             holder.archive.setVisibility(view.GONE);
             holder.done.setVisibility(View.GONE);
+            holder.markAsDone.setVisibility(View.GONE);
             holder.delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

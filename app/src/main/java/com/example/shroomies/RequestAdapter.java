@@ -72,7 +72,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
     public void onBindViewHolder(@NonNull RequestAdapter.RequestViewHolder holder, final int position) {
        holder.senderName.setText(usersList.get(position).getName());
        String imageUrl= usersList.get(position).getImage();
-       if(!imageUrl.isEmpty()){
+       if(imageUrl!=null){
            GlideApp.with(context)
                    .load(usersList.get(position).getImage())
                    .fitCenter()

@@ -56,10 +56,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Mark as done"
-                android:layout_toRightOf="@+id/expense_done"
+
                 android:layout_below="@+id/card_description"
-                android:layout_toLeftOf="@id/card_img"
-                android:layout_marginLeft="1dp"
+
+                android:layout_marginLeft="55dp"
                 android:textSize="12sp"
                 android:layout_marginTop="20dp"
                 />

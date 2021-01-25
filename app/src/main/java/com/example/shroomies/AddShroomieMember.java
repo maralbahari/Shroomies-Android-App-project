@@ -39,6 +39,7 @@ public class AddShroomieMember extends DialogFragment {
     ArrayList<User> suggestedUser;
     ArrayList<User> selectedUser;
     ArrayList<String> inboxUser;
+    ArrayList<String> listMemberId;
 
 
     @Nullable
@@ -58,6 +59,11 @@ public class AddShroomieMember extends DialogFragment {
         addShroomieRecycler.setHasFixedSize(true);
         addShroomieRecycler.setLayoutManager(linearLayoutManager);
         rootRef = FirebaseDatabase.getInstance().getReference();
+
+        if (getArguments()!=null){
+            Bundle bundle = getArguments();
+            listMemberId = bundle.getStringArrayList("MEMBERID");
+        }
         getMessageInboxListIntoAdapter();
 
         memberSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -106,7 +112,8 @@ public class AddShroomieMember extends DialogFragment {
                                 duplicate = true;
                             }
                         }
-                        if (!duplicate&&!user.getID().equals(mAuth.getInstance().getCurrentUser().getUid())){
+                        if (!duplicate&&!user.getID().equals(mAuth.getInstance().getCurrentUser().getUid())&&!listMemberId.contains(user.getID())){
+
                             suggestedUser.add(user);
                         }
                     }
@@ -148,9 +155,10 @@ public class AddShroomieMember extends DialogFragment {
                     suggestedUser.clear();
                     if(snapshot.exists()){
                         User user = snapshot.getValue(User.class);
+                        if (!listMemberId.contains(user.getID())) {
                             suggestedUser.add(user);
                             userRecyclerAdapter.notifyDataSetChanged();
-
+                        }
 
                     }
 
@@ -163,6 +171,7 @@ public class AddShroomieMember extends DialogFragment {
             });
         }
     }
+
 
     private void getMessageInboxListIntoAdapter() {
         inboxUser = new ArrayList<>();
