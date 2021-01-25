@@ -40,7 +40,7 @@ public class Archive extends Fragment {
         // Inflate the layout for this fragment
        view=inflater.inflate(R.layout.fragment_my_archive, container, false);
        mAuth = FirebaseAuth.getInstance();
-       getUserRoomId();
+
        rootRef = FirebaseDatabase.getInstance().getReference();
 
 
@@ -49,11 +49,12 @@ public class Archive extends Fragment {
 
 
     private void getUserRoomId(){
-        rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").addListenerForSingleValueEvent(new ValueEventListener() {
+        rootRef.child("Users").child(mAuth.getInstance().getCurrentUser().getUid()).child("isPartOfRoom").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()){
                     currentUserAppartmentId=snapshot.getValue().toString();
+                    retreiveExpensesCards();
                 }
             }
 
@@ -72,7 +73,8 @@ public class Archive extends Fragment {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         archiveRecyclerview.setHasFixedSize(true);
         archiveRecyclerview.setLayoutManager(linearLayoutManager);
-        retreiveExpensesCards();
+        getUserRoomId();
+
         archiveTablayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {

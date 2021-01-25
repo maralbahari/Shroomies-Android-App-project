@@ -147,10 +147,16 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
             holder.delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    rootRef.child("apartments").child(currentUserAppartmentId).child("expensesCards").child(expensesCardArrayList.get(position).getCardId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    rootRef.child("archive").child(mAuth.getInstance().getCurrentUser().getUid()).child("expensesCards").child(expensesCardArrayList.get(position).getCardId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            Toast.makeText(context,"Expenses card deleted",Toast.LENGTH_LONG).show();
+                            if (expensesCardArrayList.size()>=1) {
+                                notifyItemRemoved(position);
+                                Toast.makeText(context, "Expenses card deleted", Toast.LENGTH_LONG).show();
+                            }else{
+                                expensesCardArrayList.clear();
+                                notifyDataSetChanged();
+                            }
                         }
                     });
                 }
@@ -381,6 +387,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                     newCard.put("date",saveCurrentDate);
                     newCard.put("cardId",uniqueID);
                     newCard.put("attachedFile", expensesCard.getAttachedFile());
+                    newCard.put("done", expensesCard.getDone());
                     ref.updateChildren(newCard).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
