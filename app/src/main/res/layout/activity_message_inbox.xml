@@ -14,8 +14,12 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
+        android:layout_margin="20dp"
         android:orientation="horizontal">
     <com.google.android.material.tabs.TabLayout
+        android:background="@drawable/tablayout_round"
+        app:tabIndicatorGravity="stretch"
+        app:tabIndicatorColor="@color/Alabaster"
         android:id="@+id/tab_layout_inbox_message"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -34,6 +38,7 @@
     </com.google.android.material.tabs.TabLayout>
     </LinearLayout>
     <androidx.recyclerview.widget.RecyclerView
+        android:layout_margin="20dp"
         android:id="@+id/inbotx_recycler"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

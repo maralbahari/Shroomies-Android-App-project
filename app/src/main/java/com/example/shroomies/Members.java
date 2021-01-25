@@ -56,7 +56,7 @@ public class Members extends DialogFragment {
     public void onStart() {
         super.onStart();
         if(getDialog()!=null) {
-            getDialog().getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
+            getDialog().getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.WRAP_CONTENT);
             getDialog().getWindow().setBackgroundDrawableResource(R.drawable.dialogfragment_add_member);
         }
     }

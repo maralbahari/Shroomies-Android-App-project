@@ -24,7 +24,7 @@
         android:layout_height="60dp"
         android:layout_below="@id/become"
         android:layout_marginLeft="30dp"
-        android:src="@drawable/mashroom_text_black_white"
+        android:src="@drawable/shroomies_text_logo_white_black"
         />
     <TextView
         android:layout_width="wrap_content"
@@ -34,9 +34,10 @@
         android:layout_marginTop="10dp"
         android:textSize="30dp"
         android:textStyle="bold"
-        android:layout_alignParentLeft="true"
+        android:layout_toRightOf="@id/shroomie"
+        android:layout_marginLeft="-15dp"
         android:textColor="@android:color/black"
-        android:layout_marginLeft="190dp"/>
+        />
 
     <TextView
         android:id="@+id/text_signup"
