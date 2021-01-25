@@ -56,7 +56,7 @@ public class FindRoommate extends Fragment {
     TabLayout tabLayout;
     ArrayAdapter searchArrayAdapter;
     ListView locationListView;
-    final int apartmentPerPagination = 2;
+    final int apartmentPerPagination =7;
     String lastCardKey ;
     boolean paginate;
     boolean personalPostOpen;
@@ -131,6 +131,10 @@ public class FindRoommate extends Fragment {
                     getPersonalPostsFromQuery(query);
 
                 }
+                else if(tabLayout.getSelectedTabPosition() == 2) {
+                    getPersonalPostsFromQuery(query);
+
+                }
                 return false;
             }
 
@@ -142,10 +146,7 @@ public class FindRoommate extends Fragment {
                     new GetAdressListAsync(getActivity(), newText).execute();
 
                 }
-                else if(tabLayout.getSelectedTabPosition() == 2) {
-                    getPersonalPostsFromQuery(newText);
 
-                }
                 return false;
             }
         });

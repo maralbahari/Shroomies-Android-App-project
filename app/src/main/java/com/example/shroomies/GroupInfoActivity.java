@@ -186,18 +186,26 @@ public class GroupInfoActivity extends AppCompatActivity {
         numberOfParticipants.setText("Participants"+" ("+groupMembersID.size()+")");
             for (String memberId
             :groupMembersID) {
-                rootRef.child("Users").child(memberId).addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if (snapshot.exists()) {
-                            User user = snapshot.getValue(User.class);
-                            //save each member's details in an array of User type to be able pass to adapter
-                            membersList.add(user);
-                            membersAdapter.notifyDataSetChanged();
+                if(memberId!=null) {
+
+
+                    rootRef.child("Users").child(memberId).addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            if (snapshot.exists()) {
+                                User user = snapshot.getValue(User.class);
+                                //save each member's details in an array of User type to be able pass to adapter
+                                membersList.add(user);
+                                membersAdapter.notifyDataSetChanged();
+                            }
                         }
-                    }
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) { }});
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                        }
+                    });
+
+                }
 
             }
 

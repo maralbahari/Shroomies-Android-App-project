@@ -67,7 +67,7 @@ public class EditProfile extends Fragment {
 
     private EditText bio;
 
-    private Button pw, save, delete, username, email;
+    private Button pw, save, username, email;
     private FirebaseUser mUser;
     private FirebaseDatabase mDataref;
     private FirebaseAuth mAuth;
@@ -86,7 +86,7 @@ public class EditProfile extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_edit_profile, container, false);
         MainActivity.btm_view.setBackgroundColor(getResources().getColor(R.color.lowerGradientColorForLoginBackground, getActivity().getTheme()));
-
+        MainActivity.btm_view.setElevation(0);
         profileImage = v.findViewById(R.id.edit_profile_image);
         editImage = v.findViewById(R.id.edit_profile_picture);
         username = v.findViewById(R.id.edit_username);
@@ -94,7 +94,7 @@ public class EditProfile extends Fragment {
         pw = v.findViewById(R.id.edit_password);
         bio = v.findViewById(R.id.edit_bio);
         save = v.findViewById(R.id.btn_save);
-        delete = v.findViewById(R.id.btn_delete);
+
         builder = new AlertDialog.Builder(getActivity());
 
 
@@ -114,6 +114,8 @@ public class EditProfile extends Fragment {
                         .circleCrop()
                         .placeholder(R.drawable.ic_user_profile_svgrepo_com)
                         .into(profileImage);
+                profileImage.setPadding(3,3,3,3);
+
             }
 
             @Override
@@ -122,37 +124,7 @@ public class EditProfile extends Fragment {
             }
         });
 
-        delete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                builder.setMessage("Are you sure you want to delete your account?").setCancelable(false)
-                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int id) {
-                                mUser = mAuth.getInstance().getCurrentUser();
-                                mUser.delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<Void> task) {
-                                        if (task.isSuccessful()){
-                                            Toast.makeText(getActivity(), "Account deleted", Toast.LENGTH_SHORT).show();
-                                            Intent intent = new Intent(getContext(), LoginActivity.class);
-                                            startActivity(intent);
-                                        }
-                                    }
-                                });
-                            }
-                        })
-                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                dialog.cancel();
 
-                            }
-                        });
-                AlertDialog alert = builder.create();
-                alert.show();
-            }
-        });
 
         profileImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -234,6 +206,11 @@ public class EditProfile extends Fragment {
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
                   Toast.makeText(getActivity(), "Updated successfully", Toast.LENGTH_SHORT).show();
+                    MainActivity.btm_view.setBackgroundColor(getResources().getColor(R.color.lowerGradientColorForLoginBackground, getActivity().getTheme()));
+                    MainActivity.btm_view.setElevation(0);
+                    Intent intent = new Intent(getActivity(), MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
 
                 }
 
@@ -242,26 +219,23 @@ public class EditProfile extends Fragment {
             @Override
             public void onFailure(@NonNull Exception e) {
                 Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
+                MainActivity.btm_view.setBackgroundColor(getResources().getColor(R.color.lowerGradientColorForLoginBackground, getActivity().getTheme()));
+                MainActivity.btm_view.setElevation(0);
+                Intent intent = new Intent(getActivity(), MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(intent);
             }
         });
 
-//        email.addTextChangedListener(new TextWatcher() {
-//            @Override
-//            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-//            }
-//
-//            @Override
-//            public void onTextChanged(CharSequence s, int start, int before, int count) {
-//
-//            }
-//            @Override
-//            public void afterTextChanged(Editable s) {
-
-//            }
-//        });
 
     }
 
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        MainActivity.btm_view.setBackgroundColor(getResources().getColor(R.color.LogoYellow, getActivity().getTheme()));
+        MainActivity.btm_view.setElevation(0);
+    }
 
 
     private void openImage() {

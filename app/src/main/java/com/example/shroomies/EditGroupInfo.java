@@ -112,13 +112,24 @@ public class EditGroupInfo extends AppCompatActivity {
                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                                intent.putExtra("GROUPID", group.getGroupID());
                                startActivity(intent);
+                               finish();
                            }
                         }
                     });
                 }
-                if(selectedImageUri !=null){
+                else if(selectedImageUri !=null){
                     uploadImageToFirebase(selectedImageUri , group);
                 }
+                else{
+                    Intent intent = new Intent(getApplicationContext(), GroupChattingActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    intent.putExtra("GROUPID", group.getGroupID());
+                    startActivity(intent);
+                    finish();
+                }
+
+
+
             }
         });
 
