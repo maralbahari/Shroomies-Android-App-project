@@ -46,6 +46,8 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
     private FirebaseAuth mAuth;
     private ItemTouchHelper itemTouchHelper;
     Boolean fromArchive;
+    ImageView sadShroomie, stars;
+    Button cont, no;
     String currentUserAppartmentId = "";
 
     public ExpensesCardAdapter(ArrayList<ExpensesCard> expensesCardArrayList, Context context, Boolean fromArchive) {
@@ -147,18 +149,45 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
             holder.delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    rootRef.child("archive").child(mAuth.getInstance().getCurrentUser().getUid()).child("expensesCards").child(expensesCardArrayList.get(position).getCardId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                    LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                    final View alert = inflater.inflate(R.layout.are_you_sure,null);
+                    builder.setView(alert);
+                    final AlertDialog alertDialog = builder.create();
+                    alertDialog.getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
+                    alertDialog.getWindow().setBackgroundDrawableResource(R.drawable.dialogfragment_add_member);
+                    alertDialog.show();
+                    sadShroomie = ((AlertDialog) alertDialog).findViewById(R.id.sad_shroomie);
+                    stars = ((AlertDialog) alertDialog).findViewById(R.id.stars);
+                    cont = ((AlertDialog) alertDialog).findViewById(R.id.button_continue);
+                    no = ((AlertDialog) alertDialog).findViewById(R.id.button_no);
+
+                    cont.setOnClickListener(new View.OnClickListener() {
                         @Override
-                        public void onSuccess(Void aVoid) {
-                            if (expensesCardArrayList.size()>=1) {
-                                notifyItemRemoved(position);
-                                Toast.makeText(context, "Expenses card deleted", Toast.LENGTH_LONG).show();
-                            }else{
-                                expensesCardArrayList.clear();
-                                notifyDataSetChanged();
-                            }
+                        public void onClick(View view) {
+                            rootRef.child("archive").child(mAuth.getInstance().getCurrentUser().getUid()).child("expensesCards").child(expensesCardArrayList.get(position).getCardId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    if (expensesCardArrayList.size()>=1) {
+                                        notifyItemRemoved(position);
+                                        Toast.makeText(context, "Expenses card deleted", Toast.LENGTH_LONG).show();
+                                        alertDialog.cancel();
+                                    }else{
+                                        expensesCardArrayList.clear();
+                                        notifyDataSetChanged();
+                                        alertDialog.cancel();
+                                    }
+                                }
+                            });
                         }
                     });
+                    no.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            alertDialog.cancel();
+                        }
+                    });
+
                 }
             });
         }
@@ -295,6 +324,8 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                     View alert = inflater.inflate(R.layout.are_you_sure,null);
                     builder.setView(alert);
                     final AlertDialog alertDialog = builder.create();
+                    alertDialog.getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
+                    alertDialog.getWindow().setBackgroundDrawableResource(R.drawable.dialogfragment_add_member);
                     alertDialog.show();
                     sadShroomie = ((AlertDialog) alertDialog).findViewById(R.id.sad_shroomie);
                     stars = ((AlertDialog) alertDialog).findViewById(R.id.stars);
