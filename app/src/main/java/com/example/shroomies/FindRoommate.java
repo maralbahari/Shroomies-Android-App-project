@@ -91,7 +91,6 @@ public class FindRoommate extends Fragment {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         linearLayoutManager.setStackFromEnd(true);
         recyclerView.setLayoutManager(linearLayoutManager);
-
         recyclerView.setAdapter(recycleViewAdapterApartment);
         getApartments();
          fragmentManager =getParentFragmentManager();

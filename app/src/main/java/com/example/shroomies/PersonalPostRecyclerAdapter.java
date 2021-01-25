@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,6 +17,8 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -25,6 +28,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.NumberFormat;
 import java.util.List;
 
 public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPostRecyclerAdapter.PersonalPostViewHolder> {
@@ -56,7 +60,8 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
     @Override
     public void onBindViewHolder(@NonNull final PersonalPostViewHolder holder, final int position) {
         holder.TV_userDescription.setText(personalPostModelList.get(position).getDescription());
-        holder.TV_DatePosted.setText(personalPostModelList.get(position).getDate());
+        holder.TV_DatePosted.setText(personalPostModelList.get(position).getDate().split(" ")[0]);
+        holder.TV_userBudget.setText("Budget " + personalPostModelList.get(position).getPrice());
         String id = personalPostModelList.get(position).getUserID();
 
         // getting data from user id
@@ -70,12 +75,14 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
                     User user = snapshot.getValue(User.class);
                     holder.TV_userName.setText(user.getName());
 //                    holder.TV_userOccupation.setText(user.getBio());
-                    if (!user.getImage().isEmpty()){
+                    if (user.getImage()!=null){
                     Glide.with(holder.IV_userPic.getContext()).
                             load(user.getImage())
-                            .fitCenter()
-                            .centerCrop()
-                            .into(holder.IV_userPic);}
+                            .transform(new CenterCrop() , new CircleCrop())
+                            .into(holder.IV_userPic);
+                    holder.IV_userPic.setPadding(3,3,3,3);
+                    }
+
                 }
             }
             @Override
@@ -192,11 +199,10 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
         TextView TV_userBudget;
         TextView TV_DatePosted;
         TextView TV_userDescription;
-        CardView Lay_card;
+        RelativeLayout Lay_card;
         ImageButton BT_fav;
         Button BT_message;
         ImageButton deletePost;
-
         ImageView IV_male;
         ImageView IV_female;
         ImageView IV_pet;
@@ -212,7 +218,7 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
             TV_userBudget = itemView.findViewById(R.id.personal_post_budget_text_view);
             TV_DatePosted = itemView.findViewById(R.id.personal_post_date_text_view);
             TV_userDescription = itemView.findViewById(R.id.personal_card_text_view);
-            Lay_card = itemView.findViewById(R.id.personal_card_view);
+            Lay_card = itemView.findViewById(R.id.relative_layout_personal_card);
 
             IV_male = itemView.findViewById(R.id.male_image_view_apartment);
             IV_female = itemView.findViewById(R.id.female_image_view_apartment);
