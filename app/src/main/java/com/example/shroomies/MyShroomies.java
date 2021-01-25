@@ -278,7 +278,7 @@ public class MyShroomies extends Fragment   {
 
                     }
 
-                    return dateO2.compareTo(dateO1);
+                    return dateO1.compareTo(dateO2);
 
                 }
             });
@@ -328,7 +328,7 @@ public class MyShroomies extends Fragment   {
 
                     }
 
-                    return dateO1.compareTo(dateO2);
+                    return dateO2.compareTo(dateO1);
 
                 }
             });
@@ -352,7 +352,7 @@ public class MyShroomies extends Fragment   {
 
                     }
 
-                    return dateO1.compareTo(dateO2);
+                    return dateO2.compareTo(dateO1);
                 }
 
             });
