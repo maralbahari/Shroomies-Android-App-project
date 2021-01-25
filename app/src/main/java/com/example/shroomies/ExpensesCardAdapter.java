@@ -21,6 +21,10 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.load.resource.bitmap.CenterInside;
+import com.bumptech.glide.load.resource.bitmap.FitCenter;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -180,9 +184,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
         if (!expensesCardArrayList.get(position).getAttachedFile().isEmpty()) {
             GlideApp.with(context)
                     .load(expensesCardArrayList.get(position).getAttachedFile())
-                    .fitCenter()
-                    .centerCrop()
-//                    .transform(new RoundedCornersTransformation(50))
+                    .transform( new CenterCrop() , new RoundedCorners(40) )
                     .into(holder.cardImage);
         }
 

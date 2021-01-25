@@ -85,14 +85,14 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         public TasksCardViewHolder(@NonNull  View v) {
             super(v);
             taskImportanceView = v.findViewById(R.id.task_importance_view);
-            title = v.findViewById(R.id.task_card_title);
-            description = v.findViewById(R.id.task_card_description);
-            dueDate = v.findViewById(R.id.task_card_duedate);
-            delete = v.findViewById(R.id.task_delete);
-            archive = v.findViewById(R.id.task_archive);
-            done = v.findViewById(R.id.task_done);
-            markAsDone = v.findViewById(R.id.task_mark_as_done);
-            mention = v.findViewById(R.id.task_mention);
+            title = v.findViewById(R.id.title_card);
+            description = v.findViewById(R.id.card_description);
+            dueDate = v.findViewById(R.id.dueDate_card);
+            delete = v.findViewById(R.id.delete_card_btn);
+            archive = v.findViewById(R.id.archive_card_btn);
+            done = v.findViewById(R.id.expense_done);
+            markAsDone = v.findViewById(R.id.shroomie_markasdone);
+            mention = v.findViewById(R.id.expenses_mention_et);
 
             delete.setOnClickListener(new View.OnClickListener() {
                 @Override

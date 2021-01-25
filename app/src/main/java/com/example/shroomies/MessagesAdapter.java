@@ -81,7 +81,6 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
                         .placeholder(R.drawable.ic_icon_awesome_image)
                         .into(holder.receiverImageView);
                 holder.receiverImageDate.setText(messages.getTime());
-                holder.receiverImageDate.setText(messages.getTime());
             }
         }
 

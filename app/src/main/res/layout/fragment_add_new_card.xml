@@ -13,9 +13,9 @@
         android:text="Add a new card"
         android:textSize="35sp"
         android:textStyle="bold"
-
-        android:layout_marginLeft="50dp"
+        android:layout_centerHorizontal="true"
         android:layout_marginTop="20dp"
+        android:layout_marginBottom="10dp"
         />
 
     <EditText
@@ -24,32 +24,41 @@
         android:layout_height="50dp"
         android:hint="Title:"
         android:layout_marginLeft="50dp"
-        android:layout_marginRight="50dp"
+        android:layout_marginRight="10dp"
         android:background="@null"
+        android:layout_toLeftOf="@id/due_date"
         android:layout_below="@+id/new_card_tv"
         />
 
     <EditText
+        android:gravity="top"
         android:id="@+id/new_card_description"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="wrap_content"
+        android:minHeight="180dp"
         android:hint="Description:"
+        android:layout_marginTop="15dp"
         android:layout_marginLeft="50dp"
         android:layout_marginRight="50dp"
-        android:background="@null"
+        android:background="@drawable/post_card_rectangle_round"
+        android:elevation="3dp"
+        android:padding="20dp"
         android:layout_below="@+id/new_card_title"
+
 
         />
 
     <TextView
         android:id="@+id/due_date"
-        android:layout_width="100dp"
-        android:layout_height="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/new_card_tv"
         android:layout_alignParentRight="true"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="10dp"
         android:layout_marginRight="20dp"
-        android:background="@drawable/textbox_round"
+        android:padding="8dp"
+        android:elevation="3dp"
+        android:background="@drawable/mention_text_box"
         android:text="Due date"
         android:textAlignment="center"
         />
@@ -63,6 +72,7 @@
         android:textColor="@color/Black"
         android:layout_below="@+id/new_card_description"
         android:layout_marginLeft="50dp"
+        android:layout_marginTop="10dp"
         />
 
 
@@ -79,21 +89,25 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="50dp"
             android:layout_marginTop="10dp"
-            android:background="@color/red"/>
+            android:buttonTint="@color/red"
+            android:checked="true"
+            android:background="@drawable/importance_red_radio_selector"/>
         <RadioButton
             android:id="@+id/newcard_orange_radio_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="10dp"
-            android:background="@color/orange"/>
+            android:buttonTint="@color/orange"
+            android:background="@drawable/importance_orange_radio_selector"/>
         <RadioButton
             android:id="@+id/newcard_green_radio_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="10dp"
-            android:background="@color/okGreen"
+            android:buttonTint="@color/okGreen"
+            android:background="@drawable/importance_green_radio_selector"
             />
 
     </RadioGroup>
@@ -103,8 +117,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Tag a shroomie"
-        android:layout_below="@+id/new_card_important"
-        android:layout_marginTop="50dp"
+        android:layout_below="@+id/newcard_radio_group"
+        android:layout_marginTop="10dp"
         android:layout_marginLeft="50dp"
         android:textSize="20sp"
         />
@@ -116,8 +130,8 @@
         android:layout_height="wrap_content"
         android:background="@drawable/textbox_round"
         android:layout_below="@+id/add_new_card_tv"
-        android:layout_marginLeft="50dp"
-        android:layout_marginTop="20dp"
+     android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
         android:elevation="5dp"
         />
 
@@ -151,11 +165,12 @@
         android:id="@+id/my_shroomies_add_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:text="Add card"
         android:layout_below="@+id/my_shroomies_attach_button"
+        android:layout_alignParentBottom="true"
+        android:elevation="5dp"
+       android:layout_marginTop="100dp"
         android:background="@color/LogoYellow"
-        />
+        android:text="Add card" />
 
 
 

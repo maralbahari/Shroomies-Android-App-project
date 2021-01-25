@@ -33,7 +33,7 @@ public class SignUpActivity extends AppCompatActivity {
     private Button register;
     private DatabaseReference mRootref;
     private FirebaseAuth mAuth;
-    ProgressDialog pd;
+    CustomLoadingProgressBar pd;
     SessionManager sessionManager;
 
     @Override
@@ -47,7 +47,8 @@ public class SignUpActivity extends AppCompatActivity {
         register = findViewById(R.id.registerbt);
         mRootref = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
-        pd = new ProgressDialog(this);
+        pd = new CustomLoadingProgressBar(SignUpActivity.this , "Creating account... " , R.raw.loading_animation);
+
         Boolean isEnabled;
 
         register.setOnClickListener(new View.OnClickListener() {
@@ -79,7 +80,6 @@ public class SignUpActivity extends AppCompatActivity {
 
 
     private void registerUser(final String name, final String email, String password, String confirmpw) {
-        pd.setMessage("Please wait");
         pd.show();
 
         mAuth.createUserWithEmailAndPassword(email, password). addOnSuccessListener(new OnSuccessListener<AuthResult>() {
@@ -97,6 +97,7 @@ public class SignUpActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
+                            pd.dismiss();
                             sendEmailVerification();
 
 

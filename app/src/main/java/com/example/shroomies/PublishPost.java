@@ -107,13 +107,15 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
     CheckBox smokingCB;
     CheckBox petCB;
     EditText descriptionEditText;
-    LottieAnimationView uploadingProgress;
+
     NestedScrollView nestedScrollView;
     StorageReference filePath;
     String postUniqueName;
     RelativeLayout successCard;
     Button okButton;
     String userName;
+    TextView budgetTextView;
+    CustomLoadingProgressBar customLoadingProgressBar;
 
 
 
@@ -130,11 +132,18 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        customLoadingProgressBar = new CustomLoadingProgressBar(getActivity() , "Publishing ..." , R.raw.lf30_editor_igyp9bvy);
+        customLoadingProgressBar.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
+
         successCard = v.findViewById(R.id.success_card);
         okButton = v.findViewById(R.id.ok_Button);
         numberOfRoomMatesNumberPicker = v.findViewById(R.id.roommate_number_picker);
         numberOfRoomMatesNumberPicker.setMinValue(1);
         numberOfRoomMatesNumberPicker.setMaxValue(7);
+
+
 
         budgetNumberPicker = v.findViewById(R.id.budget_number_picker);
 
@@ -172,8 +181,9 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
         smokingCB = v.findViewById(R.id.non_smoking_image_button_post);
         petCB = v.findViewById(R.id.pets_allowd_image_button_post);
         descriptionEditText = v.findViewById(R.id.description_edit_text);
+        budgetTextView = v.findViewById(R.id.budget_tv);
 
-        uploadingProgress = v.findViewById(R.id.lottie_uploading_post);
+
         nestedScrollView = v.findViewById(R.id.nested);
         imageUri = new ArrayList<>();
 
@@ -253,8 +263,10 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
                     //if user selects personal post remove some of the options
                     numberPickerRelativeLayout.setVisibility(View.GONE);
                     uploadImageCardRelativeLayouyt.setVisibility(View.GONE);
+                    budgetTextView.setText("Budget:");
                     currentTabPosition=1;
                 }else{
+                    budgetTextView.setText("Price:");
                     numberPickerRelativeLayout.setVisibility(View.VISIBLE);
                     uploadImageCardRelativeLayouyt.setVisibility(View.VISIBLE);
                     currentTabPosition=0;
@@ -514,11 +526,10 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
     }
 
     void publishPost(final LatLng locationLtLng , final  String description , final int numberRoomMate , final int price , final  List<Boolean> property , final List<Uri> imageUri ) {
-        uploadingProgress.setVisibility(View.VISIBLE);
-        publishPostButton.setVisibility(View.INVISIBLE);
-        uploadingProgress.playAnimation();
-        nestedScrollView.setAlpha((float) 0.6);
 
+        customLoadingProgressBar.show();
+
+        publishPostButton.setVisibility(View.INVISIBLE);
 
         postUniqueName = getUniqueName();
 
@@ -548,10 +559,9 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    uploadingProgress.pauseAnimation();
-                    uploadingProgress.setVisibility(View.GONE);
+               customLoadingProgressBar.dismiss();
                     publishPostButton.setVisibility(View.VISIBLE);
-                    nestedScrollView.setAlpha((float) 1);
+
                     Toast.makeText(getActivity(), "we ran into a problem uploading your photos" , Toast.LENGTH_LONG).show();
                 }
             });
@@ -620,10 +630,10 @@ Toast.makeText(getActivity(),"",Toast.LENGTH_SHORT).show();
         firebaseDatabase.child("postApartment").child(userUid+postUniqueName).setValue(post).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                uploadingProgress.pauseAnimation();
-                uploadingProgress.setVisibility(View.GONE);
+
+
+                customLoadingProgressBar.dismiss();
                 publishPostButton.setVisibility(View.VISIBLE);
-                nestedScrollView.setAlpha((float) 1);
                 if (task.isSuccessful()) {
                     successCard.setVisibility(View.VISIBLE);
                 }else{
@@ -639,10 +649,8 @@ Toast.makeText(getActivity(),"",Toast.LENGTH_SHORT).show();
     void publishPersonalPost(LatLng locationLtLng , String description , int price , List<Boolean> property ){
         String userUid =  FirebaseAuth.getInstance().getCurrentUser().getUid();
         postUniqueName = getUniqueName();
-        uploadingProgress.setVisibility(View.VISIBLE);
+        customLoadingProgressBar.show();
         publishPostButton.setVisibility(View.INVISIBLE);
-        uploadingProgress.playAnimation();
-        nestedScrollView.setAlpha((float) 0.6);
         HashMap<String ,Object> post = new HashMap<>();
 
         post.put("description" , description);
@@ -662,10 +670,8 @@ Toast.makeText(getActivity(),"",Toast.LENGTH_SHORT).show();
         firebaseDatabase.child("postPersonal").child(userUid+postUniqueName).setValue(post).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                uploadingProgress.pauseAnimation();
-                uploadingProgress.setVisibility(View.GONE);
+                customLoadingProgressBar.dismiss();
                 publishPostButton.setVisibility(View.VISIBLE);
-                nestedScrollView.setAlpha((float) 1);
                 if (task.isSuccessful()) {
                     successCard.setVisibility(View.VISIBLE);
                 }else{

@@ -108,7 +108,7 @@ public class MapsFragment extends Fragment {
         mapSearchView = v.findViewById(R.id.search_view_map_fragment);
         searchResultsListView = v.findViewById(R.id.list_view_map_fragment);
         updateAddressButton =  v.findViewById(R.id.update_location_button);
-        searchProgressBarAnimated = v.findViewById(R.id.search_progress_bar);
+//        searchProgressBarAnimated = v.findViewById(R.id.search_progress_bar);
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {

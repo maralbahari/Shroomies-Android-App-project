@@ -6,7 +6,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:paddingTop="60dp"
-
     android:paddingBottom="60dp"
     tools:context=".PublishPost">
 
@@ -247,6 +246,7 @@
                     </TextView>
 
                     <NumberPicker
+
                         android:id="@+id/budget_number_picker"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -255,10 +255,22 @@
                         android:layout_marginBottom="10dp"
                        android:selectionDividerHeight="0dp"
                         android:orientation="horizontal"
+                        />
 
-                        >
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_toRightOf="@+id/budget_number_picker"
+                        android:text="RM"
+                        android:layout_marginLeft="5dp"
+                        android:textSize="20dp"
+                        android:textStyle="bold"
+                        android:textColor="@color/jetBlack"
+                        android:shadowColor="@color/lightGrey"
+                        android:shadowRadius="1"
+                        android:layout_marginTop="70dp"
+                        />
 
-                    </NumberPicker>
 
                 </RelativeLayout>
             </LinearLayout>
@@ -434,17 +446,7 @@
         android:drawableStart="@drawable/ic_icon_material_publish"
         />
 
-    <com.airbnb.lottie.LottieAnimationView
-        android:visibility="invisible"
-        android:id="@+id/lottie_uploading_post"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:layout_margin="50dp"
-        app:lottie_rawRes="@raw/lf30_editor_igyp9bvy"
-        app:lottie_autoPlay="true"
-        app:lottie_loop="true">
-    </com.airbnb.lottie.LottieAnimationView>
+
 
     <RelativeLayout
         android:visibility="gone"

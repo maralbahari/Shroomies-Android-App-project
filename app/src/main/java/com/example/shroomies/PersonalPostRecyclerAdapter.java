@@ -59,9 +59,14 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
 
     @Override
     public void onBindViewHolder(@NonNull final PersonalPostViewHolder holder, final int position) {
-        holder.TV_userDescription.setText(personalPostModelList.get(position).getDescription());
+        String description = personalPostModelList.get(position).getDescription();
+        if(description.isEmpty()){
+            holder.TV_userDescription.setText("no description added");
+        }else{
+            holder.TV_userDescription.setText(description);
+        }
         holder.TV_DatePosted.setText(personalPostModelList.get(position).getDate().split(" ")[0]);
-        holder.TV_userBudget.setText("Budget " + personalPostModelList.get(position).getPrice());
+        holder.TV_userBudget.setText("Budget: " + personalPostModelList.get(position).getPrice());
         String id = personalPostModelList.get(position).getUserID();
 
         // getting data from user id

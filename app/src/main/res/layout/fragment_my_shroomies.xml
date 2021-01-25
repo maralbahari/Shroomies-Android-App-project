@@ -12,8 +12,8 @@
         android:id="@+id/my_shroomie"
         android:layout_width="250dp"
         android:layout_height="250dp"
-        android:src="@drawable/black_mushroom"
-        android:alpha="0.4"
+        android:src="@drawable/yellow_mushroom_transparent_background"
+        android:alpha="0.1"
         android:layout_marginTop="220dp"
         android:layout_marginLeft="70dp"
         />
@@ -48,9 +48,12 @@
 
     <Button
         android:layout_marginBottom="10dp"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
         android:id="@+id/my_shroomies_member_btn"
         android:layout_width="wrap_content"
         android:layout_marginLeft="220dp"
+        android:drawablePadding="5dp"
         android:layout_height="35dp"
         android:layout_below="@+id/my_shroomies_tablayout"
         android:background="@drawable/rounded_button_myshroomies_layout"
@@ -63,14 +66,21 @@
          />
 
     <LinearLayout
+        android:elevation="3dp"
         android:id="@+id/shroomie_linearlayout_filter"
-        android:layout_width="match_parent"
-        android:layout_height="35dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_below="@+id/my_shroomies_tablayout"
         android:layout_toRightOf="@+id/my_shroomies_member_btn"
         android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
         android:layout_marginBottom="5dp"
         android:orientation="horizontal"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+
+        android:gravity="center"
+        android:layout_alignParentRight="true"
         android:background="@drawable/rounded_button_myshroomies_layout"
         >
 
@@ -78,14 +88,14 @@
             android:layout_width="15dp"
             android:layout_height="15dp"
             android:background="@drawable/ic_filter"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="13dp"
+            android:layout_marginLeft="22dp"
+
             />
         <TextView
-            android:layout_marginTop="5dp"
-            android:layout_marginLeft="4dp"
+
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
             android:textSize="10sp"
             android:textStyle="bold"
             android:textColor="@color/Black"
@@ -94,17 +104,16 @@
         <Spinner
             android:id="@+id/shroomie_spinner_filter"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
-            android:layout_marginTop="10dp"
+            android:layout_height="match_parent"
+
             />
 
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:layout_marginRight="20dp"
+        android:layout_marginRight="5dp"
         android:layout_marginTop="5dp"
-        android:layout_marginLeft="20dp"
+        android:layout_marginLeft="5dp"
         android:id="@+id/my_expenses_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -124,11 +133,12 @@
 
     <Button
         android:id="@+id/my_shroomies_add_card_btn"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_marginTop="550dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
-        android:background="@drawable/ic_add_card" />
+        android:layout_alignParentBottom="true"
+        android:background="@drawable/ic_add_card"
+        android:elevation="3dp"/>
 
 
 </RelativeLayout>

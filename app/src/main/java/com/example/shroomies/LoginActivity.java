@@ -45,7 +45,7 @@ public class LoginActivity extends AppCompatActivity {
 
     FirebaseAuth mAuth;
     TextView forgotPassword;
-    ProgressBar progressBar;
+    CustomLoadingProgressBar progressBar;
     Button google_sign;
     SessionManager sessionManager;
     @Override
@@ -59,7 +59,7 @@ public class LoginActivity extends AppCompatActivity {
         signup=findViewById(R.id.sign_up_button);
         google_sign = findViewById(R.id.google_sign_up);
         forgotPassword=findViewById(R.id.forgot_password_login);
-        progressBar=findViewById(R.id.progressBar_login);
+//        progressBar=findViewById(R.id.progressBar_login);
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
@@ -104,7 +104,9 @@ public class LoginActivity extends AppCompatActivity {
 
     }
     private void loginUser(){
-        progressBar.setVisibility(View.VISIBLE);
+        progressBar = new CustomLoadingProgressBar(LoginActivity.this , "Loading..." ,R.raw.loading_animation);
+        progressBar.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        progressBar.show();
         final String uname_txt = username.getText().toString().trim();
         String pw_txt = password.getText().toString().trim();
 
@@ -118,7 +120,7 @@ public class LoginActivity extends AppCompatActivity {
                 public void onComplete(@NonNull Task<AuthResult> task) {
 
                     if (task.isSuccessful()){
-                        progressBar.setVisibility(View.GONE);
+                        progressBar.dismiss();
                         if(mAuth.getCurrentUser().isEmailVerified()){
                             String userID =mAuth.getCurrentUser().getUid();
                             String userEmail =mAuth.getCurrentUser().getEmail();
@@ -135,6 +137,7 @@ public class LoginActivity extends AppCompatActivity {
                         if(!(mAuth.getCurrentUser().isEmailVerified())){
                             username.setText("");
                             password.setText("");
+                            progressBar.dismiss();
                             Toast.makeText(LoginActivity.this, "Please verify your email address", Toast.LENGTH_SHORT).show();
                             final FirebaseUser user = mAuth.getCurrentUser();
                             user.sendEmailVerification().addOnCompleteListener(LoginActivity.this, new OnCompleteListener<Void>() {
@@ -143,9 +146,11 @@ public class LoginActivity extends AppCompatActivity {
                                     login.setEnabled(true);
                                     if(task.isSuccessful()){
                                         Toast.makeText(LoginActivity.this, "a new verification email has been sent to"+user.getEmail(), Toast.LENGTH_SHORT).show();
+                                        progressBar.dismiss();
                                     }
                                     else{
                                         Toast.makeText(LoginActivity.this, "failed to send email verification", Toast.LENGTH_SHORT).show();
+                                        progressBar.dismiss();
                                     }
                                 }
                             });
@@ -160,6 +165,7 @@ public class LoginActivity extends AppCompatActivity {
                 public void onFailure(@NonNull Exception e) {
                     if (e instanceof FirebaseAuthInvalidCredentialsException) {
                         Toast.makeText(LoginActivity.this, "Invalid password", Toast.LENGTH_SHORT).show();
+                        progressBar.dismiss();
                     } else if (e instanceof FirebaseAuthInvalidUserException) {
 
                         String errorCode =
@@ -167,10 +173,13 @@ public class LoginActivity extends AppCompatActivity {
 
                         if (errorCode.equals("ERROR_USER_NOT_FOUND")) {
                             Toast.makeText(LoginActivity.this, "The email does not belong to a registered account. Please proceed to Sign Up.", Toast.LENGTH_SHORT).show();
+                            progressBar.dismiss();
                         } else if (errorCode.equals("ERROR_USER_DISABLED")) {
                             Toast.makeText(LoginActivity.this, "User account has been disabled", Toast.LENGTH_SHORT).show();
+                            progressBar.dismiss();
                         } else {
                             Toast.makeText(LoginActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                            progressBar.dismiss();
                         }
 
                     }

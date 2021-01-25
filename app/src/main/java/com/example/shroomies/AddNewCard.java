@@ -165,7 +165,7 @@ public class AddNewCard extends DialogFragment   {
     public void onStart() {
         super.onStart();
         if(getDialog()!=null) {
-            getDialog().getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.WRAP_CONTENT);
+            getDialog().getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
             getDialog().getWindow().setBackgroundDrawableResource(R.drawable.create_group_fragment_background);
         }
     }
@@ -184,7 +184,7 @@ public class AddNewCard extends DialogFragment   {
         mention = v.findViewById(R.id.tag_shroomie);
 
 //        mention.setThreshold(6);
-        done = v.findViewById(R.id.task_done);
+        done = v.findViewById(R.id.expense_done);
         cameraPermissions=new String[]{Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE};
         storagePermissions=new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
         attachedFile = v.findViewById(R.id.attached_files);

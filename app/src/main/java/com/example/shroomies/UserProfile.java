@@ -136,20 +136,21 @@ public class UserProfile extends Fragment {
 
 
     private void getNumPosts(){
-        rootRef.child("postApartment").addValueEventListener(new ValueEventListener() {
+        rootRef.child("postApartment").orderByChild("userID").equalTo(mAuth.getInstance().getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                int i=0;
-                for (DataSnapshot snapshot: dataSnapshot.getChildren()){
-                    Post post = snapshot.getValue(Post.class);
-                    if(post.getUserID().equals(profileid)){
-                        i++;
+                final long numberOfApartmentPosts =  dataSnapshot.getChildrenCount();
+                rootRef.child("postPersonal").orderByChild("userID").equalTo(mAuth.getInstance().getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            posts.setText(Long.toString(numberOfApartmentPosts + snapshot.getChildrenCount()));
                     }
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
 
+                    }
+                });
                 }
-               posts.setText(Integer.toString(i));
-            }
-
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
 

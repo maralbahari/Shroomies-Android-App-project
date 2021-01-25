@@ -314,23 +314,13 @@ public class ChattingActivity extends AppCompatActivity {
         });
 }
    private void showImagePickDialog(){
-        String[] options={"Camera","Gallery"};
+        String[] options={"Gallery"};
        AlertDialog.Builder builder=new AlertDialog.Builder(this);
        builder.setTitle("Choose Image from");
        builder.setItems(options, new DialogInterface.OnClickListener() {
            @Override
            public void onClick(DialogInterface dialog, int which) {
-               //camera
                if(which==0){
-                   if(!checkCameraPermisson()){
-                       requestCameraPermission();
-                   }
-                   else{
-                       pickFromCamera();
-                   }
-               }
-               //gallery
-               if(which==1){
                    if(!checkStoragePermisson()){
                        requestStoragePermission();
                    }else{
@@ -341,17 +331,7 @@ public class ChattingActivity extends AppCompatActivity {
        });
        builder.create().show();
    }
-   private void pickFromCamera(){
-       ContentValues cv= new ContentValues();
-       cv.put(MediaStore.Images.Media.TITLE,"Temp Pick");
-       cv.put(MediaStore.Images.Media.DESCRIPTION,"Temp Describe");
-        chosenImage=getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,cv);
 
-       Intent intent=new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-       intent.putExtra(MediaStore.EXTRA_OUTPUT,chosenImage);
-       startActivityForResult(intent,IMAGE_PICK_CAMERA_CODE);
-
-   }
    private void pickFromGallery(){
        Intent intent=new Intent(Intent.ACTION_PICK);
        intent.setType("image/*");
@@ -365,35 +345,11 @@ public class ChattingActivity extends AppCompatActivity {
    private void requestStoragePermission(){
        ActivityCompat.requestPermissions(this,storagePermissions,STORAGE_REQUEST_CODE);
    }
-   private boolean checkCameraPermisson(){
-        boolean resultCam= ContextCompat.checkSelfPermission(this,Manifest.permission.CAMERA)==(PackageManager.PERMISSION_GRANTED);
-        boolean resultStorage= ContextCompat.checkSelfPermission(this,Manifest.permission.WRITE_EXTERNAL_STORAGE)==(PackageManager.PERMISSION_GRANTED);
-
-        return resultCam && resultStorage;
-    }
-    private void requestCameraPermission(){
-        ActivityCompat.requestPermissions(this,cameraPermissions,CAMERA_REQUEST_CODE);
-    }
 //this method is called when user oress allow or deny form permission request dialog
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode){
-            case CAMERA_REQUEST_CODE:{
-                if(grantResults.length>0){
-
-                    boolean cameraAccepted=grantResults[0]==PackageManager.PERMISSION_GRANTED;
-                    boolean storageAccepted=grantResults[1]==PackageManager.PERMISSION_GRANTED;
-                    if(cameraAccepted && storageAccepted){
-                        pickFromCamera();
-                    }else{
-                        requestPermissions(new String[]{Manifest.permission.CAMERA}, CAMERA_REQUEST_CODE);
-                        Toast.makeText(this,"Camera and storage both permissions are neccessary....",Toast.LENGTH_SHORT).show();
-                    }
-                }else{
-
-                }
-            }break;
             case STORAGE_REQUEST_CODE:{
                 if(grantResults.length>0){
                     boolean storageAccepted=grantResults[0]==PackageManager.PERMISSION_GRANTED;
@@ -417,8 +373,6 @@ public class ChattingActivity extends AppCompatActivity {
             if(requestCode==IMAGE_PICK_GALLERY_CODE){
                 chosenImage=data.getData();
                 //Save to firebase
-                sendImageMessage(chosenImage);
-            }else if(requestCode==IMAGE_PICK_CAMERA_CODE){
                 sendImageMessage(chosenImage);
             }
         }
