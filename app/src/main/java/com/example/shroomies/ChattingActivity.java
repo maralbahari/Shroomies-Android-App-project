@@ -2,14 +2,12 @@ package com.example.shroomies;
 
 import android.Manifest;
 import android.app.ProgressDialog;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -243,12 +241,14 @@ public class ChattingActivity extends AppCompatActivity {
                             JsonObjectRequest jsonObjectRequest=new JsonObjectRequest("https://fcm.googleapis.com/fcm/send", senderJsonObj, new Response.Listener<JSONObject>() {
                                 @Override
                                 public void onResponse(JSONObject response) {
-                                    Log.d("JSON_RESPONSE","onResponse:"+response.toString());
+                                    Toast.makeText(getApplicationContext(),response.toString(),Toast.LENGTH_LONG).show();
+//                                    Log.d("JSON_RESPONSE","onResponse:"+response.toString());
                                 }
 
                             }, new Response.ErrorListener() {
                                 @Override
                                 public void onErrorResponse(VolleyError error) {
+                                    Toast.makeText(getApplicationContext(),error.toString(),Toast.LENGTH_LONG).show();
                                     Log.d("JSON_RESPONSE","onResponse:"+error.toString());
 
                                 }

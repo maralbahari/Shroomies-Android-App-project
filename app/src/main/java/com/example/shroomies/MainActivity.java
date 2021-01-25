@@ -72,10 +72,12 @@ public class MainActivity extends AppCompatActivity {
             String userEmail=extras.getString("EMAIL");
             sessionManager=new SessionManager(getApplicationContext(),userID);
             sessionManager.createSession(userID,userEmail);
-            firebaseMessaging = new FirebaseMessaging();
-            firebaseMessaging.onNewToken(FirebaseInstanceId.getInstance().getToken());
+
 
         }
+        firebaseMessaging = new FirebaseMessaging();
+        firebaseMessaging.onNewToken(FirebaseInstanceId.getInstance().getToken());
+
         rootRef = FirebaseDatabase.getInstance().getReference();
         btm_view = findViewById(R.id.bottomNavigationView);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);

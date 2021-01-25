@@ -65,17 +65,35 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             holder.sendRequest.setVisibility(View.VISIBLE);
             holder.msgMember.setVisibility(View.GONE);
             holder.removeMember.setVisibility(View.GONE);
+            holder.userName.setText(userList.get(position).getName());
+            if(!userList.get(position).getImage().isEmpty()){
+                GlideApp.with(context)
+                        .load(userList.get(position).getImage())
+                        .fitCenter()
+                        .circleCrop()
+                        .into(holder.userImage);
+                holder.userImage.setPadding(2,2,2,2);
+            }
+        }else{
+            if (userList.get(position).getID().equals(mAuth.getInstance().getCurrentUser().getUid())){
+                holder.msgMember.setVisibility(View.INVISIBLE);
+                holder.removeMember.setVisibility(View.INVISIBLE);
+                holder.userName.setText("You");
+
+            }
+            holder.userName.setText(userList.get(position).getName());
+            if(!userList.get(position).getImage().isEmpty()){
+                GlideApp.with(context)
+                        .load(userList.get(position).getImage())
+                        .fitCenter()
+                        .circleCrop()
+                        .into(holder.userImage);
+                holder.userImage.setPadding(2,2,2,2);
+            }
         }
 
-       holder.userName.setText(userList.get(position).getName());
-       if(!userList.get(position).getImage().isEmpty()){
-           GlideApp.with(context)
-                   .load(userList.get(position).getImage())
-                   .fitCenter()
-                   .circleCrop()
-                   .into(holder.userImage);
-                    holder.userImage.setPadding(2,2,2,2);
-       }
+
+
 
 
     }

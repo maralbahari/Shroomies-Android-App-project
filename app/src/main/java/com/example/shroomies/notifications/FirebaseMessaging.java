@@ -13,7 +13,6 @@ import androidx.core.app.NotificationCompat;
 
 import com.example.shroomies.ChattingActivity;
 import com.example.shroomies.GroupChattingActivity;
-import com.example.shroomies.LoginActivity;
 import com.example.shroomies.MainActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
@@ -24,105 +23,106 @@ import com.google.firebase.messaging.RemoteMessage;
 public class FirebaseMessaging  extends FirebaseMessagingService {
 
     PendingIntent pendingIntent;
+
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
 
-        String currentUserID= FirebaseAuth.getInstance().getCurrentUser().getUid();
-        String sent= remoteMessage.getData().get("sent");
-        String user= remoteMessage.getData().get("user");
-        if(sent.equals(currentUserID)){
-            if(!currentUserID.equals(user)){
+        String currentUserID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String sent = remoteMessage.getData().get("sent");
+        String user = remoteMessage.getData().get("user");
+        if (sent.equals(currentUserID)) {
+            if (!currentUserID.equals(user)) {
                 sendNormalNotification(remoteMessage);
-                if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.O){
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     sendOAndAboveNotification(remoteMessage);
-                }else{
+                } else {
                     sendNormalNotification(remoteMessage);
                 }
             }
         }
     }
-    private void sendNormalNotification(RemoteMessage msg){
+
+    private void sendNormalNotification(RemoteMessage msg) {
         String groupID = msg.getData().get("groupID");
-        String user=msg.getData().get("user");
-        String icon=msg.getData().get("icon");
-        String title=msg.getData().get("title");
-        String body=msg.getData().get("body");
-        RemoteMessage.Notification notification=msg.getNotification();
-        int i= Integer.parseInt(user.replaceAll("[\\D]",""));
-        if(groupID!=null){
-            Intent intent= new Intent(this, GroupChattingActivity.class);
-            intent.putExtra("GROUPID",groupID);
+        String user = msg.getData().get("user");
+        String icon = msg.getData().get("icon");
+        String title = msg.getData().get("title");
+        String body = msg.getData().get("body");
+        RemoteMessage.Notification notification = msg.getNotification();
+        int i = Integer.parseInt(user.replaceAll("[\\D]", ""));
+        if (groupID != null) {
+            Intent intent = new Intent(this, GroupChattingActivity.class);
+            intent.putExtra("GROUPID", groupID);
             intent.addFlags(intent.FLAG_ACTIVITY_CLEAR_TOP);
-            pendingIntent =PendingIntent.getActivity(this,i,intent,PendingIntent.FLAG_ONE_SHOT);
-        }else{
-            Intent intent= new Intent(this, ChattingActivity.class);
-            intent.putExtra("USERID",user);
+            pendingIntent = PendingIntent.getActivity(this, i, intent, PendingIntent.FLAG_ONE_SHOT);
+        } else {
+            Intent intent = new Intent(this, ChattingActivity.class);
+            intent.putExtra("USERID", user);
             intent.addFlags(intent.FLAG_ACTIVITY_CLEAR_TOP);
-            pendingIntent =PendingIntent.getActivity(this,i,intent,PendingIntent.FLAG_ONE_SHOT);
+            pendingIntent = PendingIntent.getActivity(this, i, intent, PendingIntent.FLAG_ONE_SHOT);
         }
 
 
-        Uri defSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        NotificationCompat.Builder builder= new NotificationCompat.Builder(this)
+        Uri defSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                 .setSmallIcon(Integer.parseInt(icon))
                 .setContentText(body)
                 .setContentTitle(title)
                 .setAutoCancel(true)
 
                 .setSound(defSoundUri)
-                .setContentIntent(pendingIntent)
-                ;
+                .setContentIntent(pendingIntent);
 
-        NotificationManager notificationManager=(NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-        int j=0;
-        if(i>0){
-            j=i;
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        int j = 0;
+        if (i > 0) {
+            j = i;
         }
-        notificationManager.notify(j,builder.build());
+        notificationManager.notify(j, builder.build());
     }
-    private void sendOAndAboveNotification(RemoteMessage msg){
+
+    private void sendOAndAboveNotification(RemoteMessage msg) {
         String groupID = msg.getData().get("groupID");
-        String isCardNOtification =  msg.getData().get("cardNotification");
-        String user=msg.getData().get("user");
-        String icon=msg.getData().get("icon");
-        String title=msg.getData().get("title");
-        String body=msg.getData().get("body");
-        RemoteMessage.Notification notification=msg.getNotification();
-        int i= Integer.parseInt(user.replaceAll("[\\D]",""));
+        String isCardNOtification = msg.getData().get("cardNotification");
+        String user = msg.getData().get("user");
+        String icon = msg.getData().get("icon");
+        String title = msg.getData().get("title");
+        String body = msg.getData().get("body");
+        RemoteMessage.Notification notification = msg.getNotification();
+        int i = Integer.parseInt(user.replaceAll("[\\D]", ""));
 
-        if(groupID!=null){
+        if (groupID != null) {
 
-            Intent intent= new Intent(this, GroupChattingActivity.class);
-            intent.putExtra("GROUPID",groupID);
+            Intent intent = new Intent(this, GroupChattingActivity.class);
+            intent.putExtra("GROUPID", groupID);
             intent.addFlags(intent.FLAG_ACTIVITY_CLEAR_TOP);
-            pendingIntent =PendingIntent.getActivity(this,i,intent,PendingIntent.FLAG_ONE_SHOT);
-        }else if(isCardNOtification.equals("true")){
-            Intent intent= new Intent(this, MainActivity.class);
+            pendingIntent = PendingIntent.getActivity(this, i, intent, PendingIntent.FLAG_ONE_SHOT);
+        } else if (isCardNOtification.equals("true")) {
+            Intent intent = new Intent(this, MainActivity.class);
 
             intent.addFlags(intent.FLAG_ACTIVITY_CLEAR_TOP);
-            pendingIntent =PendingIntent.getActivity(this,i,intent,PendingIntent.FLAG_ONE_SHOT);
+            pendingIntent = PendingIntent.getActivity(this, i, intent, PendingIntent.FLAG_ONE_SHOT);
 
-        }else{
-            Intent intent= new Intent(this, ChattingActivity.class);
-            intent.putExtra("USERID",user);
+        } else {
+            Intent intent = new Intent(this, ChattingActivity.class);
+            intent.putExtra("USERID", user);
             intent.addFlags(intent.FLAG_ACTIVITY_CLEAR_TOP);
-            pendingIntent =PendingIntent.getActivity(this,i,intent,PendingIntent.FLAG_ONE_SHOT);
+            pendingIntent = PendingIntent.getActivity(this, i, intent, PendingIntent.FLAG_ONE_SHOT);
         }
 
+        Uri defSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        OreoandAboveNotifactaions noti = new OreoandAboveNotifactaions(this);
+        NotificationCompat.Builder builder = noti.getONotifications(title, body, pendingIntent, defSoundUri, icon);
 
-
-        Uri defSoundUri= RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        OreoandAboveNotifactaions noti=new OreoandAboveNotifactaions(this);
-        NotificationCompat.Builder builder= noti.getONotifications(title,body,pendingIntent,defSoundUri,icon);
-
-        int j=0;
-        if(i>0){
-            j=i;
+        int j = 0;
+        if (i > 0) {
+            j = i;
         }
 
-       noti.getManager().notify(j,builder.build());
+        noti.getManager().notify(j, builder.build());
     }
+
 
     @Override
     public void onNewToken(@NonNull String s){

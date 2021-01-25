@@ -79,6 +79,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
                    .circleCrop()
                    .into(holder.senderImage);
        }
+
        if(receiverUsers){
            holder.reject.setVisibility(View.INVISIBLE);
            holder.accept.setVisibility(View.INVISIBLE);
@@ -185,9 +186,13 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
                                                     @Override
                                                     public void onSuccess(Void aVoid) {
                                                         Toast.makeText(context,"Your personal cards have been deleted you are part of  "+senderName+" apartment",Toast.LENGTH_LONG).show();
-                                                            usersList.remove(getAdapterPosition());
-                                                            notifyItemRemoved(getAdapterPosition());
-
+                                                                if (usersList.size()>1) {
+                                                                    usersList.remove(getAdapterPosition());
+                                                                    notifyItemRemoved(getAdapterPosition());
+                                                                }else{
+                                                                    usersList.clear();
+                                                                    notifyDataSetChanged();
+                                                                }
 
                                                     }
                                                 });
