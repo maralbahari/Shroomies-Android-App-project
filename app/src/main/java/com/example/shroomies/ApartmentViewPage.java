@@ -43,6 +43,7 @@ import com.google.firebase.storage.StorageReference;
 import com.make.dots.dotsindicator.DotsIndicator;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCallback {
@@ -61,9 +62,11 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
     TextView locationAddressTextView;
     Geocoder geocoder;
     Toolbar toolbar;
-    ImageView userImageView;
+    ImageView userImageView , maleImageView , femaleImageView , petsImageView , smokeFreeImageView;
     User user;
     FirebaseAuth mAuth;
+    boolean[] preferences;
+
     private static final String MAPVIEW_BUNDLE_KEY = "MapViewBundleKey";
 
 
@@ -74,8 +77,16 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
         if(getIntent().getExtras()!=null) {
             apartment = new Apartment();
             apartment = getIntent().getExtras().getParcelable("apartment");
+            preferences = getIntent().getExtras().getBooleanArray("apartmentPreferences");
+
+
         }
-            locationAddressTextView = findViewById(R.id.location_address_text_view);
+        maleImageView = findViewById(R.id.male_image_view_apartment);
+        femaleImageView = findViewById(R.id.female_image_view_apartment);
+        petsImageView = findViewById(R.id.pets_allowd_image_view_apartment);
+        smokeFreeImageView = findViewById(R.id.non_smoking_image_view_apartment);
+
+        locationAddressTextView = findViewById(R.id.location_address_text_view);
             viewPager = findViewById(R.id.view_pager_apartment_view);
             dotsIndicator = findViewById(R.id.dotsIndicator_apartment_view);
             priceTextView = findViewById(R.id.price_text_view);
@@ -129,7 +140,7 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
                     user = new User();
                     user = snapshot.getValue(User.class);
                     if(mAuth.getInstance().getCurrentUser().getUid().equals(user.getID())){
-                        messageButton.setVisibility(View.INVISIBLE);
+                        messageButton.setVisibility(View.GONE);
                         username.setText("you");
                     }else{
                         username.setText(user.getName());
@@ -154,6 +165,12 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
             viewPager.setAdapter(viewPagerAdapterApartmentView);
             dotsIndicator.setViewPager(viewPager);
             viewPager.getAdapter().registerDataSetObserver(dotsIndicator.getDataSetObserver());
+
+        if(preferences[0]){maleImageView.setVisibility(View.VISIBLE);}
+        if(preferences[1]){femaleImageView.setVisibility(View.VISIBLE);}
+        if(preferences[2]){petsImageView.setVisibility(View.VISIBLE);}
+        if(preferences[3]){smokeFreeImageView.setVisibility(View.VISIBLE);}
+
 
     }
 

@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -55,10 +56,15 @@ public class EditGroupInfo extends AppCompatActivity {
     private Group group;
     private UserRecyclerAdapter membersAdapter;
     private ArrayList<User> membersList;
+    private CustomLoadingProgressBar customLoadingProgressBar;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_group_info);
+
+        customLoadingProgressBar= new CustomLoadingProgressBar(EditGroupInfo.this, "Editing group..." , R.raw.loading_animation);
+        customLoadingProgressBar.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
         rootRef= FirebaseDatabase.getInstance().getReference();
         storageReference = FirebaseStorage.getInstance().getReference();
         groupImage=findViewById(R.id.group_chat_image);
@@ -101,19 +107,27 @@ public class EditGroupInfo extends AppCompatActivity {
         saveChanges.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                customLoadingProgressBar.show();
                 if(!group.getGroupName().equals(groupChatTitle.getText().toString())){
                     rootRef.child("GroupChats").child(group.getGroupID()).child("groupName").setValue(groupChatTitle.getText().toString()).addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
+
                            if(selectedImageUri!=null){
                                uploadImageToFirebase(selectedImageUri , group);
                            }else {
+                               customLoadingProgressBar.dismiss();
                                Intent intent = new Intent(getApplicationContext(), GroupChattingActivity.class);
-                               intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                               intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_NEW_TASK);
                                intent.putExtra("GROUPID", group.getGroupID());
                                startActivity(intent);
                                finish();
                            }
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            customLoadingProgressBar.dismiss();
                         }
                     });
                 }
@@ -121,8 +135,9 @@ public class EditGroupInfo extends AppCompatActivity {
                     uploadImageToFirebase(selectedImageUri , group);
                 }
                 else{
+                    customLoadingProgressBar.dismiss();
                     Intent intent = new Intent(getApplicationContext(), GroupChattingActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_NEW_TASK);
                     intent.putExtra("GROUPID", group.getGroupID());
                     startActivity(intent);
                     finish();
@@ -172,6 +187,7 @@ public class EditGroupInfo extends AppCompatActivity {
         filePath.putFile(imageUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+
                 if(task.isSuccessful()) {
                     task.getResult().getMetadata().getReference().getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
                         @Override
@@ -179,6 +195,7 @@ public class EditGroupInfo extends AppCompatActivity {
                             rootRef.child("GroupChats").child(group.getGroupID()).child("groupImage").setValue(task.getResult().toString()).addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
+                                    customLoadingProgressBar.dismiss();
                                     Intent intent = new Intent(getApplicationContext(), GroupChattingActivity.class);
                                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                                     intent.putExtra("GROUPID" , group.getGroupID());
@@ -186,11 +203,19 @@ public class EditGroupInfo extends AppCompatActivity {
                                 }
                             });
                         }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            customLoadingProgressBar.dismiss();
+                        }
                     });
 
-                }else{
-                    //add exception
                 }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                customLoadingProgressBar.dismiss();
             }
         });
 

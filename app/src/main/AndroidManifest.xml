@@ -41,14 +41,20 @@
             </intent-filter>
         </service>
 
-        <activity android:name=".GroupChattingActivity" />
+        <activity android:name=".GroupChattingActivity"
+            android:parentActivityName=".MessageInbox"
+            />
         <activity android:name=".ChattingActivity"
             android:parentActivityName=".MessageInbox"/>
         <activity android:name=".ResetPassword" />
         <activity android:name=".MainActivity" />
         <activity android:name=".SignUpActivity" />
-        <activity android:name=".ApartmentViewPage" />
-        <activity android:name=".MessageInbox" />
+        <activity android:name=".ApartmentViewPage"
+            android:parentActivityName=".MainActivity"/>
+
+        <activity android:name=".MessageInbox"
+            android:parentActivityName=".MainActivity"/>
+
         <activity android:name=".LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

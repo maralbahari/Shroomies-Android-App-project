@@ -79,7 +79,8 @@ public class FindRoommate extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        customLoadingProgressBar= new CustomLoadingProgressBar(getActivity(), "Searching..." , R.raw.searching_animation);
+        customLoadingProgressBar= new CustomLoadingProgressBar(getActivity(), "Searching..." , R.raw.search_anim);
+        customLoadingProgressBar.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         apartmentList = new ArrayList<>();
         recyclerView = v.findViewById(R.id.apartment_recycler_view);
         recycleViewAdapterApartment = new RecycleViewAdapterApartments(apartmentList, getActivity(), false);

@@ -121,6 +121,7 @@ public class ChattingActivity extends AppCompatActivity {
 
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -565,6 +566,9 @@ public class ChattingActivity extends AppCompatActivity {
 
             }
         });
+
+
+
     }
 
 }

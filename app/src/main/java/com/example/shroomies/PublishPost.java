@@ -612,7 +612,7 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
 
         post.put("description" , description);
         post.put("userID" , userUid);
-        post.put("price", price);
+        post.put("price", price*100);
         post.put("numberOfRoommates" , numberRoomMate);
         post.put("latitude", locationLtLng.latitude);
         post.put("longitude",locationLtLng.longitude);
@@ -655,7 +655,7 @@ Toast.makeText(getActivity(),"",Toast.LENGTH_SHORT).show();
 
         post.put("description" , description);
         post.put("userID" , userUid);
-        post.put("price", price);
+        post.put("price", price*100);
         post.put("latitude", locationLtLng.latitude);
         post.put("longitude",locationLtLng.longitude);
         post.put("preferences" , property);

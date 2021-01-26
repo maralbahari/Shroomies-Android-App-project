@@ -75,6 +75,7 @@ public class EditProfile extends Fragment {
     private Uri imageUri;
     private StorageTask uploadTask;
     private StorageReference storageRef;
+    private CustomLoadingProgressBar customLoadingProgressBar;
 
     final String userUid =  mAuth.getInstance().getCurrentUser().getUid();
     AlertDialog.Builder builder;
@@ -87,6 +88,8 @@ public class EditProfile extends Fragment {
         View v = inflater.inflate(R.layout.fragment_edit_profile, container, false);
         MainActivity.btm_view.setBackgroundColor(getResources().getColor(R.color.lowerGradientColorForLoginBackground, getActivity().getTheme()));
         MainActivity.btm_view.setElevation(0);
+        customLoadingProgressBar= new CustomLoadingProgressBar(getActivity(), "Updating..." , R.raw.loading_animation);
+        customLoadingProgressBar.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         profileImage = v.findViewById(R.id.edit_profile_image);
         editImage = v.findViewById(R.id.edit_profile_picture);
         username = v.findViewById(R.id.edit_username);
@@ -100,7 +103,7 @@ public class EditProfile extends Fragment {
 
         mRootref = mDataref.getInstance().getReference();
 
-        mRootref.child("Users").child(userUid).addValueEventListener(new ValueEventListener() {
+        mRootref.child("Users").child(userUid).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 User user = snapshot.getValue(User.class);
@@ -145,6 +148,7 @@ public class EditProfile extends Fragment {
         save.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                customLoadingProgressBar.show();
                 updateProfile();
             }
         });
@@ -204,6 +208,7 @@ public class EditProfile extends Fragment {
 
             @Override
             public void onComplete(@NonNull Task<Void> task) {
+                customLoadingProgressBar.dismiss();
                 if (task.isSuccessful()) {
                   Toast.makeText(getActivity(), "Updated successfully", Toast.LENGTH_SHORT).show();
                     MainActivity.btm_view.setBackgroundColor(getResources().getColor(R.color.lowerGradientColorForLoginBackground, getActivity().getTheme()));
@@ -218,6 +223,7 @@ public class EditProfile extends Fragment {
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception e) {
+                customLoadingProgressBar.dismiss();
                 Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
                 MainActivity.btm_view.setBackgroundColor(getResources().getColor(R.color.lowerGradientColorForLoginBackground, getActivity().getTheme()));
                 MainActivity.btm_view.setElevation(0);

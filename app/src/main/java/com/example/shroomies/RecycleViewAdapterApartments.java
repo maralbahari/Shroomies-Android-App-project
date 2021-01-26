@@ -91,9 +91,15 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
                 // add the parcelable apartment object to the intent and use it's values to
                 //update the apartment view class
                 intent.putExtra("apartment",apartmentList.get(position));
+                boolean[] prefrerancesArray = new boolean[4];
+                for (int i = 0 ; i<apartmentList.get(position).getPreferences().size(); i++){
+                    prefrerancesArray[i] = apartmentList.get(position).getPreferences().get(i);
+                }
+                intent.putExtra("apartmentPreferences" , prefrerancesArray);
                 context.startActivity(intent);
             }
         });
+
         List<Boolean> preferences = apartmentList.get(position).getPreferences();
         if(preferences.get(0)){holder.maleButton.setVisibility(View.VISIBLE);}
         if(preferences.get(1)){holder.femaleButton.setVisibility(View.VISIBLE);}

@@ -58,7 +58,8 @@ public class MapsFragment extends Fragment {
     private FragmentTransaction fragmentTransaction;
     private FragmentManager fragmentManager;
     private List<LatLng> latLngs;
-    private LottieAnimationView searchProgressBarAnimated;
+
+    CustomLoadingProgressBar customLoadingProgressBar;
 
 
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
@@ -105,10 +106,12 @@ public class MapsFragment extends Fragment {
                               Bundle savedInstanceState) {
 
         View v =  inflater.inflate(R.layout.fragment_maps, container, false);
+        customLoadingProgressBar= new CustomLoadingProgressBar(getActivity(), "Searching..." , R.raw.search_anim);
+        customLoadingProgressBar.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         mapSearchView = v.findViewById(R.id.search_view_map_fragment);
         searchResultsListView = v.findViewById(R.id.list_view_map_fragment);
         updateAddressButton =  v.findViewById(R.id.update_location_button);
-//        searchProgressBarAnimated = v.findViewById(R.id.search_progress_bar);
+
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {
@@ -126,7 +129,7 @@ public class MapsFragment extends Fragment {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 //start the progressbar
-                startProgressBarAnimation();
+                customLoadingProgressBar.show();
                 //set the list view to visible if it has been set to gone in the on close call
                 //get the adresses and add them to the list view
                 new GetAdressesAsyncTask(getActivity() , query).execute();
@@ -283,7 +286,7 @@ public class MapsFragment extends Fragment {
     // called from the async task class to populate the values in the adapter
     public  void updateAdapter(List<String> listAddress){
         //stop the the progressbar
-        stopProgressBarAnimation();
+        customLoadingProgressBar.dismiss();
 
         arrayAdapter = new ArrayAdapter<String>(getActivity() , android.R.layout.simple_list_item_1,listAddress);
 
@@ -300,13 +303,5 @@ public class MapsFragment extends Fragment {
         mMap.addMarker(markerOptions);
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,16));
     }
-    void startProgressBarAnimation(){
-        searchProgressBarAnimated.setVisibility(View.VISIBLE);
-        searchProgressBarAnimated.playAnimation();
 
-    }
-    void stopProgressBarAnimation(){
-        searchProgressBarAnimated.setVisibility(View.GONE);
-        searchProgressBarAnimated.pauseAnimation();
-    }
 }

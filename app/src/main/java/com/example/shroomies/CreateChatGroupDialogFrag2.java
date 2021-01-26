@@ -62,6 +62,7 @@ public class CreateChatGroupDialogFrag2 extends DialogFragment {
    private StorageReference storageReference;
    StorageReference filePath ;
    private Uri imageUri;
+   CustomLoadingProgressBar customLoadingProgressBar;
     View v;
 
     @Override
@@ -97,6 +98,9 @@ public class CreateChatGroupDialogFrag2 extends DialogFragment {
         if (bundle != null) {
             selectedUsers = bundle.getParcelableArrayList("ListOfSelectedUsers");
         }
+        customLoadingProgressBar= new CustomLoadingProgressBar(getActivity(), "Creating group..." , R.raw.loading_animation);
+        customLoadingProgressBar.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+
         groupChatImage=v.findViewById(R.id.group_chat_image);
         groupChatTitle=v.findViewById(R.id.group_chat_name);
         selectedMembers=v.findViewById(R.id.list_of_selected_members);
@@ -112,6 +116,7 @@ public class CreateChatGroupDialogFrag2 extends DialogFragment {
         createGroupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                customLoadingProgressBar.show();
                 String groupName=groupChatTitle.getText().toString();
                 List<String> listOfMembersID = new ArrayList<>();
                 for(User user: selectedUsers){
@@ -166,6 +171,7 @@ public class CreateChatGroupDialogFrag2 extends DialogFragment {
                         });
 
                     }else{
+                        customLoadingProgressBar.dismiss();
                         Toast.makeText(getActivity(),task.getException().toString(),Toast.LENGTH_SHORT).show();
                     }
                 }
@@ -197,6 +203,7 @@ public class CreateChatGroupDialogFrag2 extends DialogFragment {
         rootRef.child("GroupChats").child(groupID).setValue(groupDetails).addOnCompleteListener(new OnCompleteListener() {
             @Override
             public void onComplete(@NonNull Task task) {
+                customLoadingProgressBar.dismiss();
                 if(task.isSuccessful()){
                     for (String memberId
                             :membersID){
@@ -206,14 +213,18 @@ public class CreateChatGroupDialogFrag2 extends DialogFragment {
                             @Override
                             public void onSuccess(Void aVoid) {
                                 Toast.makeText(getActivity(), "successfully added users", Toast.LENGTH_SHORT).show();
-                                startActivity(new Intent(getActivity(), MessageInbox.class));
+                                Intent intent = new Intent(getActivity(), MessageInbox.class);
+                                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_NEW_TASK);
+                                startActivity(intent);
                             }
                         });
 
                     }
                 }else{
                     Toast.makeText(getActivity(), "something went wrong", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(getActivity(), MessageInbox.class));
+                    Intent intent = new Intent(getActivity(), MessageInbox.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP|Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
                 }
 
             }
