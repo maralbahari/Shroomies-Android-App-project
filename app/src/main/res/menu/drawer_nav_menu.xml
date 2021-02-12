@@ -22,4 +22,7 @@
         android:icon="@drawable/ic_log_out_"
         android:title="Log out"
         android:id="@+id/logout"/>
+
+
+
 </menu>

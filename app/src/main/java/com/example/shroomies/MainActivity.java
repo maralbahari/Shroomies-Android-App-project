@@ -97,9 +97,10 @@ public class MainActivity extends AppCompatActivity {
         barDrawerToggle.syncState();
         drawerLayout.addDrawerListener(barDrawerToggle);
         barDrawerToggle.setDrawerIndicatorEnabled(true);
+
         navigationView = (NavigationView) findViewById(R.id.navigationView);
         headerView = navigationView.getHeaderView(0);
-
+        getSupportActionBar().setTitle(null);
 
         updateNavHead();
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {

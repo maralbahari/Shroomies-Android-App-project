@@ -5,57 +5,77 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/linearLayout"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:maxHeight="60dp">
+
+
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="wrap_content"
         android:theme="@style/ThemeOverlay.AppCompat.Light"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
         android:background="@color/LogoYellow"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:contentInsetLeft="70dp"
-        app:contentInsetStart="70dp"
-     >
+        app:contentInsetEnd="0dp"
+        app:contentInsetLeft="0dp"
+        app:contentInsetRight="0dp"
+        app:contentInsetStart="0dp"
+        app:contentInsetStartWithNavigation="0dp"
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
+       >
 
 
-            <ImageView
-                android:id="@+id/logo_toolbar"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_marginStart="255dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginEnd="10dp"
-                android:layout_marginBottom="10dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="1.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.0"
-                app:srcCompat="@drawable/black_mushroom" />
 
             <ImageView
                 android:id="@+id/logo"
-                android:layout_width="0dp"
-                android:layout_height="30dp"
-                android:layout_marginStart="50dp"
-                android:layout_marginTop="12dp"
-                android:layout_marginEnd="120dp"
-                android:src="@drawable/shroomies_text_logo_white_black"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintHorizontal_bias="0.0"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                android:layout_width="95dp"
+                android:layout_height="20dp"
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+                android:layout_gravity="center"
+                android:src="@drawable/shroomies_text_logo_white_black"
+
+                />
+
+            <ImageView
+                    android:id="@+id/logo_toolbar"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                android:layout_marginRight="15dp"
+                    android:layout_gravity="end"
+                    app:srcCompat="@drawable/black_mushroom"
+
+                    />
+
+
+        <SearchView
+
+                android:id="@+id/SVsearch_disc"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+
+                android:background="@drawable/search_border"
+                android:elevation="10dp"
+                android:iconifiedByDefault="false"
+                android:queryHint="Search.."
+
+                android:queryBackground="@android:color/transparent"
+                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true"
+                android:layout_margin="10dp"
+                android:visibility="gone"
+
+
+                />
+
+
     </androidx.appcompat.widget.Toolbar>
+
+
+
+
+
 
 
 </LinearLayout>

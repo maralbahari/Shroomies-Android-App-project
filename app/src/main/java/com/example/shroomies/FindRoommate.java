@@ -16,20 +16,25 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.ListView;
+ import android.widget.LinearLayout;
+ import android.widget.ListView;
 import android.widget.SearchView;
 import android.widget.Toast;
+ import  androidx.appcompat.widget.Toolbar;
 
-import androidx.annotation.NonNull;
+ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.constraintlayout.motion.widget.MotionLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+ import androidx.recyclerview.widget.LinearSmoothScroller;
+ import androidx.recyclerview.widget.RecyclerView;
+ import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
-import com.google.android.gms.maps.model.LatLng;
+ import com.factor.bouncy.BouncyRecyclerView;
+ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -46,25 +51,28 @@ public class FindRoommate extends Fragment {
     private static final String MAP_FRAGMENT = "MAP_FRAGMENT";
     private static final String  PERSONAL_SEARCH = "PERSONAL_SEARCH";
     View v;
-    MotionLayout findRoomMateMotionLayout;
-    RecyclerView recyclerView;
+
+    BouncyRecyclerView recyclerView;
     FrameLayout frame;
-    RecycleViewAdapterApartments recycleViewAdapterApartment;
+
     List<Apartment> apartmentList;
     List<Address> addressList;
     SearchView searchView;
     TabLayout tabLayout;
     ArrayAdapter searchArrayAdapter;
     ListView locationListView;
-    final int apartmentPerPagination =7;
+    final int apartmentPerPagination =30;
     String lastCardKey ;
     boolean paginate;
-    boolean personalPostOpen;
-    boolean mapFragmentOpen;
     boolean searchState = false;
     FragmentManager fragmentManager;
     FragmentTransaction fragmentTransaction;
-    CustomLoadingProgressBar customLoadingProgressBar ;
+    CustomLoadingProgressBar customLoadingProgressBar;
+    ExploreApartmentsAdapter exploreApartmentsAdapter;
+    RecyclerView.SmoothScroller smoothScroller;
+
+    StaggeredGridLayoutManager staggeredGridLayoutManager;
+    Toolbar toolbar;
 
 
     @Override
@@ -72,8 +80,27 @@ public class FindRoommate extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         v = inflater.inflate(R.layout.fragment_find_roommate, container, false);
-
         return v;
+
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        setSearchViewGone();
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        setSearchViewGone();
+    }
+
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        setSearchViewVisible();
     }
 
     @Override
@@ -83,40 +110,38 @@ public class FindRoommate extends Fragment {
         customLoadingProgressBar.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         apartmentList = new ArrayList<>();
         recyclerView = v.findViewById(R.id.apartment_recycler_view);
-        recycleViewAdapterApartment = new RecycleViewAdapterApartments(apartmentList, getActivity(), false);
-        searchView = v.findViewById(R.id.SVsearch_disc);
+
         tabLayout = v.findViewById(R.id.tabLayout);
         locationListView = v.findViewById(R.id.list_view_search);
-        findRoomMateMotionLayout = v.findViewById(R.id.find_roomMate_Motion_Layout);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
-        linearLayoutManager.setStackFromEnd(true);
-        recyclerView.setLayoutManager(linearLayoutManager);
-        recyclerView.setAdapter(recycleViewAdapterApartment);
+        toolbar  = getActivity().findViewById(R.id.toolbar);
+        searchView = toolbar.findViewById(R.id.SVsearch_disc);
+        setSearchViewVisible();
+
+
+
+
+        //change this
+
+
+
+
+
+        staggeredGridLayoutManager =  new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+        staggeredGridLayoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
+
+        recyclerView.setLayoutManager(staggeredGridLayoutManager);
+        exploreApartmentsAdapter = new ExploreApartmentsAdapter(getActivity() , apartmentList);
+
+        recyclerView.setAdapter(exploreApartmentsAdapter);
+
         getApartments();
-         fragmentManager =getParentFragmentManager();
+        fragmentManager =getParentFragmentManager();
 
          // get the bundle from the filter dialog fragment
 
 
 
-        findRoomMateMotionLayout.addTransitionListener(new MotionLayout.TransitionListener() {
-            @Override
-            public void onTransitionStarted(MotionLayout motionLayout, int i, int i1) {
 
-            }
-
-            @Override
-            public void onTransitionChange(MotionLayout motionLayout, int i, int i1, float v) {
-//                findRoomMateMotionLayout.getTransition(R.xml.fragment_find_roommate_scene).setEnable(false);
-
-            }
-
-            @Override
-            public void onTransitionCompleted(MotionLayout motionLayout, int i) {
-                findRoomMateMotionLayout.transitionToState(0);
-            }
-            @Override public void onTransitionTrigger(MotionLayout motionLayout, int i, boolean b, float v) {
-            }});
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -126,7 +151,6 @@ public class FindRoommate extends Fragment {
                 if (tabLayout.getSelectedTabPosition() == 0) {
                     getApartmentsFromQuery(query);
                     hideSoftKeyBoard();
-
 
                 }
                 else if(tabLayout.getSelectedTabPosition() == 2) {
@@ -177,6 +201,7 @@ public class FindRoommate extends Fragment {
                     hideSoftKeyBoard();
                     searchState= false;
                     apartmentList = new ArrayList<>();
+                    exploreApartmentsAdapter = new ExploreApartmentsAdapter(getActivity(), apartmentList);
                     lastCardKey =null;
                     getApartments();
                 }
@@ -249,9 +274,9 @@ public class FindRoommate extends Fragment {
             public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
                 if (!recyclerView.canScrollVertically(1) && !searchState) {
                     Toast.makeText(getActivity(),"reached" , Toast.LENGTH_SHORT).show();
-
                     getApartments();
                 }
+
             }
         });
 
@@ -282,8 +307,7 @@ public class FindRoommate extends Fragment {
         customLoadingProgressBar.show();
         Query query;
         paginate = false;
-//        animationWrapper.setVisibility(View.VISIBLE);
-//        lottieAnimationProgressBar.resumeAnimation();
+
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("postApartment");
         // gets the 10 most recent apartments in the users city
         // check if the last card key is empty
@@ -296,15 +320,13 @@ public class FindRoommate extends Fragment {
             query = reference.orderByKey().limitToFirst(apartmentPerPagination);
         }
 
-        query.addValueEventListener(new ValueEventListener() {
+        query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                recycleViewAdapterApartment = new RecycleViewAdapterApartments(apartmentList, getActivity(), false);
                 // if the snapshot returns less than or equal to one child
                 // then no new apartment has been found
                 customLoadingProgressBar.dismiss();
                 if(snapshot.getChildrenCount()<=1){
-
                     return;
                 }
                 setAdapterData(snapshot , paginate);
@@ -314,12 +336,22 @@ public class FindRoommate extends Fragment {
             public void onCancelled(@NonNull DatabaseError error) {
                 customLoadingProgressBar.dismiss();
             }
+
+
         });
 
 
     }
 
     void setAdapterData(DataSnapshot snapshot, boolean paginate) {
+
+        // check if the adapter is null
+        // prevents the adapter from clearing the data
+        //and adding it again
+        if(exploreApartmentsAdapter==null){
+            exploreApartmentsAdapter = new ExploreApartmentsAdapter( getActivity(),apartmentList);
+            recyclerView.setAdapter(exploreApartmentsAdapter);
+        }
         int count =0;
         if (snapshot.exists()) {
             for (DataSnapshot dataSnapshot :
@@ -333,12 +365,10 @@ public class FindRoommate extends Fragment {
                 }
                 count++;
             }
-            recycleViewAdapterApartment = new RecycleViewAdapterApartments(apartmentList, getActivity(), false);
-            recycleViewAdapterApartment.notifyDataSetChanged();
-            recyclerView.setAdapter(recycleViewAdapterApartment);
+
+            exploreApartmentsAdapter.notifyDataSetChanged();
         }
-//        lottieAnimationProgressBar.pauseAnimation();
-//        animationWrapper.setVisibility(View.GONE);
+
 
     }
 
@@ -348,8 +378,8 @@ public class FindRoommate extends Fragment {
         customLoadingProgressBar.show();
         final List<String> userIds  = new ArrayList<>();
         apartmentList = new ArrayList<>();
-        recycleViewAdapterApartment = new RecycleViewAdapterApartments(apartmentList , getActivity() ,false);
-        recyclerView.setAdapter(recycleViewAdapterApartment);
+        exploreApartmentsAdapter = new ExploreApartmentsAdapter(getActivity() ,apartmentList);
+        recyclerView.setAdapter(exploreApartmentsAdapter);
 
 //        animationWrapper.setVisibility(View.VISIBLE);
 //        lottieAnimationProgressBar.resumeAnimation();
@@ -361,7 +391,6 @@ public class FindRoommate extends Fragment {
                .endAt(query+"\uf8ff").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-
                 if(snapshot.exists()){
                     //store  all the ids in a list
                     for (DataSnapshot dataSnapshot
@@ -398,7 +427,7 @@ public class FindRoommate extends Fragment {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-customLoadingProgressBar.dismiss();
+                customLoadingProgressBar.dismiss();
             }
         });
 
@@ -419,8 +448,7 @@ customLoadingProgressBar.dismiss();
                 apartmentList.add(apartment);
             }
 
-            recycleViewAdapterApartment.notifyDataSetChanged();
-            recyclerView.getLayoutManager().smoothScrollToPosition(recyclerView,new RecyclerView.State(), recyclerView.getAdapter().getItemCount());
+            exploreApartmentsAdapter.notifyDataSetChanged();
             customLoadingProgressBar.dismiss();
         }
 
@@ -476,6 +504,17 @@ customLoadingProgressBar.dismiss();
     void hideSoftKeyBoard(){
         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
         imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+    }
+    void setSearchViewVisible(){
+        searchView.setVisibility(View.VISIBLE);
+        toolbar.findViewById(R.id.logo).setVisibility(View.GONE);
+        toolbar.findViewById(R.id.logo_toolbar).setVisibility(View.GONE);
+    }
+
+    void setSearchViewGone(){
+        searchView.setVisibility(View.GONE);
+        toolbar.findViewById(R.id.logo).setVisibility(View.VISIBLE);
+        toolbar.findViewById(R.id.logo_toolbar).setVisibility(View.VISIBLE);
     }
 
 

@@ -115,7 +115,7 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
             messageButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(getApplication() , "heree" , Toast.LENGTH_SHORT).show();
+
                     if(user!=null){
 
                         chatWithThisUser(user);
@@ -166,10 +166,10 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
             dotsIndicator.setViewPager(viewPager);
             viewPager.getAdapter().registerDataSetObserver(dotsIndicator.getDataSetObserver());
 
-        if(preferences[0]){maleImageView.setVisibility(View.VISIBLE);}
-        if(preferences[1]){femaleImageView.setVisibility(View.VISIBLE);}
-        if(preferences[2]){petsImageView.setVisibility(View.VISIBLE);}
-        if(preferences[3]){smokeFreeImageView.setVisibility(View.VISIBLE);}
+//        if(preferences[0]){maleImageView.setVisibility(View.VISIBLE);}
+//        if(preferences[1]){femaleImageView.setVisibility(View.VISIBLE);}
+//        if(preferences[2]){petsImageView.setVisibility(View.VISIBLE);}
+//        if(preferences[3]){smokeFreeImageView.setVisibility(View.VISIBLE);}
 
 
     }
@@ -249,7 +249,7 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
     public void onMapReady(GoogleMap googleMap) {
 
         if(apartment!=null) {
-            Toast.makeText(getApplicationContext(), Double.toString(apartment.getLatitude()) , Toast.LENGTH_LONG).show();
+
 
             LatLng latLng = new LatLng(apartment.getLatitude(), apartment.getLongitude());
             Bitmap bitmap = BitmapFactory.decodeResource(getResources(), getResources().getIdentifier("black_mushroom", "drawable", getApplicationContext().getPackageName()));
@@ -311,7 +311,7 @@ class ViewPagerAdapterApartmentView extends PagerAdapter {
 
 
         StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(imageUrls.get(position));
-        Toast.makeText(context, imageUrls.get(position),Toast.LENGTH_LONG).show();
+
         // Load the image using Glide
 
         GlideApp.with(this.context)

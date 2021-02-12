@@ -263,8 +263,6 @@ public class EditProfile extends Fragment {
         final ProgressDialog pd = new ProgressDialog(getActivity());
         pd.setMessage("Uploading");
         pd.show();
-
-
         if (imageUri !=null){
             storageRef = FirebaseStorage.getInstance().getReference();
             final StorageReference fileRef = storageRef.child("profile pictures").child(System.currentTimeMillis() + "." + getFileExtension(imageUri));
