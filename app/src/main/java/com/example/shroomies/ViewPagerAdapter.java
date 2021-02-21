@@ -16,6 +16,8 @@ import com.bumptech.glide.load.MultiTransformation;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.google.android.gms.maps.model.Circle;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.Transformation;
 
@@ -26,7 +28,8 @@ import jp.wasabeef.picasso.transformations.RoundedCornersTransformation;
 public class ViewPagerAdapter extends PagerAdapter {
     Context context;
     private List<Uri> imageUris;
-    ViewPagerAdapter(Context context , List<Uri> imageUris){
+
+    ViewPagerAdapter(Context context , List<Uri> imageUris ){
         this.context = context;
         this.imageUris = imageUris;
 
@@ -48,21 +51,18 @@ public class ViewPagerAdapter extends PagerAdapter {
     public Object instantiateItem(@NonNull ViewGroup container, int position) {
         ImageView imageView = new ImageView(context);
         imageView.setPadding(5,5,5,5);
-//        Transformation transformation = new context.getDrawable(R.drawable.post_card_rectangle_round));
 
 
         MultiTransformation multiLeft = new MultiTransformation(new CenterCrop(), new RoundedCorners(25));
 
-//        Glide.with(context)
-//                .load(message.imageUrl)
-//                .apply(bitmapTransform(multiLeft))
-//                .into(aq.id(R.id.ivSingleImage).getImageView());
+            Glide.with(context)
+                    .load(imageUris.get(position))
+                    .transform(multiLeft)
+                    .into(imageView);
+            container.addView(imageView);
 
-        Glide.with(context)
-                .load(imageUris.get(position))
-                .transform(multiLeft)
-                .into(imageView);
-        container.addView(imageView);
+
+
 
         return imageView;
     }

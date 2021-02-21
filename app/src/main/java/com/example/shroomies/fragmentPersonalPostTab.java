@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.factor.bouncy.BouncyRecyclerView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -24,16 +25,10 @@ import java.util.List;
 
 
 public class fragmentPersonalPostTab extends Fragment {
-
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    private String mParam1;
-    private String mParam2;
     DatabaseReference personalDatabaseRef;
     PersonalPostRecyclerAdapter personalPostRecyclerAdapter;
     List<PersonalPostModel> personalPostModelList;
-    RecyclerView personalRecyclerView;
+    BouncyRecyclerView personalRecyclerView;
     View v;
 
 

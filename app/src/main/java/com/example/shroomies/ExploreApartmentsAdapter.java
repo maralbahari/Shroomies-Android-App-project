@@ -2,7 +2,6 @@ package com.example.shroomies;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.location.Geocoder;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,33 +9,19 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.asynclayoutinflater.view.AsyncLayoutInflater;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.bitmap_recycle.BitmapPool;
-import com.bumptech.glide.load.resource.bitmap.BitmapTransformation;
-import com.bumptech.glide.load.resource.bitmap.CenterCrop;
-import com.bumptech.glide.load.resource.bitmap.CenterInside;
-import com.bumptech.glide.load.resource.bitmap.FitCenter;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.io.IOException;
-import java.security.MessageDigest;
 import java.util.List;
 
 public class ExploreApartmentsAdapter extends RecyclerView.Adapter<ExploreApartmentsAdapter.ViewHolder> {
@@ -76,11 +61,11 @@ public class ExploreApartmentsAdapter extends RecyclerView.Adapter<ExploreApartm
                 .load(storageReference)
                 .transform(new RoundedCorners(20))
                 .into(holder.apartmentImage);
-        List<Boolean> preferences = apartmentList.get(position).getPreferences();
-        if(preferences.get(0)){holder.maleButton.setVisibility(View.VISIBLE);}
-        if(preferences.get(1)){holder.femaleButton.setVisibility(View.VISIBLE);}
-        if(preferences.get(2)){holder.petsAllowedButton.setVisibility(View.VISIBLE);}
-        if(preferences.get(3)){holder.smokeFreeButton.setVisibility(View.VISIBLE);}
+//        List<Boolean> preferences = apartmentList.get(position).getPreferences();
+//        if(preferences.get(0)){holder.maleButton.setVisibility(View.VISIBLE);}else{holder.maleButton.setVisibility(View.GONE);}
+//        if(preferences.get(1)){holder.femaleButton.setVisibility(View.VISIBLE);}else{holder.femaleButton.setVisibility(View.GONE);}
+//        if(preferences.get(2)){holder.petsAllowedButton.setVisibility(View.VISIBLE);}else{holder.petsAllowedButton.setVisibility(View.GONE);}
+//        if(preferences.get(3)){holder.smokeFreeButton.setVisibility(View.VISIBLE);}else{holder.smokeFreeButton.setVisibility(View.GONE);}
 
                     String id = apartmentList.get(position).getUserID();
 
@@ -121,7 +106,7 @@ public class ExploreApartmentsAdapter extends RecyclerView.Adapter<ExploreApartm
         CheckBox favoriteCheckBox;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            priceTV = itemView.findViewById(R.id.price_text_view);
+            priceTV = itemView.findViewById(R.id.price_text_view_apartment_card);
 
             addressTV = itemView.findViewById(R.id.city_text_view);
             apartmentImage = itemView.findViewById(R.id.apartment_image);
@@ -131,10 +116,6 @@ public class ExploreApartmentsAdapter extends RecyclerView.Adapter<ExploreApartm
             petsAllowedButton = itemView.findViewById(R.id.pets_allowd_image_view_apartment);
             smokeFreeButton = itemView.findViewById(R.id.non_smoking_image_view_apartment);
             favoriteCheckBox = itemView.findViewById(R.id.favorite_check_box);
-
-
-
-
 
         }
 

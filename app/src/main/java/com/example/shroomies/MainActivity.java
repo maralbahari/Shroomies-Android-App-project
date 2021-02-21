@@ -37,8 +37,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
-    public static String updatedAdresses;
-    public static LatLng updatedLatLng;
     DrawerLayout drawerLayout;
     ActionBarDrawerToggle barDrawerToggle;
     Toolbar toolbar;
@@ -84,12 +82,6 @@ public class MainActivity extends AppCompatActivity {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
 
         mAuth = FirebaseAuth.getInstance();
-
-
-
-
-
-
 
         setSupportActionBar(toolbar);
         getFragment(new FindRoommate());

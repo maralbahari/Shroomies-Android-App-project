@@ -5,14 +5,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginTop="60dp"
-
     android:layout_marginBottom="50dp"
     app:layoutDescription="@xml/fragment_find_roommate_scene2"
     tools:context=".FindRoommate">
 
-
     <ListView
-
         android:id="@+id/list_view_search"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -31,7 +28,7 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
         android:layout_marginRight="5dp"
-        android:layout_marginBottom="5dp"
+
         android:layout_marginLeft="5dp"
         android:background="@drawable/tablayout_round"
         android:elevation="5dp"
@@ -75,7 +72,7 @@
         app:recyclerview_fling_animation_size=".7"
         app:recyclerview_overscroll_animation_size=".7"
         app:recyclerview_damping_ratio="DAMPING_RATIO_LOW_BOUNCY"
-        app:recyclerview_stiffness="STIFFNESS_MEDIUM"
+        app:recyclerview_stiffness="STIFFNESS_HIGH"
         app:allow_drag_reorder="true"
         app:allow_item_swipe="false"/>
 
@@ -84,12 +81,62 @@
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_alignParentBottom="true"
-        android:layout_marginTop="5dp"
+
         android:layout_marginBottom="1dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tabLayout" />
 
+    <RadioGroup
+        android:id="@+id/radio_view_options"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginBottom="10dp"
+        android:orientation="horizontal"
+        android:background="@drawable/radio_view_option_background"
+        android:gravity="center"
+        android:elevation="5dp"
+        android:paddingLeft="4dp"
 
+        >
+        <RadioButton
+            android:id="@+id/multi_card_option_radio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_marginEnd="15dp"
+            android:button="@android:color/transparent"
+            android:drawableTop="@drawable/ic_grid_view_icon"
+
+            android:checked="true"
+            android:text="grid"
+            android:textSize="12sp"
+
+
+            android:layout_margin="5dp"/>
+        <RadioButton
+            android:id="@+id/single_card_option_radio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableTop="@drawable/ic_single_box_view"
+            android:drawablePadding="5dp"
+            android:text="single"
+            android:textSize="12sp"
+            android:layout_gravity="center"
+            android:button="@android:color/transparent"
+            android:checked="false"
+            android:elevation="4dp"
+          android:layout_margin="5dp"/>
+
+    </RadioGroup>
+
+
+
+w
 </androidx.constraintlayout.motion.widget.MotionLayout>

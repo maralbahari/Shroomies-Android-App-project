@@ -53,7 +53,7 @@
             android:layout_margin="20dp"
             android:layout_alignParentBottom="true"
             android:padding="10dp"
-            android:background="@drawable/button_circle_yello_small"
+            android:background="@drawable/button_circle_yellow_small"
             app:srcCompat="@drawable/ic_arrow_forward"
             android:elevation="5dp"
             />

@@ -6,16 +6,19 @@ import android.location.Geocoder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 
+import com.bumptech.glide.load.MultiTransformation;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -27,6 +30,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.make.dots.dotsindicator.DotsIndicator;
 
 import java.io.IOException;
 import java.util.List;
@@ -61,11 +65,12 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
         //initialize geocoeder to get the location from the latlng
         geocoder = new Geocoder(context);
 
-
+        //set the description
+        holder.descriptionTV.setText(apartmentList.get(position).getDescription());
         // set the price of the apartment
-        holder.priceTV.setText(Integer.toString(apartmentList.get(position).getPrice()));
+        holder.priceTV.setText(apartmentList.get(position).getPrice()+" ");
         //set the number of roommates
-        holder.numRoomMateTV.setText(Integer.toString(apartmentList.get(position).getNumberOfRoommates()));
+        holder.numRoomMateTV.setText(" • "+apartmentList.get(position).getNumberOfRoommates() + " roommates");
         LatLng latLng = new LatLng(apartmentList.get(position).getLatitude(), apartmentList.get(position).getLongitude());
         // get the location from the latlng]
         try {
@@ -75,16 +80,15 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
         }
 
 
-        StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(apartmentList.get(position).getImage_url().get(0));
+        ViewPagerPostAdapter viewPagerAdapter = new ViewPagerPostAdapter(context , apartmentList.get(position).getImage_url());
+        holder.apartmentViewPager.setAdapter(viewPagerAdapter);
+        holder.dotsIndicator.setViewPager(holder.apartmentViewPager);
+        viewPagerAdapter.registerDataSetObserver(holder.dotsIndicator.getDataSetObserver());
 
-        // Load the image using Glide
-        GlideApp.with(this.context)
-                .load(storageReference)
-                .fitCenter()
-                .centerCrop()
-                .into(holder.apartmentImage);
+
+
         // on click go to the apartment view
-        holder.cardView.setOnClickListener(new View.OnClickListener() {
+        holder.apartmentViewPager.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(context, ApartmentViewPage.class);
@@ -101,95 +105,96 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
         });
 
         List<Boolean> preferences = apartmentList.get(position).getPreferences();
-        if(preferences.get(0)){holder.maleButton.setVisibility(View.VISIBLE);}
-        if(preferences.get(1)){holder.femaleButton.setVisibility(View.VISIBLE);}
-        if(preferences.get(2)){holder.petsAllowedButton.setVisibility(View.VISIBLE);}
-        if(preferences.get(3)){holder.smokeFreeButton.setVisibility(View.VISIBLE);}
+        if(preferences.get(0)){holder.maleButton.setVisibility(View.VISIBLE);}else{holder.maleButton.setVisibility(View.GONE);}
+        if(preferences.get(1)){holder.femaleButton.setVisibility(View.VISIBLE);}else{holder.femaleButton.setVisibility(View.GONE);}
+        if(preferences.get(2)){holder.petsAllowedButton.setVisibility(View.VISIBLE);}else{holder.petsAllowedButton.setVisibility(View.GONE);}
+        if(preferences.get(3)){holder.smokeFreeButton.setVisibility(View.VISIBLE);}else{holder.smokeFreeButton.setVisibility(View.GONE);}
 
 
-        String id = apartmentList.get(position).getUserID();
-        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        final String Uid = firebaseUser.getUid();
-
-        if(id.equals(Uid)){
-            holder.sendMessageButton.setVisibility(View.GONE);
-            holder.BUT_fav_apt.setVisibility(View.GONE);
-        }
-        else {
-            holder.sendMessageButton.setVisibility(View.VISIBLE);
-            holder.BUT_fav_apt.setVisibility(View.VISIBLE);
-        }
-
-        //favorite
-        final Boolean[] checkClick = {false};
-
-        final DatabaseReference favRef = FirebaseDatabase.getInstance().getReference().child("Favorite");
-
-        DatabaseReference anotherFavRef = FirebaseDatabase.getInstance().getReference().child("Favorite");
-        anotherFavRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.child(Uid).child("ApartmentPost").hasChild(apartmentList.get(position).getId())){
-                    holder.BUT_fav_apt.setImageResource(R.drawable.ic_icon_awesome_star_checked);
-                }
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-        if(isFromAptFav){
-
-            holder.BUT_fav_apt.setImageResource(R.drawable.ic_icon_awesome_star_checked);
-
-        }
-
-        else {
-
-            holder.BUT_fav_apt.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    checkClick[0] = true;
-                    favRef.addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            if (checkClick[0])
-                                if (snapshot.child(Uid).child("ApartmentPost").hasChild(apartmentList.get(position).getId())) {
-                                    favRef.child(Uid).child("ApartmentPost").child(apartmentList.get(position).getId()).removeValue();
-                                    holder.BUT_fav_apt.setImageResource(R.drawable.ic_icon_awesome_star_unchecked);
-                                    Toast.makeText(context, "Post removed from favorites", Toast.LENGTH_LONG).show();
-                                    checkClick[0] = false;
-                                } else {
-                                    DatabaseReference anotherRef = favRef.child(Uid).child("ApartmentPost").child(apartmentList.get(position).getId());
-                                    anotherRef.child("id").setValue(apartmentList.get(position).getId());
-                                    anotherRef.child("userID").setValue(apartmentList.get(position).getUserID());
-                                    anotherRef.child("image_url").setValue(apartmentList.get(position).getImage_url());
-                                    anotherRef.child("price").setValue(apartmentList.get(position).getPrice());
-                                    anotherRef.child("date").setValue(apartmentList.get(position).getDate());
-                                    anotherRef.child("description").setValue(apartmentList.get(position).getDescription());
-                                    anotherRef.child("preferences").setValue(apartmentList.get(position).getPreferences());
-                                    anotherRef.child("latitude").setValue(apartmentList.get(position).getLatitude());
-                                    anotherRef.child("longitude").setValue(apartmentList.get(position).getLongitude());
-                                    anotherRef.child("numberOfRoommates").setValue(apartmentList.get(position).getNumberOfRoommates());
-                                    Toast.makeText(context, "Post added to favorites", Toast.LENGTH_LONG).show();
-                                    holder.BUT_fav_apt.setImageResource(R.drawable.ic_icon_awesome_star_checked);
-                                    checkClick[0] = false;
-
-                                }
-
-
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-
-                        }
-                    });
-                }
-            });
-        }
+//
+//        String id = apartmentList.get(position).getUserID();
+//        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+//        final String Uid = firebaseUser.getUid();
+//
+//        if(id.equals(Uid)){
+//            holder.sendMessageButton.setVisibility(View.GONE);
+//            holder.BUT_fav_apt.setVisibility(View.GONE);
+//        }
+//        else {
+//            holder.sendMessageButton.setVisibility(View.VISIBLE);
+//            holder.BUT_fav_apt.setVisibility(View.VISIBLE);
+//        }
+//
+//        //favorite
+//        final Boolean[] checkClick = {false};
+//
+//        final DatabaseReference favRef = FirebaseDatabase.getInstance().getReference().child("Favorite");
+//
+//        DatabaseReference anotherFavRef = FirebaseDatabase.getInstance().getReference().child("Favorite");
+//        anotherFavRef.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                if(snapshot.child(Uid).child("ApartmentPost").hasChild(apartmentList.get(position).getId())){
+//                    holder.BUT_fav_apt.setImageResource(R.drawable.ic_icon_awesome_star_checked);
+//                }
+//
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//
+//            }
+//        });
+//        if(isFromAptFav){
+//
+//            holder.BUT_fav_apt.setImageResource(R.drawable.ic_icon_awesome_star_checked);
+//
+//        }
+//
+//        else {
+//
+//            holder.BUT_fav_apt.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View v) {
+//                    checkClick[0] = true;
+//                    favRef.addValueEventListener(new ValueEventListener() {
+//                        @Override
+//                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                            if (checkClick[0])
+//                                if (snapshot.child(Uid).child("ApartmentPost").hasChild(apartmentList.get(position).getId())) {
+//                                    favRef.child(Uid).child("ApartmentPost").child(apartmentList.get(position).getId()).removeValue();
+//                                    holder.BUT_fav_apt.setImageResource(R.drawable.ic_icon_awesome_star_unchecked);
+//                                    Toast.makeText(context, "Post removed from favorites", Toast.LENGTH_LONG).show();
+//                                    checkClick[0] = false;
+//                                } else {
+//                                    DatabaseReference anotherRef = favRef.child(Uid).child("ApartmentPost").child(apartmentList.get(position).getId());
+//                                    anotherRef.child("id").setValue(apartmentList.get(position).getId());
+//                                    anotherRef.child("userID").setValue(apartmentList.get(position).getUserID());
+//                                    anotherRef.child("image_url").setValue(apartmentList.get(position).getImage_url());
+//                                    anotherRef.child("price").setValue(apartmentList.get(position).getPrice());
+//                                    anotherRef.child("date").setValue(apartmentList.get(position).getDate());
+//                                    anotherRef.child("description").setValue(apartmentList.get(position).getDescription());
+//                                    anotherRef.child("preferences").setValue(apartmentList.get(position).getPreferences());
+//                                    anotherRef.child("latitude").setValue(apartmentList.get(position).getLatitude());
+//                                    anotherRef.child("longitude").setValue(apartmentList.get(position).getLongitude());
+//                                    anotherRef.child("numberOfRoommates").setValue(apartmentList.get(position).getNumberOfRoommates());
+//                                    Toast.makeText(context, "Post added to favorites", Toast.LENGTH_LONG).show();
+//                                    holder.BUT_fav_apt.setImageResource(R.drawable.ic_icon_awesome_star_checked);
+//                                    checkClick[0] = false;
+//
+//                                }
+//
+//
+//                        }
+//
+//                        @Override
+//                        public void onCancelled(@NonNull DatabaseError error) {
+//
+//                        }
+//                    });
+//                }
+//            });
+//        }
 
 
 
@@ -201,30 +206,26 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder{
-        TextView priceTV ;
-        TextView numRoomMateTV;
-        TextView addressTV;
-        ImageView apartmentImage;
-        CardView cardView;
-        ImageView maleButton;
-        ImageView femaleButton;
-        ImageView petsAllowedButton;
-        ImageView smokeFreeButton;
-        Button sendMessageButton;
-        ImageButton BUT_fav_apt;
+        TextView priceTV,numRoomMateTV, addressTV ,descriptionTV;
+        ImageView  maleButton,femaleButton, petsAllowedButton, smokeFreeButton;
+        ViewPager apartmentViewPager;
+        ImageButton sendMessageButton;
+        CheckBox favoriteCheckBox;
+        DotsIndicator dotsIndicator;
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
-            priceTV = itemView.findViewById(R.id.TV_price);
+            priceTV = itemView.findViewById(R.id.price_text_view_apartment_card);
             numRoomMateTV = itemView.findViewById(R.id.Room_mate_num);
-            addressTV = itemView.findViewById(R.id.TV_address);
-            apartmentImage = itemView.findViewById(R.id.Iv_RoomImg);
-            cardView = itemView.findViewById(R.id.apartment_card_view);
+            addressTV = itemView.findViewById(R.id.address_text_view);
+            apartmentViewPager = itemView.findViewById(R.id.apartment_card_view_pager);
             maleButton = itemView.findViewById(R.id.male_image_apartment_card);
             femaleButton = itemView.findViewById(R.id.female_image_apartment_card);
-            petsAllowedButton = itemView.findViewById(R.id.pets_allowd_image_apartment_card);
-            smokeFreeButton = itemView.findViewById(R.id.non_smoking_image_view_apartment_card);
+            petsAllowedButton = itemView.findViewById(R.id.pets_allowed_image_apartment_card);
+            smokeFreeButton = itemView.findViewById(R.id.non_smoking_image_apartment_card);
             sendMessageButton=itemView.findViewById(R.id.start_chat_button_apartment_card);
-            BUT_fav_apt = itemView.findViewById(R.id.BUT_fav_apt);
+            dotsIndicator = itemView.findViewById(R.id.dotsIndicator_apartment_card);
+            favoriteCheckBox = itemView.findViewById(R.id.favorite_check_box_apartment);
+            descriptionTV = itemView.findViewById(R.id.apartment_description);
 
             sendMessageButton.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -256,7 +257,7 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
                 final String Uid = firebaseUser.getUid();
                 final DatabaseReference favRef = FirebaseDatabase.getInstance().getReference().child("Favorite");
 
-            BUT_fav_apt.setOnClickListener(new View.OnClickListener() {
+            favoriteCheckBox.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
 
@@ -277,5 +278,58 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
 
 }
 }
+
+
+    class ViewPagerPostAdapter extends PagerAdapter {
+        Context context;
+        private List<String> apartmentImages;
+
+        ViewPagerPostAdapter(Context context , List<String> apartmentImages ){
+        this.context = context;
+        this.apartmentImages = apartmentImages;
+
+        }
+
+        @Override
+        public int getCount() {
+                return apartmentImages.size();
+
+        }
+
+        @Override
+        public boolean isViewFromObject(@NonNull View view, @NonNull Object object) {
+                return view==object;
+
+        }
+
+
+        @NonNull
+        @Override
+        public Object instantiateItem(@NonNull ViewGroup container, int position) {
+                ImageView imageView = new ImageView(context);
+                imageView.setPadding(5,5,5,5);
+                imageView.setElevation(3);
+                MultiTransformation multiLeft = new MultiTransformation(new CenterCrop(), new RoundedCorners(25));
+                StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(apartmentImages.get(position));
+                // Load the image using Glide
+                GlideApp.with(this.context)
+                    .load(storageReference)
+                    .transform(multiLeft)
+                    .into(imageView);
+
+                container.addView(imageView);
+                return imageView;
+
+        }
+
+
+        @Override
+        public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
+                container.removeView((View)object);
+
+        }
+
+}
+
 
 

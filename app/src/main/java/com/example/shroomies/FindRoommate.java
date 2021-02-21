@@ -18,7 +18,8 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
  import android.widget.LinearLayout;
  import android.widget.ListView;
-import android.widget.SearchView;
+ import android.widget.RadioGroup;
+ import android.widget.SearchView;
 import android.widget.Toast;
  import  androidx.appcompat.widget.Toolbar;
 
@@ -53,7 +54,8 @@ public class FindRoommate extends Fragment {
     View v;
 
     BouncyRecyclerView recyclerView;
-    FrameLayout frame;
+    RadioGroup viewOptionsRadioGroup;
+
 
     List<Apartment> apartmentList;
     List<Address> addressList;
@@ -69,10 +71,13 @@ public class FindRoommate extends Fragment {
     FragmentTransaction fragmentTransaction;
     CustomLoadingProgressBar customLoadingProgressBar;
     ExploreApartmentsAdapter exploreApartmentsAdapter;
+    RecycleViewAdapterApartments recycleViewAdapterApartments;
     RecyclerView.SmoothScroller smoothScroller;
 
     StaggeredGridLayoutManager staggeredGridLayoutManager;
+    LinearLayoutManager layoutManager;
     Toolbar toolbar;
+
 
 
     @Override
@@ -115,22 +120,22 @@ public class FindRoommate extends Fragment {
         locationListView = v.findViewById(R.id.list_view_search);
         toolbar  = getActivity().findViewById(R.id.toolbar);
         searchView = toolbar.findViewById(R.id.SVsearch_disc);
+        viewOptionsRadioGroup = v.findViewById(R.id.radio_view_options);
         setSearchViewVisible();
 
 
-
-
-        //change this
-
-
-
-
-
         staggeredGridLayoutManager =  new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-        staggeredGridLayoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
+        staggeredGridLayoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
+        staggeredGridLayoutManager.invalidateSpanAssignments();
+
+        layoutManager = new LinearLayoutManager(getActivity());
 
         recyclerView.setLayoutManager(staggeredGridLayoutManager);
+        recyclerView.setItemAnimator(null);
+        // adapter for mutliple cards
         exploreApartmentsAdapter = new ExploreApartmentsAdapter(getActivity() , apartmentList);
+        // adapter for single cards
+        recycleViewAdapterApartments = new RecycleViewAdapterApartments(apartmentList , getActivity() ,false);
 
         recyclerView.setAdapter(exploreApartmentsAdapter);
 
@@ -140,7 +145,28 @@ public class FindRoommate extends Fragment {
          // get the bundle from the filter dialog fragment
 
 
-
+        viewOptionsRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                switch(checkedId){
+                    case R.id.multi_card_option_radio:
+                        apartmentList = new ArrayList<>();
+                        lastCardKey=null;
+                        recyclerView.setLayoutManager(staggeredGridLayoutManager);
+                        exploreApartmentsAdapter = new ExploreApartmentsAdapter(getActivity() , apartmentList);
+                        recyclerView.setAdapter(exploreApartmentsAdapter);
+                        getApartments();
+                        break;
+                    case R.id.single_card_option_radio:
+                        apartmentList = new ArrayList<>();
+                        lastCardKey=null;
+                        recyclerView.setLayoutManager(layoutManager);
+                        recycleViewAdapterApartments = new RecycleViewAdapterApartments(apartmentList , getActivity() ,false);
+                        recyclerView.setAdapter(recycleViewAdapterApartments);
+                        getApartments();
+                }
+            }
+        });
 
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -226,7 +252,7 @@ public class FindRoommate extends Fragment {
                     // find any fragment that is in the frame
                     Fragment fragment = fragmentManager.findFragmentById(R.id.frame_layout_search);
                     if(fragment!=null){
-                        Toast.makeText(getActivity(),"exists " , Toast.LENGTH_LONG).show();
+
                         fragmentTransaction = fragmentManager.beginTransaction();
                         fragmentTransaction.remove(fragment);
                         fragmentTransaction.commit();
@@ -273,7 +299,6 @@ public class FindRoommate extends Fragment {
             @Override
             public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
                 if (!recyclerView.canScrollVertically(1) && !searchState) {
-                    Toast.makeText(getActivity(),"reached" , Toast.LENGTH_SHORT).show();
                     getApartments();
                 }
 
@@ -307,7 +332,6 @@ public class FindRoommate extends Fragment {
         customLoadingProgressBar.show();
         Query query;
         paginate = false;
-
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("postApartment");
         // gets the 10 most recent apartments in the users city
         // check if the last card key is empty
@@ -348,9 +372,12 @@ public class FindRoommate extends Fragment {
         // check if the adapter is null
         // prevents the adapter from clearing the data
         //and adding it again
-        if(exploreApartmentsAdapter==null){
+        if(exploreApartmentsAdapter==null && viewOptionsRadioGroup.getCheckedRadioButtonId()==R.id.multi_card_option_radio){
             exploreApartmentsAdapter = new ExploreApartmentsAdapter( getActivity(),apartmentList);
             recyclerView.setAdapter(exploreApartmentsAdapter);
+        }else if (recycleViewAdapterApartments==null &&viewOptionsRadioGroup.getCheckedRadioButtonId()==R.id.multi_card_option_radio){
+            recycleViewAdapterApartments = new RecycleViewAdapterApartments(apartmentList , getActivity() ,false);
+            recyclerView.setAdapter(recycleViewAdapterApartments);
         }
         int count =0;
         if (snapshot.exists()) {
@@ -366,7 +393,12 @@ public class FindRoommate extends Fragment {
                 count++;
             }
 
-            exploreApartmentsAdapter.notifyDataSetChanged();
+                exploreApartmentsAdapter.notifyDataSetChanged();
+
+                recycleViewAdapterApartments.notifyDataSetChanged();
+
+
+
         }
 
 

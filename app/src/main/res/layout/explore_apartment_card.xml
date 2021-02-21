@@ -13,8 +13,8 @@
         android:layout_alignParentTop="true"
         android:id="@+id/apartment_image"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
-
+        android:layout_height="wrap_content"
+        android:minHeight="150dp"
         android:scaleType="fitXY"
         android:adjustViewBounds="true"/>
 
@@ -138,7 +138,7 @@ android:layout_marginTop="3dp"
         />
 
     <TextView
-        android:id="@+id/price_text_view"
+        android:id="@+id/price_text_view_apartment_card"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="price"

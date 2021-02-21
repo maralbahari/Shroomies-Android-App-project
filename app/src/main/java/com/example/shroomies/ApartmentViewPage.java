@@ -6,14 +6,11 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Geocoder;
 import android.os.Bundle;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -21,11 +18,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
-import com.bumptech.glide.Glide;
 
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -43,7 +38,6 @@ import com.google.firebase.storage.StorageReference;
 import com.make.dots.dotsindicator.DotsIndicator;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCallback {
@@ -78,8 +72,6 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
             apartment = new Apartment();
             apartment = getIntent().getExtras().getParcelable("apartment");
             preferences = getIntent().getExtras().getBooleanArray("apartmentPreferences");
-
-
         }
         maleImageView = findViewById(R.id.male_image_view_apartment);
         femaleImageView = findViewById(R.id.female_image_view_apartment);
@@ -89,7 +81,7 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
         locationAddressTextView = findViewById(R.id.location_address_text_view);
             viewPager = findViewById(R.id.view_pager_apartment_view);
             dotsIndicator = findViewById(R.id.dotsIndicator_apartment_view);
-            priceTextView = findViewById(R.id.price_text_view);
+            priceTextView = findViewById(R.id.price_text_view_apartment_card);
             descriptionTextView = findViewById(R.id.user_description_text_view);
             numberOfRoomMates = findViewById(R.id.number_of_roommates_text_view);
             userImageView = findViewById(R.id.user_image_view);
