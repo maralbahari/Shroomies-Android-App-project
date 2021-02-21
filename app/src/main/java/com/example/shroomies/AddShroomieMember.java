@@ -40,6 +40,7 @@ public class AddShroomieMember extends DialogFragment {
     ArrayList<User> selectedUser;
     ArrayList<String> inboxUser;
     ArrayList<String> listMemberId;
+    ShroomiesApartment apartment;
 
 
     @Nullable
@@ -54,7 +55,6 @@ public class AddShroomieMember extends DialogFragment {
         super.onViewCreated(view, savedInstanceState);
         memberSearchView = v.findViewById(R.id.search_member);
         addShroomieRecycler = v.findViewById(R.id.add_member_recyclerview);
-
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         addShroomieRecycler.setHasFixedSize(true);
         addShroomieRecycler.setLayoutManager(linearLayoutManager);
@@ -62,7 +62,9 @@ public class AddShroomieMember extends DialogFragment {
 
         if (getArguments()!=null){
             Bundle bundle = getArguments();
-            listMemberId = bundle.getStringArrayList("MEMBERID");
+            apartment=bundle.getParcelable("APARTMENT_DETAILS");
+            listMemberId =apartment.getMembersID();
+
         }
         getMessageInboxListIntoAdapter();
 
@@ -96,7 +98,7 @@ public class AddShroomieMember extends DialogFragment {
 
     private void retreiveUser(String query) {
         suggestedUser = new ArrayList<>();
-        userRecyclerAdapter= new UserAdapter(suggestedUser,getContext(),true);
+        userRecyclerAdapter= new UserAdapter(suggestedUser,getContext(),true,apartment);
         addShroomieRecycler.setAdapter(userRecyclerAdapter);
 
         rootRef.child("Users").orderByChild("name").startAt(query)
@@ -112,10 +114,22 @@ public class AddShroomieMember extends DialogFragment {
                                 duplicate = true;
                             }
                         }
-                        if (!duplicate&&!user.getID().equals(mAuth.getInstance().getCurrentUser().getUid())&&!listMemberId.contains(user.getID())){
 
-                            suggestedUser.add(user);
-                        }
+                            if (!duplicate&&!user.getID().equals(mAuth.getInstance().getCurrentUser().getUid())){
+                                if(listMemberId!=null){
+                                    if(!listMemberId.contains(user.getID())){
+                                        suggestedUser.add(user);
+                                        Toast.makeText(getContext(),user.getName(),Toast.LENGTH_LONG).show();
+                                    }
+
+                                }
+
+
+                            }
+                        suggestedUser.add(user);
+
+
+
                     }
 
                     //add the members already selected
@@ -145,7 +159,7 @@ public class AddShroomieMember extends DialogFragment {
 
     private void addInboxUsersToRecycler(final List<String> inboxListUsers) {
         suggestedUser = new ArrayList<>();
-        userRecyclerAdapter=new UserAdapter(suggestedUser,getContext(),true);
+        userRecyclerAdapter=new UserAdapter(suggestedUser,getContext(),true,apartment);
         addShroomieRecycler.setAdapter(userRecyclerAdapter);
         for(String id
                 :inboxListUsers){
