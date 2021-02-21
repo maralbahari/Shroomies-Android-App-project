@@ -35,7 +35,7 @@
 
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="250dp"
+
         android:layout_marginBottom="20dp"
         android:background="@drawable/dots_background"
 
@@ -48,7 +48,8 @@
         app:layout_constraintBottom_toBottomOf="@id/view_pager_apartment_view"
         app:layout_constraintEnd_toEndOf="@id/view_pager_apartment_view"
         app:layout_constraintStart_toStartOf="@id/view_pager_apartment_view"
-        app:layout_constraintTop_toTopOf="@id/view_pager_apartment_view" />
+
+        />
     <ImageButton
         android:id="@+id/message_user_button"
         android:layout_width="wrap_content"
@@ -75,7 +76,7 @@
             >
 
             <TextView
-                android:id="@+id/price_text_view"
+                android:id="@+id/price_text_view_apartment_card"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
@@ -96,7 +97,7 @@
                 android:id="@+id/number_of_roommates_text_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/price_text_view"
+                android:layout_below="@id/price_text_view_apartment_card"
                 android:layout_marginLeft="15dp"
                 android:layout_marginTop="5dp"
                 android:text="5 roommates required"

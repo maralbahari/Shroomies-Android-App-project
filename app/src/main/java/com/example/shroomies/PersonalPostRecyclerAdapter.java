@@ -91,19 +91,20 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
             @Override
             public void onCancelled(@NonNull DatabaseError error) { }
         });
+
         //setting preferences
-        if(!personalPostModelList.get(position).getPreferences().get(0)){
-            holder.IV_male.setVisibility(View.GONE); }
-        else holder.IV_male.setVisibility(View.VISIBLE);
-        if(!personalPostModelList.get(position).getPreferences().get(1)){
-            holder.IV_female.setVisibility(View.GONE); }
-        else holder.IV_female.setVisibility(View.VISIBLE);
-        if(!personalPostModelList.get(position).getPreferences().get(2)){
-            holder.IV_pet.setVisibility(View.GONE); }
-        else holder.IV_pet.setVisibility(View.VISIBLE);
-        if(!personalPostModelList.get(position).getPreferences().get(3)){
-            holder.IV_smoke.setVisibility(View.GONE); }
-        else holder.IV_smoke.setVisibility(View.VISIBLE);
+//        if(!personalPostModelList.get(position).getPreferences().get(0)){
+//            holder.IV_male.setVisibility(View.GONE); }
+//        else holder.IV_male.setVisibility(View.VISIBLE);
+//        if(!personalPostModelList.get(position).getPreferences().get(1)){
+//            holder.IV_female.setVisibility(View.GONE); }
+//        else holder.IV_female.setVisibility(View.VISIBLE);
+//        if(!personalPostModelList.get(position).getPreferences().get(2)){
+//            holder.IV_pet.setVisibility(View.GONE); }
+//        else holder.IV_pet.setVisibility(View.VISIBLE);
+//        if(!personalPostModelList.get(position).getPreferences().get(3)){
+//            holder.IV_smoke.setVisibility(View.GONE); }
+//        else holder.IV_smoke.setVisibility(View.VISIBLE);
 //        if(isFromPersonalProfile){ holder.}
 
 
@@ -172,13 +173,8 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
                                 Toast.makeText(context,"Post added to favorites",Toast.LENGTH_LONG).show();
                                 holder.BT_fav.setImageResource(R.drawable.ic_icon_awesome_star_checked);
                                 checkClick[0] = false;
-
                             }
-
-
-
                     }
-
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
 
@@ -191,33 +187,21 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
 
     @Override
     public int getItemCount() { return personalPostModelList.size(); }
-
     // Viewholder class
     class PersonalPostViewHolder extends RecyclerView.ViewHolder{
-
         //initializing
         ImageView IV_userPic;
-        TextView TV_userName;
-//        TextView TV_userOccupation;
-        TextView TV_userBudget;
-        TextView TV_DatePosted;
-        TextView TV_userDescription;
+        TextView TV_userName,TV_userBudget, TV_DatePosted,TV_userDescription;
         RelativeLayout Lay_card;
-        ImageButton BT_fav;
-        Button BT_message;
-        ImageButton deletePost;
-        ImageView IV_male;
-        ImageView IV_female;
-        ImageView IV_pet;
-        ImageView IV_smoke;
-
+        ImageButton BT_fav, BT_message;
+        ImageView IV_male, IV_female, IV_pet, IV_smoke;
 
         public PersonalPostViewHolder(@NonNull View itemView) {
             super(itemView);
 
             IV_userPic = itemView.findViewById(R.id.user_image_personal_card);
             TV_userName = itemView.findViewById(R.id.user_name_personal_card);
-//            TV_userOccupation = itemView.findViewById(R.id.bio_personal_card);
+
             TV_userBudget = itemView.findViewById(R.id.personal_post_budget_text_view);
             TV_DatePosted = itemView.findViewById(R.id.personal_post_date_text_view);
             TV_userDescription = itemView.findViewById(R.id.personal_card_text_view);
@@ -225,10 +209,10 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
 
             IV_male = itemView.findViewById(R.id.male_image_view_apartment);
             IV_female = itemView.findViewById(R.id.female_image_view_apartment);
-            IV_pet = itemView.findViewById(R.id.pets_allowd_image_view_apartment);
+            IV_pet = itemView.findViewById(R.id.pets_allowed_image_view_apartment);
             IV_smoke = itemView.findViewById(R.id.non_smoking_image_view_apartment);
             BT_message = itemView.findViewById(R.id.start_chat_button);
-            BT_fav = itemView.findViewById(R.id.BUT_fav);
+            BT_fav = itemView.findViewById(R.id.favorite_check_button);
 
             BT_message.setOnClickListener(new View.OnClickListener() {
                 @Override

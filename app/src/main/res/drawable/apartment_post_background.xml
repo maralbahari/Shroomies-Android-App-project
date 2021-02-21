@@ -3,7 +3,6 @@
 
     xmlns:android="http://schemas.android.com/apk/res/android"
     >
-    <solid android:color="@color/y"/>
-    <corners android:topLeftRadius="25dp" android:topRightRadius="25dp"
-        ></corners>
+    <solid android:color="@android:color/white"/>
+    <corners android:radius="1dp"></corners>
 </shape>

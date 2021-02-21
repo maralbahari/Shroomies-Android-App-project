@@ -1,504 +1,432 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingTop="60dp"
-    android:paddingBottom="60dp"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="55dp"
+    android:background="@color/white"
     tools:context=".PublishPost">
 
+    <com.google.android.material.tabs.TabLayout
 
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/nested"
+        android:id="@+id/tab_layout_publish_post"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
+        app:tabBackground="@drawable/tab_backgorund_style">
 
-        android:fillViewport="true"
-        >
+        <com.google.android.material.tabs.TabItem
+            android:id="@+id/tab_button_apartment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="apartment" />
 
-        <LinearLayout
+
+        <com.google.android.material.tabs.TabItem
+            android:id="@+id/tab_button_personal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="personal" />
+
+
+    </com.google.android.material.tabs.TabLayout>
+
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/add_image_warning"
+        android:layout_below="@id/tab_layout_publish_post"
+
+      >
+
+        <RelativeLayout
+            android:id="@+id/relative_layout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-
-            <com.google.android.material.tabs.TabLayout
-
-                android:id="@+id/tab_layout_publish_post"
-                android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingBottom="20dp">
+            <ImageView
+                android:id="@+id/user_image_publish_post"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:tabBackground="@drawable/tab_backgorund_style"
-                >
+                android:background="@drawable/circle_white_button"
+                android:elevation="3dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="10dp"
+                android:src="@drawable/ic_user_profile_small"
+                android:padding="10dp"
+                android:visibility="visible"
 
-                <com.google.android.material.tabs.TabItem
-                    android:id="@+id/tab_button_apartment"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="apartment"
-                    />
-
-
-                <com.google.android.material.tabs.TabItem
-                    android:id="@+id/tab_button_personal"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="personal"
-                    />
-
-
-            </com.google.android.material.tabs.TabLayout>
-
-
-            <RelativeLayout
-                android:id="@+id/upload_image_card"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-
-                android:background="@drawable/post_card_rectangle_round"
-                android:elevation="3dp">
-
-                <androidx.appcompat.widget.AppCompatTextView
-                    android:id="@+id/upload_image_text_view"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="top"
-                    android:layout_margin="20dp"
-                    android:text="upload images"
-                    android:textSize="18sp">
-
-                </androidx.appcompat.widget.AppCompatTextView>
-
-                <ImageButton
-                    android:elevation="5dp"
-                    android:padding="15dp"
-                    android:clickable="true"
-                    android:id="@+id/cloud_icon_publish_post"
-                    android:background="@drawable/button_circle_timberwolf_small"
-                    android:src="@drawable/ic_upload_icon_cloud"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_margin="20dp"
-                    android:layout_above="@+id/view_pager_apartment_view"
-                    />
-
-
-
-                <TextView
-                    android:id="@+id/number_of_photos"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@+id/upload_image_text_view"
-                    android:layout_marginRight="10dp"
-                    android:layout_marginLeft="3dp"
-                    android:layout_marginTop="5dp"
-                    android:layout_toRightOf="@id/image_icon_post" />
-
-                <ImageView
-
-                    android:id="@+id/image_icon_post"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentLeft="true"
-                    android:layout_below="@+id/upload_image_text_view"
-                    android:layout_marginLeft="30dp"
-                    android:layout_marginBottom="10dp"
-                    android:layout_marginTop="5dp"
-                    android:elevation="3dp"
-                    android:src="@drawable/ic_icon_awesome_image"
-                    android:visibility="gone"
-
-                    >
-                </ImageView>
-
-                <ImageButton
-                    android:visibility="gone"
-                    android:id="@+id/delete_image_post"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_icon_material_remove_circle_outline"
-
-                    android:layout_below="@id/view_pager"
-                    android:layout_marginTop="-60dp"
-                    android:layout_marginLeft="40dp"
-                    android:layout_alignParentLeft="true"
-                    android:background="@drawable/small_circle_button"
-                    android:elevation="5dp"
-                    android:padding="5dp"
-
-                    />
-
-                <androidx.viewpager.widget.ViewPager
-
-                    android:layout_below="@id/image_icon_post"
-                    android:id="@+id/view_pager"
-                    android:layout_width="match_parent"
-                    android:layout_height="200dp"
-                    android:layout_marginRight="20dp"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginBottom="20dp"
-                    android:layout_marginTop="20dp"
-                    android:visibility="gone">
-
-
-                </androidx.viewpager.widget.ViewPager>
-
-                <com.make.dots.dotsindicator.DotsIndicator
-                    android:visibility="gone"
-                    android:layout_below="@id/view_pager"
-                    android:layout_centerHorizontal="true"
-                    android:id="@+id/dotsIndicator"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="-60dp"
-                    android:background="@drawable/dots_background"
-                    android:padding="4dp"
-                    app:dot_drawable="@drawable/ic_dot_darkgrey"
-                    app:dot_drawable_unselected="@drawable/ic_dot_lightgrey"
-                    app:dot_height="6dp"
-                    app:dot_margin="4dp"
-                    app:dot_width="6dp" />
-
-
-            </RelativeLayout>
-
+                />
 
             <EditText
-                android:id="@+id/description_edit_text"
+                android:id="@+id/post_description"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="10dp"
-                android:background="@drawable/post_card_rectangle_round"
+                android:layout_margin="5dp"
+                android:background="@android:color/transparent"
+                android:hint="talk about your unit"
+                android:minHeight="60dp"
+                android:padding="10dp"
+                android:focusable="true"
+                android:fontFamily="@font/amiko"
+                android:maxLength="200"
+
+                android:layout_toRightOf="@id/user_image_publish_post"
+                android:focusedByDefault="true"
+
+
+
+                />
+
+
+            <androidx.viewpager.widget.ViewPager
+                android:id="@+id/view_pager"
+                android:layout_width="wrap_content"
+                android:layout_height="200dp"
+
+
+                android:layout_below="@id/post_description"
+                android:layout_marginLeft="10dp"
+                android:layout_marginTop="20dp"
+                android:layout_marginRight="20dp"
+                android:layout_marginBottom="20dp"
+                android:visibility="gone" />
+
+            <ImageButton
+                android:id="@+id/delete_image_post"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignLeft="@+id/view_pager"
+                android:layout_alignBottom="@id/view_pager"
+
+                android:layout_marginLeft="20dp"
+                android:layout_marginBottom="20dp"
+                android:background="@drawable/small_circle_button"
                 android:elevation="5dp"
-                android:hint="Description"
-                android:minHeight="80dp"
-                android:padding="20dp">
+                android:padding="5dp"
+                android:src="@drawable/ic_icon_material_remove_circle_outline"
+                android:visibility="gone"
 
+                />
 
-            </EditText>
+            <com.make.dots.dotsindicator.DotsIndicator
+                android:id="@+id/dotsIndicator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/view_pager"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="-60dp"
+                android:background="@drawable/dots_background"
+                android:padding="4dp"
+                android:visibility="gone"
+                app:dot_drawable="@drawable/ic_dot_darkgrey"
+                app:dot_drawable_unselected="@drawable/ic_dot_lightgrey"
+                app:dot_height="6dp"
+                app:dot_margin="4dp"
+                app:dot_width="6dp" />
 
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:id="@+id/preferences_linear_layout"
+                android:layout_width="wrap_content"
+
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:layout_below="@id/view_pager"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="5dp"
+                android:background="@drawable/text_low_alpha_background"
+                android:elevation="5dp"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:visibility="visible">
 
-                <RelativeLayout
-                    android:id="@+id/number_of_roommates_relative_layout"
+                <TextView
+                    android:id="@+id/preferences_text_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/view_pager"
+                    android:layout_marginLeft="5dp"
+
+                    android:elevation="3dp"
+                    android:visibility="gone"
+                    android:padding="3dp"
+                    android:text="Preferances"
+
+                    />
+
+
+                <ImageView
+                    android:id="@+id/male_image_view_publish_post"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:elevation="3dp"
+
+                    android:src="@drawable/male_icon_15dp"
+                    android:visibility="gone" />
+
+
+                <Space
                     android:layout_width="0dp"
-                    android:layout_height="130dp"
-                    android:layout_margin="10dp"
-                    android:layout_weight="1"
+                    android:layout_height="1dp"
+                    android:layout_weight="1" />
 
-                    android:background="@drawable/post_card_rectangle_round"
-                    android:elevation="3dp">
+                <ImageView
+                    android:id="@+id/female_image_view_publish_post"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
 
-                    <TextView
-                        android:id="@+id/number_of_roommates_tv"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentStart="true"
-                        android:layout_marginLeft="20dp"
-                        android:layout_marginTop="20dp"
-                        android:layout_marginBottom="10dp"
+                    android:layout_margin="5dp"
 
-                        android:text="No.roommates:">
 
-                    </TextView>
+                    android:elevation="3dp"
 
-                    <NumberPicker
-                        android:id="@+id/roommate_number_picker"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@id/number_of_roommates_tv"
-                        android:layout_centerInParent="true"
-                        android:layout_marginBottom="10dp"
-                        android:selectionDividerHeight="0dp">
+                    android:src="@drawable/female_icon_15dp"
 
-                    </NumberPicker>
+                    android:visibility="gone" />
 
-                </RelativeLayout>
-
-                <RelativeLayout
-                    android:id="@+id/budget_layout"
-
+                <Space
                     android:layout_width="0dp"
-                    android:layout_height="130dp"
-                    android:layout_margin="10dp"
-                    android:layout_weight="1"
+                    android:layout_height="1dp"
+                    android:layout_weight="1" />
 
+                <ImageView
+                    android:id="@+id/pets_allowd_image_view_publish_post"
 
-                    android:background="@drawable/post_card_rectangle_round"
-                    android:elevation="3dp">
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
 
-                    <TextView
-                        android:id="@+id/budget_tv"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentStart="true"
-                        android:layout_marginLeft="20dp"
-                        android:layout_marginTop="20dp"
-                        android:layout_marginBottom="10dp"
-                        android:text="Price:">
+                    android:elevation="3dp"
 
-                    </TextView>
+                    android:src="@drawable/pet_icon_15dp"
 
-                    <NumberPicker
+                    android:visibility="gone" />
 
-                        android:id="@+id/budget_number_picker"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@id/budget_tv"
-                        android:layout_centerInParent="true"
-                        android:layout_marginBottom="10dp"
-                       android:selectionDividerHeight="0dp"
-                        android:orientation="horizontal"
-                        />
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="1dp"
+                    android:layout_weight="1" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_toRightOf="@+id/budget_number_picker"
-                        android:text="RM"
-                        android:layout_marginLeft="5dp"
-                        android:textSize="20dp"
-                        android:textStyle="bold"
-                        android:textColor="@color/jetBlack"
-                        android:shadowColor="@color/lightGrey"
-                        android:shadowRadius="1"
-                        android:layout_marginTop="70dp"
-                        />
-
-
-                </RelativeLayout>
+                <ImageView
+                    android:id="@+id/non_smoking_image_view_publish_post"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="5dp"
+                    android:elevation="3dp"
+                    android:src="@drawable/smoking_icon_15dp"
+                    android:visibility="gone" />
             </LinearLayout>
-
+            <LinearLayout
+                android:id="@+id/price_roommate_linear_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/preferences_linear_layout">
 
             <TextView
 
-                android:id="@+id/location_search_view"
-                android:layout_width="match_parent"
+                android:id="@+id/price_text_view_apartment_card"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginLeft="20dp"
-                android:layout_marginTop="20dp"
-                android:layout_marginRight="20dp"
-                android:background="@drawable/location_search_bar"
-                android:drawablePadding="5dp"
-                android:elevation="5dp"
-
-                android:gravity="fill_vertical"
-                android:minHeight="90dp"
-                android:padding="15dp"
-                android:drawableEnd="@drawable/ic_icon_feather_map">
-
-            </TextView>
-
-
-            <com.example.shroomies.CustomMapView
-                android:id="@+id/address_map_view"
-                android:layout_width="match_parent"
-                android:layout_height="250dp"
-                android:layout_marginLeft="20dp"
-                android:layout_marginRight="20dp"
-                android:layout_marginBottom="20dp"
-                android:elevation="10dp">
-
-
-            </com.example.shroomies.CustomMapView>
-
-
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="20dp"
-                android:layout_marginLeft="20dp"
-                android:layout_marginTop="15dp"
-                android:layout_marginBottom="120dp"
-                android:background="@drawable/post_card_rectangle_round"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="5dp"
+                android:background="@drawable/text_low_alpha_background"
                 android:elevation="3dp"
-                >
+                android:padding="3dp"
+                android:visibility="gone"
+                android:fontFamily="@font/amiko"
 
-                <TextView
-                    android:id="@+id/add_property"
-                    android:layout_alignParentStart="true"
-                    android:layout_width="wrap_content"
+                />
 
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="20dp"
-                    android:layout_marginTop="20dp"
-                    android:layout_marginEnd="20dp"
-                    android:text="Add properties" />
+            <TextView
+                android:id="@+id/number_of_room_mates_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/preferences_linear_layout"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginLeft="5dp"
+                android:layout_marginRight="5dp"
+                android:layout_toRightOf="@+id/price_text_view_apartment_card"
+                android:background="@drawable/text_low_alpha_background"
+                android:elevation="3dp"
+                android:padding="3dp"
+                android:visibility="gone"
+                android:fontFamily="@font/amiko"/>
+            </LinearLayout>
 
-                <LinearLayout
-                    android:id="@+id/property_Radio_group"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:padding="10dp"
-                    android:orientation="horizontal"
-                    android:layout_below="@id/add_property"
-                    >
-
-
-                    <androidx.appcompat.widget.AppCompatCheckBox
-                        android:id="@+id/male_image_button_publish_post"
-                        android:drawableStart="@drawable/ic_icon_ionic_ios_male"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_margin="5dp"
-                        android:button="@android:color/transparent"
-                        android:background="@drawable/property_radio_selector"
-                        android:elevation="3dp"
-                        android:padding="10dp"
-                        />
-
-                    <Space
-                        android:layout_width="0dp"
-                        android:layout_height="1dp"
-                        android:layout_weight="1" />
-
-                    <androidx.appcompat.widget.AppCompatCheckBox
-                        android:id="@+id/female_image_button_post"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_margin="5dp"
-
-                        android:elevation="3dp"
-                        android:padding="10dp"
-                        android:drawableStart="@drawable/ic_icon_ionic_ios_female"
-                        android:button="@android:color/transparent"
-                        android:background="@drawable/property_radio_selector"/>
-                    <Space
-                        android:layout_width="0dp"
-                        android:layout_height="1dp"
-                        android:layout_weight="1" />
-
-                    <androidx.appcompat.widget.AppCompatCheckBox
-                        android:id="@+id/pets_allowd_image_button_post"
-
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@id/add_property"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_margin="5dp"
-
-                        android:elevation="3dp"
-                        android:padding="10dp"
-                        android:drawableStart="@drawable/ic_icon_map_pet_store"
-                        android:button="@android:color/transparent"
-                        android:background="@drawable/property_radio_selector"/>
-                    <Space
-                        android:layout_width="0dp"
-                        android:layout_height="1dp"
-                        android:layout_weight="1" />
-
-                    <androidx.appcompat.widget.AppCompatCheckBox
-                        android:id="@+id/non_smoking_image_button_post"
-
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_below="@id/add_property"
-                        android:layout_gravity="center_horizontal"
-                        android:layout_margin="5dp"
-
-                        android:elevation="3dp"
-                        android:padding="10dp"
-                        android:drawableStart="@drawable/ic_icon_material_smoke_free"
-                        android:button="@android:color/transparent"
-                        android:background="@drawable/property_radio_selector"/>
-
-                </LinearLayout>
-
-            </RelativeLayout>
-
-
-
-        </LinearLayout>
-
-    </androidx.core.widget.NestedScrollView>
-
-    <Button
-        android:layout_alignParentBottom="true"
-        android:id="@+id/publish_post_button"
-        android:text="publish post"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_marginLeft="50dp"
-        android:layout_marginRight="50dp"
-
-        android:layout_marginBottom="20dp"
-        android:background="@drawable/publish_post_button"
-        android:clickable="true"
-        android:elevation="3dp"
-        android:gravity="center"
-        android:paddingLeft="30dp"
-        android:textSize="14dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
-        android:paddingRight="30dp"
-        android:textColor="@color/white"
-        android:drawableStart="@drawable/ic_icon_material_publish"
-        />
-
-
-
-    <RelativeLayout
-        android:visibility="gone"
-        android:id="@+id/success_card"
-        android:layout_centerHorizontal="true"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-
-        android:layout_marginRight="20dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginTop="100dp"
-        android:layout_marginBottom="200dp"
-
-        android:background="@drawable/post_card_rectangle_round"
-        android:elevation="20dp"
-
-        >
-        <ImageView
-            android:id="@+id/check_Image"
-            android:layout_centerHorizontal="true"
-            android:layout_margin="20dp"
-            android:layout_width="wrap_content"
-
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_icon_awesome_check_circle">
-
-        </ImageView>
-        <TextView
-            android:gravity="center"
-            android:layout_centerInParent="true"
-            android:layout_margin="20dp"
-            android:textSize="20dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/check_Image"
-            android:text="your post has been successfully uploaded!"
+            <TextView
+                android:id="@+id/location_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/price_roommate_linear_layout"
+                android:layout_margin="10dp"
+                android:background="@drawable/text_low_alpha_background"
+                android:drawableStart="@drawable/ic_location_icon_25dp"
+                android:gravity="center_vertical"
+                android:elevation="3dp"
+                android:lines="1"
+                android:padding="3dp"
+                android:fontFamily="@font/amiko"
             />
 
-        <Button
-            android:id="@+id/ok_Button"
-            android:elevation="5dp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:minHeight="50dp"
-            android:textColor="@color/white"
-            android:textSize="20dp"
-            android:text="OK"
-            android:layout_alignParentBottom="true"
-            android:background="@drawable/ok_button"
-            ></Button>
 
-    </RelativeLayout>
+        </RelativeLayout>
+
+    </ScrollView>
+
+    <TextView
+        android:id="@+id/add_image_warning"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginBottom="5dp"
+android:layout_above="@id/publish_post_option_bar"
+        android:text="Some fields haven't been filled "
+        android:textColor="@color/canceRed"
+        android:fontFamily="@font/amiko"
+
+        android:textStyle="bold" />
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/publish_post_option_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginTop="5dp"
+        android:background="@color/LogoYellow"
+        android:elevation="3dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_margin="5dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <Button
+                android:id="@+id/add_image_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:background="@drawable/button_round_alabaster"
+                android:drawableStart="@drawable/ic_photo_library_25dp"
+                android:elevation="3dp"
+                android:fontFamily="@font/amiko"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                android:paddingTop="3dp"
+                android:paddingBottom="3dp"
+
+                android:text="Image"
+                android:textAllCaps="false"
+                android:textColor="@color/jetBlack"
+                android:textSize="10sp" />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/preferences_image_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+
+                android:background="@drawable/button_round_alabaster"
+                android:drawableStart="@drawable/ic_options_icon_25dp"
+                android:elevation="3dp"
+                android:fontFamily="@font/amiko"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                android:paddingTop="3dp"
+                android:paddingBottom="3dp"
+                android:text="Preferences"
+                android:textAllCaps="false"
+                android:textColor="@color/jetBlack"
+                android:textSize="10sp"
+
+                />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/location_image_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+
+                android:background="@drawable/button_round_alabaster"
+                android:drawableStart="@drawable/ic_location_icon_25dp"
+                android:elevation="3dp"
+                android:fontFamily="@font/amiko"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                android:paddingLeft="4dp"
+                android:paddingRight="4dp"
+                android:paddingTop="3dp"
+                android:paddingBottom="3dp"
+                android:text="Location"
+                android:textAllCaps="false"
+                android:textColor="@color/jetBlack"
+                android:textSize="10sp"
+
+                />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/publish_post_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="5dp"
+
+            android:background="@drawable/button_round_greyish_timber_wolf"
+
+            android:outlineProvider="none"
+            android:fontFamily="@font/amiko"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
+            android:paddingLeft="4dp"
+            android:paddingRight="4dp"
+            android:paddingTop="3dp"
+            android:paddingBottom="3dp"
+
+            android:text="Publish"
+            android:textAllCaps="false"
+            android:textColor="@color/jetBlack"
+            android:textSize="12sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:clickable="false"
+
+
+            />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
 
 
 

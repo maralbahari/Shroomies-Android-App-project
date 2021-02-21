@@ -2,7 +2,10 @@ package com.example.shroomies;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -19,6 +22,7 @@ import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,7 +32,6 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SearchView;
 
-import com.airbnb.lottie.LottieAnimationView;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -37,6 +40,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 
@@ -44,7 +48,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MapsFragment extends Fragment {
+public class MapsFragment extends DialogFragment {
     private GoogleMap mMap;
     private FusedLocationProviderClient fusedLocationProviderClient;
     private double latitude;
@@ -58,8 +62,15 @@ public class MapsFragment extends Fragment {
     private FragmentTransaction fragmentTransaction;
     private FragmentManager fragmentManager;
     private List<LatLng> latLngs;
+    private OnLocationSet mOnLocationSet;
+    private SearchView.OnQueryTextListener onQueryTextListener;
 
     CustomLoadingProgressBar customLoadingProgressBar;
+
+     public interface OnLocationSet {
+         void sendNewLocation(LatLng newLatLng , String updatedAddress);
+     };
+
 
 
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
@@ -81,6 +92,22 @@ public class MapsFragment extends Fragment {
         }
 
     };
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if(getDialog()!=null) {
+            getDialog().getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
+            getDialog().getWindow().setBackgroundDrawableResource(R.drawable.create_group_fragment_background);
+
+        }
+    }
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getDialog().getWindow().setWindowAnimations(R.style.DialogAnimation);
+    }
 
     @Override
     public void onResume() {
@@ -124,8 +151,7 @@ public class MapsFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-
-        mapSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            onQueryTextListener = new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
                 //start the progressbar
@@ -138,12 +164,12 @@ public class MapsFragment extends Fragment {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-
                 searchResultsListView.setVisibility(View.VISIBLE);
                 new GetAdressesAsyncTask(getActivity() , newText).execute();
                 return false;
             }
-        });
+        };
+        mapSearchView.setOnQueryTextListener(onQueryTextListener);
         mapSearchView.setOnCloseListener(new SearchView.OnCloseListener() {
             @Override
             public boolean onClose() {
@@ -158,6 +184,8 @@ public class MapsFragment extends Fragment {
                 //store  the address name from the adapter
                 updatedAdress  = parent.getItemAtPosition(position).toString();
                 // store the lat and long of the new location
+                mapSearchView.setQuery(updatedAdress,true);
+                searchResultsListView.setVisibility(View.GONE);
                 newLatLng = latLngs.get(position);
                 setMarker(newLatLng);
             }
@@ -167,18 +195,14 @@ public class MapsFragment extends Fragment {
             public void onClick(View v) {
                 if (newLatLng != null && updatedAdress !=null){
                     // if a new address has been added return to the publish post fragment with the new adresses
-                    //set the values in the main activity
-                    //the values will be retrived in the publish post class
-                    // this is very hacky i know but it works ;)
-                    MainActivity.updatedAdresses = updatedAdress;
-                    MainActivity.updatedLatLng = newLatLng;
-                    getActivity().getSupportFragmentManager().popBackStackImmediate();
-
+                    mOnLocationSet.sendNewLocation(newLatLng , updatedAdress);
+                    dismiss();
                 }
             }
         });
 
     }
+
 
     private void  getCurrentLocationFromAsyncTask() {
         new CurrentLocationAsync(getActivity()).execute();
@@ -295,13 +319,60 @@ public class MapsFragment extends Fragment {
     }
 
     void setMarker(LatLng latLng){
+        final Geocoder geocoder = new Geocoder(getActivity());
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(),getResources().getIdentifier("black_mushroom" ,  "drawable", getActivity().getPackageName()));
         Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, 90, 100, false);
         MarkerOptions markerOptions = new MarkerOptions()
                 .position(latLng)
-                .icon(BitmapDescriptorFactory.fromBitmap(resizedBitmap));
+                .icon(BitmapDescriptorFactory.fromBitmap(resizedBitmap))
+                .draggable(true);
         mMap.addMarker(markerOptions);
+        mMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+            @Override
+            public void onMarkerDragStart(Marker marker) {
+
+            }
+
+            @Override
+            public void onMarkerDrag(Marker marker) {
+
+            }
+
+            @Override
+            public void onMarkerDragEnd(Marker marker) {
+                newLatLng = marker.getPosition();
+                mapSearchView.setOnQueryTextListener(null);
+
+                // remove the query change listener to prevent the methods in it from being called
+                //
+                try {
+                    updatedAdress  = geocoder.getFromLocation(newLatLng.latitude , newLatLng.longitude , 1).get(0).getAddressLine(0);
+
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                mapSearchView.setQuery(updatedAdress , false);
+                mapSearchView.setIconified(false);
+                searchResultsListView.setVisibility(View.GONE);
+
+                // add the listener back once the dragging has stopped
+
+                mapSearchView.setOnQueryTextListener(onQueryTextListener);
+            }
+        });
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng,16));
+    }
+
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        try {
+            mOnLocationSet = (OnLocationSet) getTargetFragment();
+        }catch(ClassCastException e){
+
+        }
     }
 
 }

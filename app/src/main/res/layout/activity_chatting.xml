@@ -11,56 +11,58 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         />
-        <RelativeLayout
-            android:id="@+id/bottom_chatting_layout"
+
+    <RelativeLayout
+        android:id="@+id/bottom_chatting_layout"
+        android:layout_width="match_parent"
+        android:layout_height="62dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="3dp"
+        android:background="@color/LogoYellow"
+        android:padding="8dp">
+
+        <EditText
+            android:id="@+id/messeg_body_edit_text"
+            android:layout_width="wrap_content"
+            android:layout_height="40dp"
+            android:layout_centerVertical="true"
+            android:layout_margin="5dp"
+            android:layout_toLeftOf="@id/send_message_button"
+            android:layout_toRightOf="@id/choose_file_button"
+            android:background="@drawable/background_text_white"
+            android:elevation="1dp"
+            android:inputType="textMultiLine"
+
+            android:padding="5dp"
+            android:scrollbars="vertical" />
+
+        <ImageButton
+            android:id="@+id/choose_file_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@color/LogoYellow"
-            android:padding="8dp"
-            android:layout_alignParentBottom="true">
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:layout_margin="5dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_marginBottom="5dp"
+            android:background="@null"
+            android:src="@drawable/ic_photo_camera" />
 
-            <EditText
-                android:id="@+id/messeg_body_edit_text"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:layout_margin="5dp"
-                android:background="@drawable/background_text_white"
-                android:elevation="1dp"
-                android:inputType="textMultiLine"
-                android:layout_centerVertical="true"
-                android:scrollbars="vertical"
-                android:padding="5dp"
-
-                android:layout_toLeftOf="@id/send_message_button"
-                android:layout_toRightOf="@id/choose_file_button"/>
-
-            <ImageButton
-                android:layout_centerVertical="true"
-                android:id="@+id/choose_file_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_margin="5dp"
-                android:layout_marginBottom="5dp"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:src="@drawable/ic_photo_camera"
-                android:background="@null"
-               android:layout_alignParentStart="true" />
-
-            <ImageButton
-                android:layout_centerVertical="true"
-                android:id="@+id/send_message_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="5dp"
-                android:elevation="3dp"
-                android:src="@drawable/ic_send"
-                android:background="@drawable/circle_white_button_small"
-                android:layout_margin="5dp"
-              android:layout_alignParentRight="true" />
+        <ImageButton
+            android:id="@+id/send_message_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_margin="5dp"
+            android:background="@drawable/circle_white_button_small"
+            android:elevation="3dp"
+            android:padding="5dp"
+            android:src="@drawable/ic_send" />
 
 
-        </RelativeLayout>
+    </RelativeLayout>
 
 
     <androidx.recyclerview.widget.RecyclerView

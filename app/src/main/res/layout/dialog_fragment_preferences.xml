@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <TextView
+        android:id="@+id/preferences_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Preferences"
+
+        android:textSize="18sp"
+        android:layout_marginLeft="15dp"
+        android:fontFamily="@font/amiko"
+        android:textColor="@color/jetBlack"
+        android:layout_marginTop="10dp"/>
+    <Button
+        android:id="@+id/close_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
+        android:paddingLeft="7dp"
+        android:paddingRight="7dp"
+        android:paddingTop="3dp"
+        android:paddingBottom="3dp"
+        android:fontFamily="@font/amiko"
+        android:background="@drawable/button_circle_timberwolf_small"
+        android:text="Close"
+        android:textAllCaps="false"
+
+        android:layout_alignParentRight="true"
+        android:layout_marginTop="8dp"
+        android:layout_marginRight="10dp"
+        android:layout_toRightOf="@+id/preferances_text_view"
+        android:layout_alignParentTop="true"
+        />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:background="@color/Alabaster"
+        android:layout_below="@id/preferences_text_view"
+        android:layout_marginTop="5dp"/>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/linearLayout"
+        android:layout_below="@id/preferences_text_view"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:gravity="center"
+
+        >
+    <LinearLayout
+        android:id="@+id/number_of_roommates_linear_layout"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_margin="3dp"
+
+      >
+
+    <TextView
+        android:id="@+id/number_of_room_mates_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="No. roommates"
+
+        android:fontFamily="@font/amiko"
+       />
+        <NumberPicker
+            android:id="@+id/roommate_number_picker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            >
+
+        </NumberPicker>
+
+
+
+    </LinearLayout>
+
+
+    <LinearLayout
+       android:layout_margin="3dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+       android:layout_weight="1"
+        android:gravity="center"
+
+    >
+
+    <TextView
+        android:id="@+id/budget_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:text="Budget"
+        android:fontFamily="@font/amiko"
+        />
+        <NumberPicker
+
+
+            android:id="@+id/budget_number_picker"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:selectionDividerHeight="0dp"
+
+            android:orientation="horizontal"
+            />
+
+    </LinearLayout>
+    </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/add_preferences_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add properties"
+        android:layout_below="@id/linearLayout"
+        android:layout_centerHorizontal="true"
+        android:fontFamily="@font/amiko"
+        android:textStyle="bold"
+        android:layout_marginTop="10dp"/>
+
+    <LinearLayout
+        android:id="@+id/property_check_box_group"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginLeft="10dp"
+        android:orientation="horizontal"
+        android:layout_below="@id/add_preferences_text_view"
+        >
+
+
+        <androidx.appcompat.widget.AppCompatCheckBox
+            android:id="@+id/male_check_box_publish_post"
+            android:drawableStart="@drawable/ic_icon_ionic_ios_male"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="5dp"
+            android:button="@android:color/transparent"
+            android:background="@drawable/property_radio_selector"
+            android:elevation="3dp"
+            android:padding="10dp"
+            />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <androidx.appcompat.widget.AppCompatCheckBox
+            android:id="@+id/female_check_box_post"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="5dp"
+
+            android:elevation="3dp"
+            android:padding="10dp"
+            android:drawableStart="@drawable/ic_icon_ionic_ios_female"
+            android:button="@android:color/transparent"
+            android:background="@drawable/property_radio_selector"/>
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <androidx.appcompat.widget.AppCompatCheckBox
+            android:id="@+id/pets_allowd_check_box_post"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="5dp"
+
+            android:background="@drawable/property_radio_selector"
+            android:button="@android:color/transparent"
+            android:drawableStart="@drawable/ic_icon_map_pet_store"
+            android:elevation="3dp"
+            android:padding="10dp" />
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <androidx.appcompat.widget.AppCompatCheckBox
+            android:id="@+id/non_smoking_check_box_post"
+
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_gravity="center_horizontal"
+            android:layout_margin="5dp"
+
+            android:elevation="3dp"
+            android:padding="10dp"
+            android:drawableStart="@drawable/ic_icon_material_smoke_free"
+            android:button="@android:color/transparent"
+            android:background="@drawable/property_radio_selector"/>
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/set_options"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Set options"
+        android:layout_below="@id/property_check_box_group"
+        android:layout_marginTop="10dp"
+        android:layout_centerHorizontal="true"
+
+        android:minHeight="0dp"
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp"
+        android:textAllCaps="false"
+        android:fontFamily="@font/amiko"
+        android:background="@color/Timeberwolf"/>
+
+
+
+
+</RelativeLayout>

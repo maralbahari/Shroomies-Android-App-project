@@ -55,7 +55,7 @@ public class SignUpActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String txtName = name.getText().toString();
-                String txtEmail = email.getText().toString();
+                String txtEmail = email.getText().toString().trim();
                 String txtPass = password.getText().toString();
                 String txtConfpw = confirmpw.getText().toString();
 

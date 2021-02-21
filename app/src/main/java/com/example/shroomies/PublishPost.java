@@ -5,8 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
+import android.icu.text.NumberFormat;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
@@ -15,24 +14,22 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
+import android.view.ViewOutlineProvider;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.NumberPicker;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
-import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -40,12 +37,7 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -63,6 +55,7 @@ import com.google.firebase.storage.UploadTask;
 import com.make.dots.dotsindicator.DotsIndicator;
 
 import java.io.IOException;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -71,10 +64,10 @@ import java.util.List;
 import java.util.Locale;
 
 
-public class PublishPost extends Fragment implements OnMapReadyCallback {
-
-    private static final String MAPVIEW_BUNDLE_KEY = "MapViewBundleKey";
-    int currentTabPosition = 0;
+public class PublishPost extends Fragment  implements PreferencesDialogFragment.OnPreferencesSet , MapsFragment.OnLocationSet {
+    public static final int DIALOG_FRAGMENT_REQUEST_CODE = 1;
+    public static final int MAPS_FRAGMENT_REQUEST_CODE = 2;
+    public  static final int NUMBER_OF_IMAGES_ALLOWED = 5;
     View v;
     FragmentManager fm;
     FragmentTransaction ft;
@@ -82,111 +75,193 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
     LatLng latLng;
     private static final int PICK_IMAGE_MULTIPLE= 1;
     List<Uri> imageUri;
-    NumberPicker numberOfRoomMatesNumberPicker;
-    NumberPicker budgetNumberPicker;
-    private CustomMapView mMapView;
-    private TextView locationEditText;
-    private FusedLocationProviderClient fusedLocationProviderClient;
-    private GoogleMap mMap;
+    private TextView locationTextView , preferencesTextView;
     Geocoder geocoder;
-    ImageButton cloudIconImageView;
-    TextView numberOfPhotos;
-    ImageView imageIconPost;
-    Button publishPostButton;
+
+    ImageView maleImage,femaleImage,petImage,smokingImage, userImageView;
+    Button publishPostButton ,addImageButton,locationImageButton , preferencesImageButton;
     ViewPager viewPager;
     private DotsIndicator dotsIndicator;
-    ImageView delteImageButton;
+    ImageView deleteImageButton;
     ViewPagerAdapter viewPagerAdapter;
     int currentViewPagerPosition;
     private TabLayout postTabLayout;
-    private RelativeLayout numberPickerRelativeLayout;
-    private RelativeLayout uploadImageCardRelativeLayouyt;
-    CheckBox maleCB;
-    CheckBox femaleCB;
-    CheckBox smokingCB;
-    CheckBox petCB;
     EditText descriptionEditText;
-
-    NestedScrollView nestedScrollView;
     StorageReference filePath;
     String postUniqueName;
-    RelativeLayout successCard;
-    Button okButton;
     String userName;
-    TextView budgetTextView;
-    CustomLoadingProgressBar customLoadingProgressBar;
+    TextView budgetTextView, numberOfRoomMatesTextView ,addImageWarning;
+    int budget , numberOfRoommates;
+    List<Boolean> preferences ;
+    Validate validate;
 
 
+
+    // override the interface method "sendInput" to get the preferances
+    @Override
+    public void sendNewLocation(LatLng newLatLng, String updatedAddress) {
+        this.latLng = newLatLng;
+        setCurrentLocationAddress(newLatLng.latitude , newLatLng.longitude);
+    }
+
+    // override the interface method "sendInput" to get the preferances
+    @Override
+    public void sendInput(int budget, int numberRoomMates, List<Boolean> preferences) {
+        //store the data from the dialog fragment
+        this.budget = budget;
+        this.preferences= preferences;
+        this.numberOfRoommates=numberRoomMates;
+        // display the data
+        budgetTextView.setVisibility(View.VISIBLE);
+        if(numberRoomMates!=0) {
+            numberOfRoomMatesTextView.setVisibility(View.VISIBLE);
+            numberOfRoomMatesTextView.setText(numberRoomMates + " roommates");
+        }else{
+            numberOfRoomMatesTextView.setVisibility(View.GONE);
+        }
+//      format the number and add commas
+        NumberFormat numberFormat = NumberFormat.getInstance();
+        numberFormat.setGroupingUsed(true);
+        budgetTextView.setText(numberFormat.format(budget) + " RM");
+        if(preferences.get(0)){
+            maleImage.setVisibility(View.VISIBLE);
+            preferencesTextView.setVisibility(View.VISIBLE);
+        }else{maleImage.setVisibility(View.GONE);}
+        if(preferences.get(1)){
+            femaleImage.setVisibility(View.VISIBLE);
+            preferencesTextView.setVisibility(View.VISIBLE);
+        }else{femaleImage.setVisibility(View.GONE);}
+        if(preferences.get(2)){
+            petImage.setVisibility(View.VISIBLE);
+            preferencesTextView.setVisibility(View.VISIBLE);
+        }else{petImage.setVisibility(View.GONE);}
+        if(preferences.get(3)){
+            smokingImage.setVisibility(View.VISIBLE);
+            preferencesTextView.setVisibility(View.VISIBLE);
+
+        }else{smokingImage.setVisibility(View.GONE);}
+
+
+        //check if the user didn't set any preferences
+        //and remove the preferences text view
+        if(!preferences.get(0)&&!preferences.get(1)&&!preferences.get(2)&&!preferences.get(3)){
+            preferencesTextView.setVisibility(View.GONE);
+        }
+
+    }
+
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        MainActivity.btm_view.setVisibility(View.INVISIBLE);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        MainActivity.btm_view.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        MainActivity.btm_view.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        MainActivity.btm_view.setVisibility(View.VISIBLE);
+    }
+
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        MainActivity.btm_view.setVisibility(View.VISIBLE);
+    }
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         v = inflater.inflate(R.layout.fragment_publish_post, container, false);
-        // clear any adresses and coordinates from the main activity
-
 
         return v;
     }
+
+
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        customLoadingProgressBar = new CustomLoadingProgressBar(getActivity() , "Publishing ..." , R.raw.lf30_editor_igyp9bvy);
-        customLoadingProgressBar.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        locationTextView = (TextView)v.findViewById(R.id.location_text_view);
+        preferencesImageButton= v.findViewById(R.id.preferences_image_button);
+        publishPostButton =  v.findViewById(R.id.publish_post_button);
+        viewPager = v.findViewById(R.id.view_pager);
+        dotsIndicator = v.findViewById(R.id.dotsIndicator);
+        deleteImageButton = v.findViewById(R.id.delete_image_post);
+        postTabLayout = v.findViewById(R.id.tab_layout_publish_post);
+        maleImage = v.findViewById(R.id.male_image_view_publish_post);
+        femaleImage = v.findViewById(R.id.female_image_view_publish_post);
+        smokingImage = v.findViewById(R.id.non_smoking_image_view_publish_post);
+        petImage = v.findViewById(R.id.pets_allowd_image_view_publish_post);
+        descriptionEditText = v.findViewById(R.id.post_description);
+        locationImageButton = v.findViewById(R.id.location_image_button);
+        budgetTextView = v.findViewById(R.id.price_text_view_apartment_card);
+        numberOfRoomMatesTextView = v.findViewById(R.id.number_of_room_mates_text_view);
+        addImageButton= v.findViewById(R.id.add_image_button);
+        addImageWarning = v.findViewById(R.id.add_image_warning);
+        userImageView = v.findViewById(R.id.user_image_publish_post);
+        preferencesTextView = v.findViewById(R.id.preferences_text_view);
+        imageUri = new ArrayList<>();
 
+        // validate class will keep a check
+        // of all submitted entries at the same time
+        validate = new Validate(getActivity() , new Validate.OnDataChangedListener() , descriptionEditText , numberOfRoomMatesTextView , budgetTextView , locationTextView , imageUri  , publishPostButton,  addImageWarning , postTabLayout);
 
-        successCard = v.findViewById(R.id.success_card);
-        okButton = v.findViewById(R.id.ok_Button);
-        numberOfRoomMatesNumberPicker = v.findViewById(R.id.roommate_number_picker);
-        numberOfRoomMatesNumberPicker.setMinValue(1);
-        numberOfRoomMatesNumberPicker.setMaxValue(7);
-
-
-
-        budgetNumberPicker = v.findViewById(R.id.budget_number_picker);
-
-        budgetNumberPicker.setMinValue(1);
-        budgetNumberPicker.setMaxValue(100);
-
-        // increase the step size of the number picker
-        NumberPicker.Formatter formatter = new NumberPicker.Formatter() {
+//        create a text watcher to check for non empty editTexts
+//         to prevent submitting empty data
+        TextWatcher postTextWatcher = new TextWatcher() {
             @Override
-            public String format(int value) {
-                int temp = value * 100;
-                return "" + temp;
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                validate.notifyDataChanged();
+            }
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                validate.notifyDataChanged();
+            }
+            @Override
+            public void afterTextChanged(Editable s) {
+                validate.notifyDataChanged();
             }
         };
 
-
-        budgetNumberPicker.setFormatter(formatter);
-
-        mMapView =v.findViewById(R.id.address_map_view);
-        locationEditText = v.findViewById(R.id.location_search_view);
-        cloudIconImageView = v.findViewById(R.id.cloud_icon_publish_post);
-        numberOfPhotos = v.findViewById(R.id.number_of_photos);
-        publishPostButton =  v.findViewById(R.id.publish_post_button);
-        initGoogleMap(savedInstanceState);
-        numberOfPhotos = v.findViewById(R.id.number_of_photos);
-        imageIconPost  = v.findViewById(R.id.image_icon_post);
-        viewPager = v.findViewById(R.id.view_pager);
-        dotsIndicator = v.findViewById(R.id.dotsIndicator);
-        delteImageButton = v.findViewById(R.id.delete_image_post);
-        postTabLayout = v.findViewById(R.id.tab_layout_publish_post);
-        numberPickerRelativeLayout = v.findViewById(R.id.number_of_roommates_relative_layout);
-        uploadImageCardRelativeLayouyt = v.findViewById(R.id.upload_image_card);
-        maleCB = v.findViewById(R.id.male_image_button_publish_post);
-        femaleCB = v.findViewById(R.id.female_image_button_post);
-        smokingCB = v.findViewById(R.id.non_smoking_image_button_post);
-        petCB = v.findViewById(R.id.pets_allowd_image_button_post);
-        descriptionEditText = v.findViewById(R.id.description_edit_text);
-        budgetTextView = v.findViewById(R.id.budget_tv);
+        descriptionEditText.addTextChangedListener(postTextWatcher);
+        numberOfRoomMatesTextView.addTextChangedListener(postTextWatcher);
+        budgetTextView.addTextChangedListener(postTextWatcher);
+        locationTextView.addTextChangedListener(postTextWatcher);
 
 
-        nestedScrollView = v.findViewById(R.id.nested);
-        imageUri = new ArrayList<>();
 
-        cloudIconImageView.setOnClickListener(new View.OnClickListener() {
+
+        if(latLng==null){
+            getLocation();
+        }else{
+            setCurrentLocationAddress(latLng.latitude,latLng.longitude);
+        }
+
+        getUserImage();
+
+
+        // sets focus to the edit text as soon as the page is open
+        descriptionEditText.requestFocus();
+        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.showSoftInput(descriptionEditText, InputMethodManager.SHOW_IMPLICIT);
+
+        addImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // get the photo chosen
@@ -194,18 +269,13 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
             }
         });
 
-        //when edit text is pressed open the map fragement
-        locationEditText.setOnClickListener(new View.OnClickListener() {
+        //when location button is pressed open the map fragement
+        locationImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                getFragment(new MapsFragment());
-            }
-        });
-        //close the card when ok is clicked
-        okButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                successCard.setVisibility(View.GONE);
+                MapsFragment mapsFragment = new MapsFragment();
+                mapsFragment.setTargetFragment(PublishPost.this ,MAPS_FRAGMENT_REQUEST_CODE );
+                mapsFragment.show(getParentFragmentManager() , null);
             }
         });
 
@@ -213,36 +283,40 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
             @Override
             public void onClick(View v) {
                 // list to hold all selected values from properties
-                List<Boolean>properties = new ArrayList<>();
-                properties.add(maleCB.isChecked());
-                properties.add(femaleCB.isChecked());
-                properties.add(petCB.isChecked());
-                properties.add(smokingCB.isChecked());
-
-
-                if(currentTabPosition==0) {
+                if(postTabLayout.getSelectedTabPosition()==0) {
                     publishPost(latLng
                             , descriptionEditText.getText().toString()
-                            , numberOfRoomMatesNumberPicker.getValue()
-                            , budgetNumberPicker.getValue()
-                            , properties
+                            , numberOfRoommates
+                            , budget
+                            , preferences
                             , imageUri);
                 }else{
                     publishPersonalPost(latLng
                             , descriptionEditText.getText().toString()
-                            , budgetNumberPicker.getValue()
-                            , properties);
+                            , budget
+                            , preferences);
                 }
 
             }
         });
 
-        delteImageButton.setOnClickListener(new View.OnClickListener() {
+        deleteImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 deleteFromView();
             }
         });
+
+        preferencesImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //open a preference dialog fragment
+                PreferencesDialogFragment preferencesDialogFragment = new PreferencesDialogFragment(postTabLayout.getSelectedTabPosition());
+                preferencesDialogFragment.setTargetFragment(PublishPost.this , DIALOG_FRAGMENT_REQUEST_CODE);
+                preferencesDialogFragment.show(getParentFragmentManager() ,null);
+            }
+        });
+
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) { }
@@ -260,15 +334,27 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
             public void onTabSelected(TabLayout.Tab tab) {
                 if(tab.getPosition()==1){
                     //if user selects personal post remove some of the options
-                    numberPickerRelativeLayout.setVisibility(View.GONE);
-                    uploadImageCardRelativeLayouyt.setVisibility(View.GONE);
-                    budgetTextView.setText("Budget:");
-                    currentTabPosition=1;
+                    viewPager.setVisibility(View.GONE);
+                    dotsIndicator.setVisibility(View.GONE);
+                    deleteImageButton.setVisibility(View.GONE);
+                    numberOfRoomMatesTextView.setVisibility(View.INVISIBLE);
+                    addImageButton.setVisibility(View.GONE);
+                    locationImageButton.setVisibility(View.GONE);
+                    locationTextView.setVisibility(View.GONE);
                 }else{
-                    budgetTextView.setText("Price:");
-                    numberPickerRelativeLayout.setVisibility(View.VISIBLE);
-                    uploadImageCardRelativeLayouyt.setVisibility(View.VISIBLE);
-                    currentTabPosition=0;
+                    if(imageUri!=null){
+                        if(imageUri.size()!=0){
+                            viewPager.setVisibility(View.VISIBLE);
+                            dotsIndicator.setVisibility(View.VISIBLE);
+                            deleteImageButton.setVisibility(View.VISIBLE);
+                        }
+                    }
+
+                    numberOfRoomMatesTextView.setVisibility(View.VISIBLE);
+                    addImageButton.setVisibility(View.VISIBLE);
+                    locationImageButton.setVisibility(View.VISIBLE);
+                    locationTextView.setVisibility(View.VISIBLE);
+
                 }
             }
 
@@ -284,115 +370,25 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
         });
 
 
-    }
-    @Override
-    public void onMapReady(GoogleMap map) {
-        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED
-                || ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-            requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, 1);
-        }
-        // initialize the map to be used in the getLocation method
-        mMap = map;
-        // check if the location has been updated form the map fragment
-        // if the location is updated s
-        if (MainActivity.updatedAdresses != null && MainActivity.updatedLatLng != null) {
-            address = MainActivity.updatedAdresses;
-            latLng = MainActivity.updatedLatLng;
-            setMarker(latLng);
-            locationEditText.setText(address);
-
-        } else {
-
-            map.setMyLocationEnabled(false);
-            getLocationUpdateMarker();
-        }
-
-    }
-
-    private void initGoogleMap(Bundle savedInstanceState) {
-        // *** IMPORTANT ***
-        // MapView requires that the Bundle you pass contain _ONLY_ MapView SDK
-        // objects or sub-Bundles.
-        Bundle mapViewBundle = null;
-        if (savedInstanceState != null) {
-            mapViewBundle = savedInstanceState.getBundle(MAPVIEW_BUNDLE_KEY);
-        }
-
-        mMapView.onCreate(mapViewBundle);
-        mMapView.getMapAsync(this);
-
-
-    }
-
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-
-        Bundle mapViewBundle = outState.getBundle(MAPVIEW_BUNDLE_KEY);
-        if (mapViewBundle == null) {
-            mapViewBundle = new Bundle();
-            outState.putBundle(MAPVIEW_BUNDLE_KEY, mapViewBundle);
-        }
-        if(mMapView!=null) {
-            mMapView.onSaveInstanceState(mapViewBundle);
-        }
 
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        mMapView.onResume();
         //locks the screen to portarait mode
         if(getActivity()!=null) {
             getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }
-
-
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        mMapView.onStart();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        mMapView.onStop();
-    }
-
-    @Override
-    public void onPause() {
-        if(getActivity()!=null) {
-            getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_FULL_SENSOR);
-        }
-        mMapView.onPause();
-        super.onPause();
-    }
-
-    @Override
-    public void onDestroy() {
-        mMapView.onDestroy();
-        super.onDestroy();
-    }
-
-    @Override
-    public void onLowMemory() {
-        super.onLowMemory();
-        mMapView.onLowMemory();
-    }
-
-    private  void getLocationUpdateMarker() {
+    private  void getLocation() {
         new CurrentLocationAsync(getActivity()).execute();
-
-
     }
+
+
+
+
     private class CurrentLocationAsync extends AsyncTask<Void , String , LatLng> {
         FusedLocationProviderClient fusedLocationProviderClient;
         double latitude;
@@ -418,11 +414,9 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
                                 @Override
                                 public void onSuccess(Location location) {
                                     if (location != null) {
-
                                         latitude = location.getLatitude();
                                         longitude = location.getLongitude();
                                         latLng = new LatLng(latitude, longitude);
-                                        setMarker(latLng);
                                         setCurrentLocationAddress(latitude , longitude);
                                         // get the icon and resize it to set it as the marker
                                     }
@@ -439,7 +433,6 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
         geocoder = new Geocoder(getActivity());
         List<Address> addresses;
         geocoder = new Geocoder(getActivity(), Locale.getDefault());
-
         try {
             addresses = geocoder.getFromLocation(latitude, longitude, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
             String maddress = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
@@ -449,7 +442,7 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
             String postalCode = addresses.get(0).getPostalCode();
             String knownName = addresses.get(0).getFeatureName(); // Only if available else return NULL
             address = knownName +" , " +maddress;
-            locationEditText.setText(address);
+            locationTextView.setText(address);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -459,34 +452,14 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
     }
 
 
-    private void getFragment (Fragment fragment) {
-        fm = getActivity().getSupportFragmentManager();
-        ft = fm.beginTransaction();
-        ft.addToBackStack(null);
-        ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
-        ft.replace(R.id.fragmentContainer, fragment);
-        ft.commit();
-    }
-
-    private void setMarker(LatLng currentLatLng){
-        // get the icon and resize it to set it as the marker
-        Bitmap bitmap = BitmapFactory.decodeResource(getResources(),getResources().getIdentifier("black_mushroom" ,  "drawable", getActivity().getPackageName()));
-        Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, 90, 100, false);
-        MarkerOptions markerOptions = new MarkerOptions()
-                .position(currentLatLng)
-                .icon(BitmapDescriptorFactory.fromBitmap(resizedBitmap));
-        if(mMap!=null) {
-            mMap.addMarker(markerOptions);
-            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 16));
-        }
-
-    }
 
     private void openGallery() {
         //add permisision denied handlers
-        Intent gallery = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI);
-        gallery.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-        startActivityForResult(gallery, PICK_IMAGE_MULTIPLE);
+        Intent image = new Intent();
+        image.setAction(Intent.ACTION_GET_CONTENT);
+        image.setType("image/*");
+        image.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+        startActivityForResult(image, PICK_IMAGE_MULTIPLE);
 
     }
     @Override
@@ -494,39 +467,60 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
         super.onActivityResult(requestCode, resultCode, data);
         boolean duplicateFound = false;
         Uri selectedImageUri;
-        if(imageUri.size()>5){
+
+
+        if(imageUri.size()>NUMBER_OF_IMAGES_ALLOWED){
             Toast.makeText(getActivity(), "too many photos" , Toast.LENGTH_SHORT).show();
         }else {
             if (resultCode == getActivity().RESULT_OK && requestCode == PICK_IMAGE_MULTIPLE) {
-                //get selected photo
-                selectedImageUri = data.getData();
-                //check if the selected uri already exists in tge list
-                for (Uri uri : imageUri) {
-                    //if duplicate found break
-                    if (selectedImageUri.equals(uri)) {
-                        duplicateFound = true;
-                        break;
+                // if more than one image is selected
+                if (data.getClipData()!=null){
+                    int count = data.getClipData().getItemCount(); //evaluate the count before the for loop
+                    // get the remaining amount of space left from the pictures that have already been
+                    //uploaded if any exist
+                    int spaceAvailable = NUMBER_OF_IMAGES_ALLOWED-imageUri.size();
+                    if(count>spaceAvailable){
+                        count-= spaceAvailable;
                     }
+                    for(int i = 0; i < count; i++) {
+                        selectedImageUri = data.getClipData().getItemAt(i).getUri();
+                        if (!imageUri.contains(selectedImageUri)) {
+                            addToViewPager(selectedImageUri);
+                        }
+                    }
+
                 }
+                 // if one image is selected
+               else  if (data.getData() != null){
+                    selectedImageUri = data.getData();
+                    //check if the selected uri already exists in tge list
+                    for (Uri uri : imageUri) {
+                        //if duplicate found break
+                        if (data.getData().equals(uri)) {
+                            duplicateFound = true;
+                            break;
+                        }
+                    }
                 if (!duplicateFound) {
-
                     addToViewPager(selectedImageUri);
-                    cloudIconImageView.startAnimation(new Animation() {
-                    });
-
-
                 } else {
-                    Toast.makeText(getActivity(), "the image has already been uploaded", Toast.LENGTH_SHORT).show();
+
 
                 }
+
+            }
+
+
+
+
 
             }
         }
     }
 
-    void publishPost(final LatLng locationLtLng , final  String description , final int numberRoomMate , final int price , final  List<Boolean> property , final List<Uri> imageUri ) {
 
-        customLoadingProgressBar.show();
+    void publishPost(final LatLng locationLtLng , final  String description , final int numberRoomMate , final int price , final  List<Boolean> property , final List<Uri> imageUri ) {
+        getFragment(new FindRoommate());
 
         publishPostButton.setVisibility(View.INVISIBLE);
 
@@ -540,14 +534,12 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
         final List<String> IMAGE_URLS = new ArrayList<>();
         for (Uri uri:
                 imageUri ) {
-
             filePath = storageReference.child("apartment post image").child(uri.getLastPathSegment()
                     +postUniqueName+".jpg");
             filePath.putFile(uri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                     if(task.isSuccessful()) {
-
                         IMAGE_URLS.add(task.getResult().getMetadata().getReference().getPath().toString());
                         // once all the pictures are added to the Storage add the rest of the posts using the urls to the database
                         if(IMAGE_URLS.size() == imageUri.size()){
@@ -558,13 +550,14 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-               customLoadingProgressBar.dismiss();
+
                     publishPostButton.setVisibility(View.VISIBLE);
 
                     Toast.makeText(getActivity(), "we ran into a problem uploading your photos" , Toast.LENGTH_LONG).show();
                 }
             });
         }
+
 
     }
     private String getUniqueName(){
@@ -611,7 +604,7 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
 
         post.put("description" , description);
         post.put("userID" , userUid);
-        post.put("price", price*100);
+        post.put("price", price);
         post.put("numberOfRoommates" , numberRoomMate);
         post.put("latitude", locationLtLng.latitude);
         post.put("longitude",locationLtLng.longitude);
@@ -623,18 +616,17 @@ public class PublishPost extends Fragment implements OnMapReadyCallback {
         post.put("date",new SimpleDateFormat("dd-MMMM-yyyy HH:mm:ss aa").format(calendar.getTime()));
 
         //add image and date and user profile
-
-Toast.makeText(getActivity(),"",Toast.LENGTH_SHORT).show();
         DatabaseReference firebaseDatabase = FirebaseDatabase.getInstance().getReference();
         firebaseDatabase.child("postApartment").child(userUid+postUniqueName).setValue(post).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
 
 
-                customLoadingProgressBar.dismiss();
                 publishPostButton.setVisibility(View.VISIBLE);
                 if (task.isSuccessful()) {
-                    successCard.setVisibility(View.VISIBLE);
+                    PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
+                    postPublishedDialog.show(getParentFragmentManager() , null);
+
                 }else{
                     Toast.makeText(getContext(), "we faced a problem ", Toast.LENGTH_SHORT).show();
                 }
@@ -643,14 +635,15 @@ Toast.makeText(getActivity(),"",Toast.LENGTH_SHORT).show();
 
         });
 
+
     }
 
     void publishPersonalPost(LatLng locationLtLng , String description , int price , List<Boolean> property ){
         String userUid =  FirebaseAuth.getInstance().getCurrentUser().getUid();
         postUniqueName = getUniqueName();
-        customLoadingProgressBar.show();
+        getFragment(new PublishPost());
         publishPostButton.setVisibility(View.INVISIBLE);
-        HashMap<String ,Object> post = new HashMap<>();
+        final HashMap<String ,Object> post = new HashMap<>();
 
         post.put("description" , description);
         post.put("userID" , userUid);
@@ -669,10 +662,11 @@ Toast.makeText(getActivity(),"",Toast.LENGTH_SHORT).show();
         firebaseDatabase.child("postPersonal").child(userUid+postUniqueName).setValue(post).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
-                customLoadingProgressBar.dismiss();
                 publishPostButton.setVisibility(View.VISIBLE);
                 if (task.isSuccessful()) {
-                    successCard.setVisibility(View.VISIBLE);
+                    PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
+                    postPublishedDialog.show(getParentFragmentManager() , null);
+
                 }else{
 
                 }
@@ -680,18 +674,19 @@ Toast.makeText(getActivity(),"",Toast.LENGTH_SHORT).show();
             }
 
         });
+        getFragment(new FindRoommate());
+
 
     }
 
     void addToViewPager(Uri newImageUri){
-        imageIconPost.setVisibility(View.VISIBLE);
+
         viewPager.setVisibility(View.VISIBLE);
         dotsIndicator.setVisibility(View.VISIBLE);
-        delteImageButton.setVisibility(View.VISIBLE);
+        deleteImageButton.setVisibility(View.VISIBLE);
         //if no duplicate found  store the image
         imageUri.add(newImageUri);
-        //set the the number of photos uploaded
-        numberOfPhotos.setText(Integer.toString(imageUri.size()) + "x images");
+        validate.notifyDataChanged();
         //initalize adapter with the list of uri
         viewPagerAdapter = new ViewPagerAdapter(getActivity(), imageUri);
         // set the view pager to the adapter
@@ -702,13 +697,16 @@ Toast.makeText(getActivity(),"",Toast.LENGTH_SHORT).show();
     }
 
     void deleteFromView(){
+
+
         if(imageUri.size()<=1){
             imageUri.remove(0);
         }else {
             imageUri.remove(currentViewPagerPosition);
         }
-        //set the the number of photos uploaded
-        numberOfPhotos.setText(Integer.toString(imageUri.size()) + "x images");
+
+        validate.notifyDataChanged();
+
         //initalize adapter with the list of uri
         viewPagerAdapter = new ViewPagerAdapter(getActivity(), imageUri);
         // set the view pager to the adapter
@@ -717,15 +715,116 @@ Toast.makeText(getActivity(),"",Toast.LENGTH_SHORT).show();
         dotsIndicator.setViewPager(viewPager);
         viewPager.getAdapter().registerDataSetObserver(dotsIndicator.getDataSetObserver());
         if (imageUri.size() == 0) {
-            imageIconPost.setVisibility(View.GONE);
             viewPager.setVisibility(View.GONE);
             dotsIndicator.setVisibility(View.GONE);
-            delteImageButton.setVisibility(View.GONE);
-            numberOfPhotos.setText("");
+            deleteImageButton.setVisibility(View.GONE);
         }
         viewPager.setCurrentItem(currentViewPagerPosition);
 
     }
+    private void getFragment (Fragment fragment) {
+
+        fm = getActivity().getSupportFragmentManager();
+        ft = fm.beginTransaction();
+        ft.addToBackStack(null);
+        ft.replace(R.id.fragmentContainer, fragment);
+        ft.commit();
+
+    }
+
+
+    private void getUserImage(){
+        DatabaseReference rootRef= FirebaseDatabase.getInstance().getReference();
+        String currUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        rootRef.child("Users").child(currUser).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+
+                    String url = snapshot.child("image").getValue(String.class);
+                    if(!url.isEmpty()){
+                        GlideApp.with(getActivity())
+                                .load(url)
+                                .centerCrop()
+                                .circleCrop()
+                                .into(userImageView);
+                        userImageView.setPadding(2,2,2,2);
+                    }
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+
 
 
 }
+
+class Validate{
+    Context context;
+    DataChangedEvent listener;
+    EditText description;
+    TextView numberOfRoommates , budgetTextView , locationTextView, warningTextView;
+    List<Uri> imageUri;
+    Button publishPostButton;
+    TabLayout tabLayout;
+
+
+    public Validate(Context context , DataChangedEvent listener, EditText description, TextView numberOfRoommates, TextView budgetTextView, TextView locationTextView, List<Uri> imageUri ,Button  publishPostButton , TextView warningTextView , TabLayout tabLayout) {
+        this.context = context;
+        this.listener = listener;
+        this.description = description;
+        this.numberOfRoommates = numberOfRoommates;
+        this.budgetTextView = budgetTextView;
+        this.locationTextView = locationTextView;
+        this.imageUri = imageUri;
+        this.publishPostButton = publishPostButton;
+        this.warningTextView = warningTextView;
+        this.tabLayout = tabLayout;
+    }
+
+    void notifyDataChanged(){
+        boolean dataIsComplete = false;
+                if(tabLayout.getSelectedTabPosition()==0) {
+                  dataIsComplete= !locationTextView.getText().toString().trim().isEmpty()
+                            && !budgetTextView.getText().toString().trim().isEmpty()
+                            && !numberOfRoommates.getText().toString().trim().isEmpty()
+                            && !description.getText().toString().trim().isEmpty()
+                            && !imageUri.isEmpty();
+                }else{
+                    dataIsComplete= !budgetTextView.getText().toString().trim().isEmpty()
+                            && !description.getText().toString().trim().isEmpty();
+                }
+                listener.onDataComplete(context , dataIsComplete , publishPostButton , warningTextView);
+    }
+
+
+static class OnDataChangedListener implements DataChangedEvent {
+    @Override
+    public void onDataComplete(Context context , boolean dataIsComplete , Button publishPostButton , TextView warningTextView) {
+        if(!dataIsComplete){
+            //removes the shadow
+            publishPostButton.setOutlineProvider(null);
+            publishPostButton.setClickable(false);
+            publishPostButton.setBackground(context.getDrawable(R.drawable.button_round_greyish_timber_wolf));
+            warningTextView.setVisibility(View.VISIBLE);
+        }else{
+            //adds the shadow
+            publishPostButton.setOutlineProvider(ViewOutlineProvider.BACKGROUND);
+            publishPostButton.setBackground(context.getDrawable(R.drawable.button_round_alabaster));
+            publishPostButton.setClickable(true);
+            warningTextView.setVisibility(View.GONE);
+        }
+    }
+}
+
+}
+
+
+
