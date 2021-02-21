@@ -88,7 +88,7 @@ public class MyShroomies extends Fragment   {
         LinearLayoutManager linearLayoutManager1 =new LinearLayoutManager(getContext());
         myTasksRecyclerView.setHasFixedSize(true);
         myTasksRecyclerView.setLayoutManager(linearLayoutManager1);
-        retreiveExpensesCards(apartment.getApartmentID());
+        retreiveExpensesCards(apartmentID);
 
 
 

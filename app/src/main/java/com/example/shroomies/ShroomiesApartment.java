@@ -10,6 +10,10 @@ public class ShroomiesApartment implements Parcelable {
     String apartmentID,ownerID;
     ArrayList<String> membersID;
 
+    ShroomiesApartment(){
+
+    }
+
     public ShroomiesApartment(String apartmentID, String ownerID, ArrayList<String> membersID) {
         this.apartmentID = apartmentID;
         this.ownerID = ownerID;
