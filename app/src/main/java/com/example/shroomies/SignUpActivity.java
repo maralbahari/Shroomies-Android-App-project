@@ -86,7 +86,7 @@ public class SignUpActivity extends AppCompatActivity {
         mAuth.createUserWithEmailAndPassword(email, password). addOnSuccessListener(new OnSuccessListener<AuthResult>() {
             @Override
             public void onSuccess(AuthResult authResult) {
-                DatabaseReference ref= mRootref.child("apartments").push();
+                final DatabaseReference ref= mRootref.child("apartments").push();
                 apartmentID =ref.getKey();
                 HashMap<String, Object> userDetails = new HashMap<>();
                 userDetails.put("name", name);
@@ -103,7 +103,7 @@ public class SignUpActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
-                            mRootref.child("Apartments").updateChildren(apartmentDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
+                            ref.updateChildren(apartmentDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if(task.isSuccessful()){
