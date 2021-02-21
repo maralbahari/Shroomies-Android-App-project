@@ -62,21 +62,24 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull UserAdapter.UserViewHolder holder, final int position) {
-
-        if (fromSearchMember){
+        if(!userList.get(position).getImage().isEmpty()){
+            GlideApp.with(context)
+                    .load(userList.get(position).getImage())
+                    .fitCenter()
+                    .circleCrop()
+                    .into(holder.userImage);
+            holder.userImage.setPadding(2,2,2,2);
+        }
+        if(!mAuth.getCurrentUser().getUid().equals(apartment.getOwnerID())){
+            holder.removeMember.setVisibility(View.INVISIBLE);
+        }
+        if(fromSearchMember){
             holder.sendRequest.setVisibility(View.VISIBLE);
             holder.msgMember.setVisibility(View.GONE);
             holder.removeMember.setVisibility(View.GONE);
             holder.userName.setText(userList.get(position).getName());
-            if(!userList.get(position).getImage().isEmpty()){
-                GlideApp.with(context)
-                        .load(userList.get(position).getImage())
-                        .fitCenter()
-                        .circleCrop()
-                        .into(holder.userImage);
-                holder.userImage.setPadding(2,2,2,2);
-            }
-        }else{
+
+        }if(!fromSearchMember){
             if (userList.get(position).getID().equals(mAuth.getInstance().getCurrentUser().getUid())){
                 holder.msgMember.setVisibility(View.INVISIBLE);
                 holder.removeMember.setVisibility(View.INVISIBLE);
@@ -85,26 +88,9 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             }else{
                 holder.msgMember.setVisibility(View.VISIBLE);
                 holder.userName.setText(userList.get(position).getName());
-                if(!userList.get(position).getImage().isEmpty()){
-                    GlideApp.with(context)
-                            .load(userList.get(position).getImage())
-                            .fitCenter()
-                            .circleCrop()
-                            .into(holder.userImage);
-                    holder.userImage.setPadding(2,2,2,2);
-                if(!mAuth.getCurrentUser().getUid().equals(apartment.getOwnerID())){
-                    holder.removeMember.setVisibility(View.GONE);
-                }
 
-
-                }
             }
-
-        }
-
-
-
-
+            }
 
     }
 

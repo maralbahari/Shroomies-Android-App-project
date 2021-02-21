@@ -24,6 +24,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestViewHolder> {
     private Context context;
@@ -34,6 +35,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
     String currentUserAppartmentId;
     Boolean receiverUsers;
     ShroomiesApartment apartment;
+    private ArrayList<String> members;
 
     public RequestAdapter(Context context,ArrayList<User> usersList,Boolean receiverUsers,ShroomiesApartment apartment) {
         this.context = context;
@@ -151,42 +153,53 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
             });
         }
         private void acceptRequest(final String senderID,final String senderName,final String senderApartmentID){
+            members = new ArrayList<>();
+
             rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").setValue(senderApartmentID).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
-                    if(task.isSuccessful()){
-                        rootRef.child("shroomieRequests").child(mAuth.getCurrentUser().getUid()).child(senderID).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                rootRef.child("shroomieRequests").child(senderID).child(mAuth.getCurrentUser().getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        final HashMap<String, Object> addUsers = new HashMap<>();
-                                        addUsers.put(mAuth.getCurrentUser().getUid(),mAuth.getCurrentUser().getUid());
-                                        rootRef.child("apartments").child(senderApartmentID).child("apartmentMembers").updateChildren(addUsers).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
-                                                rootRef.child("apartments").child(mAuth.getCurrentUser().getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                                    @Override
-                                                    public void onSuccess(Void aVoid) {
-                                                        Toast.makeText(context,"Your personal cards have been deleted you are part of  "+senderName+" apartment",Toast.LENGTH_LONG).show();
-                                                                if (usersList.size()>1) {
-                                                                    usersList.remove(getAdapterPosition());
-                                                                    notifyItemRemoved(getAdapterPosition());
-                                                                }else{
-                                                                    usersList.clear();
-                                                                    notifyDataSetChanged();
-                                                                }
+                   if(task.isSuccessful()){
+                       rootRef.child("apartments").child(senderApartmentID).child("apartmentMembers").addListenerForSingleValueEvent(new ValueEventListener() {
+                           @Override
+                           public void onDataChange(@NonNull DataSnapshot snapshot) {
+                               if(snapshot.exists()){
+                                   members = (ArrayList<String>) snapshot.getValue();
+                                   members.add(mAuth.getCurrentUser().getUid());
+                               }else{
+                                   members.add(mAuth.getCurrentUser().getUid());
+                               }
+                               final HashMap<String,Object> newUsers=new HashMap<>();
+                               newUsers.put("apartmentMembers", members);
+                               rootRef.child("apartments").child(senderApartmentID).updateChildren(newUsers).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                   @Override
+                                   public void onComplete(@NonNull Task<Void> task) {
+                                       if(task.isSuccessful()){
+                                           Toast.makeText(context,"your personal cards are deleted, you are part of "+senderName+" apartment now",Toast.LENGTH_LONG).show();
+                                       }
+                                   }
+                               });
+                           }
 
-                                                    }
-                                                });
-                                            }
-                                        });
-                                    }
-                                });
-                            }
-                        });
-                    }
+                           @Override
+                           public void onCancelled(@NonNull DatabaseError error) {
+
+                           }
+                       });
+
+                   }
+                }
+            });
+            rootRef.child("shroomieRequests").child(mAuth.getCurrentUser().getUid()).child(senderID).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    rootRef.child("shroomieRequests").child(senderID).child(mAuth.getCurrentUser().getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            usersList.remove(getAdapterPosition());
+                            notifyItemRemoved(getAdapterPosition());
+
+                        }
+                    });
                 }
             });
 
