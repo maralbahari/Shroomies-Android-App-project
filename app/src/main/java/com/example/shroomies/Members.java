@@ -1,6 +1,7 @@
 package com.example.shroomies;
 
 import android.content.Intent;
+import android.media.Image;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,10 +40,12 @@ public class Members extends DialogFragment {
     ArrayList<User> membersList;
     UserAdapter userAdapter;
     ArrayList<String> requestUsersIDs;
+    TextView ownerName;
+    ImageView ownerImage;
     ArrayList<User> getRequestUsersList;
     ImageView sadShroomie, stars;  // set visibility to gone if there are members in add members
     TextView noMemberTv ;           // same visibility to gone
-
+   ShroomiesApartment apartment;
 
     @Nullable
     @Override
@@ -50,9 +53,11 @@ public class Members extends DialogFragment {
         v =inflater.inflate(R.layout.shroomie_members, container, false);
         mAuth = FirebaseAuth.getInstance();
         rootRef = FirebaseDatabase.getInstance().getReference();
-        getUserRoomId();
+
         return v;
     }
+
+
 
     @Override
     public void onStart() {
@@ -71,12 +76,22 @@ public class Members extends DialogFragment {
         stars = view.findViewById(R.id.member_star);                // set visibility to gone if there are members
         noMemberTv = view.findViewById(R.id.no_members_tv);         // set visibility to gone if there are members
         addMember=view.findViewById(R.id.add_shroomie_btn);
-        leaveRoom=view.findViewById(R.id.leave_room_btn);
-        membersRecycler = view.findViewById(R.id.members_recyclerView);
+        leaveRoom=v.findViewById(R.id.leave_room_btn);
+        ownerImage=v.findViewById(R.id.owner_image);
+        ownerName=v.findViewById(R.id.owner_name);
+        membersRecycler = v.findViewById(R.id.members_recyclerView);
         LinearLayoutManager linearLayoutManager=new LinearLayoutManager(getActivity());
         membersRecycler.setHasFixedSize(true);
         membersRecycler.setLayoutManager(linearLayoutManager);
-
+        Bundle bundle = this.getArguments();
+        if (bundle != null) {
+            apartment=bundle.getParcelable("APARTMENT_DETAILS");
+            getOwnerDetails(apartment.getOwnerID());
+            if(apartment.getMembersID()!=null){
+                getMemberDetail(apartment.getMembersID());
+            }
+        }
+//        setOwnerDetails(ownerName,ownerImage,apartmentID);
         addMember.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -97,6 +112,31 @@ public class Members extends DialogFragment {
             }
         });
 
+    }
+
+    private void getOwnerDetails(String ownerID) {
+     rootRef.child("Users").child(ownerID).addListenerForSingleValueEvent(new ValueEventListener() {
+         @Override
+         public void onDataChange(@NonNull DataSnapshot snapshot) {
+             if(snapshot.exists()) {
+                 User owner = snapshot.getValue(User.class);
+                 ownerName.setText(owner.getName());
+                                    if(!owner.getImage().isEmpty()){
+                                        GlideApp.with(getContext())
+                                                .load(owner.getImage())
+                                                .fitCenter()
+                                                .circleCrop()
+                                                .into(ownerImage);
+                                        ownerImage.setPadding(2,2,2,2);
+             }
+             }
+         }
+
+         @Override
+         public void onCancelled(@NonNull DatabaseError error) {
+
+         }
+     });
     }
 
     private void leaveApartment() {
@@ -134,31 +174,31 @@ public class Members extends DialogFragment {
         super.onActivityCreated(savedInstanceState);
         getDialog().getWindow().setWindowAnimations(R.style.DialogAnimation);
     }
-    private void getMember(){
-        membersId = new ArrayList<>();
-
-        rootRef.child("apartments").child(apartmentID).child("apartmentMembers").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()){
-
-                    for (DataSnapshot sp : snapshot.getChildren()){
-
-                        membersId.add(sp.getValue().toString());
-
-
-
-                    }
-                    getMemberDetail(membersId);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-    }
+//    private void getMember(String apartmentID){
+//        membersId = new ArrayList<>();
+//
+//        rootRef.child("apartments").child(apartmentID).child("apartmentMembers").addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                if (snapshot.exists()){
+//
+//                    for (DataSnapshot sp : snapshot.getChildren()){
+//
+//                        membersId.add(sp.getValue().toString());
+//
+//
+//
+//                    }
+//                    getMemberDetail(membersId);
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//
+//            }
+//        });
+//    }
 
 
 
@@ -188,25 +228,48 @@ public class Members extends DialogFragment {
     }
 
 
-    private void getUserRoomId(){
-        rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.exists()){
-                    apartmentID=snapshot.getValue().toString();
-                    if(mAuth.getCurrentUser().getUid().equals(apartmentID)){
-                        leaveRoom.setVisibility(View.GONE);
-                    }
-                    getMember();
-                }
+//    private void getUserRoomId(){
+//        rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                if(snapshot.exists()){
+//                    apartmentID=snapshot.getValue().toString();
+//                    if(mAuth.getCurrentUser().getUid().equals(apartmentID)){
+//                        leaveRoom.setVisibility(View.GONE);
+//                        rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+//                            @Override
+//                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                                if(snapshot.exists()){
+//                                    User owner= snapshot.getValue(User.class);
+//                                    ownerName.setText(owner.getName());
+//                                    if(!owner.getImage().isEmpty()){
+//                                        GlideApp.with(getContext())
+//                                                .load(owner.getImage())
+//                                                .fitCenter()
+//                                                .circleCrop()
+//                                                .into(ownerImage);
+//                                        ownerImage.setPadding(2,2,2,2);
+//                                    }
+//                                }
+//                            }
+//
+//                            @Override
+//                            public void onCancelled(@NonNull DatabaseError error) {
+//
+//                            }
+//                        });
+//                    }
+//                    getMember(apartmentID);
+//                }
+//
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//
+//            }
+//        });
+//    }
 
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-    }
 
 }

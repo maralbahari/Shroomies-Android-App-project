@@ -54,12 +54,7 @@ public class MyShroomies extends Fragment   {
 
     String tabSelected="expenses";
     String apartmentID="";
-
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-    }
+    ShroomiesApartment apartment;
 
 
     @Override
@@ -69,7 +64,7 @@ public class MyShroomies extends Fragment   {
         v = inflater.inflate(R.layout.fragment_my_shroomies, container, false);
         rootRef = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
-        getUserRoomId();
+        getApartmentDetails();
         return v;
     }
 
@@ -93,7 +88,7 @@ public class MyShroomies extends Fragment   {
         LinearLayoutManager linearLayoutManager1 =new LinearLayoutManager(getContext());
         myTasksRecyclerView.setHasFixedSize(true);
         myTasksRecyclerView.setLayoutManager(linearLayoutManager1);
-        retreiveExpensesCards();
+        retreiveExpensesCards(apartment.getApartmentID());
 
 
 
@@ -105,7 +100,7 @@ public class MyShroomies extends Fragment   {
                     myTasksRecyclerView.setVisibility(View.GONE);
                     tabSelected="expenses";
                     expensesCardsList = new ArrayList<>();
-                    retreiveExpensesCards();
+                    retreiveExpensesCards(apartment.getApartmentID());
 
 
                 }
@@ -114,7 +109,7 @@ public class MyShroomies extends Fragment   {
                     myExpensesRecyclerView.setVisibility(View.GONE);
                     tabSelected="tasks";
                     tasksCardsList=new ArrayList<>();
-                   retrieveTaskCards();
+                   retrieveTaskCards(apartment.getApartmentID());
                 }
             }
 
@@ -169,6 +164,7 @@ public class MyShroomies extends Fragment   {
                 }else {
                     bundle.putBoolean("Expenses",false);
                 }
+                bundle.putParcelable("APARTMENT_DETAILS",apartment);
                 addNewCard.setArguments(bundle);
                 addNewCard.show(getFragmentManager(),"add new card");
 
@@ -178,17 +174,37 @@ public class MyShroomies extends Fragment   {
             @Override
             public void onClick(View v) {
                 Members members=new Members();
+                Bundle bundle=new Bundle();
+                bundle.putParcelable("APARTMENT_DETAILS",apartment);
+                members.setArguments(bundle);
                 members.show(getParentFragmentManager(),"show member");
             }
         });
     }
-    private void getUserRoomId(){
+    private void getApartmentDetails (){
         rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()){
                     apartmentID=snapshot.getValue().toString();
-                    retreiveExpensesCards();
+                    rootRef.child("apartments").child(apartmentID).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            if(snapshot.exists()){
+                                apartment=snapshot.getValue(ShroomiesApartment.class);
+                                retreiveExpensesCards(apartment.apartmentID);
+                            }
+
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
+
+
+
                 }
             }
 
@@ -200,7 +216,7 @@ public class MyShroomies extends Fragment   {
     }
 
 
-    private void retrieveTaskCards() {
+    private void retrieveTaskCards(String apartmentID) {
         tasksCardsList=new ArrayList<>();
         tasksCardAdapter= new TasksCardAdapter(tasksCardsList,getContext(),false);
         ItemTouchHelper.Callback callback = new CardsTouchHelper(tasksCardAdapter);
@@ -228,7 +244,7 @@ public class MyShroomies extends Fragment   {
     }
 
 
-    public void retreiveExpensesCards(){
+    public void retreiveExpensesCards(String apartmentID){
 //        Toast.makeText(getContext(),"HKOADKOSKAD",Toast.LENGTH_SHORT).show();
         expensesCardsList=new ArrayList<>();
         expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList,getContext(), false);

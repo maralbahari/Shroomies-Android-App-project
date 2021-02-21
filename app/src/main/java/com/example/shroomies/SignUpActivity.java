@@ -23,6 +23,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class SignUpActivity extends AppCompatActivity {
@@ -35,7 +36,7 @@ public class SignUpActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     CustomLoadingProgressBar pd;
     SessionManager sessionManager;
-
+   private String apartmentID;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,24 +82,37 @@ public class SignUpActivity extends AppCompatActivity {
 
     private void registerUser(final String name, final String email, String password, String confirmpw) {
         pd.show();
-
+        final ArrayList<String> memberIDs=new ArrayList<>();
         mAuth.createUserWithEmailAndPassword(email, password). addOnSuccessListener(new OnSuccessListener<AuthResult>() {
             @Override
             public void onSuccess(AuthResult authResult) {
-
+                DatabaseReference ref= mRootref.child("apartments").push();
+                apartmentID =ref.getKey();
                 HashMap<String, Object> userDetails = new HashMap<>();
                 userDetails.put("name", name);
                 userDetails.put("email", email);
                 userDetails.put("ID", mAuth.getCurrentUser().getUid());
                 userDetails.put("image",""); //add later in edit profile
-                userDetails.put("isPartOfRoom",mAuth.getCurrentUser().getUid()); //change later
+                userDetails.put("isPartOfRoom",apartmentID); //change later
+                final HashMap<String,Object> apartmentDetails=new HashMap<>();
+                apartmentDetails.put("apartmentID",apartmentID);
+                apartmentDetails.put("ownerID",mAuth.getCurrentUser().getUid());
+                apartmentDetails.put("membersID",memberIDs);
                 mRootref.child("Users").child(mAuth.getCurrentUser().getUid()).setValue(userDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
 
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
-                            pd.dismiss();
-                            sendEmailVerification();
+                            mRootref.child("Apartments").updateChildren(apartmentDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if(task.isSuccessful()){
+                                        pd.dismiss();
+                                        sendEmailVerification();
+                                    }
+                                }
+                            });
+
 
 
                         }
