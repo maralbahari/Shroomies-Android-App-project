@@ -33,7 +33,7 @@ public class Request extends Fragment {
    private ArrayList<String> receiverIDs;
    private ArrayList<User> receiverUsers;
    TabLayout requestTab;
-
+   private ShroomiesApartment apartment;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -52,7 +52,8 @@ public class Request extends Fragment {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         requestRecyvlerView.setHasFixedSize(true);
         requestRecyvlerView.setLayoutManager(linearLayoutManager);
-        getSenderId();
+        getApartmentDetailsOfCurrentUser();
+
         requestTab.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
@@ -77,6 +78,37 @@ public class Request extends Fragment {
 
     }
 
+    private void getApartmentDetailsOfCurrentUser() {
+        rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
+                    final String apartmentID=snapshot.getValue().toString();
+                    rootRef.child("apartments").child(apartmentID).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            if(snapshot.exists()){
+                                apartment=snapshot.getValue(ShroomiesApartment.class);
+                                getSenderId();
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
 
     private void getSenderId(){
         senderIDs=new ArrayList<>();
@@ -91,7 +123,7 @@ public class Request extends Fragment {
 
                 }else{
                     senderUsers=new ArrayList<>();
-                    requestAdapter= new RequestAdapter(getContext(),senderUsers,false);
+                    requestAdapter= new RequestAdapter(getContext(),senderUsers,false,apartment);
                     requestRecyvlerView.setAdapter(requestAdapter);
                 }
             }
@@ -104,7 +136,7 @@ public class Request extends Fragment {
     }
     private void getSenderDetails(final ArrayList<String> senderIDs){
         senderUsers=new ArrayList<>();
-     requestAdapter= new RequestAdapter(getContext(),senderUsers,false);
+     requestAdapter= new RequestAdapter(getContext(),senderUsers,false,apartment);
      requestRecyvlerView.setAdapter(requestAdapter);
      for(String id: senderIDs){
          rootRef.child("Users").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -138,7 +170,7 @@ public class Request extends Fragment {
 
                 }else{
                     receiverUsers=new ArrayList<>();
-                    requestAdapter= new RequestAdapter(getContext(),receiverUsers,true);
+                    requestAdapter= new RequestAdapter(getContext(),receiverUsers,true,apartment);
                     requestRecyvlerView.setAdapter(requestAdapter);
                 }
             }
@@ -151,7 +183,7 @@ public class Request extends Fragment {
     }
     private void getReceiverDetails(final ArrayList<String> receiverIDs){
         receiverUsers=new ArrayList<>();
-        requestAdapter= new RequestAdapter(getContext(),receiverUsers,true);
+        requestAdapter= new RequestAdapter(getContext(),receiverUsers,true,apartment);
         requestRecyvlerView.setAdapter(requestAdapter);
         for(String id: receiverIDs){
             rootRef.child("Users").child(id).addListenerForSingleValueEvent(new ValueEventListener() {

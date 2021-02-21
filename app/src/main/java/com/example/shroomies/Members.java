@@ -18,8 +18,10 @@ import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -28,6 +30,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Members extends DialogFragment {
     View v;
@@ -35,13 +38,13 @@ public class Members extends DialogFragment {
     FirebaseAuth mAuth;
     DatabaseReference rootRef;
     RecyclerView membersRecycler;
-    String apartmentID = "";
     ArrayList<String> membersId;
     ArrayList<User> membersList;
     UserAdapter userAdapter;
     ArrayList<String> requestUsersIDs;
     TextView ownerName;
     ImageView ownerImage;
+    ImageView msgOwner;
     ArrayList<User> getRequestUsersList;
     ImageView sadShroomie, stars;  // set visibility to gone if there are members in add members
     TextView noMemberTv ;           // same visibility to gone
@@ -53,7 +56,6 @@ public class Members extends DialogFragment {
         v =inflater.inflate(R.layout.shroomie_members, container, false);
         mAuth = FirebaseAuth.getInstance();
         rootRef = FirebaseDatabase.getInstance().getReference();
-
         return v;
     }
 
@@ -76,10 +78,11 @@ public class Members extends DialogFragment {
         stars = view.findViewById(R.id.member_star);                // set visibility to gone if there are members
         noMemberTv = view.findViewById(R.id.no_members_tv);         // set visibility to gone if there are members
         addMember=view.findViewById(R.id.add_shroomie_btn);
-        leaveRoom=v.findViewById(R.id.leave_room_btn);
-        ownerImage=v.findViewById(R.id.owner_image);
-        ownerName=v.findViewById(R.id.owner_name);
-        membersRecycler = v.findViewById(R.id.members_recyclerView);
+        leaveRoom=view.findViewById(R.id.leave_room_btn);
+        ownerImage=view.findViewById(R.id.owner_image);
+        ownerName=view.findViewById(R.id.owner_name);
+        msgOwner=view.findViewById(R.id.msg_owner);
+        membersRecycler = view.findViewById(R.id.members_recyclerView);
         LinearLayoutManager linearLayoutManager=new LinearLayoutManager(getActivity());
         membersRecycler.setHasFixedSize(true);
         membersRecycler.setLayoutManager(linearLayoutManager);
@@ -87,9 +90,16 @@ public class Members extends DialogFragment {
         if (bundle != null) {
             apartment=bundle.getParcelable("APARTMENT_DETAILS");
             getOwnerDetails(apartment.getOwnerID());
+            if(!mAuth.getCurrentUser().getUid().equals(apartment.getOwnerID())){
+                leaveRoom.setVisibility(View.VISIBLE);
+                msgOwner.setVisibility(View.VISIBLE);
+            }
             if(apartment.getMembersID()!=null){
                 getMemberDetail(apartment.getMembersID());
+                noMemberTv.setVisibility(View.VISIBLE);
+
             }
+
         }
 //        setOwnerDetails(ownerName,ownerImage,apartmentID);
         addMember.setOnClickListener(new View.OnClickListener() {
@@ -98,7 +108,7 @@ public class Members extends DialogFragment {
 
                 AddShroomieMember add=new AddShroomieMember();
                 Bundle bundle = new Bundle();
-                bundle.putStringArrayList("MEMBERID",membersId);
+                bundle.putParcelable("APARTMENT_DETAILS",apartment);
                 add.setArguments(bundle);
                 add.show(getParentFragmentManager(),"add member to apartment");
             }
@@ -108,7 +118,15 @@ public class Members extends DialogFragment {
         leaveRoom.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                leaveApartment();
+                leaveApartment(apartment.getApartmentID());
+            }
+        });
+        msgOwner.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getContext(), ChattingActivity.class);
+                intent.putExtra("USERID",mAuth.getCurrentUser().getUid());
+                startActivity(intent);
             }
         });
 
@@ -139,25 +157,38 @@ public class Members extends DialogFragment {
      });
     }
 
-    private void leaveApartment() {
+    private void leaveApartment(String apartmentID) {
         final CustomLoadingProgressBar customLoadingProgressBar = new CustomLoadingProgressBar(getActivity(),"Leaving room...",R.raw.loading_animation);
         customLoadingProgressBar.show();
         rootRef.child("apartments").child(apartmentID).child("apartmentMembers").child(mAuth.getCurrentUser().getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
-                rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").setValue(mAuth.getCurrentUser().getUid()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                final DatabaseReference ref= rootRef.child("apartments").push();
+                final String newApartmentID =ref.getKey();
+                final HashMap<String,Object> apartmentDetails=new HashMap<>();
+                apartmentDetails.put("apartmentID",newApartmentID);
+                apartmentDetails.put("ownerID",mAuth.getCurrentUser().getUid());
+                ref.updateChildren(apartmentDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
-                    public void onSuccess(Void aVoid) {
-                    customLoadingProgressBar.dismiss();
-                        Intent intent = new Intent(getContext(),MainActivity.class);
-                        startActivity(intent);
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        customLoadingProgressBar.dismiss();
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if(task.isSuccessful()){
+                            rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").setValue(newApartmentID).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    customLoadingProgressBar.dismiss();
+                                    Intent intent = new Intent(getContext(),MainActivity.class);
+                                    startActivity(intent);
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    customLoadingProgressBar.dismiss();
+                                }
+                            });
+                        }
                     }
                 });
+
 
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -204,7 +235,7 @@ public class Members extends DialogFragment {
 
     private void getMemberDetail(final ArrayList<String> membersId) {
         membersList = new ArrayList<>();
-        userAdapter = new UserAdapter(membersList, getContext(),false);
+        userAdapter = new UserAdapter(membersList, getContext(),false,apartment);
         membersRecycler.setAdapter(userAdapter);
         for (String id: membersId){
             rootRef.child("Users").child(id).addListenerForSingleValueEvent(new ValueEventListener() {

@@ -25,7 +25,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-
+import java.util.HashMap;
 
 
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
@@ -35,14 +35,16 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
    private DatabaseReference rootRef;
    private FirebaseAuth mAuth;
    Boolean fromSearchMember ;
-   String apartmentID="";
+
+   ShroomiesApartment apartment;
    Boolean fromMemberPageWithRequestMember;
 
 
-    public UserAdapter(ArrayList<User> userList, Context context, Boolean fromSearchMember) {
+    public UserAdapter(ArrayList<User> userList, Context context, Boolean fromSearchMember,ShroomiesApartment apartment) {
         this.userList = userList;
         this.context = context;
         this.fromSearchMember=fromSearchMember;
+        this.apartment=apartment;
     }
 
     @NonNull
@@ -54,7 +56,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
        v = layoutInflater.inflate(R.layout.send_request_card,parent,false);
         rootRef= FirebaseDatabase.getInstance().getReference();
         mAuth=FirebaseAuth.getInstance();
-        getUserRoomId();
+//        getUserRoomId();
         return new UserViewHolder(v);
     }
 
@@ -80,16 +82,24 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                 holder.removeMember.setVisibility(View.INVISIBLE);
                 holder.userName.setText("You");
 
+            }else{
+                holder.msgMember.setVisibility(View.VISIBLE);
+                holder.userName.setText(userList.get(position).getName());
+                if(!userList.get(position).getImage().isEmpty()){
+                    GlideApp.with(context)
+                            .load(userList.get(position).getImage())
+                            .fitCenter()
+                            .circleCrop()
+                            .into(holder.userImage);
+                    holder.userImage.setPadding(2,2,2,2);
+                if(!mAuth.getCurrentUser().getUid().equals(apartment.getOwnerID())){
+                    holder.removeMember.setVisibility(View.GONE);
+                }
+
+
+                }
             }
-            holder.userName.setText(userList.get(position).getName());
-            if(!userList.get(position).getImage().isEmpty()){
-                GlideApp.with(context)
-                        .load(userList.get(position).getImage())
-                        .fitCenter()
-                        .circleCrop()
-                        .into(holder.userImage);
-                holder.userImage.setPadding(2,2,2,2);
-            }
+
         }
 
 
@@ -103,21 +113,21 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         return userList.size();
     }
 
-    private void getUserRoomId(){
-        rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.exists()){
-                    apartmentID=snapshot.getValue().toString();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-    }
+//    private void getUserRoomId(){
+//        rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                if(snapshot.exists()){
+//                    apartmentID=snapshot.getValue().toString();
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//
+//            }
+//        });
+//    }
 
 
     public class UserViewHolder extends RecyclerView.ViewHolder {
@@ -146,20 +156,32 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             removeMember.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    rootRef.child("apartments").child(apartmentID).child("apartmentMembers").child(userList.get(getAdapterPosition()).getID()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    rootRef.child("apartments").child(apartment.getApartmentID()).child("apartmentMembers").child(userList.get(getAdapterPosition()).getID()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            rootRef.child("Users").child(userList.get(getAdapterPosition()).getID()).child("isPartOfRoom").setValue(userList.get(getAdapterPosition()).getID()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            final DatabaseReference ref= rootRef.child("apartments").push();
+                            final String newApartmentID =ref.getKey();
+                            final HashMap<String,Object> apartmentDetails=new HashMap<>();
+                            apartmentDetails.put("apartmentID",newApartmentID);
+                            apartmentDetails.put("ownerID",mAuth.getCurrentUser().getUid());
+                            ref.updateChildren(apartmentDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
-                                public void onSuccess(Void aVoid) {
-                                    Toast.makeText(context,"User deleted successfully",Toast.LENGTH_LONG).show();
-                                    userList.remove(getAdapterPosition());
-                                    notifyItemRemoved(getAdapterPosition());
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    rootRef.child("Users").child(userList.get(getAdapterPosition()).getID()).child("isPartOfRoom").setValue(newApartmentID).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            Toast.makeText(context,"User deleted successfully",Toast.LENGTH_LONG).show();
+                                            userList.remove(getAdapterPosition());
+                                            notifyItemRemoved(getAdapterPosition());
+                                            //add progress
 
 
 
+                                        }
+                                    });
                                 }
                             });
+
                         }
                     });
                 }

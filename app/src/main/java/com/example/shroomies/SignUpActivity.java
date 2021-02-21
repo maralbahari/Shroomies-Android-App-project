@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class SignUpActivity extends AppCompatActivity {
+
     private EditText name;
     private EditText email;
     private EditText password;
@@ -82,7 +83,7 @@ public class SignUpActivity extends AppCompatActivity {
 
     private void registerUser(final String name, final String email, String password, String confirmpw) {
         pd.show();
-        final ArrayList<String> memberIDs=new ArrayList<>();
+
         mAuth.createUserWithEmailAndPassword(email, password). addOnSuccessListener(new OnSuccessListener<AuthResult>() {
             @Override
             public void onSuccess(AuthResult authResult) {
@@ -97,7 +98,7 @@ public class SignUpActivity extends AppCompatActivity {
                 final HashMap<String,Object> apartmentDetails=new HashMap<>();
                 apartmentDetails.put("apartmentID",apartmentID);
                 apartmentDetails.put("ownerID",mAuth.getCurrentUser().getUid());
-                apartmentDetails.put("membersID",memberIDs);
+
                 mRootref.child("Users").child(mAuth.getCurrentUser().getUid()).setValue(userDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
 
                     @Override

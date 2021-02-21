@@ -33,28 +33,16 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
     private ArrayList<User> usersList;
     String currentUserAppartmentId;
     Boolean receiverUsers;
+    ShroomiesApartment apartment;
 
-    public RequestAdapter(Context context,ArrayList<User> usersList,Boolean receiverUsers) {
+    public RequestAdapter(Context context,ArrayList<User> usersList,Boolean receiverUsers,ShroomiesApartment apartment) {
         this.context = context;
         this.usersList=usersList;
         this.receiverUsers=receiverUsers;
+        this.apartment=apartment;
     }
 
-    private void getUserRoomId(){
-        rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.exists()){
-                    currentUserAppartmentId=snapshot.getValue().toString();
-                }
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-    }
 
 
     @NonNull
@@ -64,7 +52,6 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
         v = layoutInflater.inflate(R.layout.request_card,parent,false);
         rootRef= FirebaseDatabase.getInstance().getReference();
         mAuth= FirebaseAuth.getInstance();
-        getUserRoomId();
         return  new RequestViewHolder(v);
     }
 
@@ -132,11 +119,8 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
             accept.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    if(currentUserAppartmentId.equals(mAuth.getCurrentUser().getUid())){
+                    if(checkEliglibity()){
                         acceptRequest(usersList.get(getAdapterPosition()).getID(),usersList.get(getAdapterPosition()).getName(),usersList.get(getAdapterPosition()).getIsPartOfRoom());
-
-                    }else{
-                        Toast.makeText(context,"You cannot accept requests, you are part of an apartment already",Toast.LENGTH_LONG).show();
 
                     }
                 }
@@ -205,6 +189,20 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
                     }
                 }
             });
+
+        }
+        private boolean checkEliglibity(){
+            if(apartment.getOwnerID().equals(mAuth.getCurrentUser().getUid()) && apartment.getMembersID()!=null){
+                Toast.makeText(context,"You have existing Shroomies in your apartment and not allowed to accept request",Toast.LENGTH_LONG).show();
+                return false;
+            }if(apartment.getOwnerID().equals(mAuth.getCurrentUser().getUid()) && apartment.getMembersID()==null){
+                return true;
+            }if(apartment.getMembersID().contains(mAuth.getCurrentUser().getUid())){
+                Toast.makeText(context,"You cannot accept requests, you are part of an apartment already",Toast.LENGTH_LONG).show();
+                return false;
+            }else{
+                return false;
+            }
 
         }
     }
