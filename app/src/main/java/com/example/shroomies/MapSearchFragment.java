@@ -113,7 +113,6 @@ public class MapSearchFragment extends Fragment {
                     addMarkers(apartment , mMap);
 
                 }
-                Toast.makeText(getActivity(),apartments.get(0).getUserID() , Toast.LENGTH_LONG).show();
             }
 
             @Override

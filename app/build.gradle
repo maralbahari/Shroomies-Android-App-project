@@ -79,5 +79,8 @@ dependencies {
     implementation 'com.google.android.material:material:1.2.0-alpha02'
     implementation 'com.factor:bouncy:1.8'
 
+    implementation platform('com.google.firebase:firebase-bom:26.5.0')
+    implementation 'com.google.firebase:firebase-firestore'
+
 }
 apply plugin: 'com.google.gms.google-services'
