@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -96,7 +97,7 @@ public class Members extends DialogFragment {
             }
             if(apartment.getMembersID()!=null){
                 getMemberDetail(apartment.getMembersID());
-                noMemberTv.setVisibility(View.VISIBLE);
+
 
             }
 
@@ -138,7 +139,12 @@ public class Members extends DialogFragment {
          public void onDataChange(@NonNull DataSnapshot snapshot) {
              if(snapshot.exists()) {
                  User owner = snapshot.getValue(User.class);
-                 ownerName.setText(owner.getName());
+                 if(mAuth.getCurrentUser().getUid().equals(apartment.getOwnerID())){
+                     ownerName.setText("You");
+                 }else{
+                     ownerName.setText(owner.getName());
+                 }
+
                                     if(!owner.getImage().isEmpty()){
                                         GlideApp.with(getContext())
                                                 .load(owner.getImage())
@@ -244,6 +250,7 @@ public class Members extends DialogFragment {
                     if (snapshot.exists()){
                         User user = snapshot.getValue(User.class);
                         membersList.add(user);
+                        Toast.makeText(getContext(),user.getName(),Toast.LENGTH_LONG).show();
                     }
                     userAdapter.notifyDataSetChanged();
 
