@@ -99,7 +99,7 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
     @Override
     public void sendNewLocation(LatLng selectedLatLng, String selectedAddress , String selectedLocationName) {
         this.latLng = selectedLatLng;
-        setCurrentLocationAddress(selectedLatLng.latitude , selectedLatLng.longitude);
+        locationTextView.setText(selectedLocationName + " , " + selectedAddress);
     }
 
     // override the interface method "sendInput" to get the preferances
@@ -147,8 +147,6 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
         }
 
     }
-
-
 
     @Override
     public void onStart() {
@@ -379,12 +377,12 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
         if(getActivity()!=null) {
             getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }
+        MainActivity.btm_view.setVisibility(View.INVISIBLE);
     }
 
     private  void getLocation() {
         new CurrentLocationAsync(getActivity()).execute();
     }
-
 
 
 
@@ -442,7 +440,7 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
             String postalCode = addresses.get(0).getPostalCode();
             String knownName = addresses.get(0).getFeatureName(); // Only if available else return NULL
             address = knownName +" , " +maddress;
-            locationTextView.setText(address);
+
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -241,7 +241,7 @@ public class MainActivity extends AppCompatActivity {
         profilePic = headerView.findViewById(R.id.drawer_nav_profile_pic);
         myRef = FirebaseDatabase.getInstance().getReference().child("Users").child((mAuth.getCurrentUser().getUid()));
 
-        myRef.addValueEventListener(new ValueEventListener() {
+        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()){
@@ -251,7 +251,7 @@ public class MainActivity extends AppCompatActivity {
                     usernameDrawer.setText(user.getName());
                 //accept request here crashes
                     if (user.getImage()!=null){
-                        Glide.with(profilePic.getContext()).
+                        Glide.with(getApplicationContext()).
                                 load(user.getImage())
                                 .fitCenter()
                                 .centerCrop()

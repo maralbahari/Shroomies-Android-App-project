@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".MapsFragment"
     android:layout_marginTop="60dp"
@@ -15,25 +15,42 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
 
+    <LinearLayout
+        android:id="@+id/search_bar_maps_fragment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_marginRight="10dp"
         android:layout_marginLeft="10dp"
         android:layout_marginTop="15dp"
+        android:padding="10dp"
+        android:elevation="3dp"
 
         android:layout_centerHorizontal="true"
-        android:background="@drawable/search_light_green_background"
-        >
+        android:background="@drawable/button_round_alabaster">
 
-    <fragment android:id="@+id/autocomplete_fragment"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:name="com.google.android.libraries.places.widget.AutocompleteSupportFragment"
-        />
+
+        <ImageButton
+            android:id="@+id/search_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/quantum_ic_search_grey600_24"
+            android:background="@android:color/transparent"
+            android:layout_gravity="center_vertical"
+            android:padding="3dp"
+            />
+        <TextView
+            android:id="@+id/location_text_view_map_fragment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="3"
+
+            android:layout_gravity="center_vertical"
+            android:fontFamily="@font/amiko"/>
+
     </LinearLayout>
+
 
 
     <Button
