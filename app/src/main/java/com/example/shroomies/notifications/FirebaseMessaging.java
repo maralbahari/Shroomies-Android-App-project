@@ -89,6 +89,8 @@ public class FirebaseMessaging  extends FirebaseMessagingService {
         String icon = msg.getData().get("icon");
         String title = msg.getData().get("title");
         String body = msg.getData().get("body");
+        String requestNoti=msg.getData().get("requestNoti");
+        String acceptReqNoti=msg.getData().get("acceptReqNoti");
         RemoteMessage.Notification notification = msg.getNotification();
         int i = Integer.parseInt(user.replaceAll("[\\D]", ""));
 
@@ -98,13 +100,13 @@ public class FirebaseMessaging  extends FirebaseMessagingService {
             intent.putExtra("GROUPID", groupID);
             intent.addFlags(intent.FLAG_ACTIVITY_CLEAR_TOP);
             pendingIntent = PendingIntent.getActivity(this, i, intent, PendingIntent.FLAG_ONE_SHOT);
-        } else if (isCardNOtification != null) {
+        } else if (isCardNOtification != null || requestNoti!=null || acceptReqNoti!=null ) {
             Intent intent = new Intent(this, MainActivity.class);
-
             intent.addFlags(intent.FLAG_ACTIVITY_CLEAR_TOP);
             pendingIntent = PendingIntent.getActivity(this, i, intent, PendingIntent.FLAG_ONE_SHOT);
 
-        } else {
+        }
+        else {
             Intent intent = new Intent(this, ChattingActivity.class);
             intent.putExtra("USERID", user);
             intent.addFlags(intent.FLAG_ACTIVITY_CLEAR_TOP);

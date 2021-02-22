@@ -31,7 +31,8 @@ public class Archive extends Fragment {
    ArrayList<TasksCard> tasksCardsList ;
    TasksCardAdapter tasksCardAdapter;
    ExpensesCardAdapter expensesCardAdapter;
-   String currentUserAppartmentId = "";
+   ShroomiesApartment apartment;
+   String apartmentID="";
 
 
     @Override
@@ -40,21 +41,34 @@ public class Archive extends Fragment {
         // Inflate the layout for this fragment
        view=inflater.inflate(R.layout.fragment_my_archive, container, false);
        mAuth = FirebaseAuth.getInstance();
-
        rootRef = FirebaseDatabase.getInstance().getReference();
-
 
     return view;
     }
-
-
-    private void getUserRoomId(){
-        rootRef.child("Users").child(mAuth.getInstance().getCurrentUser().getUid()).child("isPartOfRoom").addListenerForSingleValueEvent(new ValueEventListener() {
+    private void getApartmentDetails (){
+        rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()){
-                    currentUserAppartmentId=snapshot.getValue().toString();
-                    retreiveExpensesCards();
+                    apartmentID=snapshot.getValue().toString();
+                    rootRef.child("apartments").child(apartmentID).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            if(snapshot.exists()){
+                                apartment=snapshot.getValue(ShroomiesApartment.class);
+                                retreiveExpensesCards(apartment.getApartmentID());
+                            }
+
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+
+                        }
+                    });
+
+
+
                 }
             }
 
@@ -65,6 +79,8 @@ public class Archive extends Fragment {
         });
     }
 
+
+
     @Override
     public void onViewCreated(@NonNull View v, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(v, savedInstanceState);
@@ -73,18 +89,17 @@ public class Archive extends Fragment {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         archiveRecyclerview.setHasFixedSize(true);
         archiveRecyclerview.setLayoutManager(linearLayoutManager);
-        getUserRoomId();
-
+        getApartmentDetails();
         archiveTablayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 if(tab.getPosition()==0){
                     expensesCardsList = new ArrayList<>();
-                    retreiveExpensesCards();
+                    retreiveExpensesCards(apartment.getApartmentID());
                 }
                 else if(tab.getPosition()==1){
                     tasksCardsList=new ArrayList<>();
-                    retrieveTaskCards();
+                    retrieveTaskCards(apartment.getApartmentID());
                 }
             }
 
@@ -98,12 +113,12 @@ public class Archive extends Fragment {
         });
     }
 
-    private void retrieveTaskCards() {
+    private void retrieveTaskCards(String apartmentID) {
         tasksCardsList = new ArrayList<>();
-        tasksCardAdapter = new TasksCardAdapter(tasksCardsList, getContext(),true);
+        tasksCardAdapter = new TasksCardAdapter(tasksCardsList, getContext(),true,apartment);
         archiveRecyclerview.setAdapter(tasksCardAdapter);
 
-        rootRef.child("archive").child(currentUserAppartmentId).child("tasksCards").addValueEventListener(new ValueEventListener() {
+        rootRef.child("archive").child(apartmentID).child("tasksCards").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 tasksCardsList.clear();
@@ -124,12 +139,12 @@ public class Archive extends Fragment {
 
     }
 
-    private void retreiveExpensesCards(){
+    private void retreiveExpensesCards(String apartmentID){
 
         expensesCardsList = new ArrayList<>();
-        expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList, getContext(), true);
+        expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList, getContext(), true,apartment);
         archiveRecyclerview.setAdapter(expensesCardAdapter);
-        rootRef.child("archive").child(currentUserAppartmentId).child("expensesCards").addValueEventListener(new ValueEventListener() {
+        rootRef.child("archive").child(apartmentID).child("expensesCards").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 expensesCardsList.clear();

@@ -40,14 +40,12 @@
 
             <CheckBox
                 android:id="@+id/expense_done"
-
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/card_description"
                 android:layout_marginTop="20dp"
                 android:layout_marginLeft="18dp"
                 android:layout_above="@id/archive_card_btn"
-
                 android:buttonTint="@color/okGreen"
                 />
 
@@ -56,9 +54,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Mark as done"
-
                 android:layout_below="@+id/card_description"
-
                 android:layout_marginLeft="55dp"
                 android:textSize="12sp"
                 android:layout_marginTop="20dp"
@@ -66,7 +62,6 @@
 
             <TextView
                 android:layout_width="match_parent"
-
                 android:layout_marginLeft="25dp"
                 android:layout_marginRight="25dp"
                 android:layout_height="wrap_content"
@@ -81,8 +76,7 @@
                 android:layout_width="155dp"
                 android:layout_height="155dp"
                 android:layout_marginRight="5dp"
-
-               android:layout_alignParentRight="true"
+                android:layout_alignParentRight="true"
                 android:layout_below="@id/title_card"
                 android:elevation="2dp"
                 android:src="@drawable/imagepdf" />
@@ -146,7 +140,6 @@
             <TextView
                 android:id="@+id/expenses_mention_et"
                 android:background="@drawable/mention_text_box"
-
                 android:elevation="5dp"
                 android:layout_width="wrap_content"
                 android:maxWidth="150dp"
@@ -155,7 +148,6 @@
                 android:layout_marginTop="5dp"
                 android:layout_marginBottom="10dp"
                 android:lines="1"
-
                 android:layout_alignParentRight="true"
                 android:textSize="10sp"
                 android:layout_below="@id/card_img"

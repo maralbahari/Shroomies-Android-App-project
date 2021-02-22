@@ -249,7 +249,7 @@ public class MainActivity extends AppCompatActivity {
                     User user = snapshot.getValue(User.class);
 
                     usernameDrawer.setText(user.getName());
-
+                //accept request here crashes
                     if (user.getImage()!=null){
                         Glide.with(profilePic.getContext()).
                                 load(user.getImage())

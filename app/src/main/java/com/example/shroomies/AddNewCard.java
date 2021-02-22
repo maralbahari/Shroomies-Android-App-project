@@ -18,6 +18,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.MultiAutoCompleteTextView;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -105,41 +106,7 @@ public class AddNewCard extends DialogFragment {
     RequestQueue requestQueue;
     ShroomiesApartment apartment;
     boolean notify = false;
-
-//
-//    private void getUserRoomId() {
-//        memberList = new ArrayList<>();
-//        rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                if (snapshot.exists()) {
-//                    currentUserAppartmentId = snapshot.getValue().toString();
-//                    rootRef.child("apartments").child(currentUserAppartmentId).child("apartmentMembers").addValueEventListener(new ValueEventListener() {
-//                        @Override
-//                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                            if (snapshot.exists()) {
-//                                for (DataSnapshot sp : snapshot.getChildren()) {
-//                                    memberList.add(sp.getValue().toString());
-//                                }
-//                                getMemberUserNames(memberList);
-//                            }
-//                        }
-//
-//                        @Override
-//                        public void onCancelled(@NonNull DatabaseError error) {
-//
-//                        }
-//                    });
-//                }
-//
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//
-//            }
-//        });
-//    }
+    ImageView close;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -149,7 +116,6 @@ public class AddNewCard extends DialogFragment {
         v = inflater.inflate(R.layout.fragment_add_new_card, container, false);
         mAuth = FirebaseAuth.getInstance();
         rootRef = FirebaseDatabase.getInstance().getReference();
-//        getUserRoomId();
         return v;
     }
 
@@ -179,14 +145,18 @@ public class AddNewCard extends DialogFragment {
         newcardShroomieRadioGroup = v.findViewById(R.id.newcard_radio_group);
         dueDate = v.findViewById(R.id.due_date);
         mention = v.findViewById(R.id.tag_shroomie);
-
+        close=v.findViewById(R.id.x_button_new_card);
 //        mention.setThreshold(6);
         done = v.findViewById(R.id.expense_done);
         cameraPermissions = new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
         storagePermissions = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
         attachedFile = v.findViewById(R.id.attached_files);
-
-
+        close.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dismiss();
+            }
+        });
         Bundle bundle = this.getArguments();
         if (bundle != null) {
             expensesCardSelected = bundle.getBoolean("Expenses");

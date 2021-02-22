@@ -2,6 +2,7 @@ package com.example.shroomies;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,15 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.example.shroomies.notifications.Data;
+import com.example.shroomies.notifications.Sender;
+import com.example.shroomies.notifications.Token;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -23,9 +33,14 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
@@ -35,9 +50,9 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
    private DatabaseReference rootRef;
    private FirebaseAuth mAuth;
    Boolean fromSearchMember ;
-
+   RequestQueue requestQueue;
    ShroomiesApartment apartment;
-   Boolean fromMemberPageWithRequestMember;
+   private String senderName="";
 
 
     public UserAdapter(ArrayList<User> userList, Context context, Boolean fromSearchMember,ShroomiesApartment apartment) {
@@ -56,7 +71,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
        v = layoutInflater.inflate(R.layout.send_request_card,parent,false);
         rootRef= FirebaseDatabase.getInstance().getReference();
         mAuth=FirebaseAuth.getInstance();
-//        getUserRoomId();
+        requestQueue = Volley.newRequestQueue(context);
         return new UserViewHolder(v);
     }
 
@@ -98,24 +113,6 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     public int getItemCount() {
         return userList.size();
     }
-
-//    private void getUserRoomId(){
-//        rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                if(snapshot.exists()){
-//                    apartmentID=snapshot.getValue().toString();
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//
-//            }
-//        });
-//    }
-
-
     public class UserViewHolder extends RecyclerView.ViewHolder {
         ImageView userImage;
         TextView userName;
@@ -129,7 +126,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             sendRequest=itemView.findViewById(R.id.send_request_btn);
             msgMember = itemView.findViewById(R.id.msg_member);
             removeMember = itemView.findViewById(R.id.remove_member);
-
+            getSenderName();
             msgMember.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -192,6 +189,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                                 if(task.isSuccessful()){
                                     Toast.makeText(context,"invitation has been sent",Toast.LENGTH_LONG).show();
                                     sendRequest.setText("requested");
+                                    sendNotification(id,senderName+" wants to be your shroomie");
                                 }
                             }
                         });
@@ -199,6 +197,74 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                 }
             });
     }
+    private void getSenderName(){
+            rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("name").addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if(snapshot.exists()){
+                        senderName=snapshot.getValue().toString();
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+    }
+        private void sendNotification(final String receiverID,final String message) {
+            rootRef.child("Token").orderByKey().equalTo(receiverID).addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (snapshot.exists()) {
+                        for (DataSnapshot ds : snapshot.getChildren()) {
+                            Token token = (Token) ds.getValue(Token.class);
+                            Data data = new Data( mAuth.getCurrentUser().getUid(),  message, "New request", receiverID, (R.drawable.ic_notification_icon)  ,"false","true" );
+                            Sender sender = new Sender(data, token.getToken());
+                            try {
+                                JSONObject senderJsonObj = new JSONObject(new Gson().toJson(sender));
+                                JsonObjectRequest jsonObjectRequest=new JsonObjectRequest("https://fcm.googleapis.com/fcm/send", senderJsonObj, new Response.Listener<JSONObject>() {
+                                    @Override
+                                    public void onResponse(JSONObject response) {
+
+                                        Log.d("JSON_RESPONSE","onResponse:"+response.toString());
+                                    }
+
+                                }, new Response.ErrorListener() {
+                                    @Override
+                                    public void onErrorResponse(VolleyError error) {
+                                        Log.d("JSON_RESPONSE","onResponse:"+error.toString());
+
+                                    }
+                                })
+                                {
+                                    @Override
+                                    public Map<String,String> getHeaders() throws AuthFailureError {
+                                        Map<String,String> headers= new HashMap<>();
+                                        headers.put("Content-type","application/json");
+                                        headers.put("Authorization","Key=AAAAyn_kPyQ:APA91bGLxMB-HGP-qd_EPD3wz_apYs4ZJIB2vyAvH5JbaTVlyLExgYn7ye-076FJxjfrhQ-1HJBmptN3RWHY4FoBdY08YRgplZSAN0Mnj6sLbS6imKa7w0rqPsLtc-aXMaPOhlxnXqPs");
+                                        return headers;
+                                    }
+
+                                };
+
+                                requestQueue.add(jsonObjectRequest);
+                                requestQueue.start();
+                            }catch (JSONException e){
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+
+        }
 
     }
 

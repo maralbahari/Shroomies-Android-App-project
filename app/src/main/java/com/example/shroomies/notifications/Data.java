@@ -3,7 +3,8 @@ package com.example.shroomies.notifications;
 public class Data {
     private String user,body,title,sent , groupID , cardNotification;
     private Integer icon;
-
+    private String requestNoti;
+   private String acceptReqNoti;
     public Data(String user, String body, String title, String sent, Integer icon) {
         this.user = user;
         this.body = body;
@@ -28,13 +29,26 @@ public class Data {
         this.cardNotification = cardNotification;
     }
 
-    public String isCardNotification() {
-        return cardNotification;
+    public Data(String user, String body, String title, String sent, Integer icon, String cardNotification, String requestNoti) {
+        this.user = user;
+        this.body = body;
+        this.title = title;
+        this.sent = sent;
+        this.cardNotification = cardNotification;
+        this.icon = icon;
+        this.requestNoti = requestNoti;
+    }
+    public Data(String user, String body, String title, String sent, Integer icon, String cardNotification, String requestNoti,String acceptReqNoti) {
+        this.user = user;
+        this.body = body;
+        this.title = title;
+        this.sent = sent;
+        this.cardNotification = cardNotification;
+        this.icon = icon;
+        this.requestNoti = requestNoti;
+        this.acceptReqNoti=acceptReqNoti;
     }
 
-    public void setCardNotification(String cardNotification) {
-        this.cardNotification = cardNotification;
-    }
 
     public void setGroupID(String groupID) {
         this.groupID = groupID;

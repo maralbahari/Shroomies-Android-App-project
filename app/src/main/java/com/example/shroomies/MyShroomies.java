@@ -9,6 +9,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -192,7 +193,7 @@ public class MyShroomies extends Fragment   {
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
                             if(snapshot.exists()){
                                 apartment=snapshot.getValue(ShroomiesApartment.class);
-                                retreiveExpensesCards(apartment.apartmentID);
+                                retreiveExpensesCards(apartment.getApartmentID());
                             }
 
                         }
@@ -218,7 +219,7 @@ public class MyShroomies extends Fragment   {
 
     private void retrieveTaskCards(String apartmentID) {
         tasksCardsList=new ArrayList<>();
-        tasksCardAdapter= new TasksCardAdapter(tasksCardsList,getContext(),false);
+        tasksCardAdapter= new TasksCardAdapter(tasksCardsList,getContext(),false,apartment);
         ItemTouchHelper.Callback callback = new CardsTouchHelper(tasksCardAdapter);
         ItemTouchHelper itemTouchHelperTask = new ItemTouchHelper(callback);
         tasksCardAdapter.setItemTouchHelper(itemTouchHelperTask);
@@ -247,7 +248,7 @@ public class MyShroomies extends Fragment   {
     public void retreiveExpensesCards(String apartmentID){
 //        Toast.makeText(getContext(),"HKOADKOSKAD",Toast.LENGTH_SHORT).show();
         expensesCardsList=new ArrayList<>();
-        expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList,getContext(), false);
+        expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList,getContext(), false,apartment);
         ItemTouchHelper.Callback callback = new CardsTouchHelper(expensesCardAdapter);
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
         expensesCardAdapter.setItemTouchHelper(itemTouchHelper);

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -17,6 +18,17 @@
         android:layout_marginTop="20dp"
         android:layout_marginBottom="10dp"
         />
+
+    <ImageView
+        android:id="@+id/x_button_new_card"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="35dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_alignParentRight="true"
+        android:layout_toRightOf="@id/new_card_tv"
+        app:srcCompat="@drawable/cross" />
 
     <EditText
         android:id="@+id/new_card_title"
@@ -140,11 +152,12 @@
         android:layout_width="70dp"
         android:layout_height="30dp"
         android:layout_below="@id/tag_shroomie"
-        android:layout_marginLeft="50dp"
+        android:layout_marginLeft="60dp"
         android:layout_marginTop="20dp"
         android:text="attach"
         android:textSize="10sp"
         android:padding="7dp"
+
         android:background="@drawable/button_rounded_corner_attach"
         android:drawableLeft="@drawable/ic_attach"
         />
@@ -168,7 +181,7 @@
         android:layout_below="@+id/my_shroomies_attach_button"
         android:layout_alignParentBottom="true"
         android:elevation="5dp"
-       android:layout_marginTop="100dp"
+       android:layout_marginTop="120dp"
         android:background="@color/LogoYellow"
         android:text="Add card" />
 

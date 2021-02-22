@@ -76,23 +76,21 @@
         android:layout_marginRight="5dp"
         android:layout_marginBottom="5dp"
         android:orientation="horizontal"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
-
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
         android:gravity="center"
         android:layout_alignParentRight="true"
         android:background="@drawable/rounded_button_myshroomies_layout"
         >
-
         <View
-            android:layout_width="15dp"
-            android:layout_height="15dp"
+            android:layout_width="10dp"
+            android:layout_height="10dp"
             android:background="@drawable/ic_filter"
-            android:layout_marginLeft="22dp"
+            android:layout_marginLeft="10dp"
 
             />
-        <TextView
 
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
@@ -104,7 +102,9 @@
         <Spinner
             android:id="@+id/shroomie_spinner_filter"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="1dp"
 
             />
 

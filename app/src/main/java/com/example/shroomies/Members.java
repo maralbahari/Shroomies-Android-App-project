@@ -32,6 +32,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class Members extends DialogFragment {
     View v;
@@ -95,12 +96,11 @@ public class Members extends DialogFragment {
                 leaveRoom.setVisibility(View.VISIBLE);
                 msgOwner.setVisibility(View.VISIBLE);
             }
-            if(apartment.getMembersID()!=null){
-                getMemberDetail(apartment.getMembersID());
-
-
+            if(apartment.getApartmentMembers()!=null){
+                getMemberDetail(apartment.getApartmentMembers());
+                Toast.makeText(getContext(),apartment.getApartmentID(),Toast.LENGTH_LONG).show();
             }
-
+//            getMemberDetail(apartment.getMembersID());
         }
 //        setOwnerDetails(ownerName,ownerImage,apartmentID);
         addMember.setOnClickListener(new View.OnClickListener() {
@@ -211,39 +211,15 @@ public class Members extends DialogFragment {
         super.onActivityCreated(savedInstanceState);
         getDialog().getWindow().setWindowAnimations(R.style.DialogAnimation);
     }
-//    private void getMember(String apartmentID){
-//        membersId = new ArrayList<>();
-//
-//        rootRef.child("apartments").child(apartmentID).child("apartmentMembers").addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                if (snapshot.exists()){
-//
-//                    for (DataSnapshot sp : snapshot.getChildren()){
-//
-//                        membersId.add(sp.getValue().toString());
-//
-//
-//
-//                    }
-//                    getMemberDetail(membersId);
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//
-//            }
-//        });
-//    }
 
 
 
-    private void getMemberDetail(final ArrayList<String> membersId) {
+
+    private void getMemberDetail(final HashMap<String,String> membersId) {
         membersList = new ArrayList<>();
         userAdapter = new UserAdapter(membersList, getContext(),false,apartment);
         membersRecycler.setAdapter(userAdapter);
-        for (String id: membersId){
+        for (String id: membersId.values()){
             rootRef.child("Users").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -264,50 +240,6 @@ public class Members extends DialogFragment {
         }
 
     }
-
-
-//    private void getUserRoomId(){
-//        rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                if(snapshot.exists()){
-//                    apartmentID=snapshot.getValue().toString();
-//                    if(mAuth.getCurrentUser().getUid().equals(apartmentID)){
-//                        leaveRoom.setVisibility(View.GONE);
-//                        rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
-//                            @Override
-//                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                                if(snapshot.exists()){
-//                                    User owner= snapshot.getValue(User.class);
-//                                    ownerName.setText(owner.getName());
-//                                    if(!owner.getImage().isEmpty()){
-//                                        GlideApp.with(getContext())
-//                                                .load(owner.getImage())
-//                                                .fitCenter()
-//                                                .circleCrop()
-//                                                .into(ownerImage);
-//                                        ownerImage.setPadding(2,2,2,2);
-//                                    }
-//                                }
-//                            }
-//
-//                            @Override
-//                            public void onCancelled(@NonNull DatabaseError error) {
-//
-//                            }
-//                        });
-//                    }
-//                    getMember(apartmentID);
-//                }
-//
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//
-//            }
-//        });
-//    }
 
 
 }

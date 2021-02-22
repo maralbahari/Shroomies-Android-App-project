@@ -47,15 +47,17 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
     private DatabaseReference rootRef;
     private FirebaseAuth mAuth;
     private ItemTouchHelper itemTouchHelper;
-    Boolean fromArchive;
-    ImageView sadShroomie, stars;
-    Button cont, no;
-    String currentUserAppartmentId = "";
+    private Boolean fromArchive;
+   private ImageView sadShroomie, stars;
+    private Button cont, no;
+    private ShroomiesApartment apartment;
 
-    public ExpensesCardAdapter(ArrayList<ExpensesCard> expensesCardArrayList, Context context, Boolean fromArchive) {
+
+    public ExpensesCardAdapter(ArrayList<ExpensesCard> expensesCardArrayList, Context context, Boolean fromArchive,ShroomiesApartment apartment) {
         this.expensesCardArrayList = expensesCardArrayList;
         this.context=context;
         this.fromArchive = fromArchive;
+        this.apartment=apartment;
     }
 
     public void setItemTouchHelper(ItemTouchHelper itemTouchHelper){
@@ -77,7 +79,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
 
 
     public void deleteExpensesCard( final int position){
-        rootRef.child("apartments").child(currentUserAppartmentId).child("expensesCards").child(expensesCardArrayList.get(position).getCardId()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+        rootRef.child("apartments").child(apartment.getApartmentID()).child("expensesCards").child(expensesCardArrayList.get(position).getCardId()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
@@ -103,27 +105,13 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
         view  = layoutInflater.inflate(R.layout.my_shroomie_expenses_card,parent,false);
         rootRef= FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
-        getUserRoomId();
+
         return new ExpensesViewHolder(view);
 
     }
 
 
-    private void getUserRoomId(){
-        rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.exists()){
-                    currentUserAppartmentId=snapshot.getValue().toString();
-                }
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-    }
 
     @Override
     public void onBindViewHolder(@NonNull final ExpensesCardAdapter.ExpensesViewHolder holder, final int position) {
@@ -168,7 +156,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                     cont.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            rootRef.child("archive").child(mAuth.getInstance().getCurrentUser().getUid()).child("expensesCards").child(expensesCardArrayList.get(position).getCardId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                            rootRef.child("archive").child(apartment.getApartmentID()).child("expensesCards").child(expensesCardArrayList.get(position).getCardId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
                                     if (expensesCardArrayList.size()>=1) {
@@ -254,7 +242,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                 @Override
                 public void onClick(View view) {
                     if (done.isChecked()){
-                        rootRef.child("apartments").child(currentUserAppartmentId).child("expensesCards").child(expensesCardArrayList.get(getAdapterPosition()).getCardId()).child("done").setValue("true").addOnSuccessListener(new OnSuccessListener<Void>() {
+                        rootRef.child("apartments").child(apartment.getApartmentID()).child("expensesCards").child(expensesCardArrayList.get(getAdapterPosition()).getCardId()).child("done").setValue("true").addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
                                 markAsDone.setText("Done!");
@@ -288,7 +276,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                             }
                         });
                     }else{
-                        rootRef.child("apartments").child(currentUserAppartmentId).child("expensesCards").child(expensesCardArrayList.get(getAdapterPosition()).getCardId()).child("done").setValue("false").addOnSuccessListener(new OnSuccessListener<Void>() {
+                        rootRef.child("apartments").child(apartment.getApartmentID()).child("expensesCards").child(expensesCardArrayList.get(getAdapterPosition()).getCardId()).child("done").setValue("false").addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
                                 Toast.makeText(context,"expenses cards not done", Toast.LENGTH_LONG).show();
@@ -310,12 +298,6 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                 }
             });
 
-//            delete.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View view) {
-//                    deleteCard(cardsList.get(getAdapterPosition()).getCardId(),getAdapterPosition());
-//                }
-//            });
 
             delete.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -400,12 +382,12 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
 
 
     public void archive(final String cardId, final int position){
-        rootRef.child("apartments").child(currentUserAppartmentId).child("expensesCards").child(cardId).addListenerForSingleValueEvent(new ValueEventListener() {
+        rootRef.child("apartments").child(apartment.getApartmentID()).child("expensesCards").child(cardId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()){
                     final ExpensesCard expensesCard = snapshot.getValue(ExpensesCard.class);
-                    DatabaseReference ref = rootRef.child("archive").child(mAuth.getCurrentUser().getUid()).child("expensesCards").push();
+                    DatabaseReference ref = rootRef.child("archive").child(apartment.getApartmentID()).child("expensesCards").push();
                     HashMap<String ,Object> newCard = new HashMap<>();
                     Calendar calendarDate=Calendar.getInstance();
                     String saveCurrentDate;
@@ -424,7 +406,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()){
-                                rootRef.child("apartments").child(currentUserAppartmentId).child("expensesCards").child(cardId).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                rootRef.child("apartments").child(apartment.getApartmentID()).child("expensesCards").child(cardId).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
                                         Toast.makeText(context, "Card successfully Archived", Toast.LENGTH_SHORT).show();
