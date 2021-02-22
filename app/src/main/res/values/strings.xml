@@ -11,7 +11,7 @@
     values-round/strings.xml for round devices.
     -->
     <string name="hello_world">Hello Square World!</string>
-    <string name="google_maps_key">AIzaSyBxsKC0T7r-jozZk-mZUScW7wPN5zB_7pg</string>
+    <string name="api_key">AIzaSyBxsKC0T7r-jozZk-mZUScW7wPN5zB_7pg</string>
     <string name="Heading_discover">Discover</string>
     <string name="title_activity_group_chatting">GroupChattingActivity</string>
     <string name="favorites">Favorites</string>

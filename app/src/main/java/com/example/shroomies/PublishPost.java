@@ -95,11 +95,11 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
 
 
 
-    // override the interface method "sendInput" to get the preferances
+    // override the interface method "sendNewLocation" to get the preferances
     @Override
-    public void sendNewLocation(LatLng newLatLng, String updatedAddress) {
-        this.latLng = newLatLng;
-        setCurrentLocationAddress(newLatLng.latitude , newLatLng.longitude);
+    public void sendNewLocation(LatLng selectedLatLng, String selectedAddress , String selectedLocationName) {
+        this.latLng = selectedLatLng;
+        setCurrentLocationAddress(selectedLatLng.latitude , selectedLatLng.longitude);
     }
 
     // override the interface method "sendInput" to get the preferances
