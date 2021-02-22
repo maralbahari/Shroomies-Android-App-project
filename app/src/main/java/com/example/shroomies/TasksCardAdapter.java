@@ -49,12 +49,14 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
     Boolean fromArchive;
     ImageView sadShroomie, stars;
     Button cont, no;
-    String currentUserAppartmentId= "";
+    ShroomiesApartment apartment;
 
-    public TasksCardAdapter(ArrayList<TasksCard> tasksCardsList, Context context,boolean fromArchive) {
+
+    public TasksCardAdapter(ArrayList<TasksCard> tasksCardsList, Context context,boolean fromArchive,ShroomiesApartment apartment) {
         this.tasksCardsList = tasksCardsList;
         this.context = context;
         this.fromArchive = fromArchive;
+        this.apartment=apartment;
     }
 
     @Override
@@ -133,7 +135,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
                 @Override
                 public void onClick(View view) {
                     if (done.isChecked()){
-                        rootRef.child("apartments").child(currentUserAppartmentId).child("tasksCards").child(tasksCardsList.get(getAdapterPosition()).getCardId()).child("done").setValue("true").addOnSuccessListener(new OnSuccessListener<Void>() {
+                        rootRef.child("apartments").child(apartment.getApartmentID()).child("tasksCards").child(tasksCardsList.get(getAdapterPosition()).getCardId()).child("done").setValue("true").addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
                                 markAsDone.setText("Done!");
@@ -165,7 +167,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
                             }
                         });
                     }else{
-                        rootRef.child("apartments").child(currentUserAppartmentId).child("tasksCards").child(tasksCardsList.get(getAdapterPosition()).getCardId()).child("done").setValue("false").addOnSuccessListener(new OnSuccessListener<Void>() {
+                        rootRef.child("apartments").child(apartment.getApartmentID()).child("tasksCards").child(tasksCardsList.get(getAdapterPosition()).getCardId()).child("done").setValue("false").addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
                                 Toast.makeText(context,"not done",Toast.LENGTH_LONG).show();
@@ -178,16 +180,6 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
             gestureDetector = new GestureDetector(v.getContext(),this);
             v.setOnTouchListener(this);
 
-//            delete.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View view) {
-//                    deleteCard(tasksCardsList.get(getAdapterPosition()).getCardId(),getAdapterPosition());
-//                }
-//            });
-
-
-            String mtitle = title.getText().toString();
-            String mDescription = description.getText().toString();
 
             archive.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -239,7 +231,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
 
     public void deleteCard(final String cardID, final int position){
 
-        rootRef.child("apartments").child(currentUserAppartmentId).child("tasksCards").child(cardID).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+        rootRef.child("apartments").child(apartment.getApartmentID()).child("tasksCards").child(cardID).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
@@ -266,31 +258,11 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         view = layoutInflater.inflate(R.layout.my_shroomie_tasks_card, parent, false);
         rootRef = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
-        getUserRoomId();
+
         return new TasksCardViewHolder(view);
 
 
     }
-
-
-    private void getUserRoomId(){
-        rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.exists()){
-                    currentUserAppartmentId=snapshot.getValue().toString();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-    }
-
-
-
 
     @Override
     public void onBindViewHolder(@NonNull final TasksCardAdapter.TasksCardViewHolder holder, final int position) {
@@ -314,6 +286,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         if (fromArchive){
             holder.archive.setVisibility(view.GONE);
             holder.done.setVisibility(View.GONE);
+            holder.markAsDone.setVisibility(View.GONE);
             holder.delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -339,7 +312,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
                     cont.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            rootRef.child("archive").child(mAuth.getInstance().getCurrentUser().getUid()).child("tasksCards").child(tasksCardsList.get(position).getCardId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                            rootRef.child("archive").child(apartment.getApartmentID()).child("tasksCards").child(tasksCardsList.get(position).getCardId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
                                     if (tasksCardsList.size()>=1) {
@@ -388,12 +361,12 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
 
 
     public void archive(final String cardId, final int position){
-        rootRef.child("apartments").child(currentUserAppartmentId).child("tasksCards").child(cardId).addListenerForSingleValueEvent(new ValueEventListener() {
+        rootRef.child("apartments").child(apartment.getApartmentID()).child("tasksCards").child(cardId).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()){
                     TasksCard tasksCard = snapshot.getValue(TasksCard.class);
-                    DatabaseReference ref = rootRef.child("archive").child(mAuth.getCurrentUser().getUid()).child("tasksCards").push();
+                    DatabaseReference ref = rootRef.child("archive").child(apartment.getApartmentID()).child("tasksCards").push();
                     HashMap<String ,Object> newCard = new HashMap<>();
                     Calendar calendarDate=Calendar.getInstance();
                     String saveCurrentDate;
@@ -411,7 +384,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()){
-                                rootRef.child("apartments").child(currentUserAppartmentId).child("tasksCards").child(cardId).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                rootRef.child("apartments").child(apartment.getApartmentID()).child("tasksCards").child(cardId).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
                                         Toast.makeText(context, "Card successfully Archived", Toast.LENGTH_SHORT).show();

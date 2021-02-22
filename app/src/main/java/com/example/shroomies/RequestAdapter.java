@@ -1,6 +1,7 @@
 package com.example.shroomies;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,15 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.example.shroomies.notifications.Data;
+import com.example.shroomies.notifications.Sender;
+import com.example.shroomies.notifications.Token;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -21,10 +31,15 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.gson.Gson;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestViewHolder> {
     private Context context;
@@ -32,10 +47,13 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
     FirebaseAuth mAuth;
     DatabaseReference rootRef;
     private ArrayList<User> usersList;
-    String currentUserAppartmentId;
+    String currentUserName="";
     Boolean receiverUsers;
     ShroomiesApartment apartment;
-    private ArrayList<String> members;
+    private List<String> members;
+    RequestQueue requestQueue;
+
+
 
     public RequestAdapter(Context context,ArrayList<User> usersList,Boolean receiverUsers,ShroomiesApartment apartment) {
         this.context = context;
@@ -54,6 +72,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
         v = layoutInflater.inflate(R.layout.request_card,parent,false);
         rootRef= FirebaseDatabase.getInstance().getReference();
         mAuth= FirebaseAuth.getInstance();
+        requestQueue = Volley.newRequestQueue(context);
         return  new RequestViewHolder(v);
     }
 
@@ -115,9 +134,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
             senderName=itemView.findViewById(R.id.user_name);
             requetsTv=itemView.findViewById(R.id.requested_tv);
             cancel=itemView.findViewById(R.id.cancel_request);
-
-
-
+            getCurrentUserName();
             accept.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -144,8 +161,13 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
                     rootRef.child("shroomieRequests").child(senderID).child(mAuth.getCurrentUser().getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                                usersList.remove(getAdapterPosition());
+                            if(usersList.size()>=1){
                                 notifyItemRemoved(getAdapterPosition());
+                            }else{
+                                usersList.clear();
+                                notifyItemRemoved(0);
+
+                            }
 
                         }
                     });
@@ -153,36 +175,31 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
             });
         }
         private void acceptRequest(final String senderID,final String senderName,final String senderApartmentID){
-            members = new ArrayList<>();
-
             rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").setValue(senderApartmentID).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
                    if(task.isSuccessful()){
-                       rootRef.child("apartments").child(senderApartmentID).child("apartmentMembers").addListenerForSingleValueEvent(new ValueEventListener() {
+                       final HashMap<String,Object> newMember=new HashMap<>();
+                       newMember.put(mAuth.getCurrentUser().getUid(), mAuth.getCurrentUser().getUid());
+                       rootRef.child("apartments").child(senderApartmentID).child("apartmentMembers").updateChildren(newMember).addOnCompleteListener(new OnCompleteListener<Void>() {
                            @Override
-                           public void onDataChange(@NonNull DataSnapshot snapshot) {
-                               if(snapshot.exists()){
-                                   members = (ArrayList<String>) snapshot.getValue();
-                                   members.add(mAuth.getCurrentUser().getUid());
-                               }else{
-                                   members.add(mAuth.getCurrentUser().getUid());
-                               }
-                               final HashMap<String,Object> newUsers=new HashMap<>();
-                               newUsers.put("apartmentMembers", members);
-                               rootRef.child("apartments").child(senderApartmentID).updateChildren(newUsers).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                   @Override
-                                   public void onComplete(@NonNull Task<Void> task) {
-                                       if(task.isSuccessful()){
-                                           Toast.makeText(context,"your personal cards are deleted, you are part of "+senderName+" apartment now",Toast.LENGTH_LONG).show();
+                           public void onComplete(@NonNull Task<Void> task) {
+                               if(task.isSuccessful()){
+                                   rootRef.child("apartments").child(apartment.getApartmentID()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                       @Override
+                                       public void onSuccess(Void aVoid) {
+                                           rootRef.child("archive").child(apartment.getApartmentID()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                               @Override
+                                               public void onSuccess(Void aVoid) {
+                                                   Toast.makeText(context,"your personal cards are deleted, you are part of "+senderName+" apartment now",Toast.LENGTH_LONG).show();
+                                                   sendNotification(senderID,currentUserName+" accepted your request");
+                                               }
+                                           });
+
                                        }
-                                   }
-                               });
-                           }
+                                   });
 
-                           @Override
-                           public void onCancelled(@NonNull DatabaseError error) {
-
+                               }
                            }
                        });
 
@@ -195,8 +212,15 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
                     rootRef.child("shroomieRequests").child(senderID).child(mAuth.getCurrentUser().getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            usersList.remove(getAdapterPosition());
-                            notifyItemRemoved(getAdapterPosition());
+                            if(usersList.size()>=1){
+                                notifyItemRemoved(getAdapterPosition());
+                            }else{
+                                usersList.clear();
+                                notifyItemRemoved(0);
+
+                            }
+
+
 
                         }
                     });
@@ -205,12 +229,12 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
 
         }
         private boolean checkEliglibity(){
-            if(apartment.getOwnerID().equals(mAuth.getCurrentUser().getUid()) && apartment.getMembersID()!=null){
+            if(apartment.getOwnerID().equals(mAuth.getCurrentUser().getUid()) && !(apartment.getApartmentMembers().values().isEmpty())){
                 Toast.makeText(context,"You have existing Shroomies in your apartment and not allowed to accept request",Toast.LENGTH_LONG).show();
                 return false;
-            }if(apartment.getOwnerID().equals(mAuth.getCurrentUser().getUid()) && apartment.getMembersID()==null){
+            }if(apartment.getOwnerID().equals(mAuth.getCurrentUser().getUid()) && apartment.getApartmentMembers().values().isEmpty()){
                 return true;
-            }if(apartment.getMembersID().contains(mAuth.getCurrentUser().getUid())){
+            }if(apartment.getApartmentMembers().containsValue(mAuth.getCurrentUser().getUid())){
                 Toast.makeText(context,"You cannot accept requests, you are part of an apartment already",Toast.LENGTH_LONG).show();
                 return false;
             }else{
@@ -218,5 +242,73 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
             }
 
         }
+    }
+    private void sendNotification(final String receiverID,final String message) {
+        rootRef.child("Token").orderByKey().equalTo(receiverID).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    for (DataSnapshot ds : snapshot.getChildren()) {
+                        Token token = (Token) ds.getValue(Token.class);
+                        Data data = new Data( mAuth.getCurrentUser().getUid(),  message, "New Shroomie", receiverID, (R.drawable.ic_notification_icon)  ,"false","false","true" );
+                        Sender sender = new Sender(data, token.getToken());
+                        try {
+                            JSONObject senderJsonObj = new JSONObject(new Gson().toJson(sender));
+                            JsonObjectRequest jsonObjectRequest=new JsonObjectRequest("https://fcm.googleapis.com/fcm/send", senderJsonObj, new Response.Listener<JSONObject>() {
+                                @Override
+                                public void onResponse(JSONObject response) {
+
+                                    Log.d("JSON_RESPONSE","onResponse:"+response.toString());
+                                }
+
+                            }, new Response.ErrorListener() {
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+                                    Log.d("JSON_RESPONSE","onResponse:"+error.toString());
+
+                                }
+                            })
+                            {
+                                @Override
+                                public Map<String,String> getHeaders() throws AuthFailureError {
+                                    Map<String,String> headers= new HashMap<>();
+                                    headers.put("Content-type","application/json");
+                                    headers.put("Authorization","Key=AAAAyn_kPyQ:APA91bGLxMB-HGP-qd_EPD3wz_apYs4ZJIB2vyAvH5JbaTVlyLExgYn7ye-076FJxjfrhQ-1HJBmptN3RWHY4FoBdY08YRgplZSAN0Mnj6sLbS6imKa7w0rqPsLtc-aXMaPOhlxnXqPs");
+                                    return headers;
+                                }
+
+                            };
+
+                            requestQueue.add(jsonObjectRequest);
+                            requestQueue.start();
+                        }catch (JSONException e){
+                            e.printStackTrace();
+                        }
+                    }
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+    }
+    private void getCurrentUserName(){
+        rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("name").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
+                    currentUserName=snapshot.getValue().toString();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 }

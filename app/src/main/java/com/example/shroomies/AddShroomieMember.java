@@ -24,6 +24,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -39,7 +40,7 @@ public class AddShroomieMember extends DialogFragment {
     ArrayList<User> suggestedUser;
     ArrayList<User> selectedUser;
     ArrayList<String> inboxUser;
-    ArrayList<String> listMemberId;
+    Collection<String> listMemberId;
     ShroomiesApartment apartment;
 
 
@@ -63,7 +64,7 @@ public class AddShroomieMember extends DialogFragment {
         if (getArguments()!=null){
             Bundle bundle = getArguments();
             apartment=bundle.getParcelable("APARTMENT_DETAILS");
-            listMemberId =apartment.getMembersID();
+            listMemberId =  apartment.getApartmentMembers().values();
 
         }
         getMessageInboxListIntoAdapter();
@@ -126,7 +127,7 @@ public class AddShroomieMember extends DialogFragment {
 
 
                             }
-                        suggestedUser.add(user);
+
 
 
 
