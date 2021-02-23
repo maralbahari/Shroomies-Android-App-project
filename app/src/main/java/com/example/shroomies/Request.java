@@ -36,6 +36,7 @@ public class Request extends Fragment {
    private ShroomiesApartment apartment;
    private ValueEventListener invitationsListener;
    private ValueEventListener requestsListener;
+   private ValueEventListener apartmentListener;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -55,7 +56,7 @@ public class Request extends Fragment {
         requestRecyvlerView.setHasFixedSize(true);
         requestRecyvlerView.setLayoutManager(linearLayoutManager);
         getApartmentDetailsOfCurrentUser();
-        getSenderId();
+
         requestTab.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
@@ -81,16 +82,17 @@ public class Request extends Fragment {
     }
 
     private void getApartmentDetailsOfCurrentUser() {
-        rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").addValueEventListener(new ValueEventListener() {
+        rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()){
                     final String apartmentID=snapshot.getValue().toString();
-                    rootRef.child("apartments").child(apartmentID).addListenerForSingleValueEvent(new ValueEventListener() {
+                    apartmentListener=rootRef.child("apartments").child(apartmentID).addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
                             if(snapshot.exists()){
                                 apartment=snapshot.getValue(ShroomiesApartment.class);
+                                getSenderId();
 
                             }
                         }
@@ -212,5 +214,6 @@ public class Request extends Fragment {
         super.onDestroy();
         rootRef.removeEventListener(invitationsListener);
         rootRef.removeEventListener(requestsListener);
+        rootRef.removeEventListener(apartmentListener);
     }
 }

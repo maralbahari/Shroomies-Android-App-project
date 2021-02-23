@@ -1,5 +1,6 @@
 package com.example.shroomies;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.Image;
 import android.os.Bundle;
@@ -31,6 +32,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
@@ -51,6 +53,8 @@ public class Members extends DialogFragment {
     ImageView sadShroomie, stars;  // set visibility to gone if there are members in add members
     TextView noMemberTv ;           // same visibility to gone
    ShroomiesApartment apartment;
+   private Collection newMemberLists;
+   private ValueEventListener apartmentListener;
 
     @Nullable
     @Override
@@ -97,12 +101,12 @@ public class Members extends DialogFragment {
                 msgOwner.setVisibility(View.VISIBLE);
             }
             if(apartment.getApartmentMembers()!=null){
-                getMemberDetail(apartment.getApartmentMembers());
+                checkMemberExistance(apartment.getApartmentID(),apartment.getApartmentMembers());
                 Toast.makeText(getContext(),apartment.getApartmentID(),Toast.LENGTH_LONG).show();
             }
-//            getMemberDetail(apartment.getMembersID());
+
         }
-//        setOwnerDetails(ownerName,ownerImage,apartmentID);
+
         addMember.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -161,6 +165,31 @@ public class Members extends DialogFragment {
 
          }
      });
+    }
+    private void checkMemberExistance(String apartmentID, final HashMap<String,String> oldMembers){
+        apartmentListener=rootRef.child("apartments").child(apartmentID).addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
+                    ShroomiesApartment apartment=snapshot.getValue(ShroomiesApartment.class);
+                    newMemberLists=apartment.getApartmentMembers().values();
+                    if(newMemberLists.containsAll(oldMembers.values())){
+                        getMemberDetail(oldMembers);
+                    }else{
+                        getMemberDetail(apartment.getApartmentMembers());
+                    }
+
+                }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+
     }
 
     private void leaveApartment(String apartmentID) {
@@ -241,5 +270,15 @@ public class Members extends DialogFragment {
 
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        rootRef.removeEventListener(apartmentListener);
+    }
 
+    @Override
+    public void onDismiss(@NonNull DialogInterface dialog) {
+        super.onDismiss(dialog);
+        rootRef.removeEventListener(apartmentListener);
+    }
 }
