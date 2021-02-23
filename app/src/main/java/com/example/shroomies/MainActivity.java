@@ -251,7 +251,7 @@ public class MainActivity extends AppCompatActivity {
                     usernameDrawer.setText(user.getName());
                 //accept request here crashes
                     if (user.getImage()!=null){
-                        Glide.with(profilePic.getContext()).
+                        Glide.with(getApplicationContext()).
                                 load(user.getImage())
                                 .fitCenter()
                                 .centerCrop()

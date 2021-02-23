@@ -34,6 +34,8 @@ public class Request extends Fragment {
    private ArrayList<User> receiverUsers;
    TabLayout requestTab;
    private ShroomiesApartment apartment;
+   private ValueEventListener invitationsListener;
+   private ValueEventListener requestsListener;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -53,7 +55,7 @@ public class Request extends Fragment {
         requestRecyvlerView.setHasFixedSize(true);
         requestRecyvlerView.setLayoutManager(linearLayoutManager);
         getApartmentDetailsOfCurrentUser();
-
+        getSenderId();
         requestTab.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
@@ -79,7 +81,7 @@ public class Request extends Fragment {
     }
 
     private void getApartmentDetailsOfCurrentUser() {
-        rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").addListenerForSingleValueEvent(new ValueEventListener() {
+        rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()){
@@ -89,7 +91,7 @@ public class Request extends Fragment {
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
                             if(snapshot.exists()){
                                 apartment=snapshot.getValue(ShroomiesApartment.class);
-                                getSenderId();
+
                             }
                         }
 
@@ -112,7 +114,7 @@ public class Request extends Fragment {
 
     private void getSenderId(){
         senderIDs=new ArrayList<>();
-        rootRef.child("shroomieRequests").child(mAuth.getCurrentUser().getUid()).orderByChild("requestType").equalTo("received").addListenerForSingleValueEvent(new ValueEventListener() {
+        requestsListener=rootRef.child("shroomieRequests").child(mAuth.getCurrentUser().getUid()).orderByChild("requestType").equalTo("received").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()){
@@ -136,8 +138,8 @@ public class Request extends Fragment {
     }
     private void getSenderDetails(final ArrayList<String> senderIDs){
         senderUsers=new ArrayList<>();
-     requestAdapter= new RequestAdapter(getContext(),senderUsers,false,apartment);
-     requestRecyvlerView.setAdapter(requestAdapter);
+        requestAdapter= new RequestAdapter(getContext(),senderUsers,false,apartment);
+        requestRecyvlerView.setAdapter(requestAdapter);
      for(String id: senderIDs){
          rootRef.child("Users").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
              @Override
@@ -159,7 +161,7 @@ public class Request extends Fragment {
     }
     private void getReceiverID(){
        receiverIDs=new ArrayList<>();
-        rootRef.child("shroomieRequests").child(mAuth.getCurrentUser().getUid()).orderByChild("requestType").equalTo("sent").addListenerForSingleValueEvent(new ValueEventListener() {
+        invitationsListener=rootRef.child("shroomieRequests").child(mAuth.getCurrentUser().getUid()).orderByChild("requestType").equalTo("sent").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()){
@@ -205,4 +207,10 @@ public class Request extends Fragment {
         }
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        rootRef.removeEventListener(invitationsListener);
+        rootRef.removeEventListener(requestsListener);
+    }
 }

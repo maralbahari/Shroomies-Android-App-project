@@ -32,6 +32,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -51,6 +52,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
    private ImageView sadShroomie, stars;
     private Button cont, no;
     private ShroomiesApartment apartment;
+    private FirebaseStorage storage;
 
 
     public ExpensesCardAdapter(ArrayList<ExpensesCard> expensesCardArrayList, Context context, Boolean fromArchive,ShroomiesApartment apartment) {
@@ -75,26 +77,14 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
     @Override
     public void onItemSwiped(int position) {
         deleteExpensesCard(position);
-    }
-
-
-    public void deleteExpensesCard( final int position){
-        rootRef.child("apartments").child(apartment.getApartmentID()).child("expensesCards").child(expensesCardArrayList.get(position).getCardId()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if(task.isSuccessful()){
-                    if(expensesCardArrayList.size()>=1){
-                        notifyItemRemoved(position);
-                    }else{
-                        expensesCardArrayList.clear();
-                        notifyItemRemoved(0);
-
-                    }
-                }
-            }
-        });
 
     }
+
+
+
+
+
+
 
 
 
@@ -105,7 +95,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
         view  = layoutInflater.inflate(R.layout.my_shroomie_expenses_card,parent,false);
         rootRef= FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
-
+        storage=FirebaseStorage.getInstance();
         return new ExpensesViewHolder(view);
 
     }
@@ -321,7 +311,6 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                         @Override
                         public void onClick(View view) {
                             deleteExpensesCard(getAdapterPosition());
-                            Toast.makeText(context,"Card deletedddd", Toast.LENGTH_LONG).show();
                             alertDialog.cancel();
                         }
                     });
@@ -431,6 +420,25 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
             }
         });
 
+
+    }
+    public void deleteExpensesCard( final int position){
+        if(!expensesCardArrayList.get(position).getAttachedFile().isEmpty()){
+            storage.getReferenceFromUrl(expensesCardArrayList.get(position).getAttachedFile()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Toast.makeText(context,"image deleted",Toast.LENGTH_LONG).show();
+                }
+            });}
+        rootRef.child("apartments").child(apartment.getApartmentID()).child("expensesCards").child(expensesCardArrayList.get(position).getCardId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+
+                notifyItemRemoved(position);
+                Toast.makeText(context,"position "+position,Toast.LENGTH_LONG).show();
+
+            }
+        });
 
     }
 
