@@ -154,7 +154,6 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                                         @Override
                                         public void onSuccess(Void aVoid) {
                                             Toast.makeText(context,"User deleted successfully",Toast.LENGTH_LONG).show();
-                                            userList.remove(getAdapterPosition());
                                             notifyItemRemoved(getAdapterPosition());
                                             //add progress
 
