@@ -70,6 +70,8 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
     FragmentManager fm;
     FragmentTransaction ft;
     String address;
+    String locality;
+    String subLocality;
     LatLng latLng;
     private static final int PICK_IMAGE_MULTIPLE= 1;
     List<Uri> imageUri;
@@ -282,6 +284,8 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
             public void onClick(View v) {
                 // list to hold all selected values from properties
                 if(postTabLayout.getSelectedTabPosition()==0) {
+                    //check if the locality and the sub locality have been added correctly
+                    if(locality !=null|| subLocality !=null)
                     postImagesAddToDatabase(latLng
                             , descriptionEditText.getText().toString()
                             , numberOfRoommates
@@ -433,13 +437,11 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
         geocoder = new Geocoder(getActivity(), Locale.getDefault());
         try {
             addresses = geocoder.getFromLocation(latitude, longitude, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
-            String maddress = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
-            String city = addresses.get(0).getLocality();
-            String state = addresses.get(0).getAdminArea();
-            String country = addresses.get(0).getCountryName();
-            String postalCode = addresses.get(0).getPostalCode();
+            locality = addresses.get(0).getLocality();
+            subLocality = addresses.get(0).getSubLocality();
+            String mAddress = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
             String knownName = addresses.get(0).getFeatureName(); // Only if available else return NULL
-            address = knownName +" , " +maddress;
+            address = knownName +" , " +mAddress;
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -625,7 +627,7 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
             @Override
             public void onFailure(@NonNull Exception e) {
                 PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
-                postPublishedDialog.setMessageText("an error occurred while publishing your post");
+                postPublishedDialog.setMessageText("An error occurred while publishing your post");
                 postPublishedDialog.setMessageImage(getActivity().getDrawable(R.drawable.ic_error_icon));
             }
         });
