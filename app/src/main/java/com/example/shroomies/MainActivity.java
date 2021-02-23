@@ -241,7 +241,7 @@ public class MainActivity extends AppCompatActivity {
         profilePic = headerView.findViewById(R.id.drawer_nav_profile_pic);
         myRef = FirebaseDatabase.getInstance().getReference().child("Users").child((mAuth.getCurrentUser().getUid()));
 
-        myRef.addValueEventListener(new ValueEventListener() {
+        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()){

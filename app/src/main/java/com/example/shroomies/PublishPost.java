@@ -13,7 +13,6 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
@@ -24,7 +23,6 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -49,6 +47,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -62,8 +62,6 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-
-
 public class PublishPost extends Fragment  implements PreferencesDialogFragment.OnPreferencesSet , MapsFragment.OnLocationSet {
     public static final int DIALOG_FRAGMENT_REQUEST_CODE = 1;
     public static final int MAPS_FRAGMENT_REQUEST_CODE = 2;
@@ -77,6 +75,7 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
     List<Uri> imageUri;
     private TextView locationTextView , preferencesTextView;
     Geocoder geocoder;
+    FirebaseFirestore mDocRef = FirebaseFirestore.getInstance();
 
     ImageView maleImage,femaleImage,petImage,smokingImage, userImageView;
     Button publishPostButton ,addImageButton,locationImageButton , preferencesImageButton;
@@ -88,8 +87,7 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
     private TabLayout postTabLayout;
     EditText descriptionEditText;
     StorageReference filePath;
-    String postUniqueName;
-    String userName;
+//    String postUniqueName;
     TextView budgetTextView, numberOfRoomMatesTextView ,addImageWarning;
     int budget , numberOfRoommates;
     List<Boolean> preferences ;
@@ -97,11 +95,11 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
 
 
 
-    // override the interface method "sendInput" to get the preferances
+    // override the interface method "sendNewLocation" to get the preferances
     @Override
-    public void sendNewLocation(LatLng newLatLng, String updatedAddress) {
-        this.latLng = newLatLng;
-        setCurrentLocationAddress(newLatLng.latitude , newLatLng.longitude);
+    public void sendNewLocation(LatLng selectedLatLng, String selectedAddress , String selectedLocationName) {
+        this.latLng = selectedLatLng;
+        locationTextView.setText(selectedLocationName + " , " + selectedAddress);
     }
 
     // override the interface method "sendInput" to get the preferances
@@ -150,8 +148,6 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
 
     }
 
-
-
     @Override
     public void onStart() {
         super.onStart();
@@ -182,6 +178,8 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
         super.onDestroy();
         MainActivity.btm_view.setVisibility(View.VISIBLE);
     }
+
+
 
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -284,15 +282,14 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
             public void onClick(View v) {
                 // list to hold all selected values from properties
                 if(postTabLayout.getSelectedTabPosition()==0) {
-                    publishPost(latLng
+                    postImagesAddToDatabase(latLng
                             , descriptionEditText.getText().toString()
                             , numberOfRoommates
                             , budget
                             , preferences
                             , imageUri);
                 }else{
-                    publishPersonalPost(latLng
-                            , descriptionEditText.getText().toString()
+                    publishPersonalPost(descriptionEditText.getText().toString()
                             , budget
                             , preferences);
                 }
@@ -380,12 +377,12 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
         if(getActivity()!=null) {
             getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }
+        MainActivity.btm_view.setVisibility(View.INVISIBLE);
     }
 
     private  void getLocation() {
         new CurrentLocationAsync(getActivity()).execute();
     }
-
 
 
 
@@ -424,6 +421,7 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
                             });
                 } else {
                     requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+                    getLocation();
                 }
             }
             return latLng;
@@ -442,7 +440,7 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
             String postalCode = addresses.get(0).getPostalCode();
             String knownName = addresses.get(0).getFeatureName(); // Only if available else return NULL
             address = knownName +" , " +maddress;
-            locationTextView.setText(address);
+
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -509,22 +507,14 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
                 }
 
             }
-
-
-
-
-
             }
         }
     }
 
 
-    void publishPost(final LatLng locationLtLng , final  String description , final int numberRoomMate , final int price , final  List<Boolean> property , final List<Uri> imageUri ) {
+    void postImagesAddToDatabase(final LatLng locationLtLng , final  String description , final int numberRoomMate , final int price , final  List<Boolean> property , final List<Uri> imageUri ) {
         getFragment(new FindRoommate());
-
         publishPostButton.setVisibility(View.INVISIBLE);
-
-        postUniqueName = getUniqueName();
 
         // get the referance of the database
         StorageReference storageReference = FirebaseStorage.getInstance().getReference();
@@ -535,7 +525,7 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
         for (Uri uri:
                 imageUri ) {
             filePath = storageReference.child("apartment post image").child(uri.getLastPathSegment()
-                    +postUniqueName+".jpg");
+                    +getUniqueName()+".jpg");
             filePath.putFile(uri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
@@ -550,10 +540,9 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-
-                    publishPostButton.setVisibility(View.VISIBLE);
-
-                    Toast.makeText(getActivity(), "we ran into a problem uploading your photos" , Toast.LENGTH_LONG).show();
+                    PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
+                    postPublishedDialog.setMessageText("an error occured while publishing your post");
+                    postPublishedDialog.setMessageImage(getActivity().getDrawable(R.drawable.ic_error_icon));
                 }
             });
         }
@@ -569,7 +558,7 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
 
         //get the time in hours and minutes
         Calendar calendarTime = Calendar.getInstance();
-        SimpleDateFormat currentTime = new SimpleDateFormat("HH:mm");
+        SimpleDateFormat currentTime = new SimpleDateFormat("HH:mm:ss.SSS");
         String saveCurrentTime = currentTime.format(calendarTime.getTime());
 
         //add the two string together
@@ -580,28 +569,7 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
     void addToRealTimeDatabase(LatLng locationLtLng , String description , int numberRoomMate , int price , List<Boolean> property ,List<String> IMAGE_URL){
 
         String userUid =  FirebaseAuth.getInstance().getCurrentUser().getUid();
-        //get the username of the user
-        DatabaseReference getUsername = FirebaseDatabase.getInstance().getReference("Users").child(userUid);
-
-        getUsername.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.exists()){
-                    User user = snapshot.getValue(User.class);
-
-                    userName = user.getName();
-                    Toast.makeText(getActivity(), userName , Toast.LENGTH_LONG).show();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
         HashMap<String ,Object> post = new HashMap<>();
-
         post.put("description" , description);
         post.put("userID" , userUid);
         post.put("price", price);
@@ -610,69 +578,56 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
         post.put("longitude",locationLtLng.longitude);
         post.put("preferences" , property);
         post.put("image_url" , IMAGE_URL );
-        post.put("id" ,userUid+postUniqueName);
-        // add the time of the post
         Calendar calendar = Calendar.getInstance();
         post.put("date",new SimpleDateFormat("dd-MMMM-yyyy HH:mm:ss aa").format(calendar.getTime()));
 
-        //add image and date and user profile
-        DatabaseReference firebaseDatabase = FirebaseDatabase.getInstance().getReference();
-        firebaseDatabase.child("postApartment").child(userUid+postUniqueName).setValue(post).addOnCompleteListener(new OnCompleteListener<Void>() {
+        mDocRef.collection("postApartment").add(post).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
             @Override
-            public void onComplete(@NonNull Task<Void> task) {
-
-
-                publishPostButton.setVisibility(View.VISIBLE);
-                if (task.isSuccessful()) {
-                    PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
-                    postPublishedDialog.show(getParentFragmentManager() , null);
-
-                }else{
-                    Toast.makeText(getContext(), "we faced a problem ", Toast.LENGTH_SHORT).show();
-                }
-
+            public void onComplete(@NonNull Task<DocumentReference> task) {
+                PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
+                postPublishedDialog.show(getParentFragmentManager() , null);
             }
-
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
+                postPublishedDialog.setMessageText("an error occured while publishing your post");
+                postPublishedDialog.setMessageImage(getActivity().getDrawable(R.drawable.ic_error_icon));
+            }
         });
-
 
     }
 
-    void publishPersonalPost(LatLng locationLtLng , String description , int price , List<Boolean> property ){
+    void publishPersonalPost(String description , int price , List<Boolean> property ){
         String userUid =  FirebaseAuth.getInstance().getCurrentUser().getUid();
-        postUniqueName = getUniqueName();
+        //move to the publish post page while the data is being posted
         getFragment(new PublishPost());
         publishPostButton.setVisibility(View.INVISIBLE);
+
+
         final HashMap<String ,Object> post = new HashMap<>();
 
         post.put("description" , description);
         post.put("userID" , userUid);
-        post.put("price", price*100);
-        post.put("latitude", locationLtLng.latitude);
-        post.put("longitude",locationLtLng.longitude);
+        post.put("price", price);
         post.put("preferences" , property);
-        post.put("id" , userUid+postUniqueName);
         // add the time of the post
         Calendar calendar = Calendar.getInstance();
         post.put("date",new SimpleDateFormat("dd-MMMM-yyyy HH:mm:ss aa").format(calendar.getTime()));
-        //add image and date and user profile
-        postUniqueName = getUniqueName();
 
-        DatabaseReference firebaseDatabase = FirebaseDatabase.getInstance().getReference();
-        firebaseDatabase.child("postPersonal").child(userUid+postUniqueName).setValue(post).addOnCompleteListener(new OnCompleteListener<Void>() {
+        mDocRef.collection("postPersonal").add(post).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
             @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                publishPostButton.setVisibility(View.VISIBLE);
-                if (task.isSuccessful()) {
-                    PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
-                    postPublishedDialog.show(getParentFragmentManager() , null);
-
-                }else{
-
-                }
-
+            public void onComplete(@NonNull Task<DocumentReference> task) {
+                PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
+                postPublishedDialog.show(getParentFragmentManager() , null);
             }
-
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
+                postPublishedDialog.setMessageText("an error occurred while publishing your post");
+                postPublishedDialog.setMessageImage(getActivity().getDrawable(R.drawable.ic_error_icon));
+            }
         });
         getFragment(new FindRoommate());
 
