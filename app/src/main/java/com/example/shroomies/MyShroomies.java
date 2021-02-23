@@ -36,26 +36,26 @@ import java.util.Date;
 
 public class MyShroomies extends Fragment   {
     View v;
-    Button  memberButton, addCardButton;
-    TabLayout myShroomiesTablayout;
-    RecyclerView myExpensesRecyclerView;
-    RecyclerView myTasksRecyclerView;
-    Spinner shroomieSpinnerFilter;
-    ArrayList<String> options = new ArrayList<>();
-    FragmentTransaction ft;
-    FragmentManager fm;
-    DatabaseReference rootRef;
-    FirebaseAuth mAuth;
-
-    ArrayList<TasksCard> tasksCardsList;
-    ArrayList<ExpensesCard> expensesCardsList;
-
-    TasksCardAdapter tasksCardAdapter;
-    ExpensesCardAdapter expensesCardAdapter;
-
-    String tabSelected="expenses";
-    String apartmentID="";
-    ShroomiesApartment apartment;
+    private Button  memberButton, addCardButton;
+    private TabLayout myShroomiesTablayout;
+    private RecyclerView myExpensesRecyclerView;
+    private RecyclerView myTasksRecyclerView;
+    private Spinner shroomieSpinnerFilter;
+    private ArrayList<String> options = new ArrayList<>();
+    private FragmentTransaction ft;
+    private FragmentManager fm;
+    private DatabaseReference rootRef;
+    private FirebaseAuth mAuth;
+    private ArrayList<TasksCard> tasksCardsList;
+    private ArrayList<ExpensesCard> expensesCardsList;
+    private TasksCardAdapter tasksCardAdapter;
+    private  ExpensesCardAdapter expensesCardAdapter;
+    private String tabSelected="expenses";
+    private String apartmentID="";
+    private ShroomiesApartment apartment;
+    private ValueEventListener expensesCardListener;
+    private ValueEventListener tasksCardListener;
+    private ValueEventListener apartmentListener;
 
 
     @Override
@@ -78,21 +78,14 @@ public class MyShroomies extends Fragment   {
         addCardButton = v.findViewById(R.id.my_shroomies_add_card_btn);
         myShroomiesTablayout = v.findViewById(R.id.my_shroomies_tablayout);
         myExpensesRecyclerView = v.findViewById(R.id.my_expenses_recycler_view);
-
-
-
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         myExpensesRecyclerView.setHasFixedSize(true);
         myExpensesRecyclerView.setLayoutManager(linearLayoutManager);
         shroomieSpinnerFilter = v.findViewById(R.id.shroomie_spinner_filter);
-
         LinearLayoutManager linearLayoutManager1 =new LinearLayoutManager(getContext());
         myTasksRecyclerView.setHasFixedSize(true);
         myTasksRecyclerView.setLayoutManager(linearLayoutManager1);
         retreiveExpensesCards(apartmentID);
-
-
-
         myShroomiesTablayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
@@ -183,12 +176,12 @@ public class MyShroomies extends Fragment   {
         });
     }
     private void getApartmentDetails (){
-        rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").addListenerForSingleValueEvent(new ValueEventListener() {
+        rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()){
                     apartmentID=snapshot.getValue().toString();
-                    rootRef.child("apartments").child(apartmentID).addListenerForSingleValueEvent(new ValueEventListener() {
+                    apartmentListener=rootRef.child("apartments").child(apartmentID).addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
                             if(snapshot.exists()){
@@ -225,7 +218,7 @@ public class MyShroomies extends Fragment   {
         tasksCardAdapter.setItemTouchHelper(itemTouchHelperTask);
         itemTouchHelperTask.attachToRecyclerView(myTasksRecyclerView);
         myTasksRecyclerView.setAdapter(tasksCardAdapter);
-        rootRef.child("apartments").child(apartmentID).child("tasksCards").addValueEventListener(new ValueEventListener() {
+        tasksCardListener=rootRef.child("apartments").child(apartmentID).child("tasksCards").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 tasksCardsList.clear();
@@ -254,7 +247,7 @@ public class MyShroomies extends Fragment   {
         expensesCardAdapter.setItemTouchHelper(itemTouchHelper);
         itemTouchHelper.attachToRecyclerView(myExpensesRecyclerView);
         myExpensesRecyclerView.setAdapter(expensesCardAdapter);
-        rootRef.child("apartments").child(apartmentID).child("expensesCards").addValueEventListener(new ValueEventListener() {
+        expensesCardListener=rootRef.child("apartments").child(apartmentID).child("expensesCards").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 expensesCardsList.clear();
@@ -378,7 +371,13 @@ public class MyShroomies extends Fragment   {
 
     }
 
-
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        rootRef.removeEventListener(expensesCardListener);
+        rootRef.removeEventListener(tasksCardListener);
+        rootRef.removeEventListener(apartmentListener);
+    }
 
     private void sortAccordingtoImportance(String tab){
         if(tab.equals("expenses")){
@@ -447,20 +446,5 @@ public class MyShroomies extends Fragment   {
         }
 
     }
-
-
-//    @Override
-//    public void onSaveInstanceState(@NonNull Bundle outState) {
-//        super.onSaveInstanceState(outState);
-//        if (myShroomiesTablayout.getSelectedTabPosition()==0) {
-//            outState.putBoolean("expenses", true);
-//
-//        }else{
-//            outState.putBoolean("expenses",false);
-//        }
-//    }
-
-
-
 
 }

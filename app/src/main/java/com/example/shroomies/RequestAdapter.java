@@ -103,7 +103,6 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
                            rootRef.child("shroomieRequests").child(usersList.get(position).getID()).child(mAuth.getCurrentUser().getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                                @Override
                                public void onSuccess(Void aVoid) {
-                               usersList.remove(position);
                                notifyItemRemoved(position);
                                }
                            });
@@ -161,13 +160,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
                     rootRef.child("shroomieRequests").child(senderID).child(mAuth.getCurrentUser().getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            if(usersList.size()>=1){
-                                notifyItemRemoved(getAdapterPosition());
-                            }else{
-                                usersList.clear();
-                                notifyItemRemoved(0);
-
-                            }
+                           notifyItemRemoved(getAdapterPosition());
 
                         }
                     });
@@ -191,8 +184,22 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
                                            rootRef.child("archive").child(apartment.getApartmentID()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                                                @Override
                                                public void onSuccess(Void aVoid) {
-                                                   Toast.makeText(context,"your personal cards are deleted, you are part of "+senderName+" apartment now",Toast.LENGTH_LONG).show();
-                                                   sendNotification(senderID,currentUserName+" accepted your request");
+                                                   rootRef.child("shroomieRequests").child(mAuth.getCurrentUser().getUid()).child(senderID).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                       @Override
+                                                       public void onSuccess(Void aVoid) {
+                                                           rootRef.child("shroomieRequests").child(senderID).child(mAuth.getCurrentUser().getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                               @Override
+                                                               public void onSuccess(Void aVoid) {
+                                                                   Toast.makeText(context,"your personal cards are deleted, you are part of "+senderName+" apartment now",Toast.LENGTH_LONG).show();
+                                                                   sendNotification(senderID,currentUserName+" accepted your request");
+                                                                   notifyItemRemoved(getAdapterPosition());
+
+
+
+                                                               }
+                                                           });
+                                                       }
+                                                   });
                                                }
                                            });
 
@@ -206,26 +213,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
                    }
                 }
             });
-            rootRef.child("shroomieRequests").child(mAuth.getCurrentUser().getUid()).child(senderID).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
-                @Override
-                public void onSuccess(Void aVoid) {
-                    rootRef.child("shroomieRequests").child(senderID).child(mAuth.getCurrentUser().getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            if(usersList.size()>=1){
-                                notifyItemRemoved(getAdapterPosition());
-                            }else{
-                                usersList.clear();
-                                notifyItemRemoved(0);
 
-                            }
-
-
-
-                        }
-                    });
-                }
-            });
 
         }
         private boolean checkEliglibity(){

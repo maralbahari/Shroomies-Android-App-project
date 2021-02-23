@@ -146,7 +146,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                             final String newApartmentID =ref.getKey();
                             final HashMap<String,Object> apartmentDetails=new HashMap<>();
                             apartmentDetails.put("apartmentID",newApartmentID);
-                            apartmentDetails.put("ownerID",mAuth.getCurrentUser().getUid());
+                            apartmentDetails.put("ownerID",userList.get(getAdapterPosition()).getID());
                             ref.updateChildren(apartmentDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {

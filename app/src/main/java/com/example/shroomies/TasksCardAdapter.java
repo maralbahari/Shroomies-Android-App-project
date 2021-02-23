@@ -118,7 +118,6 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
                         @Override
                         public void onClick(View view) {
                             deleteCard(tasksCardsList.get(getAdapterPosition()).getCardId(),getAdapterPosition());
-                            Toast.makeText(context,"Card deleted", Toast.LENGTH_LONG).show();
                             alertDialog.cancel();
                         }
                     });
@@ -231,19 +230,10 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
 
     public void deleteCard(final String cardID, final int position){
 
-        rootRef.child("apartments").child(apartment.getApartmentID()).child("tasksCards").child(cardID).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+        rootRef.child("apartments").child(apartment.getApartmentID()).child("tasksCards").child(cardID).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if(task.isSuccessful()){
-                    if(tasksCardsList.size()>=1){
-                        notifyItemRemoved(position);
-                    }else{
-                        tasksCardsList.clear();
-                        notifyItemRemoved(0);
-
-                    }
-                }
-
+            public void onSuccess(Void aVoid) {
+                notifyItemRemoved(position);
             }
         });
 
