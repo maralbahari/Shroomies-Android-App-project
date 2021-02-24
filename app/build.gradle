@@ -79,6 +79,11 @@ dependencies {
     implementation 'com.google.android.libraries.places:places:2.4.0'
     implementation platform('com.google.firebase:firebase-bom:26.5.0')
     implementation 'com.google.firebase:firebase-firestore'
+    api 'com.linkedin.android.spyglass:spyglass:3.0.1'
+    implementation 'com.hendraanggrian:socialview-commons:0.11.1'
+    implementation'com.hendraanggrian:socialview-core:0.11.1'
+    implementation 'com.otaliastudios:autocomplete:1.1.0'
+
 
 }
 apply plugin: 'com.google.gms.google-services'

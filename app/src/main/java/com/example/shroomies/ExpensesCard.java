@@ -1,15 +1,18 @@
 package com.example.shroomies;
 
+import java.util.HashMap;
+
 public class ExpensesCard  {
 
     String attachedFile, description, title, dueDate, importance,members, date, cardId, done, mention;
+    HashMap<String,Object> membersShares=new HashMap<>();
 
     public ExpensesCard() {
 
     }
 
 
-    public ExpensesCard(String attachedFile, String description, String title, String dueDate, String importance, String members,String cardId, String done, String mention) {
+    public ExpensesCard(String attachedFile, String description, String title, String dueDate, String importance, String members,String cardId, String done, String mention,HashMap<String,Object> membersShares) {
         this.attachedFile = attachedFile;
         this.description = description;
         this.title = title;
@@ -19,6 +22,15 @@ public class ExpensesCard  {
         this.cardId = cardId;
         this.done = done;
         this.mention = mention;
+        this.membersShares=membersShares;
+    }
+
+    public HashMap<String, Object> getMembersShares() {
+        return membersShares;
+    }
+
+    public void setMembersShares(HashMap<String, Object> membersShares) {
+        this.membersShares = membersShares;
     }
 
     public String getMention() {

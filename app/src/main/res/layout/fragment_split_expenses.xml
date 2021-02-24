@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    tools:context=".SplitExpenses">
+
+  <TextView
+      android:id="@+id/split_tv"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:text="Amount you want to split"
+      android:textSize="20dp"
+      android:layout_centerHorizontal="true"
+      android:layout_margin="50dp"
+      android:textColor="@color/Black"
+      android:textStyle="bold"
+      />
+
+  <EditText
+      android:id="@+id/amount_split"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_below="@+id/split_tv"
+      android:layout_marginLeft="50dp"
+      android:layout_marginRight="50dp"
+      android:drawableEnd="@drawable/ic_malaysian_ringgit"
+      android:hint="Enter a number"
+      android:inputType="numberDecimal" />
+  <androidx.recyclerview.widget.RecyclerView
+      android:id="@+id/shroomie_split_recycler"
+      android:layout_width="match_parent"
+      android:layout_height="wrap_content"
+      android:layout_marginRight="50dp"
+      android:layout_marginLeft="50dp"
+      android:layout_below="@id/amount_split"
+      android:layout_marginTop="10dp"
+    />
+  <TextView
+      android:id="@+id/total_amount_split"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="Total: 0 RM"
+      android:textColor="@color/purple"
+      android:textStyle="bold"
+      android:layout_below="@id/shroomie_split_recycler"
+      android:layout_marginTop="10dp"
+      android:textSize="15dp"
+      android:paddingBottom="10dp"
+      android:layout_marginBottom="10dp"
+      android:layout_alignParentLeft="true"
+      android:layout_marginLeft="50dp"/>
+
+  <TextView
+      android:id="@+id/cancle_split"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:text="cancel"
+      android:textColor="@color/purple"
+      android:textStyle="bold"
+      android:layout_marginRight="50dp"
+      android:layout_marginLeft="270dp"
+      android:layout_below="@id/shroomie_split_recycler"
+      android:layout_marginTop="10dp"
+      android:textSize="15dp"
+      android:paddingBottom="10dp"
+     android:layout_marginBottom="10dp"
+    />
+  <TextView
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:id="@+id/ok_split"
+    android:text="OK"
+    android:layout_alignParentRight="true"
+    android:layout_below="@id/shroomie_split_recycler"
+    android:layout_marginRight="60dp"
+    android:textStyle="bold"
+    android:textColor="@color/purple"
+      android:layout_marginTop="10dp"
+      android:textSize="15dp"
+      android:paddingBottom="10dp"
+      android:layout_marginBottom="10dp"
+    />
+</RelativeLayout>

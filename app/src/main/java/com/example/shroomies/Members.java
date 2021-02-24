@@ -100,10 +100,8 @@ public class Members extends DialogFragment {
                 leaveRoom.setVisibility(View.VISIBLE);
                 msgOwner.setVisibility(View.VISIBLE);
             }
-            if(apartment.getApartmentMembers()!=null){
-                checkMemberExistance(apartment.getApartmentID(),apartment.getApartmentMembers());
-                Toast.makeText(getContext(),apartment.getApartmentID(),Toast.LENGTH_LONG).show();
-            }
+            checkMemberExistance(apartment);
+
 
         }
 
@@ -166,17 +164,20 @@ public class Members extends DialogFragment {
          }
      });
     }
-    private void checkMemberExistance(String apartmentID, final HashMap<String,String> oldMembers){
-        apartmentListener=rootRef.child("apartments").child(apartmentID).addValueEventListener(new ValueEventListener() {
+    private void checkMemberExistance(final ShroomiesApartment oldApartment){
+        apartmentListener=rootRef.child("apartments").child(oldApartment.getApartmentID()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()){
-                    ShroomiesApartment apartment=snapshot.getValue(ShroomiesApartment.class);
-                    newMemberLists=apartment.getApartmentMembers().values();
-                    if(newMemberLists.containsAll(oldMembers.values())){
-                        getMemberDetail(oldMembers);
+                    ShroomiesApartment newApartment=snapshot.getValue(ShroomiesApartment.class);
+                    newMemberLists=newApartment.getApartmentMembers().values();
+                    if(newMemberLists.containsAll(oldApartment.getApartmentMembers().values())){
+                        getMemberDetail(oldApartment.getApartmentMembers());
                     }else{
+
                         getMemberDetail(apartment.getApartmentMembers());
+
+
                     }
 
                 }
@@ -192,27 +193,29 @@ public class Members extends DialogFragment {
 
     }
 
-    private void leaveApartment(String apartmentID) {
+    private void leaveApartment(final String apartmentID) {
         final CustomLoadingProgressBar customLoadingProgressBar = new CustomLoadingProgressBar(getActivity(),"Leaving room...",R.raw.loading_animation);
         customLoadingProgressBar.show();
-        rootRef.child("apartments").child(apartmentID).child("apartmentMembers").child(mAuth.getCurrentUser().getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+        final DatabaseReference ref= rootRef.child("apartments").push();
+        final String newApartmentID =ref.getKey();
+        final HashMap<String,Object> apartmentDetails=new HashMap<>();
+        apartmentDetails.put("apartmentID",newApartmentID);
+        apartmentDetails.put("ownerID",mAuth.getCurrentUser().getUid());
+        ref.updateChildren(apartmentDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
-            public void onSuccess(Void aVoid) {
-                final DatabaseReference ref= rootRef.child("apartments").push();
-                final String newApartmentID =ref.getKey();
-                final HashMap<String,Object> apartmentDetails=new HashMap<>();
-                apartmentDetails.put("apartmentID",newApartmentID);
-                apartmentDetails.put("ownerID",mAuth.getCurrentUser().getUid());
-                ref.updateChildren(apartmentDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if(task.isSuccessful()){
-                            rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").setValue(newApartmentID).addOnSuccessListener(new OnSuccessListener<Void>() {
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").setValue(newApartmentID).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            rootRef.child("apartments").child(apartmentID).child("apartmentMembers").child(mAuth.getCurrentUser().getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
                                     customLoadingProgressBar.dismiss();
                                     Intent intent = new Intent(getContext(),MainActivity.class);
                                     startActivity(intent);
+
+
                                 }
                             }).addOnFailureListener(new OnFailureListener() {
                                 @Override
@@ -221,17 +224,17 @@ public class Members extends DialogFragment {
                                 }
                             });
                         }
-                    }
-                });
-
-
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                customLoadingProgressBar.dismiss();
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            customLoadingProgressBar.dismiss();
+                        }
+                    });
+                }
             }
         });
+
+
 
     }
 
@@ -255,7 +258,7 @@ public class Members extends DialogFragment {
                     if (snapshot.exists()){
                         User user = snapshot.getValue(User.class);
                         membersList.add(user);
-                        Toast.makeText(getContext(),user.getName(),Toast.LENGTH_LONG).show();
+
                     }
                     userAdapter.notifyDataSetChanged();
 

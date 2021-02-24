@@ -4,7 +4,9 @@ import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class User implements Parcelable {
+import com.linkedin.android.spyglass.mentions.Mentionable;
+
+public class User implements Parcelable{
     private String name;
     private String email;
     private String isPartOfRoom;
@@ -12,6 +14,8 @@ public class User implements Parcelable {
     private String image;
     private String ID;
     private Context context;
+    private int sharedAmount;
+
     public User() {
 
     }
@@ -50,6 +54,14 @@ public class User implements Parcelable {
             return new User[size];
         }
     };
+
+    public int getSharedAmount() {
+        return sharedAmount;
+    }
+
+    public void setSharedAmount(int sharedAmount) {
+        this.sharedAmount = sharedAmount;
+    }
 
     public String getName() {
         return name;

@@ -161,7 +161,7 @@ public class MyShroomies extends Fragment   {
                 }
                 bundle.putParcelable("APARTMENT_DETAILS",apartment);
                 addNewCard.setArguments(bundle);
-                addNewCard.show(getFragmentManager(),"add new card");
+                addNewCard.show(getParentFragmentManager(),"add new card");
 
             }
         });
@@ -169,9 +169,9 @@ public class MyShroomies extends Fragment   {
             @Override
             public void onClick(View v) {
                 Members members=new Members();
-                Bundle bundle=new Bundle();
-                bundle.putParcelable("APARTMENT_DETAILS",apartment);
-                members.setArguments(bundle);
+                Bundle bundle1=new Bundle();
+                bundle1.putParcelable("APARTMENT_DETAILS",apartment);
+                members.setArguments(bundle1);
                 members.show(getParentFragmentManager(),"show member");
             }
         });
