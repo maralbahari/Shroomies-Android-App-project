@@ -37,8 +37,7 @@ public class SplitExpenses extends DialogFragment {
   private EditText amount;
   private RecyclerView splitRecycler;
   private ShroomiesApartment apartment;
-  private ArrayList<String> membersList;
-  private ArrayList<User> membersNownerList;
+  private ArrayList<User> shroomiesList;
   private DatabaseReference rootRef;
   private FirebaseAuth mAuth;
   private UserAdapterSplitExpenses splitAdapter;
@@ -98,7 +97,8 @@ public class SplitExpenses extends DialogFragment {
 
         if(bundle!=null){
             apartment=bundle.getParcelable("APARTMENT_DETAILS");
-                getMemberDetails(apartment.getApartmentMembers(),apartment.getOwnerID(),enteredAmount);
+            shroomiesList=bundle.getParcelableArrayList("MEMBERS");
+            setShroomiesToRecycler(shroomiesList,enteredAmount);
         }
         amount.addTextChangedListener(new TextWatcher() {
             @Override
@@ -109,7 +109,7 @@ public class SplitExpenses extends DialogFragment {
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                enteredAmount=charSequence.toString();
-                splitAdapter= new UserAdapterSplitExpenses(apartment,membersNownerList,getContext(),enteredAmount,totalText);
+                splitAdapter= new UserAdapterSplitExpenses(apartment,shroomiesList,getContext(),enteredAmount,totalText);
                 splitRecycler.setAdapter(splitAdapter);
 
 
@@ -134,30 +134,10 @@ public class SplitExpenses extends DialogFragment {
     public interface membersShares{
         void sendInput(HashMap<String,Object> sharedSplit);
     }
-    private  void getMemberDetails(final HashMap<String,String> memberIDs,final String ownerID,final String amount ){
-        membersNownerList=new ArrayList<>();
-        splitAdapter= new UserAdapterSplitExpenses(apartment,membersNownerList,getContext(),amount,totalText);
+    private void setShroomiesToRecycler(ArrayList<User> shroomies,String amount){
+        splitAdapter= new UserAdapterSplitExpenses(apartment,shroomies,getContext(),amount,totalText);
         splitRecycler.setAdapter(splitAdapter);
-        memberIDs.put(ownerID,ownerID);
-        for (String id: memberIDs.values()){
-            rootRef.child("Users").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    if (snapshot.exists()){
-                        User user = snapshot.getValue(User.class);
-                        membersNownerList.add(user);
-
-                    }
-                    splitAdapter.notifyDataSetChanged();
-
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-
-                }
-            });
-        }
+        splitAdapter.notifyDataSetChanged();
     }
     @Override
     public void onAttach(@NonNull Context context) {

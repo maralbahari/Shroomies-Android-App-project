@@ -115,7 +115,7 @@ public class Archive extends Fragment {
 
     private void retrieveTaskCards(String apartmentID) {
         tasksCardsList = new ArrayList<>();
-        tasksCardAdapter = new TasksCardAdapter(tasksCardsList, getContext(),true,apartment);
+        tasksCardAdapter = new TasksCardAdapter(tasksCardsList, getContext(),true,apartment,getParentFragmentManager());
         archiveRecyclerview.setAdapter(tasksCardAdapter);
 
         rootRef.child("archive").child(apartmentID).child("tasksCards").addValueEventListener(new ValueEventListener() {
@@ -142,7 +142,7 @@ public class Archive extends Fragment {
     private void retreiveExpensesCards(String apartmentID){
 
         expensesCardsList = new ArrayList<>();
-        expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList, getContext(), true,apartment);
+        expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList, getContext(), true,apartment,getParentFragmentManager());
         archiveRecyclerview.setAdapter(expensesCardAdapter);
         rootRef.child("archive").child(apartmentID).child("expensesCards").addValueEventListener(new ValueEventListener() {
             @Override

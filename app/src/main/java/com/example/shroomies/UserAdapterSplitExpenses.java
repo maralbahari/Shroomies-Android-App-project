@@ -26,11 +26,12 @@ public class UserAdapterSplitExpenses extends RecyclerView.Adapter<UserAdapterSp
    private static ArrayList<User> shroomieList;
    private static Context context;
    private FirebaseAuth mAuth;
-   private static String amount;
+   private static String amount="";
    private View v;
    private DatabaseReference rootRef;
    private static HashMap<String,Object> sharedSplit=new HashMap<>();
    private TextView totalText;
+   private boolean fromViewCard=false;
 
     public UserAdapterSplitExpenses(ShroomiesApartment apartment, ArrayList<User> shroomieList, Context context, String amount,TextView totalText) {
         this.apartment = apartment;
@@ -38,6 +39,11 @@ public class UserAdapterSplitExpenses extends RecyclerView.Adapter<UserAdapterSp
         this.context = context;
         this.amount = amount;
         this.totalText=totalText;
+    }
+    public UserAdapterSplitExpenses(ArrayList<User> shroomieList,Context context,boolean fromViewCard){
+        this.shroomieList=shroomieList;
+        this.context=context;
+        this.fromViewCard=fromViewCard;
     }
 
     @NonNull
@@ -62,18 +68,17 @@ public class UserAdapterSplitExpenses extends RecyclerView.Adapter<UserAdapterSp
         holder.profilePic.setPadding(2,2,2,2);
     }
     holder.userName.setText(shroomieList.get(position).getName());
-    if(!amount.isEmpty()){
+    if(fromViewCard){
+        holder.amountSeekBar.setVisibility(View.INVISIBLE);
+        holder.sharedAmount.setText(shroomieList.get(position).getSharedAmount()+" RM");
+    }if(!fromViewCard){
+            if(!amount.isEmpty()){
+                holder.amountSeekBar.setMax((Integer.parseInt(amount)));
+                holder.amountSeekBar.setProgress(Integer.parseInt(amount)/shroomieList.size());
+                holder.sharedAmount.setText((Integer.parseInt(amount)/shroomieList.size())+" RM");
 
-        holder.amountSeekBar.setMax((Integer.parseInt(amount)));
-        holder.amountSeekBar.setProgress(Integer.parseInt(amount)/shroomieList.size());
-        holder.sharedAmount.setText((Integer.parseInt(amount)/shroomieList.size())+" RM");
-
+            }
     }
-
-
-
-
-
 
     }
 
@@ -94,7 +99,10 @@ public class UserAdapterSplitExpenses extends RecyclerView.Adapter<UserAdapterSp
             userName=itemView.findViewById(R.id.shroomie_split_name);
             sharedAmount=itemView.findViewById(R.id.split_amount_tv);
             amountSeekBar=itemView.findViewById(R.id.shroomie_split_seekbar);
-            totalText.setText("Total: "+amount+" RM");
+            if(totalText!=null){
+                totalText.setText("Total: "+amount+" RM");
+            }
+
             amountSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int i, boolean b) {

@@ -93,6 +93,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
 
@@ -118,7 +119,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
     Boolean expensesCardSelected;
     String saveCurrentDate, saveCurrentTime;
     ArrayList<String> memberUserNameList;
-    HashMap<String, String> userNameAndID;
+    HashMap<String, String> userNameAndID=new HashMap<>();
     ArrayAdapter<String> userNamesList;
     RequestQueue requestQueue;
     ShroomiesApartment apartment;
@@ -128,6 +129,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
     private HashMap<String,String> apartmentMembers=new HashMap<>();
     public  HashMap<String,Object> sharedAmountsList;
     private static int DIALOG_RESULT=100;
+    private ArrayList<User> shroomies=new ArrayList<>();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -197,6 +199,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                 SplitExpenses split=new SplitExpenses();
                 Bundle bundle1=new Bundle();
                 bundle1.putParcelable("APARTMENT_DETAILS",apartment);
+                bundle1.putParcelableArrayList("MEMBERS",shroomies);
                 split.setArguments(bundle1);
                 split.setTargetFragment(AddNewCard.this,DIALOG_RESULT);
                 split.show(getParentFragmentManager(),"split expenses");
@@ -205,6 +208,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
         mention.setMentionEnabled(true);
         mention.setMentionColor(Color.BLUE);
         mention.setHint("@mention");
+        mention.setTag("@");
         fTitle = title.getText().toString();
         fDescription = description.getText().toString();
         attachButton.setOnClickListener(new View.OnClickListener() {
@@ -285,7 +289,6 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
 
     private void getMemberUserNames(final HashMap<String,String> memberList) {
         memberUserNameList=new ArrayList<>();
-        userNameAndID = new HashMap<>();
         userNamesList=  new ArrayAdapter<String>(getContext(),R.layout.support_simple_spinner_dropdown_item,memberUserNameList);
         memberList.put(apartment.getOwnerID(),apartment.getOwnerID());
         for (String id : memberList.values()) {
@@ -295,6 +298,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                     if (snapshot.exists()) {
                         User user = snapshot.getValue(User.class);
                         memberUserNameList.add(user.getName());
+                        shroomies.add(user);
                         userNameAndID.put(user.getName(), user.getID());
                     }
 
@@ -346,23 +350,21 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
             }
         });
         if (notify) {
-            StringTokenizer names=new StringTokenizer(mMention,"@",false);
+            StringTokenizer names=new StringTokenizer(mMention,"@",true);
             while (names.hasMoreTokens()) {
+                    if(names.nextToken().startsWith("@")){
+                        try {
+                            String tokenName= names.nextToken();
+                            if(userNameAndID.get(tokenName.trim())!=null){
+                                sendNotification(userNameAndID.get(tokenName.trim()), " Help! your shroomies need you");
+                            }
 
-                Toast.makeText(getActivity(), userNameAndID.get(names.nextToken().trim()), Toast.LENGTH_SHORT).show();
-                sendNotification(userNameAndID.get(names.nextToken().trim()), " Help! your shroomies need you");
+                        }catch (NoSuchElementException e){
 
+                        }
+                    }
             }
-//            String[] names = mMention.split("@ ");
-//
-//            for (String name
-//                    : names) {
-//                if (name.trim() != null) {
-//                    Toast.makeText(getActivity(), userNameAndID.get(name.trim()), Toast.LENGTH_SHORT).show();
-//                    sendNotification(userNameAndID.get(name.trim()), " Help! your shroomies need you");
-//                }
-//
-//            }
+
         }
         notify = false;
     }
@@ -426,22 +428,21 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
         });
 
         if (notify) {
-            StringTokenizer names=new StringTokenizer(mMention,"@",false);
+            StringTokenizer names=new StringTokenizer(mMention,"@",true);
             while (names.hasMoreTokens()) {
-                    Toast.makeText(getActivity(), userNameAndID.get(names.nextToken().trim()), Toast.LENGTH_SHORT).show();
-                    sendNotification(userNameAndID.get(names.nextToken().trim()), " Help! your shroomies need you");
+                if(names.nextToken().startsWith("@")){
+                    try {
+                        String tokenName= names.nextToken();
+                        if(userNameAndID.get(tokenName.trim())!=null){
+                            sendNotification(userNameAndID.get(tokenName.trim()), " Help! your shroomies need you");
+                        }
 
+                    }catch (NoSuchElementException e){
+
+                    }
+                }
             }
-//            String[] names = mMention.split("\\s");
-//
-//            for (String name
-//                    : names) {
-//                if (name.trim() != null) {
-//                    Toast.makeText(getActivity(), userNameAndID.get(name.trim()), Toast.LENGTH_SHORT).show();
-//                    sendNotification(userNameAndID.get(name.trim()), " Help! your shroomies need you");
-//                }
-//
-//            }
+
         }
         notify = false;
     }
