@@ -6,4 +6,33 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MapSearchFragment"
-    android:paddingBottom="60dp"/>
+    android:paddingBottom="60dp">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
+        <Button
+            android:id="@+id/search_this_area_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Search this area"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="15dp"
+            android:textAllCaps="false"
+            android:background="@drawable/button_round_alabaster"
+            android:elevation="3dp"
+            android:fontFamily="@font/amiko"
+            android:minHeight="0dp"
+
+
+            android:padding="10dp"
+            />
+
+
+    </RelativeLayout>
+
+
+
+
+</fragment>

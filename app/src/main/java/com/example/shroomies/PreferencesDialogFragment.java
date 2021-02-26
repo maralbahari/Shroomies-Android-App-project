@@ -30,7 +30,9 @@ public class PreferencesDialogFragment extends DialogFragment {
     int tabSelected ;
 
     public interface OnPreferencesSet{
+
         void sendInput(int budget , int numberRoomMates ,List<Boolean> preferences);
+
     }
 
 

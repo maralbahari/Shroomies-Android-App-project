@@ -9,17 +9,7 @@
     app:layoutDescription="@xml/fragment_find_roommate_scene2"
     tools:context=".FindRoommate">
 
-    <ListView
-        android:id="@+id/list_view_search"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@color/white"
 
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/SVsearch_disc"
-
-        />
 
 
     <com.google.android.material.tabs.TabLayout
@@ -72,7 +62,7 @@
         app:recyclerview_fling_animation_size=".7"
         app:recyclerview_overscroll_animation_size=".7"
         app:recyclerview_damping_ratio="DAMPING_RATIO_LOW_BOUNCY"
-        app:recyclerview_stiffness="STIFFNESS_HIGH"
+        app:recyclerview_stiffness="STIFFNESS_MEDIUM"
         app:allow_drag_reorder="true"
         app:allow_item_swipe="false"/>
 

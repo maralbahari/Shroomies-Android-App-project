@@ -61,6 +61,7 @@ import java.util.Comparator;
 import java.util.List;
 
 public class MapsFragment extends DialogFragment {
+    private static int AUTOCOMPLETE_REQUEST_CODE = 1;
     private GoogleMap mMap;
     View v;
     private Button updateAddressButton;
@@ -69,22 +70,16 @@ public class MapsFragment extends DialogFragment {
     private String selectedLocationName;
     private OnLocationSet mOnLocationSet;
     private MarkerOptions mapMarker;
-
     private Geocoder geocoder;
     private PlacesClient placesClient;
     private CustomLoadingProgressBar customLoadingProgressBar;
     private TextView locationTextView;
     private LinearLayout searchBarLinearLayout;
 
-
-    private static int AUTOCOMPLETE_REQUEST_CODE = 1;
-
-
     public interface OnLocationSet {
         void sendNewLocation(LatLng selectedLatLng, String selectedAddress, String selectedLocationName);
     }
 
-    ;
 
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
 
@@ -385,14 +380,20 @@ public class MapsFragment extends DialogFragment {
         }
     }
 
-    void getLocationFromLatLng(LatLng latLng){
+    void getLocationFromLatLng(LatLng selectedLatLng){
         try {
             geocoder = new Geocoder(getActivity());
             // get the first index which os the best match
-            Address address = geocoder.getFromLocation(selectedLatLng.latitude , selectedLatLng.longitude , 1).get(0);
-            selectedAddress = address.getAddressLine(0);
-            selectedLocationName = address.getFeatureName();
-            locationTextView.setText(selectedLocationName+", " +selectedAddress);
+            List<Address> addresses = geocoder.getFromLocation(selectedLatLng.latitude , selectedLatLng.longitude , 1);
+             if(addresses!=null){
+                 if(addresses.size()>0) {
+                     Address address = addresses.get(0);
+                     selectedAddress = address.getAddressLine(0);
+                     selectedLocationName = address.getFeatureName();
+                     locationTextView.setText(selectedLocationName + ", " + selectedAddress);
+                 }
+             }
+
 
         } catch (IOException e) {
             e.printStackTrace();

@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -45,10 +46,12 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
     private FirebaseAuth mAuth;
     Boolean isFromAptFav;
 
+
     public RecycleViewAdapterApartments(List<Apartment> apartmentList, Context context, Boolean isFromAptFav){
         this.apartmentList = apartmentList;
         this.context = context;
         this.isFromAptFav = isFromAptFav;
+        setHasStableIds(true);
     }
 
     @NonNull
@@ -59,6 +62,7 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
         rootRef=FirebaseDatabase.getInstance().getReference();
         return new ViewHolder(view);
     }
+
 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
@@ -78,39 +82,16 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
         ViewPagerPostAdapter viewPagerAdapter = new ViewPagerPostAdapter(context , apartmentList.get(position).getImage_url());
         holder.apartmentViewPager.setAdapter(viewPagerAdapter);
         holder.dotsIndicator.setViewPager(holder.apartmentViewPager);
         viewPagerAdapter.registerDataSetObserver(holder.dotsIndicator.getDataSetObserver());
-
-
-
-        // on click go to the apartment view
-        holder.apartmentViewPager.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(context, ApartmentViewPage.class);
-                // add the parcelable apartment object to the intent and use it's values to
-                //update the apartment view class
-                intent.putExtra("apartment",apartmentList.get(position));
-                boolean[] prefrerancesArray = new boolean[4];
-                for (int i = 0 ; i<apartmentList.get(position).getPreferences().size(); i++){
-                    prefrerancesArray[i] = apartmentList.get(position).getPreferences().get(i);
-                }
-                intent.putExtra("apartmentPreferences" , prefrerancesArray);
-                context.startActivity(intent);
-            }
-        });
 
         List<Boolean> preferences = apartmentList.get(position).getPreferences();
         if(preferences.get(0)){holder.maleButton.setVisibility(View.VISIBLE);}else{holder.maleButton.setVisibility(View.GONE);}
         if(preferences.get(1)){holder.femaleButton.setVisibility(View.VISIBLE);}else{holder.femaleButton.setVisibility(View.GONE);}
         if(preferences.get(2)){holder.petsAllowedButton.setVisibility(View.VISIBLE);}else{holder.petsAllowedButton.setVisibility(View.GONE);}
         if(preferences.get(3)){holder.smokeFreeButton.setVisibility(View.VISIBLE);}else{holder.smokeFreeButton.setVisibility(View.GONE);}
-
-
 //
 //        String id = apartmentList.get(position).getUserID();
 //        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -195,9 +176,15 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
 //                }
 //            });
 //        }
+    }
 
 
-
+    @Override
+    public long getItemId(int position) {
+        Apartment apartment = apartmentList.get(position);
+        // Lets return in real stable id from here
+        //getting the hash code will make every id unique
+        return (apartment.getApartmentID()).hashCode();
     }
 
     @Override
@@ -212,7 +199,8 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
         ImageButton sendMessageButton;
         CheckBox favoriteCheckBox;
         DotsIndicator dotsIndicator;
-        public ViewHolder(@NonNull View itemView) {
+        RelativeLayout apartmentCardRelativeLayout;
+        public ViewHolder(@NonNull final View itemView) {
             super(itemView);
             priceTV = itemView.findViewById(R.id.price_text_view_apartment_card);
             numRoomMateTV = itemView.findViewById(R.id.Room_mate_num);
@@ -226,7 +214,7 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
             dotsIndicator = itemView.findViewById(R.id.dotsIndicator_apartment_card);
             favoriteCheckBox = itemView.findViewById(R.id.favorite_check_box_apartment);
             descriptionTV = itemView.findViewById(R.id.apartment_description);
-
+            apartmentCardRelativeLayout = itemView.findViewById(R.id.apartment_card_layout);
             sendMessageButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -250,6 +238,26 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
                     });
                 }
             });
+            // on click go to the apartment view
+            apartmentCardRelativeLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(context, ApartmentViewPage.class);
+                    // add the parcelable apartment object to the intent and use it's values to
+                    //update the apartment view class
+                    intent.putExtra("apartment",apartmentList.get(getAdapterPosition()));
+                    boolean[] prefrerancesArray = new boolean[4];
+                    for (int i = 0 ; i<apartmentList.get(getAdapterPosition()).getPreferences().size(); i++){
+                        prefrerancesArray[i] = apartmentList.get(getAdapterPosition()).getPreferences().get(i);
+                    }
+                    intent.putExtra("apartmentPreferences" , prefrerancesArray);
+                    context.startActivity(intent);
+                }
+            });
+
+
+
+
 
             if(isFromAptFav){
 

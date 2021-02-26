@@ -33,6 +33,8 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager.widget.ViewPager;
 
+import com.firebase.geofire.GeoFireUtils;
+import com.firebase.geofire.GeoLocation;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
@@ -48,7 +50,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ServerTimestamp;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -69,10 +73,8 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
     View v;
     FragmentManager fm;
     FragmentTransaction ft;
-    String address;
-    String locality;
-    String subLocality;
-    LatLng latLng;
+    String address,locality,subLocality , locationName;
+    LatLng selectedLatLng;
     private static final int PICK_IMAGE_MULTIPLE= 1;
     List<Uri> imageUri;
     private TextView locationTextView , preferencesTextView;
@@ -100,10 +102,29 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
     // override the interface method "sendNewLocation" to get the preferances
     @Override
     public void sendNewLocation(LatLng selectedLatLng, String selectedAddress , String selectedLocationName) {
-        this.latLng = selectedLatLng;
-        locationTextView.setText(selectedLocationName + " , " + selectedAddress);
-    }
+        this.selectedLatLng = selectedLatLng;
+        this.address = selectedAddress;
+        this.locationName = selectedLocationName;
+        this.address = selectedAddress;
+        locationTextView.setText(selectedLocationName +" "+ selectedAddress);
+        geocoder = new Geocoder(getActivity());
+        try {
+            List<Address> addresses = geocoder.getFromLocation(selectedLatLng.latitude , selectedLatLng.longitude , 1);
+            if(addresses!=null){
+                if(addresses.size()>0) {
+                    Address address =  addresses.get(0);
+                    locality = address.getLocality();
+                    subLocality = address.getSubLocality();
+                }
+            }
 
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+    }
     // override the interface method "sendInput" to get the preferances
     @Override
     public void sendInput(int budget, int numberRoomMates, List<Boolean> preferences) {
@@ -197,7 +218,7 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        locationTextView = (TextView)v.findViewById(R.id.location_text_view);
+        locationTextView = v.findViewById(R.id.location_text_view);
         preferencesImageButton= v.findViewById(R.id.preferences_image_button);
         publishPostButton =  v.findViewById(R.id.publish_post_button);
         viewPager = v.findViewById(R.id.view_pager);
@@ -220,7 +241,7 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
 
         // validate class will keep a check
         // of all submitted entries at the same time
-        validate = new Validate(getActivity() , new Validate.OnDataChangedListener() , descriptionEditText , numberOfRoomMatesTextView , budgetTextView , locationTextView , imageUri  , publishPostButton,  addImageWarning , postTabLayout);
+        validate = new Validate(getActivity() , new Validate.OnDataChangedListener() ,selectedLatLng, descriptionEditText , numberOfRoomMatesTextView , budgetTextView , locationTextView , imageUri  , publishPostButton,  addImageWarning , postTabLayout);
 
 //        create a text watcher to check for non empty editTexts
 //         to prevent submitting empty data
@@ -247,10 +268,10 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
 
 
 
-        if(latLng==null){
+        if(selectedLatLng ==null){
             getLocation();
         }else{
-            setCurrentLocationAddress(latLng.latitude,latLng.longitude);
+            setCurrentLocationAddress(selectedLatLng.latitude, selectedLatLng.longitude);
         }
 
         getUserImage();
@@ -284,14 +305,25 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
             public void onClick(View v) {
                 // list to hold all selected values from properties
                 if(postTabLayout.getSelectedTabPosition()==0) {
-                    //check if the locality and the sub locality have been added correctly
-                    if(locality !=null|| subLocality !=null)
-                    postImagesAddToDatabase(latLng
-                            , descriptionEditText.getText().toString()
-                            , numberOfRoommates
-                            , budget
-                            , preferences
-                            , imageUri);
+                    //check if the latlng , locality have been added correctly
+                    // the rest of the  data is checked using the validate class
+                    // this is done to display to the user that  the location is
+                    //erroneous and must be changed
+                    if(locality !=null && selectedLatLng!=null){
+                        postImagesAddToDatabase(selectedLatLng
+                                , descriptionEditText.getText().toString()
+                                , numberOfRoommates
+                                , budget
+                                , preferences
+                                , imageUri
+                                , locality
+                                , subLocality);
+                    }else{
+                        PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
+                        postPublishedDialog.warningMessage(true);
+                        postPublishedDialog.setMessageText("the location entered is invalid");
+                        postPublishedDialog.show(getParentFragmentManager() , null);
+                    }
                 }else{
                     publishPersonalPost(descriptionEditText.getText().toString()
                             , budget
@@ -417,7 +449,8 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
                                     if (location != null) {
                                         latitude = location.getLatitude();
                                         longitude = location.getLongitude();
-                                        latLng = new LatLng(latitude, longitude);
+                                        selectedLatLng = new LatLng(latitude, longitude);
+
                                         setCurrentLocationAddress(latitude , longitude);
                                         // get the icon and resize it to set it as the marker
                                     }
@@ -428,7 +461,7 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
                     getLocation();
                 }
             }
-            return latLng;
+            return selectedLatLng;
         }
     }
     void setCurrentLocationAddress(double latitude, double longitude)  {
@@ -436,12 +469,22 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
         List<Address> addresses;
         geocoder = new Geocoder(getActivity(), Locale.getDefault());
         try {
-            addresses = geocoder.getFromLocation(latitude, longitude, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
-            locality = addresses.get(0).getLocality();
-            subLocality = addresses.get(0).getSubLocality();
-            String mAddress = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
-            String knownName = addresses.get(0).getFeatureName(); // Only if available else return NULL
-            address = knownName +" , " +mAddress;
+           addresses = geocoder.getFromLocation(latitude, longitude, 1); // Here 1 represent max location result to returned, by documents it recommended 1 to 5
+           if(addresses!=null){
+               if(addresses.size()>0){
+                   locality = addresses.get(0).getLocality();
+                   subLocality = addresses.get(0).getSubLocality();
+                   String mAddress = addresses.get(0).getAddressLine(0); // If any additional address line present than only, check with max available address lines by getMaxAddressLineIndex()
+                   String knownName = addresses.get(0).getFeatureName(); // Only if available else return NULL
+
+                   if(mAddress!=null || knownName!=null) {
+                       address = knownName + " , " + mAddress;
+                       locationTextView.setText(address);
+
+                   }
+               }
+           }
+
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -514,7 +557,7 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
     }
 
 
-    void postImagesAddToDatabase(final LatLng locationLtLng , final  String description , final int numberRoomMate , final int price , final  List<Boolean> property , final List<Uri> imageUri ) {
+    void postImagesAddToDatabase(final LatLng locationLtLng , final  String description , final int numberRoomMate , final int price , final  List<Boolean> property , final List<Uri> imageUri  , final String locality , final String subLocality) {
         getFragment(new FindRoommate());
         publishPostButton.setVisibility(View.INVISIBLE);
 
@@ -522,7 +565,9 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
         StorageReference storageReference = FirebaseStorage.getInstance().getReference();
 
         //create a storage referance
+
         UploadTask uploadTask;
+
         final List<String> IMAGE_URLS = new ArrayList<>();
         for (Uri uri:
                 imageUri ) {
@@ -535,7 +580,7 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
                         IMAGE_URLS.add(task.getResult().getMetadata().getReference().getPath().toString());
                         // once all the pictures are added to the Storage add the rest of the posts using the urls to the database
                         if(IMAGE_URLS.size() == imageUri.size()){
-                            addToRealTimeDatabase(locationLtLng ,  description ,  numberRoomMate ,  price , property ,IMAGE_URLS);
+                            addToRealTimeDatabase(locationLtLng ,  description ,  numberRoomMate ,  price , property ,IMAGE_URLS  ,  locality  , subLocality);
                         }
                     }
                 }
@@ -544,11 +589,10 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
                 public void onFailure(@NonNull Exception e) {
                     PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
                     postPublishedDialog.setMessageText("an error occured while publishing your post");
-                    postPublishedDialog.setMessageImage(getActivity().getDrawable(R.drawable.ic_error_icon));
+                    postPublishedDialog.warningMessage(true);
                 }
             });
         }
-
 
     }
     private String getUniqueName(){
@@ -568,8 +612,8 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
         return  saveCurrentDate+saveCurrentTime;
     }
 
-    void addToRealTimeDatabase(LatLng locationLtLng , String description , int numberRoomMate , int price , List<Boolean> property ,List<String> IMAGE_URL){
-
+    void addToRealTimeDatabase(LatLng locationLtLng , String description , int numberRoomMate , int price , List<Boolean> property ,List<String> IMAGE_URL , String locality , String subLocality){
+        String hash = GeoFireUtils.getGeoHashForLocation(new GeoLocation(locationLtLng.latitude, locationLtLng.longitude));
         String userUid =  FirebaseAuth.getInstance().getCurrentUser().getUid();
         HashMap<String ,Object> post = new HashMap<>();
         post.put("description" , description);
@@ -580,8 +624,10 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
         post.put("longitude",locationLtLng.longitude);
         post.put("preferences" , property);
         post.put("image_url" , IMAGE_URL );
-        Calendar calendar = Calendar.getInstance();
-        post.put("date",new SimpleDateFormat("dd-MMMM-yyyy HH:mm:ss aa").format(calendar.getTime()));
+        post.put("locality" , locality);
+        post.put("sub_locality" , subLocality);
+        post.put("time_stamp", FieldValue.serverTimestamp());
+        post.put("geoHash" , hash);
 
         mDocRef.collection("postApartment").add(post).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
             @Override
@@ -594,7 +640,7 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
             public void onFailure(@NonNull Exception e) {
                 PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
                 postPublishedDialog.setMessageText("an error occured while publishing your post");
-                postPublishedDialog.setMessageImage(getActivity().getDrawable(R.drawable.ic_error_icon));
+                postPublishedDialog.warningMessage(true);
             }
         });
 
@@ -614,8 +660,7 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
         post.put("price", price);
         post.put("preferences" , property);
         // add the time of the post
-        Calendar calendar = Calendar.getInstance();
-        post.put("date",new SimpleDateFormat("dd-MMMM-yyyy HH:mm:ss aa").format(calendar.getTime()));
+        post.put("time_stamp",FieldValue.serverTimestamp());
 
         mDocRef.collection("postPersonal").add(post).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
             @Override
@@ -628,7 +673,7 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
             public void onFailure(@NonNull Exception e) {
                 PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
                 postPublishedDialog.setMessageText("An error occurred while publishing your post");
-                postPublishedDialog.setMessageImage(getActivity().getDrawable(R.drawable.ic_error_icon));
+                postPublishedDialog.warningMessage(true);
             }
         });
         getFragment(new FindRoommate());
@@ -731,9 +776,10 @@ class Validate{
     List<Uri> imageUri;
     Button publishPostButton;
     TabLayout tabLayout;
+    LatLng selectedLatLng;
 
 
-    public Validate(Context context , DataChangedEvent listener, EditText description, TextView numberOfRoommates, TextView budgetTextView, TextView locationTextView, List<Uri> imageUri ,Button  publishPostButton , TextView warningTextView , TabLayout tabLayout) {
+    public Validate(Context context , DataChangedEvent listener,  LatLng  selectedLatLng,EditText description, TextView numberOfRoommates, TextView budgetTextView, TextView locationTextView, List<Uri> imageUri ,Button  publishPostButton , TextView warningTextView , TabLayout tabLayout) {
         this.context = context;
         this.listener = listener;
         this.description = description;
@@ -744,6 +790,7 @@ class Validate{
         this.publishPostButton = publishPostButton;
         this.warningTextView = warningTextView;
         this.tabLayout = tabLayout;
+        this.selectedLatLng = selectedLatLng;
     }
 
     void notifyDataChanged(){
@@ -753,7 +800,8 @@ class Validate{
                             && !budgetTextView.getText().toString().trim().isEmpty()
                             && !numberOfRoommates.getText().toString().trim().isEmpty()
                             && !description.getText().toString().trim().isEmpty()
-                            && !imageUri.isEmpty();
+                            && !imageUri.isEmpty()
+                            ;
                 }else{
                     dataIsComplete= !budgetTextView.getText().toString().trim().isEmpty()
                             && !description.getText().toString().trim().isEmpty();

@@ -101,8 +101,8 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
             descriptionTextView.setText(apartment.getDescription());
             //set the no of roommates
             numberOfRoomMates.setText(Integer.toString(apartment.getNumberOfRoommates() ) + " Room mates required ");
-            // set the date
-            date.setText(apartment.getDate().split(" ")[0]);
+//            // set the date
+//            date.setText(apartment.getDate().split(" ")[0]);
 
             messageButton.setOnClickListener(new View.OnClickListener() {
                 @Override

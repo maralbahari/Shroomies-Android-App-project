@@ -21,6 +21,8 @@ public class PostPublishedDialog extends DialogFragment {
     View v;
     TextView messageTextView;
     ImageView messageImage ;
+    boolean warning;
+    String message;
     @Override
     public void onStart() {
         super.onStart();
@@ -53,11 +55,18 @@ public class PostPublishedDialog extends DialogFragment {
         super.onViewCreated(view, savedInstanceState);
         messageTextView = v.findViewById(R.id.message_text_view);
         messageImage = v.findViewById(R.id.check_image_view);
+        if(warning) {
+            messageImage.setImageDrawable(getActivity().getDrawable(R.drawable.ic_error_icon));
+        }
+        if(message!=null){
+            messageTextView.setText(message);
+        }
     }
     void setMessageText(String text){
-        messageTextView.setText(text);
+      message = text;
     }
-    void setMessageImage(Drawable imageDrawable){
-        messageImage.setImageDrawable(imageDrawable);
+    void warningMessage(boolean warning){
+        this.warning = warning;
+
     }
 }

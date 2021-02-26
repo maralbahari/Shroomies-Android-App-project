@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginTop="0.2dp"
-
+    android:id="@+id/apartment_card_layout"
     android:padding="10dp"
     android:background="@drawable/apartment_post_background"
     android:elevation="3dp"

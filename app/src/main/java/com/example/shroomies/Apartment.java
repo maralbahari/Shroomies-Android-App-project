@@ -4,23 +4,31 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.type.Date;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 public class Apartment implements Parcelable {
     String userID;
+
+
+    String apartmentID;
     String description;
     String date;
+    Date time_stamp;
     String id;
     int numberOfRoommates;
     double latitude;
     double longitude;
+
     List<String> image_url;
      List<Boolean> preferences;
     int price;
     Apartment(){
 
     }
+
 
     public String getUserID() {
         return userID;
@@ -30,9 +38,6 @@ public class Apartment implements Parcelable {
         return description;
     }
 
-    public String getDate() {
-        return date;
-    }
 
     public int getNumberOfRoommates() {
         return numberOfRoommates;
@@ -56,6 +61,14 @@ public class Apartment implements Parcelable {
 
     public int getPrice() {
         return price;
+    }
+
+    public String getApartmentID() {
+        return apartmentID;
+    }
+
+    public void setApartmentID(String apartmentID) {
+        this.apartmentID = apartmentID;
     }
 
     protected Apartment(Parcel in) {
