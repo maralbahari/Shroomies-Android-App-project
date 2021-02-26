@@ -1,6 +1,11 @@
 package com.example.shroomies;
 
-public class TasksCard {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import java.lang.reflect.ParameterizedType;
+
+public class TasksCard implements Parcelable {
 
     String description, title,dueDate, importance, members, date, cardId, done,mention;
 
@@ -18,6 +23,30 @@ public class TasksCard {
         this.done = done;
         this.mention = mention;
     }
+
+    protected TasksCard(Parcel in) {
+        description = in.readString();
+        title = in.readString();
+        dueDate = in.readString();
+        importance = in.readString();
+        members = in.readString();
+        date = in.readString();
+        cardId = in.readString();
+        done = in.readString();
+        mention = in.readString();
+    }
+
+    public static final Creator<TasksCard> CREATOR = new Creator<TasksCard>() {
+        @Override
+        public TasksCard createFromParcel(Parcel in) {
+            return new TasksCard(in);
+        }
+
+        @Override
+        public TasksCard[] newArray(int size) {
+            return new TasksCard[size];
+        }
+    };
 
     public String getMention() {
         return mention;
@@ -89,5 +118,23 @@ public class TasksCard {
 
     public String getDone() {
         return done;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(description);
+        parcel.writeString(title);
+        parcel.writeString(dueDate);
+        parcel.writeString(importance);
+        parcel.writeString(members);
+        parcel.writeString(date);
+        parcel.writeString(cardId);
+        parcel.writeString(done);
+        parcel.writeString(mention);
     }
 }

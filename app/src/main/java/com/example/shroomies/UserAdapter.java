@@ -139,33 +139,30 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             removeMember.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    rootRef.child("apartments").child(apartment.getApartmentID()).child("apartmentMembers").child(userList.get(getAdapterPosition()).getID()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    final DatabaseReference ref= rootRef.child("apartments").push();
+                    final String newApartmentID =ref.getKey();
+                    final HashMap<String,Object> apartmentDetails=new HashMap<>();
+                    apartmentDetails.put("apartmentID",newApartmentID);
+                    apartmentDetails.put("ownerID",userList.get(getAdapterPosition()).getID());
+                    ref.updateChildren(apartmentDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
-                        public void onSuccess(Void aVoid) {
-                            final DatabaseReference ref= rootRef.child("apartments").push();
-                            final String newApartmentID =ref.getKey();
-                            final HashMap<String,Object> apartmentDetails=new HashMap<>();
-                            apartmentDetails.put("apartmentID",newApartmentID);
-                            apartmentDetails.put("ownerID",userList.get(getAdapterPosition()).getID());
-                            ref.updateChildren(apartmentDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
+                        public void onComplete(@NonNull Task<Void> task) {
+                            rootRef.child("Users").child(userList.get(getAdapterPosition()).getID()).child("isPartOfRoom").setValue(newApartmentID).addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    rootRef.child("Users").child(userList.get(getAdapterPosition()).getID()).child("isPartOfRoom").setValue(newApartmentID).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                public void onSuccess(Void aVoid) {
+                                    rootRef.child("apartments").child(apartment.getApartmentID()).child("apartmentMembers").child(userList.get(getAdapterPosition()).getID()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
                                             Toast.makeText(context,"User deleted successfully",Toast.LENGTH_LONG).show();
                                             notifyItemRemoved(getAdapterPosition());
-                                            //add progress
-
-
 
                                         }
                                     });
                                 }
                             });
-
                         }
                     });
+
                 }
             });
 

@@ -1,15 +1,21 @@
 package com.example.shroomies;
 
-public class ExpensesCard  {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import java.util.HashMap;
+
+public class ExpensesCard implements Parcelable {
 
     String attachedFile, description, title, dueDate, importance,members, date, cardId, done, mention;
+    HashMap<String,Object> membersShares=new HashMap<>();
 
     public ExpensesCard() {
 
     }
 
 
-    public ExpensesCard(String attachedFile, String description, String title, String dueDate, String importance, String members,String cardId, String done, String mention) {
+    public ExpensesCard(String attachedFile, String description, String title, String dueDate, String importance, String members,String cardId, String done, String mention,HashMap<String,Object> membersShares) {
         this.attachedFile = attachedFile;
         this.description = description;
         this.title = title;
@@ -19,6 +25,41 @@ public class ExpensesCard  {
         this.cardId = cardId;
         this.done = done;
         this.mention = mention;
+        this.membersShares=membersShares;
+    }
+
+    protected ExpensesCard(Parcel in) {
+        attachedFile = in.readString();
+        description = in.readString();
+        title = in.readString();
+        dueDate = in.readString();
+        importance = in.readString();
+        members = in.readString();
+        date = in.readString();
+        cardId = in.readString();
+        done = in.readString();
+        mention = in.readString();
+        membersShares=in.readHashMap(HashMap.class.getClassLoader());
+    }
+
+    public static final Creator<ExpensesCard> CREATOR = new Creator<ExpensesCard>() {
+        @Override
+        public ExpensesCard createFromParcel(Parcel in) {
+            return new ExpensesCard(in);
+        }
+
+        @Override
+        public ExpensesCard[] newArray(int size) {
+            return new ExpensesCard[size];
+        }
+    };
+
+    public HashMap<String, Object> getMembersShares() {
+        return membersShares;
+    }
+
+    public void setMembersShares(HashMap<String, Object> membersShares) {
+        this.membersShares = membersShares;
     }
 
     public String getMention() {
@@ -99,5 +140,25 @@ public class ExpensesCard  {
 
     public String getDone() {
         return done;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(attachedFile);
+        parcel.writeString(description);
+        parcel.writeString(title);
+        parcel.writeString(dueDate);
+        parcel.writeString(importance);
+        parcel.writeString(members);
+        parcel.writeString(date);
+        parcel.writeString(cardId);
+        parcel.writeString(done);
+        parcel.writeString(mention);
+        parcel.writeMap(membersShares);
     }
 }

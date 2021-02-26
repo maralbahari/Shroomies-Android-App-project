@@ -2,6 +2,7 @@ package com.example.shroomies;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.os.Bundle;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -18,6 +19,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -53,13 +56,14 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
     private Button cont, no;
     private ShroomiesApartment apartment;
     private FirebaseStorage storage;
+    private FragmentManager fragmentManager;
 
-
-    public ExpensesCardAdapter(ArrayList<ExpensesCard> expensesCardArrayList, Context context, Boolean fromArchive,ShroomiesApartment apartment) {
+    public ExpensesCardAdapter(ArrayList<ExpensesCard> expensesCardArrayList, Context context, Boolean fromArchive,ShroomiesApartment apartment,FragmentManager fragmentManager) {
         this.expensesCardArrayList = expensesCardArrayList;
         this.context=context;
         this.fromArchive = fromArchive;
         this.apartment=apartment;
+        this.fragmentManager=fragmentManager;
     }
 
     public void setItemTouchHelper(ItemTouchHelper itemTouchHelper){
@@ -110,9 +114,6 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
         holder.dueDate.setText(expensesCardArrayList.get(position).getDueDate());
         String importanceViewColor = expensesCardArrayList.get(position).getImportance();
         holder.mention.setText(expensesCardArrayList.get(position).getMention());
-
-
-
         Boolean cardStatus = expensesCardArrayList.get(position).getDone().equals("true");
         if (cardStatus){
             holder.done.setChecked(true);
@@ -212,6 +213,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
         ImageView sadShroomie, stars, shroomieArch;
         Button cont, no,yesBtn,noBtn;
         CheckBox done;
+        private CardView expensesCardView;
 
         public ExpensesViewHolder(@NonNull View v) {
             super(v);
@@ -225,9 +227,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
             mention = v.findViewById(R.id.expenses_mention_et);
             done = v.findViewById(R.id.expense_done);
             markAsDone = v.findViewById(R.id.shroomie_markasdone);
-
-
-
+            expensesCardView=v.findViewById(R.id.my_shroomie_expenses_card);
             done.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -321,6 +321,17 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                         }
                     });
 
+                }
+            });
+            expensesCardView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    ViewCards viewCard=new ViewCards();
+                    Bundle bundle=new Bundle();
+                    bundle.putParcelable("CARD_DETAILS",expensesCardArrayList.get(getAdapterPosition()));
+                    bundle.putBoolean("FROM_TASK_TAB",false);
+                    viewCard.setArguments(bundle);
+                    viewCard.show(fragmentManager,"VIEWCARD");
                 }
             });
 
@@ -441,5 +452,6 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
         });
 
     }
+
 
 }

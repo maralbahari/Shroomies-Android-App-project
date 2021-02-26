@@ -2,6 +2,7 @@ package com.example.shroomies;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.os.Bundle;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -19,6 +20,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -46,17 +49,19 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
     private DatabaseReference rootRef;
     private FirebaseAuth mAuth;
     private ItemTouchHelper itemTouchHelper;
-    Boolean fromArchive;
-    ImageView sadShroomie, stars;
-    Button cont, no;
-    ShroomiesApartment apartment;
+    private Boolean fromArchive;
+    private ImageView sadShroomie, stars;
+    private Button cont, no;
+    private ShroomiesApartment apartment;
+    private FragmentManager fragmentManager;
 
 
-    public TasksCardAdapter(ArrayList<TasksCard> tasksCardsList, Context context,boolean fromArchive,ShroomiesApartment apartment) {
+    public TasksCardAdapter(ArrayList<TasksCard> tasksCardsList, Context context,boolean fromArchive,ShroomiesApartment apartment,FragmentManager fragmentManager) {
         this.tasksCardsList = tasksCardsList;
         this.context = context;
         this.fromArchive = fromArchive;
         this.apartment=apartment;
+        this.fragmentManager=fragmentManager;
     }
 
     @Override
@@ -85,6 +90,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         Button cont, no, yesButton, noButton;
         CheckBox done;
         GestureDetector gestureDetector;
+        private CardView taskCardView;
 
         public TasksCardViewHolder(@NonNull  View v) {
             super(v);
@@ -97,7 +103,18 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
             done = v.findViewById(R.id.expense_done);
             markAsDone = v.findViewById(R.id.shroomie_markasdone);
             mention = v.findViewById(R.id.expenses_mention_et);
-
+            taskCardView=v.findViewById(R.id.task_card_view);
+            taskCardView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    ViewCards viewCard=new ViewCards();
+                    Bundle bundle=new Bundle();
+                    bundle.putParcelable("CARD_DETAILS",tasksCardsList.get(getAdapterPosition()));
+                    bundle.putBoolean("FROM_TASK_TAB",true);
+                    viewCard.setArguments(bundle);
+                    viewCard.show(fragmentManager,"VIEWCARD");
+                }
+            });
             delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

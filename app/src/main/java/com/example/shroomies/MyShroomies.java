@@ -161,7 +161,7 @@ public class MyShroomies extends Fragment   {
                 }
                 bundle.putParcelable("APARTMENT_DETAILS",apartment);
                 addNewCard.setArguments(bundle);
-                addNewCard.show(getFragmentManager(),"add new card");
+                addNewCard.show(getParentFragmentManager(),"add new card");
 
             }
         });
@@ -169,9 +169,9 @@ public class MyShroomies extends Fragment   {
             @Override
             public void onClick(View v) {
                 Members members=new Members();
-                Bundle bundle=new Bundle();
-                bundle.putParcelable("APARTMENT_DETAILS",apartment);
-                members.setArguments(bundle);
+                Bundle bundle1=new Bundle();
+                bundle1.putParcelable("APARTMENT_DETAILS",apartment);
+                members.setArguments(bundle1);
                 members.show(getParentFragmentManager(),"show member");
             }
         });
@@ -213,7 +213,7 @@ public class MyShroomies extends Fragment   {
 
     private void retrieveTaskCards(String apartmentID) {
         tasksCardsList=new ArrayList<>();
-        tasksCardAdapter= new TasksCardAdapter(tasksCardsList,getContext(),false,apartment);
+        tasksCardAdapter= new TasksCardAdapter(tasksCardsList,getContext(),false,apartment,getParentFragmentManager());
         ItemTouchHelper.Callback callback = new CardsTouchHelper(tasksCardAdapter);
         ItemTouchHelper itemTouchHelperTask = new ItemTouchHelper(callback);
         tasksCardAdapter.setItemTouchHelper(itemTouchHelperTask);
@@ -242,7 +242,7 @@ public class MyShroomies extends Fragment   {
     public void retreiveExpensesCards(String apartmentID){
 //        Toast.makeText(getContext(),"HKOADKOSKAD",Toast.LENGTH_SHORT).show();
         expensesCardsList=new ArrayList<>();
-        expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList,getContext(), false,apartment);
+        expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList,getContext(), false,apartment,getParentFragmentManager());
         ItemTouchHelper.Callback callback = new CardsTouchHelper(expensesCardAdapter);
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
         expensesCardAdapter.setItemTouchHelper(itemTouchHelper);

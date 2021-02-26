@@ -6,9 +6,13 @@ import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.text.Editable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,6 +23,8 @@ import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ListPopupWindow;
+import android.widget.ListView;
 import android.widget.MultiAutoCompleteTextView;
 import android.widget.RadioGroup;
 import android.widget.TextView;
@@ -28,6 +34,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.MenuPopupWindow;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -57,6 +64,24 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.hendraanggrian.socialview.commons.Mention;
+import com.hendraanggrian.widget.SocialAutoCompleteTextView;
+import com.linkedin.android.spyglass.mentions.Mentionable;
+import com.linkedin.android.spyglass.suggestions.SuggestionsResult;
+import com.linkedin.android.spyglass.suggestions.interfaces.SuggestionsListBuilder;
+import com.linkedin.android.spyglass.suggestions.interfaces.SuggestionsResultListener;
+import com.linkedin.android.spyglass.suggestions.interfaces.SuggestionsVisibilityManager;
+import com.linkedin.android.spyglass.tokenization.QueryToken;
+import com.linkedin.android.spyglass.tokenization.impl.WordTokenizer;
+import com.linkedin.android.spyglass.tokenization.impl.WordTokenizerConfig;
+import com.linkedin.android.spyglass.tokenization.interfaces.QueryTokenReceiver;
+import com.linkedin.android.spyglass.ui.MentionsEditText;
+import com.otaliastudios.autocomplete.Autocomplete;
+import com.otaliastudios.autocomplete.AutocompleteCallback;
+import com.otaliastudios.autocomplete.AutocompletePolicy;
+import com.otaliastudios.autocomplete.AutocompletePresenter;
+import com.otaliastudios.autocomplete.CharPolicy;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -64,23 +89,22 @@ import org.json.JSONObject;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.StringTokenizer;
 
 
-public class AddNewCard extends DialogFragment {
-
-    FragmentTransaction ft;
-    FragmentManager fm;
+public class AddNewCard extends DialogFragment implements SplitExpenses.membersShares {
     View v;
     Button attachButton, addCard;
     TextView newCardTv, dueDate, attachedFile;
     EditText title, description;
-    MultiAutoCompleteTextView mention;
+    private SocialAutoCompleteTextView mention;
     CheckBox done;
     RadioGroup newcardShroomieRadioGroup;
-    Calendar calendar;
-    //    String[] spinnerOption = {"Importance","Date","Title"};
     String fTitle, fDescription, fDueDate, fAttachUrl, fImportance, fDone;
     private static final int CAMERA_REQUEST_CODE = 100;
     private static final int STORAGE_REQUEST_CODE = 200;
@@ -90,23 +114,22 @@ public class AddNewCard extends DialogFragment {
     String[] cameraPermissions;
     String[] storagePermissions;
     Uri chosenImage = null;
-    StorageReference filePathName;
-    private String imageUrl;
-    FirebaseDatabase firebaseDatabase;
     DatabaseReference rootRef;
     FirebaseAuth mAuth;
     Boolean expensesCardSelected;
     String saveCurrentDate, saveCurrentTime;
-    String cdate, doneCheckbox;
-//    String currentUserAppartmentId = "";
-    ArrayList<String> memberList;
     ArrayList<String> memberUserNameList;
-    HashMap<String, String> userNameAndID;
+    HashMap<String, String> userNameAndID=new HashMap<>();
     ArrayAdapter<String> userNamesList;
     RequestQueue requestQueue;
     ShroomiesApartment apartment;
     boolean notify = false;
     ImageView close;
+    private Button splitExpenses;
+    private HashMap<String,String> apartmentMembers=new HashMap<>();
+    public  HashMap<String,Object> sharedAmountsList;
+    private static int DIALOG_RESULT=100;
+    private ArrayList<User> shroomies=new ArrayList<>();
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -146,8 +169,8 @@ public class AddNewCard extends DialogFragment {
         dueDate = v.findViewById(R.id.due_date);
         mention = v.findViewById(R.id.tag_shroomie);
         close=v.findViewById(R.id.x_button_new_card);
-//        mention.setThreshold(6);
         done = v.findViewById(R.id.expense_done);
+        splitExpenses=v.findViewById(R.id.split_expenses);
         cameraPermissions = new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
         storagePermissions = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
         attachedFile = v.findViewById(R.id.attached_files);
@@ -157,15 +180,35 @@ public class AddNewCard extends DialogFragment {
                 dismiss();
             }
         });
-        Bundle bundle = this.getArguments();
+        final Bundle bundle = this.getArguments();
         if (bundle != null) {
             expensesCardSelected = bundle.getBoolean("Expenses");
             apartment=bundle.getParcelable("APARTMENT_DETAILS");
+            apartmentMembers.putAll(apartment.getApartmentMembers());
+            getMemberUserNames(apartmentMembers);
             if (!expensesCardSelected) {
-                attachButton.setVisibility(v.GONE);
-            }
-        }
+                attachButton.setVisibility(v.INVISIBLE);
+                splitExpenses.setVisibility(v.INVISIBLE);
 
+            }
+
+        }
+        splitExpenses.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                SplitExpenses split=new SplitExpenses();
+                Bundle bundle1=new Bundle();
+                bundle1.putParcelable("APARTMENT_DETAILS",apartment);
+                bundle1.putParcelableArrayList("MEMBERS",shroomies);
+                split.setArguments(bundle1);
+                split.setTargetFragment(AddNewCard.this,DIALOG_RESULT);
+                split.show(getParentFragmentManager(),"split expenses");
+            }
+        });
+        mention.setMentionEnabled(true);
+        mention.setMentionColor(Color.BLUE);
+        mention.setHint("@mention");
+        mention.setTag("@");
         fTitle = title.getText().toString();
         fDescription = description.getText().toString();
         attachButton.setOnClickListener(new View.OnClickListener() {
@@ -197,7 +240,6 @@ public class AddNewCard extends DialogFragment {
                 mdescription = description.getText().toString();
                 mtitle = title.getText().toString();
                 mMention = mention.getText().toString();
-
                 if (mtitle.isEmpty()) {
 
                     Toast.makeText(getContext(), "Please insert Title", Toast.LENGTH_SHORT).show();
@@ -205,7 +247,10 @@ public class AddNewCard extends DialogFragment {
                     if (expensesCardSelected == false) {
                         saveTaskCardToFirebase(mtitle, mdescription, mdueDate, importantButton, mMention, apartment.getApartmentID());
                     } else if (expensesCardSelected == true) {
-                        uploadImgToFirebaseStorage(mtitle, mdescription, mdueDate, importantButton, chosenImage, mMention);
+
+                            uploadImgToFirebaseStorage(mtitle, mdescription, mdueDate, importantButton, chosenImage, mMention,sharedAmountsList);
+
+
                     }
                 }
 
@@ -242,21 +287,22 @@ public class AddNewCard extends DialogFragment {
         requestQueue = Volley.newRequestQueue(getActivity());
     }
 
-    private void getMemberUserNames(final ArrayList<String> memberList) {
-        memberUserNameList = new ArrayList<>();
-        userNameAndID = new HashMap<>();
-        userNamesList = new ArrayAdapter<String>(getContext(), R.layout.support_simple_spinner_dropdown_item, memberUserNameList);
-        for (String id : memberList) {
+    private void getMemberUserNames(final HashMap<String,String> memberList) {
+        memberUserNameList=new ArrayList<>();
+        userNamesList=  new ArrayAdapter<String>(getContext(),R.layout.support_simple_spinner_dropdown_item,memberUserNameList);
+        memberList.put(apartment.getOwnerID(),apartment.getOwnerID());
+        for (String id : memberList.values()) {
             rootRef.child("Users").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     if (snapshot.exists()) {
                         User user = snapshot.getValue(User.class);
                         memberUserNameList.add(user.getName());
+                        shroomies.add(user);
                         userNameAndID.put(user.getName(), user.getID());
                     }
-                    mention.setAdapter(userNamesList);
-                    mention.setTokenizer(new MultiAutoCompleteTextView.CommaTokenizer());
+
+                    mention.setMentionAdapter(userNamesList);
                 }
 
                 @Override
@@ -267,6 +313,7 @@ public class AddNewCard extends DialogFragment {
 
 
         }
+
     }
 
 
@@ -303,16 +350,21 @@ public class AddNewCard extends DialogFragment {
             }
         });
         if (notify) {
-            String[] names = mMention.split(",");
+            StringTokenizer names=new StringTokenizer(mMention,"@",true);
+            while (names.hasMoreTokens()) {
+                    if(names.nextToken().startsWith("@")){
+                        try {
+                            String tokenName= names.nextToken();
+                            if(userNameAndID.get(tokenName.trim())!=null){
+                                sendNotification(userNameAndID.get(tokenName.trim()), " Help! your shroomies need you");
+                            }
 
-            for (String name
-                    : names) {
-                if (name.trim() != null) {
-                    Toast.makeText(getActivity(), userNameAndID.get(name.trim()), Toast.LENGTH_SHORT).show();
-                    sendNotification(userNameAndID.get(name.trim()), " Help! your shroomies need you");
-                }
+                        }catch (NoSuchElementException e){
 
+                        }
+                    }
             }
+
         }
         notify = false;
     }
@@ -339,7 +391,7 @@ public class AddNewCard extends DialogFragment {
     }
 
 
-    public void saveToFireBase(String title, String description, String dueDate, String attachUrl, String importance, final String mMention,String apartmentID) {
+    public void saveToFireBase(String title, String description, String dueDate, String attachUrl, String importance, final String mMention,String apartmentID,final HashMap<String,Object> shareAmounts) {
         if (!mMention.isEmpty()) {
             notify = true;
         }
@@ -360,6 +412,9 @@ public class AddNewCard extends DialogFragment {
         newCard.put("cardId", uniqueID);
         newCard.put("done", "false");
         newCard.put("mention", mMention);
+        if(shareAmounts!=null){
+            newCard.put("membersShares",shareAmounts);
+        }
 
         ref.updateChildren(newCard).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
@@ -373,24 +428,29 @@ public class AddNewCard extends DialogFragment {
         });
 
         if (notify) {
-            String[] names = mMention.split(",");
+            StringTokenizer names=new StringTokenizer(mMention,"@",true);
+            while (names.hasMoreTokens()) {
+                if(names.nextToken().startsWith("@")){
+                    try {
+                        String tokenName= names.nextToken();
+                        if(userNameAndID.get(tokenName.trim())!=null){
+                            sendNotification(userNameAndID.get(tokenName.trim()), " Help! your shroomies need you");
+                        }
 
-            for (String name
-                    : names) {
-                if (name.trim() != null) {
-                    Toast.makeText(getActivity(), userNameAndID.get(name.trim()), Toast.LENGTH_SHORT).show();
-                    sendNotification(userNameAndID.get(name.trim()), " Help! your shroomies need you");
+                    }catch (NoSuchElementException e){
+
+                    }
                 }
-
             }
+
         }
         notify = false;
     }
 
 
-    public void uploadImgToFirebaseStorage(final String title, final String description, final String dueDate, final String importance, Uri imgUri, final String mMention) {
+    public void uploadImgToFirebaseStorage(final String title, final String description, final String dueDate, final String importance, Uri imgUri, final String mMention,final HashMap<String,Object> sharedAmounts) {
         if (imgUri == null) {
-            saveToFireBase(title, description, dueDate, "", importance, mMention,apartment.getApartmentID());
+            saveToFireBase(title, description, dueDate, "", importance, mMention,apartment.getApartmentID(),sharedAmounts);
         } else {
             StorageReference storageReference = FirebaseStorage.getInstance().getReference();
             StorageReference filePath = storageReference.child("Card post image").child(imgUri.getLastPathSegment() + ".jpg");
@@ -405,7 +465,7 @@ public class AddNewCard extends DialogFragment {
                     task.getResult().getMetadata().getReference().getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                         @Override
                         public void onSuccess(Uri uri) {
-                            saveToFireBase(title, description, dueDate, uri.toString(), importance, mMention,apartment.getApartmentID());
+                            saveToFireBase(title, description, dueDate, uri.toString(), importance, mMention,apartment.getApartmentID(),sharedAmounts);
                         }
                     });
 
@@ -472,7 +532,7 @@ public class AddNewCard extends DialogFragment {
         ActivityCompat.requestPermissions(getActivity(), cameraPermissions, CAMERA_REQUEST_CODE);
     }
 
-    //this method is called when user oress allow or deny form permission request dialog
+    //this method is called when user press allow or deny form permission request dialog
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -565,10 +625,14 @@ public class AddNewCard extends DialogFragment {
 
     }
 
+    @Override
+    public void sendInput(HashMap<String, Object> sharedSplit) {
+        this.sharedAmountsList=sharedSplit;
+        if(!sharedAmountsList.isEmpty()){
+            splitExpenses.setText("Splited");
+        }
 
-
-
-
+    }
 }
 
 
