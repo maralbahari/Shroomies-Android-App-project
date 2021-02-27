@@ -67,21 +67,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.hendraanggrian.socialview.commons.Mention;
 import com.hendraanggrian.widget.SocialAutoCompleteTextView;
-import com.linkedin.android.spyglass.mentions.Mentionable;
-import com.linkedin.android.spyglass.suggestions.SuggestionsResult;
-import com.linkedin.android.spyglass.suggestions.interfaces.SuggestionsListBuilder;
-import com.linkedin.android.spyglass.suggestions.interfaces.SuggestionsResultListener;
-import com.linkedin.android.spyglass.suggestions.interfaces.SuggestionsVisibilityManager;
-import com.linkedin.android.spyglass.tokenization.QueryToken;
-import com.linkedin.android.spyglass.tokenization.impl.WordTokenizer;
-import com.linkedin.android.spyglass.tokenization.impl.WordTokenizerConfig;
-import com.linkedin.android.spyglass.tokenization.interfaces.QueryTokenReceiver;
-import com.linkedin.android.spyglass.ui.MentionsEditText;
-import com.otaliastudios.autocomplete.Autocomplete;
-import com.otaliastudios.autocomplete.AutocompleteCallback;
-import com.otaliastudios.autocomplete.AutocompletePolicy;
-import com.otaliastudios.autocomplete.AutocompletePresenter;
-import com.otaliastudios.autocomplete.CharPolicy;
+
 
 import org.json.JSONException;
 import org.json.JSONObject;

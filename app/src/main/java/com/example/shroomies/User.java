@@ -1,10 +1,8 @@
 package com.example.shroomies;
-
 import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.linkedin.android.spyglass.mentions.Mentionable;
 
 public class User implements Parcelable{
     private String name;
