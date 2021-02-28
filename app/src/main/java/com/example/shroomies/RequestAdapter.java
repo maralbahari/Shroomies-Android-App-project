@@ -80,7 +80,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
     public void onBindViewHolder(@NonNull RequestAdapter.RequestViewHolder holder, final int position) {
        holder.senderName.setText(usersList.get(position).getName());
        String imageUrl= usersList.get(position).getImage();
-       if(imageUrl!=null){
+       if(!imageUrl.isEmpty()){
            GlideApp.with(context)
                    .load(usersList.get(position).getImage())
                    .fitCenter()
@@ -93,7 +93,6 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
            holder.accept.setVisibility(View.INVISIBLE);
            holder.requetsTv.setText("has been invited by you");
            holder.cancel.setVisibility(View.VISIBLE);
-
            holder.cancel.setOnClickListener(new View.OnClickListener() {
                @Override
                public void onClick(View view) {
@@ -111,8 +110,11 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
                }
            });
 
-           //set cancele request button here to visible
-
+       }else{
+           holder.reject.setVisibility(View.VISIBLE);
+           holder.accept.setVisibility(View.VISIBLE);
+           holder.requetsTv.setText("has invited you");
+           holder.cancel.setVisibility(View.INVISIBLE);
        }
     }
 

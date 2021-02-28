@@ -41,9 +41,6 @@ public class MyShroomies extends Fragment   {
     private RecyclerView myExpensesRecyclerView;
     private RecyclerView myTasksRecyclerView;
     private Spinner shroomieSpinnerFilter;
-    private ArrayList<String> options = new ArrayList<>();
-    private FragmentTransaction ft;
-    private FragmentManager fm;
     private DatabaseReference rootRef;
     private FirebaseAuth mAuth;
     private ArrayList<TasksCard> tasksCardsList;
@@ -86,7 +83,10 @@ public class MyShroomies extends Fragment   {
         LinearLayoutManager linearLayoutManager1 =new LinearLayoutManager(getContext());
         myTasksRecyclerView.setHasFixedSize(true);
         myTasksRecyclerView.setLayoutManager(linearLayoutManager1);
-        retreiveExpensesCards(apartmentID);
+        expensesCardsList=new ArrayList<>();
+        expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList,getContext(), false,apartment,getParentFragmentManager());
+        myExpensesRecyclerView.setAdapter(expensesCardAdapter);
+
         myShroomiesTablayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
@@ -219,6 +219,7 @@ public class MyShroomies extends Fragment   {
         tasksCardAdapter.setItemTouchHelper(itemTouchHelperTask);
         itemTouchHelperTask.attachToRecyclerView(myTasksRecyclerView);
         myTasksRecyclerView.setAdapter(tasksCardAdapter);
+
         tasksCardListener=rootRef.child("apartments").child(apartmentID).child("tasksCards").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -240,7 +241,6 @@ public class MyShroomies extends Fragment   {
 
 
     public void retreiveExpensesCards(String apartmentID){
-//        Toast.makeText(getContext(),"HKOADKOSKAD",Toast.LENGTH_SHORT).show();
         expensesCardsList=new ArrayList<>();
         expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList,getContext(), false,apartment,getParentFragmentManager());
         ItemTouchHelper.Callback callback = new CardsTouchHelper(expensesCardAdapter);
@@ -257,8 +257,8 @@ public class MyShroomies extends Fragment   {
                     for (DataSnapshot sp : snapshot.getChildren()) {
                         ExpensesCard expensesCard = sp.getValue(ExpensesCard.class);
                         expensesCardsList.add(expensesCard);
-                    }
 
+                    }
                     expensesCardAdapter.notifyDataSetChanged();
                 }
             }

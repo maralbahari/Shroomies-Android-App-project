@@ -34,6 +34,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.hendraanggrian.widget.SocialTextView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -64,27 +65,26 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         this.fragmentManager=fragmentManager;
     }
 
-    @Override
-    public void onItemMove(int fromPosition, int toPosition) {
-        TasksCard fromTaskCard = tasksCardsList.get(fromPosition);
-        tasksCardsList.remove(fromTaskCard);
-        tasksCardsList.add(toPosition,fromTaskCard);
-        notifyItemMoved(fromPosition,toPosition);
-    }
 
     @Override
     public void onItemSwiped(int position) {
-        deleteCard(tasksCardsList.get(position).getCardId(),position);
+        if(fromArchive){
+            deleteFromArchive(position);
+        }else{
+            deleteCard(tasksCardsList.get(position).getCardId(),position);
+        }
+
     }
 
     public void setItemTouchHelper(ItemTouchHelper itemTouchHelper){
         this.itemTouchHelper = itemTouchHelper;
     }
 
-    public class TasksCardViewHolder extends RecyclerView.ViewHolder implements View.OnTouchListener, GestureDetector.OnGestureListener {
+    public class TasksCardViewHolder extends RecyclerView.ViewHolder {
 
         View taskImportanceView;
-        TextView title, description, dueDate, markAsDone, mention;
+        TextView title, description, dueDate, markAsDone;
+        private SocialTextView mention;
         ImageButton delete, archive;
         ImageView sadShroomie, stars, shroomieArchive;
         Button cont, no, yesButton, noButton;
@@ -103,6 +103,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
             done = v.findViewById(R.id.expense_done);
             markAsDone = v.findViewById(R.id.shroomie_markasdone);
             mention = v.findViewById(R.id.expenses_mention_et);
+            mention.setMentionColor(Color.BLUE);
             taskCardView=v.findViewById(R.id.task_card_view);
             taskCardView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -193,8 +194,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
                 }
             });
 
-            gestureDetector = new GestureDetector(v.getContext(),this);
-            v.setOnTouchListener(this);
+
 
 
             archive.setOnClickListener(new View.OnClickListener() {
@@ -208,41 +208,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
 
         }
 
-        @Override
-        public boolean onDown(MotionEvent motionEvent) {
-            return false;
-        }
 
-        @Override
-        public void onShowPress(MotionEvent motionEvent) {
-
-        }
-
-        @Override
-        public boolean onSingleTapUp(MotionEvent motionEvent) {
-            return true;
-        }
-
-        @Override
-        public boolean onScroll(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1) {
-            return false;
-        }
-
-        @Override
-        public void onLongPress(MotionEvent motionEvent) {
-            itemTouchHelper.startDrag(this);
-        }
-
-        @Override
-        public boolean onFling(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1) {
-            return false;
-        }
-
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            gestureDetector.onTouchEvent(motionEvent);
-            return true;
-        }
     }
 
     public void deleteCard(final String cardID, final int position){
@@ -278,7 +244,6 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         holder.description.setText(tasksCardsList.get(position).getDescription());
         holder.dueDate.setText(tasksCardsList.get(position).getDueDate());
         holder.mention.setText(tasksCardsList.get(position).getMention());
-//        holder.mention.setTextColor(R.co);
         String importanceView = tasksCardsList.get(position).getImportance();
         Boolean cardStatus = tasksCardsList.get(position).getDone().equals("true");
             if (cardStatus){
@@ -294,6 +259,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
             holder.archive.setVisibility(view.GONE);
             holder.done.setVisibility(View.GONE);
             holder.markAsDone.setVisibility(View.GONE);
+            holder.mention.setText(tasksCardsList.get(position).getMention());
             holder.delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -319,22 +285,8 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
                     cont.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            rootRef.child("archive").child(apartment.getApartmentID()).child("tasksCards").child(tasksCardsList.get(position).getCardId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    if (tasksCardsList.size()>=1) {
-                                        notifyItemRemoved(position);
-                                        Toast.makeText(context, "Expenses card deleted", Toast.LENGTH_LONG).show();
-                                        alertDialog.cancel();
-                                    }else{
-                                        tasksCardsList.clear();
-                                        notifyDataSetChanged();
-                                        alertDialog.cancel();
-                                    }
-
-                                }
-
-                        });
+                           deleteFromArchive(position);
+                            alertDialog.cancel();
                         }
                     });
 
@@ -357,8 +309,17 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         }
     }
 
+    private void deleteFromArchive(final int position) {
+        rootRef.child("archive").child(apartment.getApartmentID()).child("tasksCards").child(tasksCardsList.get(position).getCardId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                notifyItemRemoved(position);
 
 
+            }
+
+        });
+    }
 
 
     @Override
@@ -387,6 +348,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
                     newCard.put("date",saveCurrentDate);
                     newCard.put("cardId",uniqueID);
                     newCard.put("done", tasksCard.getDone());
+                    newCard.put("mention",tasksCard.getMention());
                     ref.updateChildren(newCard).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
@@ -394,14 +356,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
                                 rootRef.child("apartments").child(apartment.getApartmentID()).child("tasksCards").child(cardId).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
-                                        Toast.makeText(context, "Card successfully Archived", Toast.LENGTH_SHORT).show();
-                                        if(tasksCardsList.size()>=1){
-                                            notifyItemRemoved(position);
-                                        }else{
-                                            tasksCardsList.clear();
-                                            notifyItemRemoved(0);
-
-                                        }
+                                      notifyItemRemoved(position);
                                     }
                                 });
                             }

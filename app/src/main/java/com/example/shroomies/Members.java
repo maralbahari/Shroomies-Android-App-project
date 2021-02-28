@@ -55,6 +55,8 @@ public class Members extends DialogFragment {
    ShroomiesApartment apartment;
    private Collection newMemberLists;
    private ValueEventListener apartmentListener;
+   private String isPartOfRoomID;
+   private ValueEventListener roomIDListener;
 
     @Nullable
     @Override
@@ -100,6 +102,9 @@ public class Members extends DialogFragment {
                 leaveRoom.setVisibility(View.VISIBLE);
                 msgOwner.setVisibility(View.VISIBLE);
             }
+            //this check is for if owner removes a member and that user is in member page so it refershes
+            checkIsPartOdRoomID();
+
             checkMemberExistance(apartment);
 
 
@@ -171,13 +176,12 @@ public class Members extends DialogFragment {
                 if(snapshot.exists()){
                     ShroomiesApartment newApartment=snapshot.getValue(ShroomiesApartment.class);
                     newMemberLists=newApartment.getApartmentMembers().values();
+                    //if no changes in member list
                     if(newMemberLists.containsAll(oldApartment.getApartmentMembers().values())){
                         getMemberDetail(oldApartment.getApartmentMembers());
+                        //if members leave
                     }else{
-
-                        getMemberDetail(apartment.getApartmentMembers());
-
-
+                        getMemberDetail(newApartment.getApartmentMembers());
                     }
 
                 }
@@ -191,6 +195,26 @@ public class Members extends DialogFragment {
         });
 
 
+
+
+    }
+    private void checkIsPartOdRoomID(){
+        roomIDListener=rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
+                    isPartOfRoomID=snapshot.getValue().toString();
+                    if(!isPartOfRoomID.equals(apartment.getApartmentID())){
+                        dismiss();
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     private void leaveApartment(final String apartmentID) {
@@ -283,5 +307,6 @@ public class Members extends DialogFragment {
     public void onDismiss(@NonNull DialogInterface dialog) {
         super.onDismiss(dialog);
         rootRef.removeEventListener(apartmentListener);
+        rootRef.removeEventListener(roomIDListener);
     }
 }

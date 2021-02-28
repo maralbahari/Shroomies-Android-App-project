@@ -53,6 +53,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
    RequestQueue requestQueue;
    ShroomiesApartment apartment;
    private String senderName="";
+   private HashMap<String,Boolean> requestAlreadySent=new HashMap<>();
 
 
     public UserAdapter(ArrayList<User> userList, Context context, Boolean fromSearchMember,ShroomiesApartment apartment) {
@@ -60,6 +61,13 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         this.context = context;
         this.fromSearchMember=fromSearchMember;
         this.apartment=apartment;
+    }
+    public UserAdapter(ArrayList<User> userList, Context context, Boolean fromSearchMember,ShroomiesApartment apartment,HashMap<String,Boolean> requestAlreadySent) {
+        this.userList = userList;
+        this.context = context;
+        this.fromSearchMember=fromSearchMember;
+        this.apartment=apartment;
+        this.requestAlreadySent=requestAlreadySent;
     }
 
     @NonNull
@@ -89,10 +97,18 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             holder.removeMember.setVisibility(View.INVISIBLE);
         }
         if(fromSearchMember){
-            holder.sendRequest.setVisibility(View.VISIBLE);
             holder.msgMember.setVisibility(View.GONE);
             holder.removeMember.setVisibility(View.GONE);
             holder.userName.setText(userList.get(position).getName());
+            if(!requestAlreadySent.isEmpty()){
+                if(requestAlreadySent.get(userList.get(position).getID())){
+                    holder.sendRequest.setVisibility(View.VISIBLE);
+                    holder.sendRequest.setClickable(false);
+                    holder.sendRequest.setText("requested");
+                }else{
+                    holder.sendRequest.setVisibility(View.VISIBLE);
+                }
+            }
 
         }if(!fromSearchMember){
             if (userList.get(position).getID().equals(mAuth.getInstance().getCurrentUser().getUid())){
@@ -126,6 +142,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             sendRequest=itemView.findViewById(R.id.send_request_btn);
             msgMember = itemView.findViewById(R.id.msg_member);
             removeMember = itemView.findViewById(R.id.remove_member);
+            sendRequest.setClickable(true);
             getSenderName();
             msgMember.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -185,7 +202,10 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                                 if(task.isSuccessful()){
                                     Toast.makeText(context,"invitation has been sent",Toast.LENGTH_LONG).show();
                                     sendRequest.setText("requested");
+                                    sendRequest.setClickable(false);
                                     sendNotification(id,senderName+" wants to be your shroomie");
+                                }else{
+                                    sendRequest.setClickable(true);
                                 }
                             }
                         });
@@ -263,5 +283,6 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         }
 
     }
+
 
 }

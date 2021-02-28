@@ -264,8 +264,6 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                 }, year, month, day);
                 dialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
                 dialog.show();
-
-
             }
         });
 

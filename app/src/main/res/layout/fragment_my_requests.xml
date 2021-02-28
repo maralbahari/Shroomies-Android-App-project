@@ -1,20 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:paddingTop="60dp"
-    android:paddingBottom="60dp"
+    android:layout_marginTop="60dp"
+    android:layout_marginBottom="60dp"
     android:layout_height="match_parent"
-    tools:context=".Request">
-
-
-    <RelativeLayout
-        android:layout_margin="20dp"
-        android:elevation="5dp"
-
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+    tools:context=".Request"
+    android:background="@color/y">
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/request_tablayout"
@@ -24,7 +17,7 @@
             android:layout_below="@id/request_photo"
             android:background="@drawable/tablayout_round"
             android:layout_marginLeft="20dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="20dp"
             android:layout_marginRight="20dp"
             app:tabIndicatorGravity="stretch"
             app:tabIndicatorColor="@color/Alabaster"
@@ -48,37 +41,44 @@
 
         <ImageView
             android:layout_marginTop="10dp"
-            android:layout_marginLeft="10dp"
+            android:layout_marginLeft="30dp"
+
             android:id="@+id/request_photo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_user_profile_svgrepo_com"/>
+            android:src="@drawable/ic_shroomies_request"/>
 
         <TextView
             android:id="@+id/request_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Request"
-            android:textSize="30sp"
+            android:text="Shroomies Requests"
+            android:textSize="25sp"
             android:textStyle="bold"
+            android:layout_toRightOf="@id/request_photo"
             android:textColor="@color/Black"
-            android:layout_marginLeft="70dp"
-            android:layout_marginTop="10dp"
-            />
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/request_recyclerview"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@id/request_tablayout"
+            android:layout_marginLeft="20dp"
             android:layout_marginTop="20dp"
             />
 
-    </RelativeLayout>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/invitation_recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_margin="20dp"
+            android:layout_below="@id/request_tablayout"
+            />
+        <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/request_recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_margin="20dp" android:visibility="invisible"
+        android:layout_below="@id/request_tablayout"
+        />
 
 
 
 
 
 
-</LinearLayout>
+</RelativeLayout>

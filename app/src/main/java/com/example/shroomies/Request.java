@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,20 +24,21 @@ import java.util.ArrayList;
 
 
 public class Request extends Fragment {
-   View v;
-   RecyclerView requestRecyvlerView;
-   FirebaseAuth mAuth;
-   DatabaseReference rootRef;
+   private View v;
+   private RecyclerView requestRecyclerView;
+   private FirebaseAuth mAuth;
+   private DatabaseReference rootRef;
    private ArrayList<User> senderUsers;
    private ArrayList<String> senderIDs;
    private RequestAdapter requestAdapter;
    private ArrayList<String> receiverIDs;
    private ArrayList<User> receiverUsers;
-   TabLayout requestTab;
+   private TabLayout requestTab;
    private ShroomiesApartment apartment;
    private ValueEventListener invitationsListener;
    private ValueEventListener requestsListener;
    private ValueEventListener apartmentListener;
+   private RecyclerView invitationRecyclerView;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -44,26 +46,38 @@ public class Request extends Fragment {
         v= inflater.inflate(R.layout.fragment_my_requests, container, false);
         rootRef= FirebaseDatabase.getInstance().getReference();
         mAuth=FirebaseAuth.getInstance();
+        getApartmentDetailsOfCurrentUser();
     return v;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        requestRecyvlerView = v.findViewById(R.id.request_recyclerview);
+        requestRecyclerView = v.findViewById(R.id.request_recyclerview);
         requestTab = v.findViewById(R.id.request_tablayout);
+        invitationRecyclerView=v.findViewById(R.id.invitation_recyclerview);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
-        requestRecyvlerView.setHasFixedSize(true);
-        requestRecyvlerView.setLayoutManager(linearLayoutManager);
-        getApartmentDetailsOfCurrentUser();
+        requestRecyclerView.setHasFixedSize(true);
+        requestRecyclerView.setLayoutManager(linearLayoutManager);
+        LinearLayoutManager linearLayoutManager1 = new LinearLayoutManager(getContext());
+        invitationRecyclerView.setLayoutManager(linearLayoutManager1);
+        invitationRecyclerView.setHasFixedSize(true);
+//        senderUsers=new ArrayList<>();
+//        requestAdapter= new RequestAdapter(getContext(),senderUsers,false,apartment);
+//        invitationRecyclerView.setAdapter(requestAdapter);
 
         requestTab.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 if(tab.getPosition()==0){
+                    invitationRecyclerView.setVisibility(View.VISIBLE);
+                    requestRecyclerView.setVisibility(View.GONE);
                     getSenderId();
                 }
                 else if(tab.getPosition()==1){
+                    invitationRecyclerView.setVisibility(View.GONE);
+                    requestRecyclerView.setVisibility(View.VISIBLE);
+                    receiverUsers=new ArrayList<>();
                     getReceiverID();
                 }
             }
@@ -116,19 +130,21 @@ public class Request extends Fragment {
 
     private void getSenderId(){
         senderIDs=new ArrayList<>();
-        requestsListener=rootRef.child("shroomieRequests").child(mAuth.getCurrentUser().getUid()).orderByChild("requestType").equalTo("received").addValueEventListener(new ValueEventListener() {
+        invitationsListener=rootRef.child("shroomieRequests").child(mAuth.getCurrentUser().getUid()).orderByChild("requestType").equalTo("received").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()){
                     for(DataSnapshot ds:snapshot.getChildren()){
                         senderIDs.add(ds.getKey());
                         getSenderDetails(senderIDs);
+
                     }
 
+                    Toast.makeText(getContext(),"invits ids:"+senderIDs.size(),Toast.LENGTH_SHORT).show();
                 }else{
-                    senderUsers=new ArrayList<>();
-                    requestAdapter= new RequestAdapter(getContext(),senderUsers,false,apartment);
-                    requestRecyvlerView.setAdapter(requestAdapter);
+//                    senderUsers=new ArrayList<>();
+//                    requestAdapter= new RequestAdapter(getContext(),senderUsers,false,apartment);
+//                    invitationRecyclerView.setAdapter(requestAdapter);
                 }
             }
 
@@ -141,12 +157,11 @@ public class Request extends Fragment {
     private void getSenderDetails(final ArrayList<String> senderIDs){
         senderUsers=new ArrayList<>();
         requestAdapter= new RequestAdapter(getContext(),senderUsers,false,apartment);
-        requestRecyvlerView.setAdapter(requestAdapter);
+       invitationRecyclerView.setAdapter(requestAdapter);
      for(String id: senderIDs){
          rootRef.child("Users").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
              @Override
              public void onDataChange(@NonNull DataSnapshot snapshot) {
-             senderUsers.clear();
              if(snapshot.exists()){
                  User user= snapshot.getValue(User.class);
                  senderUsers.add(user);
@@ -163,19 +178,21 @@ public class Request extends Fragment {
     }
     private void getReceiverID(){
        receiverIDs=new ArrayList<>();
-        invitationsListener=rootRef.child("shroomieRequests").child(mAuth.getCurrentUser().getUid()).orderByChild("requestType").equalTo("sent").addValueEventListener(new ValueEventListener() {
+        requestsListener=rootRef.child("shroomieRequests").child(mAuth.getCurrentUser().getUid()).orderByChild("requestType").equalTo("sent").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()){
                     for(DataSnapshot ds:snapshot.getChildren()){
                         receiverIDs.add(ds.getKey());
-                        getReceiverDetails(receiverIDs);
+
                     }
+                    getReceiverDetails(receiverIDs);
+                    Toast.makeText(getContext(),"req ids:"+receiverIDs.size(),Toast.LENGTH_SHORT).show();
 
                 }else{
-                    receiverUsers=new ArrayList<>();
-                    requestAdapter= new RequestAdapter(getContext(),receiverUsers,true,apartment);
-                    requestRecyvlerView.setAdapter(requestAdapter);
+//                    receiverUsers=new ArrayList<>();
+//                    requestAdapter= new RequestAdapter(getContext(),receiverUsers,true,apartment);
+//                    requestRecyclerView.setAdapter(requestAdapter);
                 }
             }
 
@@ -188,17 +205,22 @@ public class Request extends Fragment {
     private void getReceiverDetails(final ArrayList<String> receiverIDs){
         receiverUsers=new ArrayList<>();
         requestAdapter= new RequestAdapter(getContext(),receiverUsers,true,apartment);
-        requestRecyvlerView.setAdapter(requestAdapter);
+        requestRecyclerView.setAdapter(requestAdapter);
+        final int[] count = {0};
         for(String id: receiverIDs){
             rootRef.child("Users").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    receiverUsers.clear();
                     if(snapshot.exists()){
                         User user= snapshot.getValue(User.class);
                         receiverUsers.add(user);
+                        Toast.makeText(getContext(),"rece users:"+user.getName()+":"+receiverUsers.size(),Toast.LENGTH_SHORT).show();
+                        requestAdapter.notifyItemInserted(count[0]);
+                        count[0]++;
                     }
-                    requestAdapter.notifyDataSetChanged();
+
+//                    requestAdapter.notifyDataSetChanged();
+
                 }
 
                 @Override
@@ -207,6 +229,7 @@ public class Request extends Fragment {
                 }
             });
         }
+
     }
 
     @Override

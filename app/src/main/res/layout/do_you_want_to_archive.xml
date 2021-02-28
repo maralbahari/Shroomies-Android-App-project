@@ -13,6 +13,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
+            android:layout_centerHorizontal="true"
             android:src="@drawable/yellow_mushroom_transparent_background"
             android:layout_marginLeft="118dp"
             />
@@ -21,12 +22,14 @@
             android:id="@+id/are_sure_arch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Archive card?"
-            android:textColor="@color/Black"
-            android:textStyle="bold"
-            android:textSize="25sp"
             android:layout_below="@id/shroomie_archive"
-            android:layout_marginLeft="110dp"/>
+            android:layout_marginLeft="110dp"
+            android:layout_marginTop="-1dp"
+            android:text="Archive card?"
+            android:layout_centerHorizontal="true"
+            android:textColor="@color/Black"
+            android:textSize="25sp"
+            android:textStyle="bold" />
 
         <Button
             android:id="@+id/btn_yes"
@@ -38,7 +41,7 @@
             android:background="@drawable/button_rounded_corner_attach"
             android:layout_below="@id/are_sure_arch"
             android:layout_marginTop="20dp"
-            android:layout_marginLeft="60dp"/>
+            android:layout_marginLeft="80dp"/>
 
         <Button
             android:id="@+id/no_btn"
@@ -52,7 +55,8 @@
             android:layout_marginTop="20dp"
             android:layout_marginBottom="20dp"
             android:layout_toRightOf="@+id/btn_yes"
-            android:layout_marginLeft="60dp"/>
+            android:layout_marginRight="80dp"
+            android:layout_marginLeft="30dp"/>
 
 
     </RelativeLayout>
