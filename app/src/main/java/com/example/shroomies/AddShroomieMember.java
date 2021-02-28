@@ -40,14 +40,17 @@ public class AddShroomieMember extends DialogFragment {
     ArrayList<User> suggestedUser;
     ArrayList<User> selectedUser;
     ArrayList<String> inboxUser;
-    Collection<String> listMemberId;
+    Collection<String> listMemberId=new ArrayList<>();
     ShroomiesApartment apartment;
+    private HashMap<String,Boolean> requestAlreadySent=new HashMap<>();
 
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         v =inflater.inflate(R.layout.add_shroomies, container, false);
+        mAuth=FirebaseAuth.getInstance();
+        rootRef = FirebaseDatabase.getInstance().getReference();
         return v;
     }
 
@@ -59,12 +62,13 @@ public class AddShroomieMember extends DialogFragment {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         addShroomieRecycler.setHasFixedSize(true);
         addShroomieRecycler.setLayoutManager(linearLayoutManager);
-        rootRef = FirebaseDatabase.getInstance().getReference();
+
 
         if (getArguments()!=null){
             Bundle bundle = getArguments();
             apartment=bundle.getParcelable("APARTMENT_DETAILS");
-            listMemberId =  apartment.getApartmentMembers().values();
+            listMemberId.addAll(apartment.getApartmentMembers().values());
+            listMemberId.add(apartment.getOwnerID());
 
         }
         getMessageInboxListIntoAdapter();
@@ -99,7 +103,7 @@ public class AddShroomieMember extends DialogFragment {
 
     private void retreiveUser(String query) {
         suggestedUser = new ArrayList<>();
-        userRecyclerAdapter= new UserAdapter(suggestedUser,getContext(),true,apartment);
+        userRecyclerAdapter= new UserAdapter(suggestedUser,getContext(),true,apartment,requestAlreadySent);
         addShroomieRecycler.setAdapter(userRecyclerAdapter);
 
         rootRef.child("Users").orderByChild("name").startAt(query)
@@ -120,7 +124,8 @@ public class AddShroomieMember extends DialogFragment {
                                 if(listMemberId!=null){
                                     if(!listMemberId.contains(user.getID())){
                                         suggestedUser.add(user);
-                                        Toast.makeText(getContext(),user.getName(),Toast.LENGTH_LONG).show();
+                                        checkRequestedUsers(user.getID());
+
                                     }
 
                                 }
@@ -129,13 +134,12 @@ public class AddShroomieMember extends DialogFragment {
                             }
 
 
-
-
                     }
+
 
                     //add the members already selected
 
-                    userRecyclerAdapter.notifyDataSetChanged();
+
 
                 }else{
                     Toast.makeText(getContext(),"User not found",Toast.LENGTH_LONG).show();
@@ -160,9 +164,9 @@ public class AddShroomieMember extends DialogFragment {
 
     private void addInboxUsersToRecycler(final List<String> inboxListUsers) {
         suggestedUser = new ArrayList<>();
-        userRecyclerAdapter=new UserAdapter(suggestedUser,getContext(),true,apartment);
+        userRecyclerAdapter=new UserAdapter(suggestedUser,getContext(),true,apartment,requestAlreadySent);
         addShroomieRecycler.setAdapter(userRecyclerAdapter);
-        for(String id
+        for(final String id
                 :inboxListUsers){
             rootRef.child("Users").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -172,6 +176,7 @@ public class AddShroomieMember extends DialogFragment {
                         User user = snapshot.getValue(User.class);
                         if (!listMemberId.contains(user.getID())) {
                             suggestedUser.add(user);
+                            checkRequestedUsers(id);
                             userRecyclerAdapter.notifyDataSetChanged();
                         }
 
@@ -198,11 +203,31 @@ public class AddShroomieMember extends DialogFragment {
                             :snapshot.getChildren()){
                         HashMap<String,String> recievers= (HashMap) dataSnapshot.getValue();
                         inboxUser.add(recievers.get("receiverID"));
+
                     }
                     addInboxUsersToRecycler(inboxUser);
 
                 }
 
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+    private void checkRequestedUsers(final String id){
+
+        rootRef.child("shroomieRequests").child(mAuth.getCurrentUser().getUid()).child(id).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
+                    requestAlreadySent.put(id,true);
+                }else{
+                    requestAlreadySent.put(id,false);
+                }
+                userRecyclerAdapter.notifyDataSetChanged();
             }
 
             @Override

@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -24,7 +25,8 @@ import java.util.ArrayList;
 public class Archive extends Fragment {
    View view;
    TabLayout archiveTablayout;
-   RecyclerView archiveRecyclerview;
+   private RecyclerView expensesRecyclerview;
+   private RecyclerView tasksRecyclerView;
    FirebaseAuth mAuth;
    DatabaseReference rootRef ;
    ArrayList<ExpensesCard> expensesCardsList;
@@ -33,6 +35,9 @@ public class Archive extends Fragment {
    ExpensesCardAdapter expensesCardAdapter;
    ShroomiesApartment apartment;
    String apartmentID="";
+   private ValueEventListener expensesCardListener;
+   private ValueEventListener taskCardsListener;
+
 
 
     @Override
@@ -42,7 +47,7 @@ public class Archive extends Fragment {
        view=inflater.inflate(R.layout.fragment_my_archive, container, false);
        mAuth = FirebaseAuth.getInstance();
        rootRef = FirebaseDatabase.getInstance().getReference();
-
+      getApartmentDetails();
     return view;
     }
     private void getApartmentDetails (){
@@ -84,20 +89,32 @@ public class Archive extends Fragment {
     @Override
     public void onViewCreated(@NonNull View v, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(v, savedInstanceState);
-        archiveRecyclerview = v.findViewById(R.id.archive_recyclerview);
+        expensesRecyclerview= v.findViewById(R.id.archive_recyclerview_expenses);
+        tasksRecyclerView=v.findViewById(R.id.archive_recyclerview_task);
         archiveTablayout = v.findViewById(R.id.my_tablayout_archive);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
-        archiveRecyclerview.setHasFixedSize(true);
-        archiveRecyclerview.setLayoutManager(linearLayoutManager);
-        getApartmentDetails();
+        LinearLayoutManager linearLayoutManager1 = new LinearLayoutManager(getContext());
+        expensesRecyclerview.setHasFixedSize(true);
+        expensesRecyclerview.setLayoutManager(linearLayoutManager);
+        tasksRecyclerView.setHasFixedSize(true);
+        tasksRecyclerView.setLayoutManager(linearLayoutManager1);
+        expensesCardsList=new ArrayList<>();
+        expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList,getContext(), false,apartment,getParentFragmentManager());
+        expensesRecyclerview.setAdapter(expensesCardAdapter);
+
+
         archiveTablayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 if(tab.getPosition()==0){
+                    tasksRecyclerView.setVisibility(View.GONE);
+                    expensesRecyclerview.setVisibility(View.VISIBLE);
                     expensesCardsList = new ArrayList<>();
                     retreiveExpensesCards(apartment.getApartmentID());
                 }
                 else if(tab.getPosition()==1){
+                    tasksRecyclerView.setVisibility(View.VISIBLE);
+                    expensesRecyclerview.setVisibility(View.GONE);
                     tasksCardsList=new ArrayList<>();
                     retrieveTaskCards(apartment.getApartmentID());
                 }
@@ -116,9 +133,12 @@ public class Archive extends Fragment {
     private void retrieveTaskCards(String apartmentID) {
         tasksCardsList = new ArrayList<>();
         tasksCardAdapter = new TasksCardAdapter(tasksCardsList, getContext(),true,apartment,getParentFragmentManager());
-        archiveRecyclerview.setAdapter(tasksCardAdapter);
-
-        rootRef.child("archive").child(apartmentID).child("tasksCards").addValueEventListener(new ValueEventListener() {
+        ItemTouchHelper.Callback callback = new CardsTouchHelper(tasksCardAdapter);
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
+        tasksCardAdapter.setItemTouchHelper(itemTouchHelper);
+        itemTouchHelper.attachToRecyclerView(tasksRecyclerView);
+        tasksRecyclerView.setAdapter(tasksCardAdapter);
+       taskCardsListener= rootRef.child("archive").child(apartmentID).child("tasksCards").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 tasksCardsList.clear();
@@ -143,8 +163,12 @@ public class Archive extends Fragment {
 
         expensesCardsList = new ArrayList<>();
         expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList, getContext(), true,apartment,getParentFragmentManager());
-        archiveRecyclerview.setAdapter(expensesCardAdapter);
-        rootRef.child("archive").child(apartmentID).child("expensesCards").addValueEventListener(new ValueEventListener() {
+        ItemTouchHelper.Callback callback = new CardsTouchHelper(expensesCardAdapter);
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
+        expensesCardAdapter.setItemTouchHelper(itemTouchHelper);
+        itemTouchHelper.attachToRecyclerView(expensesRecyclerview);
+        expensesRecyclerview.setAdapter(expensesCardAdapter);
+        expensesCardListener=rootRef.child("archive").child(apartmentID).child("expensesCards").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 expensesCardsList.clear();
@@ -165,6 +189,10 @@ public class Archive extends Fragment {
 
     }
 
-
-
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        rootRef.removeEventListener(expensesCardListener);
+        rootRef.removeEventListener(taskCardsListener);
+    }
 }

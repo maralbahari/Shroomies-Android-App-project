@@ -36,6 +36,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
+import com.hendraanggrian.widget.SocialTextView;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -70,25 +71,17 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
         this.itemTouchHelper = itemTouchHelper;
     }
 
-    @Override
-    public void onItemMove(int fromPosition, int toPosition) {
-        ExpensesCard fExpensesCard = expensesCardArrayList.get(fromPosition);
-        expensesCardArrayList.remove(fExpensesCard);
-        expensesCardArrayList.add(toPosition,fExpensesCard);
-        notifyItemMoved(fromPosition,toPosition);
-    }
 
     @Override
     public void onItemSwiped(int position) {
-        deleteExpensesCard(position);
+        if(fromArchive){
+            deleteFromArchive(position);
+        }else{
+            deleteExpensesCard(position);
+        }
+
 
     }
-
-
-
-
-
-
 
 
 
@@ -103,10 +96,6 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
         return new ExpensesViewHolder(view);
 
     }
-
-
-
-
     @Override
     public void onBindViewHolder(@NonNull final ExpensesCardAdapter.ExpensesViewHolder holder, final int position) {
         holder.title.setText(expensesCardArrayList.get(position).getTitle());
@@ -147,20 +136,8 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                     cont.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            rootRef.child("archive").child(apartment.getApartmentID()).child("expensesCards").child(expensesCardArrayList.get(position).getCardId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    if (expensesCardArrayList.size()>=1) {
-                                        notifyItemRemoved(position);
-                                        Toast.makeText(context, "Expenses card deleted", Toast.LENGTH_LONG).show();
-                                        alertDialog.cancel();
-                                    }else{
-                                        expensesCardArrayList.clear();
-                                        notifyDataSetChanged();
-                                        alertDialog.cancel();
-                                    }
-                                }
-                            });
+                           deleteFromArchive(position);
+                            alertDialog.cancel();
                         }
                     });
                     no.setOnClickListener(new View.OnClickListener() {
@@ -196,6 +173,15 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
         }
 
     }
+    private void deleteFromArchive(final int  position){
+        rootRef.child("archive").child(apartment.getApartmentID()).child("expensesCards").child(expensesCardArrayList.get(position).getCardId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                notifyItemRemoved(position);
+
+            }
+        });
+    }
 
 
     @Override
@@ -204,10 +190,11 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
     }
 
 
-    public class ExpensesViewHolder extends RecyclerView.ViewHolder implements  View.OnTouchListener, GestureDetector.OnGestureListener {
+    public class ExpensesViewHolder extends RecyclerView.ViewHolder {
         View importanceView;
         GestureDetector gestureDetector;
-        TextView title,description,dueDate,mention,markAsDone;
+        TextView title,description,dueDate,markAsDone;
+        private SocialTextView mention;
         ImageView cardImage;
         ImageButton archive, delete;
         ImageView sadShroomie, stars, shroomieArch;
@@ -225,9 +212,11 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
             archive = v.findViewById(R.id.archive_card_btn);
             delete = v.findViewById(R.id.delete_card_btn);
             mention = v.findViewById(R.id.expenses_mention_et);
+            mention.setMentionColor(Color.BLUE);
             done = v.findViewById(R.id.expense_done);
             markAsDone = v.findViewById(R.id.shroomie_markasdone);
             expensesCardView=v.findViewById(R.id.my_shroomie_expenses_card);
+            final int position=getAdapterPosition();
             done.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -236,47 +225,45 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                             @Override
                             public void onSuccess(Void aVoid) {
                                 markAsDone.setText("Done!");
-                                AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                View alert = inflater.inflate(R.layout.do_you_want_to_archive,null);
-                                builder.setView(alert);
-                                final AlertDialog alertDialog = builder.create();
-                                alertDialog.getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
-                                alertDialog.getWindow().setBackgroundDrawableResource(R.drawable.dialogfragment_add_member);
-                                alertDialog.show();
-                                yesBtn = ((AlertDialog) alertDialog).findViewById(R.id.btn_yes);
-                                noBtn = ((AlertDialog) alertDialog).findViewById(R.id.no_btn);
-                                shroomieArch = ((AlertDialog) alertDialog).findViewById(R.id.shroomie_archive);
-                                yesBtn.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        archive(expensesCardArrayList.get(getAdapterPosition()).getCardId(),getAdapterPosition());
-                                        alertDialog.cancel();
-                                    }
-                                });
-                                noBtn.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        alertDialog.cancel();
-                                    }
-                                });
 
-
-
+                            }
+                        });
+                        AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                        View alert = inflater.inflate(R.layout.do_you_want_to_archive,null);
+                        builder.setView(alert);
+                        final AlertDialog alertDialog = builder.create();
+                        alertDialog.getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
+                        alertDialog.getWindow().setBackgroundDrawableResource(R.drawable.dialogfragment_add_member);
+                        alertDialog.show();
+                        yesBtn = ((AlertDialog) alertDialog).findViewById(R.id.btn_yes);
+                        noBtn = ((AlertDialog) alertDialog).findViewById(R.id.no_btn);
+                        shroomieArch = ((AlertDialog) alertDialog).findViewById(R.id.shroomie_archive);
+                        yesBtn.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                archive(expensesCardArrayList.get(position).getCardId(),position);
+                                alertDialog.cancel();
+                            }
+                        });
+                        noBtn.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                alertDialog.cancel();
                             }
                         });
                     }else{
                         rootRef.child("apartments").child(apartment.getApartmentID()).child("expensesCards").child(expensesCardArrayList.get(getAdapterPosition()).getCardId()).child("done").setValue("false").addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                Toast.makeText(context,"expenses cards not done", Toast.LENGTH_LONG).show();
+
                             }
                         });
                     }
                 }
             });
-            gestureDetector = new GestureDetector(v.getContext(),this);
-            v.setOnTouchListener(this);
+
+
 
 
 
@@ -334,49 +321,9 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                     viewCard.show(fragmentManager,"VIEWCARD");
                 }
             });
-
-
-
         }
 
 
-
-
-        @Override
-        public boolean onDown(MotionEvent motionEvent) {
-            return false;
-        }
-
-        @Override
-        public void onShowPress(MotionEvent motionEvent) {
-
-        }
-
-        @Override
-        public boolean onSingleTapUp(MotionEvent motionEvent) {
-            return true;
-        }
-
-        @Override
-        public boolean onScroll(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1) {
-            return false;
-        }
-
-        @Override
-        public void onLongPress(MotionEvent motionEvent) {
-            itemTouchHelper.startDrag(this);
-        }
-
-        @Override
-        public boolean onFling(MotionEvent motionEvent, MotionEvent motionEvent1, float v, float v1) {
-            return false;
-        }
-
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            gestureDetector.onTouchEvent(motionEvent);
-            return true;
-        }
     }
 
 
@@ -402,6 +349,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                     newCard.put("cardId",uniqueID);
                     newCard.put("attachedFile", expensesCard.getAttachedFile());
                     newCard.put("done", expensesCard.getDone());
+                    newCard.put("mention",expensesCard.getMention());
                     ref.updateChildren(newCard).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
@@ -409,14 +357,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                                 rootRef.child("apartments").child(apartment.getApartmentID()).child("expensesCards").child(cardId).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void aVoid) {
-                                        Toast.makeText(context, "Card successfully Archived", Toast.LENGTH_SHORT).show();
-                                        if(expensesCardArrayList.size()>=1){
-                                            notifyItemRemoved(position);
-                                        }else{
-                                            expensesCardArrayList.clear();
-                                            notifyItemRemoved(0);
-
-                                        }
+                                        notifyItemRemoved(position);
                                     }
                                 });
                             }
@@ -430,26 +371,25 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
 
             }
         });
-
-
     }
-    public void deleteExpensesCard( final int position){
-        if(!expensesCardArrayList.get(position).getAttachedFile().isEmpty()){
-            storage.getReferenceFromUrl(expensesCardArrayList.get(position).getAttachedFile()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+
+
+    public void deleteExpensesCard(final int position){
+
+            if(!expensesCardArrayList.get(position).getAttachedFile().isEmpty()){
+                storage.getReferenceFromUrl(expensesCardArrayList.get(position).getAttachedFile()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                    }
+                });}
+            rootRef.child("apartments").child(apartment.getApartmentID()).child("expensesCards").child(expensesCardArrayList.get(position).getCardId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
-                    Toast.makeText(context,"image deleted",Toast.LENGTH_LONG).show();
+                    notifyItemRemoved(position);
                 }
-            });}
-        rootRef.child("apartments").child(apartment.getApartmentID()).child("expensesCards").child(expensesCardArrayList.get(position).getCardId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
-            @Override
-            public void onSuccess(Void aVoid) {
+            });
 
-                notifyItemRemoved(position);
-                Toast.makeText(context,"position "+position,Toast.LENGTH_LONG).show();
 
-            }
-        });
 
     }
 
