@@ -9,9 +9,6 @@
     android:padding="10dp"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-
-
-
                 <TextView
                     android:id="@+id/personal_post_date_text_view"
                     android:layout_width="wrap_content"
@@ -19,21 +16,21 @@
                     android:textSize="11dp"
                     android:textColor="@color/jetBlack"
                     android:fontFamily="@font/amiko"
-                   android:layout_below="@id/personal_post_budget_text_view"
+                    android:layout_below="@id/personal_post_budget_text_view"
                     android:layout_marginLeft="5dp"
                     android:layout_toRightOf="@id/user_image_personal_card"
-                    android:text="10-30-2020"
+
                     android:lines="1"/>
 
                 <TextView
                     android:id="@+id/personal_post_budget_text_view"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignBottom="@id/user_name_personal_card"
+                   android:layout_toRightOf="@id/user_image_personal_card"
+                    android:layout_below="@id/user_name_personal_card"
                     android:layout_marginLeft="5dp"
-
-                    android:text="Budget : 1000 - 2000"
+                    android:textSize="11sp"
+                    android:layout_marginBottom="3dp"
 
                     android:fontFamily="@font/amiko"
                     android:textColor="@color/jetBlack"
@@ -63,8 +60,8 @@
                 android:layout_marginRight="5dp"
                 android:background="@drawable/circle_white_button"
                 android:elevation="3dp"
-               android:minHeight="90dp"
-                android:minWidth="90dp"
+               android:minHeight="70dp"
+                android:minWidth="70dp"
                 android:padding="15dp"
 
                 android:src="@drawable/ic_user_profile_small" />
@@ -74,38 +71,33 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_toRightOf="@+id/user_image_personal_card"
-
-
                 android:layout_below="@id/personal_post_date_text_view"
                 android:elevation="5dp"
                 android:padding="5dp"
 
-
                 android:fontFamily="@font/amiko"/>
 
-            <TextView
-                android:id="@+id/user_name_personal_card"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_toEndOf="@id/user_image_personal_card"
-                android:layout_marginLeft="5dp"
-                android:textStyle="bold"
-                android:layout_toLeftOf="@id/personal_post_budget_text_view"
-                android:lines="1"
-                android:fontFamily="@font/amiko"
-                android:textColor="@color/jetBlack"
-                android:layout_marginTop="5dp"
-                android:text="User name"
-                 />
+    <TextView
+        android:id="@+id/user_name_personal_card"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_toLeftOf="@id/properties_linear_layout"
+        android:layout_toEndOf="@id/user_image_personal_card"
+        android:fontFamily="@font/amiko"
+        android:lines="1"
+        android:textColor="@color/jetBlack"
+
+        android:textStyle="bold" />
 
 
             <LinearLayout
                 android:id="@+id/properties_linear_layout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/user_image_personal_card"
+                android:layout_alignParentRight="true"
                 android:layout_marginLeft="5dp"
-                android:layout_marginTop="10dp"
+
                 android:layout_marginBottom="20dp"
                 android:orientation="horizontal"
                 android:elevation="3dp"
@@ -186,29 +178,25 @@
                 android:id="@+id/start_chat_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-               android:layout_below="@id/properties_linear_layout"
+               android:layout_below="@id/user_image_personal_card"
 
-                android:layout_marginTop="5dp"
-                android:layout_alignStart="@id/properties_linear_layout"
+                android:layout_marginTop="10dp"
 
                 android:background="@android:color/transparent"
                 android:src="@drawable/ic_message"
                 />
 
-            <ImageButton
-                android:id="@+id/favorite_check_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+    <ImageButton
+        android:id="@+id/favorite_check_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/user_image_personal_card"
 
-                android:layout_below="@id/properties_linear_layout"
-                android:layout_toStartOf="@id/personal_card_text_view"
-                android:layout_marginTop="5dp"
-
-
-
-                android:layout_marginRight="10dp"
-                android:background="@android:color/transparent"
-                android:src="@drawable/ic_heart_unfilled" />
+        android:layout_toLeftOf="@id/personal_card_text_view"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="5dp"
+        android:background="@android:color/transparent"
+        android:src="@drawable/ic_heart_unfilled" />
 
 
 

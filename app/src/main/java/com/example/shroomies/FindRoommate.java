@@ -1,22 +1,13 @@
  package com.example.shroomies;
 
- import android.app.Activity;
-import android.content.Context;
- import android.location.Address;
-import android.location.Geocoder;
-import android.os.AsyncTask;
-import android.os.Bundle;
+ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
+ import android.widget.ArrayAdapter;
  import android.widget.ImageView;
- import android.widget.ListView;
  import android.widget.RadioGroup;
  import android.widget.SearchView;
- import android.widget.Toast;
 
  import  androidx.appcompat.widget.Toolbar;
 
@@ -26,12 +17,10 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
- import androidx.recyclerview.widget.RecyclerView;
  import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
  import com.factor.bouncy.BouncyRecyclerView;
  import com.factor.bouncy.util.OnOverPullListener;
- import com.google.android.gms.maps.model.LatLng;
  import com.google.android.gms.tasks.OnCompleteListener;
  import com.google.android.gms.tasks.OnFailureListener;
  import com.google.android.gms.tasks.Task;
@@ -49,7 +38,6 @@ import com.google.firebase.database.FirebaseDatabase;
  import com.google.firebase.firestore.QueryDocumentSnapshot;
  import com.google.firebase.firestore.QuerySnapshot;
 
- import java.io.IOException;
  import java.util.ArrayList;
 import java.util.List;
 
@@ -199,10 +187,7 @@ public class FindRoommate extends Fragment {
                     getPersonalPostsFromQuery(query);
 
                 }
-                else if(tabLayout.getSelectedTabPosition() == 2) {
-                    getPersonalPostsFromQuery(query);
 
-                }
                 return false;
             }
 
@@ -263,7 +248,6 @@ public class FindRoommate extends Fragment {
                         fragmentTransaction.remove(fragment);
                         fragmentTransaction.commit();
                         fragmentTransaction.addToBackStack(null);
-
                     }
                     // display the recycler view
                     recyclerView.setVisibility(View.VISIBLE);
@@ -280,7 +264,7 @@ public class FindRoommate extends Fragment {
                 if (tab.getPosition() == 2){
                     recyclerView.setVisibility(View.GONE);
                     fragmentTransaction = fragmentManager.beginTransaction();
-                    fragmentTransaction.replace(R.id.frame_layout_search, new fragmentPersonalPostTab());
+                    fragmentTransaction.replace(R.id.frame_layout_search, new PersonalPostFragment());
                     fragmentTransaction.addToBackStack(PERSONAL_SEARCH);
                     fragmentTransaction.commit();
 
@@ -340,14 +324,10 @@ public class FindRoommate extends Fragment {
         };
 
     }
-
-
-
-
     void getPersonalPostsFromQuery(String query) {
 
         recyclerView.setVisibility(View.GONE);
-        fragmentPersonalPostTab personalFrag = new fragmentPersonalPostTab();
+        PersonalPostFragment personalFrag = new PersonalPostFragment();
         Bundle bundle = new Bundle();
         bundle.putString("myQuery",query);
         personalFrag.setArguments(bundle);
@@ -356,10 +336,6 @@ public class FindRoommate extends Fragment {
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.frame_layout_search, personalFrag).commit();
-
-
-
-
     }
 
 
@@ -368,15 +344,15 @@ public class FindRoommate extends Fragment {
         paginate = false;
         searchState= false;
 
-        // gets the 10 most recent apartments in the users city
+        // gets the N most recent apartments in the users city
         // check if the last card key is empty
         // if its empty this is the first data to be loaded
         if (lastCardKey!=null) {
-            query = apartmentPostReference.orderBy(FieldPath.documentId()).startAfter(lastCardKey).limit(APARTMENT_PER_PAGINATION);
+            query = apartmentPostReference.orderBy("time_stamp", Query.Direction.ASCENDING).orderBy(FieldPath.documentId()).startAfter(lastCardKey).limit(APARTMENT_PER_PAGINATION);
             paginate=true;
         }else{
             // starts from the beginning
-            query = apartmentPostReference.limit(APARTMENT_PER_PAGINATION);
+            query = apartmentPostReference.orderBy("time_stamp", Query.Direction.ASCENDING).orderBy(FieldPath.documentId()).limit(APARTMENT_PER_PAGINATION);
         }
 
         query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -386,7 +362,7 @@ public class FindRoommate extends Fragment {
                 // then no new apartment has been found
                 closeProgressBarsSetOverPullListener();
                 if(task.isSuccessful()){
-                    if(task.getResult().size()<=1){
+                    if(task.getResult().size()<1){
                         return;
                     }
                     setAdapterData(task);
@@ -415,11 +391,6 @@ public class FindRoommate extends Fragment {
     }
 
     void setAdapterData(Task<QuerySnapshot> task) {
-
-        // check if the list is empty
-        // prevents the adapter from clearing the data
-        //and adding it again
-
         if(apartmentList.size()==0){
             newContentRange=0;
             previousContentRange = 0;
@@ -490,11 +461,11 @@ public class FindRoommate extends Fragment {
         Query query;
         paginate = false;
         if (lastCardKey!=null) {
-            query = apartmentPostReference.whereEqualTo("userID" , id).orderBy(FieldPath.documentId()).startAfter(lastCardKey).limit(APARTMENT_PER_PAGINATION);
+            query = apartmentPostReference.orderBy("time_stamp", Query.Direction.DESCENDING).whereEqualTo("userID" , id).orderBy(FieldPath.documentId()).startAfter(lastCardKey).limit(APARTMENT_PER_PAGINATION);
             paginate=true;
         }else{
             // starts from the beginning
-            query = apartmentPostReference.whereEqualTo("userID",id).orderBy(FieldPath.documentId()).limit(APARTMENT_PER_PAGINATION);
+            query = apartmentPostReference.orderBy("time_stamp", Query.Direction.DESCENDING).whereEqualTo("userID",id).orderBy(FieldPath.documentId()).limit(APARTMENT_PER_PAGINATION);
         }
         query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -503,7 +474,7 @@ public class FindRoommate extends Fragment {
                 // then no new apartment has been found
                 closeProgressBarsSetOverPullListener();
                 if(task.isSuccessful()) {
-                    if(task.getResult().size()<=1){
+                    if(task.getResult().size()<1){
                         return;
                     }
                     setAdapterData(task);

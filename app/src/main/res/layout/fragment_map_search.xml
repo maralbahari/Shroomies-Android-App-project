@@ -24,10 +24,9 @@
             android:elevation="3dp"
             android:fontFamily="@font/amiko"
             android:minHeight="0dp"
-
-
             android:padding="10dp"
             />
+
 
 
     </RelativeLayout>

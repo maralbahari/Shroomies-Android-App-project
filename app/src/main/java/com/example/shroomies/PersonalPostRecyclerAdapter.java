@@ -63,14 +63,14 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
         }else{
             holder.TV_userDescription.setText(description);
         }
-        holder.TV_DatePosted.setText(personalPostModelList.get(position).getDate().split(" ")[0]);
+//        holder.TV_DatePosted.setText(personalPostModelList.get(position).getDate().split(" ")[0]);
         holder.TV_userBudget.setText("Budget: " + personalPostModelList.get(position).getPrice());
         String id = personalPostModelList.get(position).getUserID();
 
         // getting data from user id
          myRef = FirebaseDatabase.getInstance().getReference().child("Users").child(id);
 
-        myRef.addValueEventListener(new ValueEventListener() {
+        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()){
@@ -92,96 +92,95 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
             public void onCancelled(@NonNull DatabaseError error) { }
         });
 
-        //setting preferences
-//        if(!personalPostModelList.get(position).getPreferences().get(0)){
-//            holder.IV_male.setVisibility(View.GONE); }
-//        else holder.IV_male.setVisibility(View.VISIBLE);
-//        if(!personalPostModelList.get(position).getPreferences().get(1)){
-//            holder.IV_female.setVisibility(View.GONE); }
-//        else holder.IV_female.setVisibility(View.VISIBLE);
-//        if(!personalPostModelList.get(position).getPreferences().get(2)){
-//            holder.IV_pet.setVisibility(View.GONE); }
-//        else holder.IV_pet.setVisibility(View.VISIBLE);
-//        if(!personalPostModelList.get(position).getPreferences().get(3)){
-//            holder.IV_smoke.setVisibility(View.GONE); }
-//        else holder.IV_smoke.setVisibility(View.VISIBLE);
-//        if(isFromPersonalProfile){ holder.}
+//        setting preferences
+        if(!personalPostModelList.get(position).getPreferences().get(0)){
+            holder.IV_male.setVisibility(View.GONE); }
+        else holder.IV_male.setVisibility(View.VISIBLE);
+        if(!personalPostModelList.get(position).getPreferences().get(1)){
+            holder.IV_female.setVisibility(View.GONE); }
+        else holder.IV_female.setVisibility(View.VISIBLE);
+        if(!personalPostModelList.get(position).getPreferences().get(2)){
+            holder.IV_pet.setVisibility(View.GONE); }
+        else holder.IV_pet.setVisibility(View.VISIBLE);
+        if(!personalPostModelList.get(position).getPreferences().get(3)){
+            holder.IV_smoke.setVisibility(View.GONE); }
+        else holder.IV_smoke.setVisibility(View.VISIBLE);
+
 
 
         // getting current user
-        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        final String Uid = firebaseUser.getUid();
-
-        if(id.equals(Uid)){
-            holder.BT_message.setVisibility(View.GONE);
-            holder.BT_fav.setVisibility(View.GONE);
-        }
-        else {
-            holder.BT_message.setVisibility(View.VISIBLE);
-            holder.BT_fav.setVisibility(View.VISIBLE);
-        }
-        final Boolean[] checkClick = {false};
-        final DatabaseReference favRef = FirebaseDatabase.getInstance().getReference().child("Favorite");
-
-        DatabaseReference anotherFavRef = FirebaseDatabase.getInstance().getReference().child("Favorite");
-        anotherFavRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.child(Uid).child("PersonalPost").hasChild(personalPostModelList.get(position).getId())){
-                    holder.BT_fav.setImageResource(R.drawable.ic_icon_awesome_star_checked);
-                }
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-        if(isFromfav){
-
-            holder.BT_fav.setImageResource(R.drawable.ic_icon_awesome_star_checked);
-        }
-
-
-        else{
-        holder.BT_fav.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                checkClick[0] = true;
-                favRef.addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if(checkClick[0])
-                            if(snapshot.child(Uid).child("PersonalPost").hasChild(personalPostModelList.get(position).getId())){
-                                favRef.child(Uid).child("PersonalPost").child(personalPostModelList.get(position).getId()).removeValue();
-                                holder.BT_fav.setImageResource(R.drawable.ic_icon_awesome_star_unchecked);
-                                Toast.makeText(context,"Post removed from favorites",Toast.LENGTH_LONG).show();
-                                checkClick[0] = false;
-                            }
-                            else {
-                                DatabaseReference anotherRef = favRef.child(Uid).child("PersonalPost").child(personalPostModelList.get(position).getId());
-                                anotherRef.child("id").setValue(personalPostModelList.get(position).getId());
-                                anotherRef.child("userID").setValue(personalPostModelList.get(position).getUserID());
-                                anotherRef.child("price").setValue(personalPostModelList.get(position).getPrice());
-                                anotherRef.child("date").setValue(personalPostModelList.get(position).getDate());
-                                anotherRef.child("description").setValue(personalPostModelList.get(position).getDescription());
-                                anotherRef.child("preferences").setValue(personalPostModelList.get(position).getPreferences());
-                                anotherRef.child("latitude").setValue(personalPostModelList.get(position).getLatitude());
-                                anotherRef.child("longitude").setValue(personalPostModelList.get(position).getLongitude());
-                                Toast.makeText(context,"Post added to favorites",Toast.LENGTH_LONG).show();
-                                holder.BT_fav.setImageResource(R.drawable.ic_icon_awesome_star_checked);
-                                checkClick[0] = false;
-                            }
-                    }
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
-                });
-            }
-        });}
+//        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+//        final String Uid = firebaseUser.getUid();
+//
+//        if(id.equals(Uid)){
+//            holder.BT_message.setVisibility(View.GONE);
+//            holder.BT_fav.setVisibility(View.GONE);
+//        }
+//        else {
+//            holder.BT_message.setVisibility(View.VISIBLE);
+//            holder.BT_fav.setVisibility(View.VISIBLE);
+//        }
+//        final Boolean[] checkClick = {false};
+//        final DatabaseReference favRef = FirebaseDatabase.getInstance().getReference().child("Favorite");
+//
+//        DatabaseReference anotherFavRef = FirebaseDatabase.getInstance().getReference().child("Favorite");
+//        anotherFavRef.addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                if(snapshot.child(Uid).child("PersonalPost").hasChild(personalPostModelList.get(position).getId())){
+//                    holder.BT_fav.setImageResource(R.drawable.ic_icon_awesome_star_checked);
+//                }
+//
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//
+//            }
+//        });
+//        if(isFromfav){
+//            holder.BT_fav.setImageResource(R.drawable.ic_icon_awesome_star_checked);
+//        }
+//
+//
+//        else{
+//        holder.BT_fav.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//                checkClick[0] = true;
+//                favRef.addValueEventListener(new ValueEventListener() {
+//                    @Override
+//                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                        if(checkClick[0])
+//                            if(snapshot.child(Uid).child("PersonalPost").hasChild(personalPostModelList.get(position).getId())){
+//                                favRef.child(Uid).child("PersonalPost").child(personalPostModelList.get(position).getId()).removeValue();
+//                                holder.BT_fav.setImageResource(R.drawable.ic_icon_awesome_star_unchecked);
+//                                Toast.makeText(context,"Post removed from favorites",Toast.LENGTH_LONG).show();
+//                                checkClick[0] = false;
+//                            }
+//                            else {
+//                                DatabaseReference anotherRef = favRef.child(Uid).child("PersonalPost").child(personalPostModelList.get(position).getId());
+//                                anotherRef.child("id").setValue(personalPostModelList.get(position).getId());
+//                                anotherRef.child("userID").setValue(personalPostModelList.get(position).getUserID());
+//                                anotherRef.child("price").setValue(personalPostModelList.get(position).getPrice());
+//                                anotherRef.child("date").setValue(personalPostModelList.get(position).getDate());
+//                                anotherRef.child("description").setValue(personalPostModelList.get(position).getDescription());
+//                                anotherRef.child("preferences").setValue(personalPostModelList.get(position).getPreferences());
+//                                anotherRef.child("latitude").setValue(personalPostModelList.get(position).getLatitude());
+//                                anotherRef.child("longitude").setValue(personalPostModelList.get(position).getLongitude());
+//                                Toast.makeText(context,"Post added to favorites",Toast.LENGTH_LONG).show();
+//                                holder.BT_fav.setImageResource(R.drawable.ic_icon_awesome_star_checked);
+//                                checkClick[0] = false;
+//                            }
+//                    }
+//                    @Override
+//                    public void onCancelled(@NonNull DatabaseError error) {
+//
+//                    }
+//                });
+//            }
+//        });}
 
     }
 

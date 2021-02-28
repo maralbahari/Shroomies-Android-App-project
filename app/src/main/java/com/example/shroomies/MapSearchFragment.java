@@ -6,15 +6,17 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.icu.text.NumberFormat;
 import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
+
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.SearchView;
+import android.widget.TextView;
 import android.widget.Toast;
 import  androidx.appcompat.widget.Toolbar;
 
@@ -65,10 +67,8 @@ import java.util.Map;
 
 public class MapSearchFragment extends Fragment {
     private static int AUTOCOMPLETE_REQUEST_CODE = 1;
-
     public static final int APARTMENT_PER_PAGINATION = 20;
     private Query query;
-
     private View v;
     private static GoogleMap mMap;
     private Map<Marker, Apartment> markerMap;
@@ -106,15 +106,36 @@ public class MapSearchFragment extends Fragment {
         public void onMapReady(GoogleMap googleMap) {
             markerMap = new HashMap<>();
             mMap = googleMap;
-            // set on click listeners to go to the apartment
-            // view page of the selected markers
-            googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+           // change the background of the marker
+            googleMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
                 @Override
-                public void onInfoWindowClick(Marker marker) {
+                public View getInfoWindow(Marker marker) {
+                    View v = getLayoutInflater().inflate(R.layout.info_window,
+                            null);
+                    TextView infoTitle=  v.findViewById(R.id.info_window_text);
+                    infoTitle.setText(marker.getTitle());
+
+                    return v;
+                }
+
+                @Override
+                public View getInfoContents(Marker marker) {
+
+                    return null;
+                }
+            });
+
+            // open the apartment dialog
+            // to display apartment info on click of th emarker
+            googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                @Override
+                public boolean onMarkerClick(Marker marker) {
                     Apartment selectedApartment = markerMap.get(marker);
-                    Intent intent = new Intent(getActivity(), ApartmentViewPage.class);
-                    intent.putExtra("apartment", selectedApartment);
-                    startActivity(intent);
+
+                    MapApartmentDialogFragment mapApartmentDialogFragment = new MapApartmentDialogFragment(selectedApartment);
+                    mapApartmentDialogFragment.show(getParentFragmentManager() , null);
+                    return false;
+
                 }
             });
 
@@ -234,14 +255,20 @@ public class MapSearchFragment extends Fragment {
     }
 
     private void addMarkers(Apartment apartment, GoogleMap mMap) {
+        // gformat the price of the unit
+        // then set the title of the marker to the price;
+        NumberFormat numberFormat = NumberFormat.getInstance();
+        numberFormat.setGroupingUsed(true);
+        String formattedPrice = numberFormat.format(apartment.getPrice());
         Bitmap bitmap = BitmapFactory.decodeResource(getResources(), getResources().getIdentifier("black_mushroom", "drawable", getActivity().getPackageName()));
         Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, 90, 100, false);
         LatLng latLng = new LatLng(apartment.getLatitude(), apartment.getLongitude());
         MarkerOptions markerOptions = new MarkerOptions()
                 .position(latLng)
                 .icon(BitmapDescriptorFactory.fromBitmap(resizedBitmap))
-                .title(Integer.toString(apartment.getPrice()))
-                .snippet("price");
+                .title(formattedPrice)
+                ;
+
         // show the snippet without click
         Marker locationMarker = mMap.addMarker(markerOptions);
         // add the marker and the apartment to the map
@@ -276,7 +303,6 @@ public class MapSearchFragment extends Fragment {
 
 
     private void addAutoTextIntent() {
-
                 List<Place.Field> fields = Arrays.asList(Place.Field.PHOTO_METADATAS, Place.Field.LAT_LNG, Place.Field.ADDRESS, Place.Field.NAME);
                 // Start the autocomplete intent.
                 Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN, fields)
