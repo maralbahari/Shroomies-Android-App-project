@@ -37,11 +37,11 @@ public class SplitExpenses extends DialogFragment {
   private EditText amount;
   private RecyclerView splitRecycler;
   private ShroomiesApartment apartment;
-  private ArrayList<User> shroomiesList;
+  private static ArrayList<User> shroomiesList;
   private DatabaseReference rootRef;
   private FirebaseAuth mAuth;
   private UserAdapterSplitExpenses splitAdapter;
-  private String enteredAmount="0";
+  private static String enteredAmount="0";
   private HashMap<String,Object> sharedSplit=new HashMap<>();
   membersShares myMembersShares;
 
@@ -147,5 +147,18 @@ public class SplitExpenses extends DialogFragment {
         }catch(ClassCastException e){
 
         }
+    }
+    public static int getTotalAmount(){
+        int total=0;
+        for(User shroomie:shroomiesList){
+            total=+shroomie.getSharedAmount();
+            if(total<=Integer.parseInt(enteredAmount)){
+
+            }else{
+                return -1;
+            }
+        }
+        return total;
+
     }
 }

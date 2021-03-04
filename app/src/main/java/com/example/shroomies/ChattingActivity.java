@@ -173,7 +173,6 @@ public class ChattingActivity extends AppCompatActivity {
         chattingRecycler=findViewById(R.id.recycler_view_group_chatting);
         cameraPermissions=new String[]{Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE};
         storagePermissions=new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
-
         linearLayoutManager=new LinearLayoutManager(this);
         chattingRecycler.setHasFixedSize(true);
         linearLayoutManager.setStackFromEnd(true);

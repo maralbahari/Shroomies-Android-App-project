@@ -299,18 +299,31 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
         }
 
     }
+    private void saveToAddLog(String apartmentID,HashMap<String,Object> newRecord){
+
+            DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
+            String logID=ref.getKey();
+            newRecord.put("logID",logID);
+            ref.updateChildren(newRecord).addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+
+                }
+            });
 
 
-    private void saveTaskCardToFirebase(String mtitle, String mdescription, String mdueDate, String importance, final String mMention,String apartmentID) {
+    }
+
+    private void saveTaskCardToFirebase(String mtitle, String mdescription, String mdueDate, String importance, final String mMention, final String apartmentID) {
 
         if (!mMention.isEmpty()) {
             notify = true;
         }
         DatabaseReference ref = rootRef.child("apartments").child(apartmentID).child("tasksCards").push();
         HashMap<String, Object> newCard = new HashMap<>();
-
+        final HashMap<String,Object> newRecord=new HashMap<>();
         Calendar calendarDate = Calendar.getInstance();
-        String uniqueID = ref.getKey();
+        final String uniqueID = ref.getKey();
         SimpleDateFormat mcurrentDate = new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
         saveCurrentDate = mcurrentDate.format(calendarDate.getTime());
 
@@ -324,10 +337,19 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
         newCard.put("mention", mMention);
 
 
+        newRecord.put("actor",mAuth.getCurrentUser().getUid());
+        newRecord.put("cardTitle",mtitle);
+        newRecord.put("when",saveCurrentDate);
+        newRecord.put("action","addingCard");
+        newRecord.put("cardType","tasks");
+        newRecord.put("cardID",uniqueID);
+
+
         ref.updateChildren(newCard).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
+                    saveToAddLog(apartmentID,newRecord);
                     dismiss();
 
                 }
@@ -375,15 +397,15 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
     }
 
 
-    public void saveToFireBase(String title, String description, String dueDate, String attachUrl, String importance, final String mMention,String apartmentID,final HashMap<String,Object> shareAmounts) {
+    public void saveToFireBase(String title, String description, String dueDate, String attachUrl, String importance, final String mMention, final String apartmentID, final HashMap<String,Object> shareAmounts) {
         if (!mMention.isEmpty()) {
             notify = true;
         }
         DatabaseReference ref = rootRef.child("apartments").child(apartmentID).child("expensesCards").push();
         HashMap<String, Object> newCard = new HashMap<>();
-
+        final HashMap<String,Object> newRecord=new HashMap<>();
         Calendar calendarDate = Calendar.getInstance();
-        String uniqueID = ref.getKey();
+        final String uniqueID = ref.getKey();
         SimpleDateFormat mcurrentDate = new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
         saveCurrentDate = mcurrentDate.format(calendarDate.getTime());
 
@@ -399,11 +421,18 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
         if(shareAmounts!=null){
             newCard.put("membersShares",shareAmounts);
         }
+        newRecord.put("actor",mAuth.getCurrentUser().getUid());
+        newRecord.put("cardTitle",title);
+        newRecord.put("when",saveCurrentDate);
+        newRecord.put("action","addingCard");
+        newRecord.put("cardType","expenses");
+        newRecord.put("cardID",uniqueID);
 
         ref.updateChildren(newCard).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
+                    saveToAddLog(apartmentID,newRecord);
                     dismiss();
 
                 }

@@ -46,7 +46,7 @@ import java.util.HashMap;
 public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapter.ExpensesViewHolder> implements ItemTouchHelperAdapter {
 
 
-    private ArrayList<ExpensesCard> expensesCardArrayList;
+    private  ArrayList<ExpensesCard> expensesCardArrayList;
     private Context context;
     private View view;
     private DatabaseReference rootRef;
@@ -75,7 +75,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
     @Override
     public void onItemSwiped(int position) {
         if(fromArchive){
-            deleteFromArchive(position);
+            deleteFromArchive(position,expensesCardArrayList.get(position));
         }else{
             deleteExpensesCard(position);
         }
@@ -136,7 +136,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                     cont.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                           deleteFromArchive(position);
+                           deleteFromArchive(position,expensesCardArrayList.get(position));
                             alertDialog.cancel();
                         }
                     });
@@ -173,10 +173,11 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
         }
 
     }
-    private void deleteFromArchive(final int  position){
+    private void deleteFromArchive(final int  position, final ExpensesCard expensesCard){
         rootRef.child("archive").child(apartment.getApartmentID()).child("expensesCards").child(expensesCardArrayList.get(position).getCardId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
+               saveToDeleteArchiveLog(apartment.getApartmentID(),expensesCard);
                 notifyItemRemoved(position);
 
             }
@@ -225,6 +226,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                             @Override
                             public void onSuccess(Void aVoid) {
                                 markAsDone.setText("Done!");
+                                saveToDoneLog(apartment.getApartmentID(),expensesCardArrayList.get(getAdapterPosition()));
 
                             }
                         });
@@ -242,7 +244,9 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                         yesBtn.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                archive(expensesCardArrayList.get(position).getCardId(),position);
+                                Toast.makeText(context,"position:"+position,Toast.LENGTH_LONG).show();
+                                archive(position,expensesCardArrayList.get(position));
+
                                 alertDialog.cancel();
                             }
                         });
@@ -256,6 +260,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                         rootRef.child("apartments").child(apartment.getApartmentID()).child("expensesCards").child(expensesCardArrayList.get(getAdapterPosition()).getCardId()).child("done").setValue("false").addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
+                                saveToUnDoneLog(apartment.getApartmentID(),expensesCardArrayList.get(getAdapterPosition()));
 
                             }
                         });
@@ -271,7 +276,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
             archive.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    archive(expensesCardArrayList.get(getAdapterPosition()).getCardId(),getAdapterPosition());
+                    archive(getAdapterPosition(),expensesCardArrayList.get(getAdapterPosition()));
                 }
             });
 
@@ -328,63 +333,54 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
 
 
 
-    public void archive(final String cardId, final int position){
-        rootRef.child("apartments").child(apartment.getApartmentID()).child("expensesCards").child(cardId).addListenerForSingleValueEvent(new ValueEventListener() {
+    public void archive(final int position,final ExpensesCard expensesCard){
+        DatabaseReference ref = rootRef.child("archive").child(apartment.getApartmentID()).child("expensesCards").push();
+        HashMap<String ,Object> newCard = new HashMap<>();
+        Calendar calendarDate=Calendar.getInstance();
+        String saveCurrentDate;
+        String uniqueID = ref.getKey();
+        SimpleDateFormat mcurrentDate=new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
+        saveCurrentDate=mcurrentDate.format(calendarDate.getTime());
+        newCard.put("description" , expensesCard.getDescription());
+        newCard.put("title" ,expensesCard.getTitle());
+        newCard.put("dueDate", expensesCard.getDueDate());
+        newCard.put("importance", expensesCard.getImportance());
+        newCard.put("date",saveCurrentDate);
+        newCard.put("cardId",uniqueID);
+        newCard.put("attachedFile", expensesCard.getAttachedFile());
+        newCard.put("done", expensesCard.getDone());
+        newCard.put("mention",expensesCard.getMention());
+        ref.updateChildren(newCard).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()){
-                    final ExpensesCard expensesCard = snapshot.getValue(ExpensesCard.class);
-                    DatabaseReference ref = rootRef.child("archive").child(apartment.getApartmentID()).child("expensesCards").push();
-                    HashMap<String ,Object> newCard = new HashMap<>();
-                    Calendar calendarDate=Calendar.getInstance();
-                    String saveCurrentDate;
-                    String uniqueID = ref.getKey();
-                    SimpleDateFormat mcurrentDate=new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
-                    saveCurrentDate=mcurrentDate.format(calendarDate.getTime());
-                    newCard.put("description" , expensesCard.getDescription());
-                    newCard.put("title" ,expensesCard.getTitle());
-                    newCard.put("dueDate", expensesCard.getDueDate());
-                    newCard.put("importance", expensesCard.getImportance());
-                    newCard.put("date",saveCurrentDate);
-                    newCard.put("cardId",uniqueID);
-                    newCard.put("attachedFile", expensesCard.getAttachedFile());
-                    newCard.put("done", expensesCard.getDone());
-                    newCard.put("mention",expensesCard.getMention());
-                    ref.updateChildren(newCard).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            if (task.isSuccessful()){
-                                rootRef.child("apartments").child(apartment.getApartmentID()).child("expensesCards").child(cardId).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        notifyItemRemoved(position);
-                                    }
-                                });
-                            }
-                        }
-                    });
-                }
-            }
+            public void onComplete(@NonNull Task<Void> task) {
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
+                rootRef.child("apartments").child(apartment.getApartmentID()).child("expensesCards").child(expensesCard.getCardId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        saveToArchiveLog(apartment.getApartmentID(),expensesCard);
+                        notifyItemRemoved(position);
+                    }
+                });
 
             }
         });
+
     }
 
 
     public void deleteExpensesCard(final int position){
-
+        final ExpensesCard expensesCard=expensesCardArrayList.get(position);
             if(!expensesCardArrayList.get(position).getAttachedFile().isEmpty()){
                 storage.getReferenceFromUrl(expensesCardArrayList.get(position).getAttachedFile()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void aVoid) {
                     }
                 });}
+
             rootRef.child("apartments").child(apartment.getApartmentID()).child("expensesCards").child(expensesCardArrayList.get(position).getCardId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                 @Override
                 public void onSuccess(Void aVoid) {
+                    saveToDeleteLog(apartment.getApartmentID(),expensesCard);
                     notifyItemRemoved(position);
                 }
             });
@@ -392,6 +388,117 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
 
 
     }
+    private void saveToDeleteLog(String apartmentID,ExpensesCard card){
+        DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
+        String logID=ref.getKey();
+        Calendar calendarDate = Calendar.getInstance();
+        SimpleDateFormat mcurrentDate = new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
+        String saveCurrentDate = mcurrentDate.format(calendarDate.getTime());
+        final HashMap<String, Object> newRecord=new HashMap<>();
+        newRecord.put("actor",mAuth.getCurrentUser().getUid());
+        newRecord.put("when",saveCurrentDate);
+        newRecord.put("cardTitle",card.getTitle());
+        newRecord.put("action","deletingCard");
+        newRecord.put("logID",logID);
+        newRecord.put("cardType","expenses");
+        ref.updateChildren(newRecord).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+
+            }
+        });
+
+    }
+    private void saveToArchiveLog(String apartmentID,ExpensesCard card){
+        DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
+        String logID=ref.getKey();
+        Calendar calendarDate = Calendar.getInstance();
+        SimpleDateFormat mcurrentDate = new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
+        String saveCurrentDate = mcurrentDate.format(calendarDate.getTime());
+        final HashMap<String, Object> newRecord=new HashMap<>();
+        newRecord.put("actor",mAuth.getCurrentUser().getUid());
+        newRecord.put("when",saveCurrentDate);
+        newRecord.put("cardTitle",card.getTitle());
+        newRecord.put("action","archivingCard");
+        newRecord.put("logID",logID);
+        newRecord.put("cardType","expenses");
+        newRecord.put("cardID",card.getCardId());
+        ref.updateChildren(newRecord).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+
+            }
+        });
+
+    }
+    private void saveToDeleteArchiveLog(String apartmentID,ExpensesCard card){
+        DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
+        String logID=ref.getKey();
+        Calendar calendarDate = Calendar.getInstance();
+        SimpleDateFormat mcurrentDate = new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
+        String saveCurrentDate = mcurrentDate.format(calendarDate.getTime());
+        final HashMap<String, Object> newRecord=new HashMap<>();
+        newRecord.put("actor",mAuth.getCurrentUser().getUid());
+        newRecord.put("when",saveCurrentDate);
+        newRecord.put("cardTitle",card.getTitle());
+        newRecord.put("action","deletingArchivedCard");
+        newRecord.put("logID",logID);
+        newRecord.put("cardType","expenses");
+        ref.updateChildren(newRecord).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+
+            }
+        });
+
+    }
+    private void saveToDoneLog(String apartmentID,ExpensesCard card){
+        DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
+        String logID=ref.getKey();
+        Calendar calendarDate = Calendar.getInstance();
+        SimpleDateFormat mcurrentDate = new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
+        String saveCurrentDate = mcurrentDate.format(calendarDate.getTime());
+        final HashMap<String, Object> newRecord=new HashMap<>();
+        newRecord.put("actor",mAuth.getCurrentUser().getUid());
+        newRecord.put("when",saveCurrentDate);
+        newRecord.put("cardTitle",card.getTitle());
+        newRecord.put("action","markingDone");
+        newRecord.put("logID",logID);
+        newRecord.put("cardType","expenses");
+        newRecord.put("cardID",card.getCardId());
+        ref.updateChildren(newRecord).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+
+            }
+        });
+
+    }
+
+    private void saveToUnDoneLog(String apartmentID,ExpensesCard card){
+        DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
+        String logID=ref.getKey();
+        Calendar calendarDate = Calendar.getInstance();
+        SimpleDateFormat mcurrentDate = new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
+        String saveCurrentDate = mcurrentDate.format(calendarDate.getTime());
+        final HashMap<String, Object> newRecord=new HashMap<>();
+        newRecord.put("actor",mAuth.getCurrentUser().getUid());
+        newRecord.put("when",saveCurrentDate);
+        newRecord.put("cardTitle",card.getTitle());
+        newRecord.put("action","unMarkingDone");
+        newRecord.put("logID",logID);
+        newRecord.put("cardType","expenses");
+        newRecord.put("cardID",card.getCardId());
+        ref.updateChildren(newRecord).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+
+            }
+        });
+
+    }
+
+
 
 
 }

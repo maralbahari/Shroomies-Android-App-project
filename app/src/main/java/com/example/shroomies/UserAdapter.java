@@ -38,7 +38,9 @@ import com.google.gson.Gson;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -170,6 +172,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                                     rootRef.child("apartments").child(apartment.getApartmentID()).child("apartmentMembers").child(userList.get(getAdapterPosition()).getID()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
+                                            saveToRemovedLog(apartment.getApartmentID(),userList.get(getAdapterPosition()).getName());
                                             Toast.makeText(context,"User deleted successfully",Toast.LENGTH_LONG).show();
                                             notifyItemRemoved(getAdapterPosition());
 
@@ -203,6 +206,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                                     Toast.makeText(context,"invitation has been sent",Toast.LENGTH_LONG).show();
                                     sendRequest.setText("requested");
                                     sendRequest.setClickable(false);
+                                    saveToRequestsLog(apartment.getApartmentID(),id);
                                     sendNotification(id,senderName+" wants to be your shroomie");
                                 }else{
                                     sendRequest.setClickable(true);
@@ -283,6 +287,51 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         }
 
     }
+    private void saveToRemovedLog(final String apartmentID,String username){
+        DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
+        String logID=ref.getKey();
+        Calendar calendarDate = Calendar.getInstance();
+        SimpleDateFormat mcurrentDate = new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
+        String saveCurrentDate = mcurrentDate.format(calendarDate.getTime());
+        final HashMap<String,Object> newRecord=new HashMap<>();
+        newRecord.put("actor",apartment.getOwnerID());
+        newRecord.put("action","removing");
+        newRecord.put("when",saveCurrentDate);
+        newRecord.put("removedUser",username);
+        newRecord.put("logID",logID);
+        ref.updateChildren(newRecord).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    Toast.makeText(context,"I am here",Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+    }
+    private void saveToRequestsLog(final String apartmentID,String userID){
+        Calendar calendarDate = Calendar.getInstance();
+        SimpleDateFormat mcurrentDate = new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
+        String saveCurrentDate = mcurrentDate.format(calendarDate.getTime());
+        DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
+        String uniqueID=ref.getKey();
+        final HashMap<String,Object> newRecord=new HashMap<>();
+        newRecord.put("when",saveCurrentDate);
+        newRecord.put("actor",mAuth.getCurrentUser().getUid());
+        newRecord.put("receivedBy",userID);
+        newRecord.put("logID",uniqueID);
+        newRecord.put("action","requesting");
+        ref.updateChildren(newRecord).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    Toast.makeText(context,"I am here",Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+    }
+
 
 
 }
