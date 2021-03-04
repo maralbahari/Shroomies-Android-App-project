@@ -45,36 +45,55 @@
             android:text="Tasks" />
     </com.google.android.material.tabs.TabLayout>
 
+   <Button
+       android:id="@+id/my_shroomies_log"
+       android:layout_width="match_parent"
+       android:layout_height="35dp"
+       android:text="Log activities"
+       android:background="@drawable/rounded_button_myshroomies_layout"
+       android:layout_below="@+id/my_shroomies_tablayout"
+       android:textSize="10sp"
+       android:padding="10dp"
+       android:elevation="10dp"
+       android:layout_marginRight="280dp"
+       android:drawablePadding="5dp"
+       android:layout_alignParentLeft="true"
+       android:layout_marginLeft="10dp"
+       android:drawableStart="@drawable/ic_history_24"
+       android:textColor="@color/Black"
 
+       />
     <Button
         android:layout_marginBottom="10dp"
         android:minHeight="0dp"
         android:minWidth="0dp"
         android:id="@+id/my_shroomies_member_btn"
-        android:layout_width="wrap_content"
-        android:layout_marginLeft="220dp"
+        android:layout_width="match_parent"
+        android:layout_marginLeft="150dp"
+        android:layout_marginRight="150dp"
         android:drawablePadding="5dp"
         android:layout_height="35dp"
+        android:layout_centerHorizontal="true"
         android:layout_below="@+id/my_shroomies_tablayout"
         android:background="@drawable/rounded_button_myshroomies_layout"
         android:text="Members"
         android:textSize="10sp"
         android:padding="10dp"
+        android:elevation="10dp"
         android:textColor="@color/Black"
         android:drawableStart="@drawable/ic_member"
 
          />
 
     <LinearLayout
-        android:elevation="3dp"
+        android:elevation="10dp"
         android:id="@+id/shroomie_linearlayout_filter"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/my_shroomies_tablayout"
-        android:layout_toRightOf="@+id/my_shroomies_member_btn"
-        android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"
+        android:layout_marginRight="10dp"
         android:layout_marginBottom="5dp"
+        android:layout_marginLeft="280dp"
         android:orientation="horizontal"
         android:paddingTop="5dp"
         android:paddingBottom="5dp"
@@ -87,9 +106,7 @@
             android:layout_height="10dp"
             android:background="@drawable/ic_filter"
             android:layout_marginLeft="10dp"
-
             />
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

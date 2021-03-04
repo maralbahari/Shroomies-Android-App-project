@@ -53,6 +53,14 @@ public class MyShroomies extends Fragment   {
     private ValueEventListener expensesCardListener;
     private ValueEventListener tasksCardListener;
     private ValueEventListener apartmentListener;
+    private ValueEventListener logListener;
+    private Button logButton;
+    private ArrayList<Log> apartmentlogList;
+    private  FragmentTransaction ft;
+    private FragmentManager fm;
+    private Bundle selectedCard;
+    private String selectedCardID;
+    private String selectedCardType;
 
 
 
@@ -67,6 +75,9 @@ public class MyShroomies extends Fragment   {
         return v;
     }
 
+
+
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -74,6 +85,7 @@ public class MyShroomies extends Fragment   {
         myTasksRecyclerView = v.findViewById(R.id.my_tasks_recycler_view);
         memberButton = v.findViewById(R.id.my_shroomies_member_btn);
         addCardButton = v.findViewById(R.id.my_shroomies_add_card_btn);
+        logButton=v.findViewById(R.id.my_shroomies_log);
         myShroomiesTablayout = v.findViewById(R.id.my_shroomies_tablayout);
         myExpensesRecyclerView = v.findViewById(R.id.my_expenses_recycler_view);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
@@ -86,7 +98,37 @@ public class MyShroomies extends Fragment   {
         expensesCardsList=new ArrayList<>();
         expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList,getContext(), false,apartment,getParentFragmentManager());
         myExpensesRecyclerView.setAdapter(expensesCardAdapter);
+        tasksCardsList=new ArrayList<>();
+        tasksCardAdapter=new TasksCardAdapter(tasksCardsList,getContext(),false,apartment,getParentFragmentManager());
+        myTasksRecyclerView.setAdapter(tasksCardAdapter);
+        selectedCard=this.getArguments();
+        if(selectedCard!=null){
+            Toast.makeText(getContext(),"here",Toast.LENGTH_LONG);
+            selectedCardID=selectedCard.getString("CARDID_SELECTED");
+            selectedCardType=selectedCard.getString("SELECTED_CARD_TYPE");
+            if(selectedCardType.equals("tasks")){
+                for (TasksCard card:tasksCardsList){
+                    if(card.getCardId().equals(selectedCardID)){
+                        int position=tasksCardsList.indexOf(card);
+                        myShroomiesTablayout.getTabAt(1);
+                        myTasksRecyclerView.smoothScrollToPosition(position);
+                        Toast.makeText(getContext(),"position:"+position,Toast.LENGTH_LONG);
+                    }
+                }
 
+            }if(selectedCardType.equals("expenses")){
+                for(ExpensesCard card:expensesCardsList){
+                    if(card.getCardId().equals(selectedCardID)){
+                        myShroomiesTablayout.getTabAt(0);
+                        int position=tasksCardsList.indexOf(card);
+                        myExpensesRecyclerView.smoothScrollToPosition(position);
+                        Toast.makeText(getContext(),"position:"+position,Toast.LENGTH_LONG);
+
+                    }
+                }
+
+            }
+        }
         myShroomiesTablayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
@@ -175,6 +217,20 @@ public class MyShroomies extends Fragment   {
                 members.show(getParentFragmentManager(),"show member");
             }
         });
+        logButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                LogFragment logFragment=new LogFragment();
+                Bundle bundle=new Bundle();
+                bundle.putParcelableArrayList("LOG_LIST",apartmentlogList);
+                logFragment.setArguments(bundle);
+                fm = getParentFragmentManager();
+                ft = fm.beginTransaction();
+                ft.addToBackStack(null);
+                ft.replace(R.id.fragmentContainer, logFragment);
+                ft.commit();
+            }
+        });
     }
     private void getApartmentDetails (){
         rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").addValueEventListener(new ValueEventListener() {
@@ -188,6 +244,7 @@ public class MyShroomies extends Fragment   {
                             if(snapshot.exists()){
                                 apartment=snapshot.getValue(ShroomiesApartment.class);
                                 retreiveExpensesCards(apartment.getApartmentID());
+                                getApartmentLog(apartment.getApartmentID());
                             }
 
                         }
@@ -210,7 +267,50 @@ public class MyShroomies extends Fragment   {
         });
     }
 
+   private void getApartmentLog(final String apartmentID){
+       apartmentlogList=new ArrayList<>();
+       logListener=rootRef.child("logs").child(apartmentID).addValueEventListener(new ValueEventListener() {
+           @Override
+           public void onDataChange(@NonNull DataSnapshot snapshot) {
+               apartmentlogList.clear();
+               if(snapshot.exists()){
+                   for(DataSnapshot sp:snapshot.getChildren()){
+                       Log log=sp.getValue(Log.class);
+                       apartmentlogList.add(log);
+                   }
+                   getUserDetailsForLog(apartmentlogList);
 
+               }
+           }
+
+           @Override
+           public void onCancelled(@NonNull DatabaseError error) {
+
+           }
+       });
+
+   }
+   private void getUserDetailsForLog(final ArrayList<Log> apartmentlogList){
+        for(final Log log:apartmentlogList){
+            rootRef.child("Users").child(log.getActor()).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if(snapshot.exists()){
+                        User user=snapshot.getValue(User.class);
+                        log.setActorName(user.getName());
+                        log.setActorPic(user.getImage());
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
+        }
+
+
+   }
     private void retrieveTaskCards(String apartmentID) {
         tasksCardsList=new ArrayList<>();
         tasksCardAdapter= new TasksCardAdapter(tasksCardsList,getContext(),false,apartment,getParentFragmentManager());
@@ -378,6 +478,7 @@ public class MyShroomies extends Fragment   {
         rootRef.removeEventListener(expensesCardListener);
         rootRef.removeEventListener(tasksCardListener);
         rootRef.removeEventListener(apartmentListener);
+        rootRef.removeEventListener(logListener);
     }
 
     private void sortAccordingtoImportance(String tab){

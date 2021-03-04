@@ -4,9 +4,9 @@
     <solid  android:color="@color/Alabaster"
 
         />
-    <corners android:radius="100dp"
+    <corners android:radius="30dp"
         />
 
-    <size   android:width="40dp" android:height="20dp"
+    <size   android:width="80dp" android:height="35dp"
         />
 </shape>

@@ -121,7 +121,7 @@ public class UserAdapterSplitExpenses extends RecyclerView.Adapter<UserAdapterSp
 
                 @Override
                 public void onStopTrackingTouch(SeekBar seekBar) {
-                    total=getTotalAmount();
+                    total=SplitExpenses.getTotalAmount();
                     if(total==-1){
                         totalText.setText("above your specified amount");
                         totalText.setTextColor(Color.RED);
@@ -133,19 +133,19 @@ public class UserAdapterSplitExpenses extends RecyclerView.Adapter<UserAdapterSp
             });
 
         }
-        private int getTotalAmount(){
-            int total=0;
-            for(int i=0;i<shroomieList.size();i++){
-                total=+shroomieList.get(getAdapterPosition()).getSharedAmount();
-                if(total<=Integer.parseInt(amount)){
-
-                }else{
-                   return -1;
-                }
-            }
-            return total;
-
-        }
+//        private int getTotalAmount(){
+//            int total=0;
+//            for(int i=0;i<shroomieList.size();i++){
+//                total=+shroomieList.get(getAdapterPosition()).getSharedAmount();
+//                if(total<=Integer.parseInt(amount)){
+//
+//                }else{
+//                   return -1;
+//                }
+//            }
+//            return total;
+//
+//        }
 
 
     }

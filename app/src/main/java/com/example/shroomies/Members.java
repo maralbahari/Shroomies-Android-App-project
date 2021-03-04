@@ -31,7 +31,9 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -235,6 +237,7 @@ public class Members extends DialogFragment {
                             rootRef.child("apartments").child(apartmentID).child("apartmentMembers").child(mAuth.getCurrentUser().getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
+                                    saveToLeftLog(apartment.getApartmentID(),mAuth.getCurrentUser().getUid());
                                     customLoadingProgressBar.dismiss();
                                     Intent intent = new Intent(getContext(),MainActivity.class);
                                     startActivity(intent);
@@ -261,6 +264,28 @@ public class Members extends DialogFragment {
 
 
     }
+    private void saveToLeftLog(final String apartmentID,final String userID){
+        DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
+        String logID=ref.getKey();
+        Calendar calendarDate = Calendar.getInstance();
+        SimpleDateFormat mcurrentDate = new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
+        String saveCurrentDate = mcurrentDate.format(calendarDate.getTime());
+        final HashMap<String,Object> newRecord=new HashMap<>();
+        newRecord.put("actor",mAuth.getCurrentUser().getUid());
+        newRecord.put("action","left");
+        newRecord.put("when",saveCurrentDate);
+        newRecord.put("logID",logID);
+       ref.updateChildren(newRecord).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    Toast.makeText(getContext(),"I am here",Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+    }
+
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {

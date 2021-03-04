@@ -36,7 +36,9 @@ import com.google.gson.Gson;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -194,8 +196,8 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
                                                                public void onSuccess(Void aVoid) {
                                                                    Toast.makeText(context,"your personal cards are deleted, you are part of "+senderName+" apartment now",Toast.LENGTH_LONG).show();
                                                                    sendNotification(senderID,currentUserName+" accepted your request");
+                                                                   saveToJoinedLog(apartment.getApartmentID());
                                                                    notifyItemRemoved(getAdapterPosition());
-
 
 
                                                                }
@@ -300,5 +302,26 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
 
             }
         });
+    }
+    private void saveToJoinedLog(final String apartmentID){
+        DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
+        String logID=ref.getKey();
+        Calendar calendarDate = Calendar.getInstance();
+        SimpleDateFormat mcurrentDate = new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
+        String saveCurrentDate = mcurrentDate.format(calendarDate.getTime());
+        final HashMap<String,Object> newRecord=new HashMap<>();
+        newRecord.put("actor",mAuth.getCurrentUser().getUid());
+        newRecord.put("action","joined");
+        newRecord.put("when",saveCurrentDate);
+        newRecord.put("logID",logID);
+        ref.updateChildren(newRecord).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    Toast.makeText(context,"I am here",Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
     }
 }
