@@ -232,10 +232,11 @@ public class PersonalPostFragment extends Fragment {
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
                 if(task.isSuccessful()){
                     if(task.getResult().size()<1){
+                        closeProgressBarsSetOverPullListener();
                         return;
                     }
                     setAdapterData(task);
-                }
+                }closeProgressBarsSetOverPullListener();
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override

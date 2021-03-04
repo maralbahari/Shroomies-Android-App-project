@@ -23,5 +23,8 @@
     <color name="place_autocomplete_search_hint">@android:color/secondary_text_dark</color>
     <color name="place_autocomplete_search_">@android:color/primary_text_dark</color>
 
+    <color name="greyTabLayout"> #CCD0C5</color>
+
+
 
 </resources>

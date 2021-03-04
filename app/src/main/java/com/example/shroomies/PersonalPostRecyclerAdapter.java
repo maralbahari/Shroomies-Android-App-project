@@ -79,7 +79,7 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
                     holder.TV_userName.setText(user.getName());
 //                    holder.TV_userOccupation.setText(user.getBio());
                     if (user.getImage()!=null){
-                    Glide.with(holder.IV_userPic.getContext()).
+                    Glide.with(context).
                             load(user.getImage())
                             .transform(new CenterCrop() , new CircleCrop())
                             .into(holder.IV_userPic);

@@ -4,11 +4,11 @@
     android:id="@+id/find_roomMate_Motion_Layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginTop="60dp"
+    android:layout_marginTop="56dp"
     android:layout_marginBottom="50dp"
     app:layoutDescription="@xml/fragment_find_roommate_scene2"
-    tools:context=".FindRoommate">
-
+    tools:context=".FindRoommate"
+    >
 
 
 
@@ -16,17 +16,20 @@
         android:id="@+id/tabLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="5dp"
         android:layout_marginRight="5dp"
-
         android:layout_marginLeft="5dp"
-        android:background="@drawable/tablayout_round"
+        android:background="@color/LogoYellow"
+        app:tabSelectedTextColor="@color/white"
         android:elevation="5dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:tabIndicatorColor="@color/Alabaster"
-        app:tabIndicatorGravity="stretch">
+        app:tabIndicatorColor="@color/white"
+        app:tabIndicatorHeight="2dp"
+        app:tabMode="scrollable"
+        app:tabMinWidth="120dp"
+
+        >
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
@@ -44,7 +47,16 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="personal" />
+            android:text="Personal"
+            />
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Users"
+            />
+
+
 
     </com.google.android.material.tabs.TabLayout>
 
@@ -59,8 +71,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tabLayout"
-        app:recyclerview_fling_animation_size=".7"
-        app:recyclerview_overscroll_animation_size=".7"
+        app:recyclerview_fling_animation_size=".5"
+        app:recyclerview_overscroll_animation_size=".5"
         app:recyclerview_damping_ratio="DAMPING_RATIO_LOW_BOUNCY"
         app:recyclerview_stiffness="STIFFNESS_MEDIUM"
         app:allow_drag_reorder="true"
@@ -128,5 +140,4 @@
 
 
 
-w
 </androidx.constraintlayout.motion.widget.MotionLayout>

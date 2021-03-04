@@ -16,7 +16,7 @@
         <Constraint
             android:id="@+id/tabLayout"
             android:elevation="5dp"
-            android:layout_marginTop="5dp"
+
             android:layout_marginRight="5dp"
             android:layout_marginBottom="5dp"
             android:layout_marginLeft="5dp"
@@ -38,10 +38,10 @@
             android:elevation="5dp"
             motion:layout_constraintEnd_toEndOf="parent"
             android:layout_width="match_parent"
-            android:layout_height="1dp"
+            android:layout_height="2dp"
             motion:layout_constraintTop_toTopOf="parent"
             motion:layout_constraintStart_toStartOf="parent"
-            android:alpha="0" />
+            />
 
     </ConstraintSet>
 </MotionScene>

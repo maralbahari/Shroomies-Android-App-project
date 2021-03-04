@@ -6,13 +6,16 @@ import android.view.View;
 import android.view.ViewGroup;
  import android.widget.ArrayAdapter;
  import android.widget.ImageView;
+ import android.widget.RadioButton;
  import android.widget.RadioGroup;
  import android.widget.SearchView;
+ import android.widget.Toast;
 
  import  androidx.appcompat.widget.Toolbar;
 
  import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+ import androidx.constraintlayout.motion.widget.MotionLayout;
  import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -40,10 +43,15 @@ import com.google.firebase.database.FirebaseDatabase;
 
  import java.util.ArrayList;
 import java.util.List;
+ import java.util.Timer;
+ import java.util.TimerTask;
 
-public class FindRoommate extends Fragment {
+ public class FindRoommate extends Fragment {
+    MotionLayout motionLayout;
     private static final String MAP_FRAGMENT = "MAP_FRAGMENT";
     private static final String  PERSONAL_SEARCH = "PERSONAL_SEARCH";
+    private static final String  USER_SEARCH = "USER_SEARCH";
+
     public static final int APARTMENT_PER_PAGINATION =5;
     private View v;
     private BouncyRecyclerView recyclerView;
@@ -96,39 +104,61 @@ public class FindRoommate extends Fragment {
     }
 
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        setSearchViewVisible();
-
-    }
+//    @Override
+//    public void onResume() {
+//        super.onResume();
+//        setSearchViewVisible();
+//
+//    }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+        motionLayout  = v.findViewById(R.id.find_roomMate_Motion_Layout);
         customLoadingProgressBar= new CustomLoadingProgressBar(getActivity(), "Searching..." , R.raw.search_anim);
         customLoadingProgressBar.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         apartmentList = new ArrayList<>();
         recyclerView = v.findViewById(R.id.apartment_recycler_view);
-
-        tabLayout = v.findViewById(R.id.tabLayout);
-
+        viewOptionsRadioGroup = v.findViewById(R.id.radio_view_options);
         toolbar  = getActivity().findViewById(R.id.toolbar);
         searchView = toolbar.findViewById(R.id.SVsearch_disc);
-        viewOptionsRadioGroup = v.findViewById(R.id.radio_view_options);
-        setSearchViewVisible();
-
-
+        tabLayout = v.findViewById(R.id.tabLayout);
         staggeredGridLayoutManager =  new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         staggeredGridLayoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
         staggeredGridLayoutManager.invalidateSpanAssignments();
-
         layoutManager = new LinearLayoutManager(getActivity());
-
-
         recyclerView.setLayoutManager(staggeredGridLayoutManager);
         recyclerView.setItemAnimator(null);
+
+        motionLayout.addTransitionListener(new MotionLayout.TransitionListener() {
+            @Override
+            public void onTransitionStarted(MotionLayout motionLayout, int i, int i1) {
+
+            }
+
+            @Override
+            public void onTransitionChange(MotionLayout motionLayout, int i, int i1, float v) {
+
+            }
+
+            @Override
+            public void onTransitionCompleted(MotionLayout motionLayout, int i) {
+                if(motionLayout.getCurrentState() == motionLayout.getEndState()){
+                    setSearchViewVisible();
+                }else{
+                    setSearchViewGone();
+                }
+            }
+
+            @Override
+            public void onTransitionTrigger(MotionLayout motionLayout, int i, boolean b, float v) {
+                if(motionLayout.getCurrentState() == motionLayout.getEndState()){
+                    setSearchViewVisible();
+                }else{
+                    setSearchViewGone();
+                }
+            }
+        });
         // adapter for mutliple cards
         exploreApartmentsAdapter = new ExploreApartmentsAdapter(getActivity() , apartmentList);
         // adapter for single cards
@@ -172,7 +202,7 @@ public class FindRoommate extends Fragment {
             public boolean onQueryTextSubmit(String query) {
                 searchState=true;
                 // if  the user is searching in the apartment tab
-                if (tabLayout.getSelectedTabPosition() == 0) {
+                if (tabLayout.getSelectedTabPosition()==0) {
                     lastCardKey = null;
                     apartmentList = new ArrayList<>();
                     recyclerView.setLayoutManager(layoutManager);
@@ -183,8 +213,11 @@ public class FindRoommate extends Fragment {
                     getUserSearchID(query);
 
                 }
-                else if(tabLayout.getSelectedTabPosition() == 2) {
+                else if(tabLayout.getSelectedTabPosition()==2) {
                     getPersonalPostsFromQuery(query);
+
+                }else if(tabLayout.getSelectedTabPosition()==3) {
+                    getUsersFromQuery(query);
 
                 }
 
@@ -192,7 +225,8 @@ public class FindRoommate extends Fragment {
             }
 
             @Override
-            public boolean onQueryTextChange(String newText) {
+            public boolean onQueryTextChange(final String newText) {
+
                 return false;
             }
         });
@@ -233,56 +267,62 @@ public class FindRoommate extends Fragment {
                 }
             }
         });
-
-
-
         tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
-                if (tab.getPosition()==0){
-                    // find any fragment that is in the frame
-                    Fragment fragment = fragmentManager.findFragmentById(R.id.frame_layout_search);
-                    if(fragment!=null){
+                switch (tab.getPosition()){
+                    case 0:
+                        // find any fragment that is in the frame
+                        Fragment fragment = fragmentManager.findFragmentById(R.id.frame_layout_search);
+                        if(fragment!=null){
 
+                            fragmentTransaction = fragmentManager.beginTransaction();
+                            fragmentTransaction.remove(fragment);
+                            fragmentTransaction.commit();
+                            fragmentTransaction.addToBackStack(null);
+                        }
+                        searchView.setQuery("" , false);
+                        searchView.clearFocus();
+                        // display the recycler view
+                        recyclerView.setVisibility(View.VISIBLE);
+                        break;
+                    case 1:
+                        recyclerView.setVisibility(View.GONE);
                         fragmentTransaction = fragmentManager.beginTransaction();
-                        fragmentTransaction.remove(fragment);
+                        fragmentTransaction.replace(R.id.frame_layout_search, new MapSearchFragment());
+                        // add tag to clear off of backstack
+                        fragmentTransaction.addToBackStack(MAP_FRAGMENT);
                         fragmentTransaction.commit();
-                        fragmentTransaction.addToBackStack(null);
-                    }
-                    // display the recycler view
-                    recyclerView.setVisibility(View.VISIBLE);
-                }
-
-                if (tab.getPosition() == 1) {
-                    recyclerView.setVisibility(View.GONE);
-                    fragmentTransaction = fragmentManager.beginTransaction();
-                    fragmentTransaction.replace(R.id.frame_layout_search, new MapSearchFragment());
-                    // add tag to clear off of backstack
-                    fragmentTransaction.addToBackStack(MAP_FRAGMENT);
-                    fragmentTransaction.commit();
-                }
-                if (tab.getPosition() == 2){
-                    recyclerView.setVisibility(View.GONE);
-                    fragmentTransaction = fragmentManager.beginTransaction();
-                    fragmentTransaction.replace(R.id.frame_layout_search, new PersonalPostFragment());
-                    fragmentTransaction.addToBackStack(PERSONAL_SEARCH);
-                    fragmentTransaction.commit();
-
-
-
+                        break;
+                    case 2:
+                        recyclerView.setVisibility(View.GONE);
+                        fragmentTransaction = fragmentManager.beginTransaction();
+                        fragmentTransaction.replace(R.id.frame_layout_search, new PersonalPostFragment());
+                        fragmentTransaction.addToBackStack(PERSONAL_SEARCH);
+                        fragmentTransaction.commit();
+                        break;
+                    case 3:
+                        setSearchViewVisible();
+                        searchView.requestFocus();
+                        recyclerView.setVisibility(View.GONE);
+                        fragmentTransaction = fragmentManager.beginTransaction();
+                        fragmentTransaction.replace(R.id.frame_layout_search, new UserSearch());
+                        fragmentTransaction.addToBackStack(USER_SEARCH);
+                        fragmentTransaction.commit();
                 }
 
             }
+
             @Override
             public void onTabUnselected(TabLayout.Tab tab) {
 
             }
+
             @Override
             public void onTabReselected(TabLayout.Tab tab) {
 
             }
         });
-
 
         // if the user reaches the end of the list load the next batch of data
         onOverPullListener = new OnOverPullListener() {
@@ -337,6 +377,20 @@ public class FindRoommate extends Fragment {
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.frame_layout_search, personalFrag).commit();
     }
+    void getUsersFromQuery(String query){
+
+        recyclerView.setVisibility(View.GONE);
+        UserSearch userSearch = new UserSearch();
+        Bundle bundle = new Bundle();
+        bundle.putString("myQuery",query);
+        userSearch.setArguments(bundle);
+        fragmentTransaction.addToBackStack(null);
+
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.frame_layout_search, userSearch).commit();
+
+    }
 
 
     void getApartments() {
@@ -348,11 +402,11 @@ public class FindRoommate extends Fragment {
         // check if the last card key is empty
         // if its empty this is the first data to be loaded
         if (lastCardKey!=null) {
-            query = apartmentPostReference.orderBy("time_stamp", Query.Direction.ASCENDING).orderBy(FieldPath.documentId()).startAfter(lastCardKey).limit(APARTMENT_PER_PAGINATION);
+            query = apartmentPostReference.orderBy(FieldPath.documentId()).startAfter(lastCardKey).limit(APARTMENT_PER_PAGINATION);
             paginate=true;
         }else{
             // starts from the beginning
-            query = apartmentPostReference.orderBy("time_stamp", Query.Direction.ASCENDING).orderBy(FieldPath.documentId()).limit(APARTMENT_PER_PAGINATION);
+            query = apartmentPostReference.orderBy(FieldPath.documentId()).limit(APARTMENT_PER_PAGINATION);
         }
 
         query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -494,13 +548,24 @@ public class FindRoommate extends Fragment {
 
 
     void setSearchViewVisible(){
-        searchView.setVisibility(View.VISIBLE);
+        toolbar.findViewById(R.id.SVsearch_disc).animate().alpha(1.0f).setDuration(200);
+        toolbar.findViewById(R.id.search_settings).animate().alpha(1.0f).setDuration(200);
+        toolbar.findViewById(R.id.logo).animate().alpha(0.0f).setDuration(200);
+        toolbar.findViewById(R.id.logo_toolbar).animate().alpha(0.0f).setDuration(200);
         toolbar.findViewById(R.id.logo).setVisibility(View.GONE);
         toolbar.findViewById(R.id.logo_toolbar).setVisibility(View.GONE);
+        toolbar.findViewById(R.id.SVsearch_disc).setVisibility(View.VISIBLE);
+        toolbar.findViewById(R.id.search_settings).setVisibility(View.VISIBLE);
+
     }
 
     void setSearchViewGone(){
-        searchView.setVisibility(View.GONE);
+        toolbar.findViewById(R.id.SVsearch_disc).animate().alpha(0.0f).setDuration(200);
+        toolbar.findViewById(R.id.search_settings).animate().alpha(0.0f).setDuration(200);
+        toolbar.findViewById(R.id.logo).animate().alpha(1.0f).setDuration(200);
+        toolbar.findViewById(R.id.logo_toolbar).animate().alpha(1.0f).setDuration(200);
+        toolbar.findViewById(R.id.SVsearch_disc).setVisibility(View.GONE);
+        toolbar.findViewById(R.id.search_settings).setVisibility(View.GONE);
         toolbar.findViewById(R.id.logo).setVisibility(View.VISIBLE);
         toolbar.findViewById(R.id.logo_toolbar).setVisibility(View.VISIBLE);
     }

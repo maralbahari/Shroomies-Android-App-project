@@ -31,6 +31,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.HashMap;
 
@@ -41,12 +42,13 @@ public class LoginActivity extends AppCompatActivity {
     TextView signup;
     private final int RC_SIGN_IN = 7;
     GoogleSignInClient mGoogleSignInClient;
-
     FirebaseAuth mAuth;
     TextView forgotPassword;
     CustomLoadingProgressBar progressBar;
     Button google_sign;
     SessionManager sessionManager;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

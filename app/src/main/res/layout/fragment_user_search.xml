@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/white"
+    tools:context=".UserSearch">
+
+    <com.factor.bouncy.BouncyRecyclerView
+        android:id="@+id/user_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:recyclerview_fling_animation_size=".5"
+        app:recyclerview_overscroll_animation_size=".5"
+        app:recyclerview_damping_ratio="DAMPING_RATIO_LOW_BOUNCY"
+        app:recyclerview_stiffness="STIFFNESS_HIGH"
+        app:allow_drag_reorder="true"
+        app:allow_item_swipe="false"
+        />
+
+
+
+</FrameLayout>
