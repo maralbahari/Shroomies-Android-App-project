@@ -1,19 +1,25 @@
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+<?xml version="1.0" encoding="utf-8"?>
 
-    <PreferenceCategory app:title="@string/messages_header">
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
-        <EditTextPreference
-            app:key="signature"
-            app:title="kjdfnr"
-            app:useSimpleSummaryProvider="true" />
+    <PreferenceCategory app:title="location"  >
 
-        <ListPreference
-            app:defaultValue="reply"
-            app:entries="@array/reply_entries"
-            app:entryValues="@array/reply_values"
-            app:key="reply"
-            app:title="@string/reply_title"
-            app:useSimpleSummaryProvider="true" />
+        <DropDownPreference
+            app:key="sync"
+            app:title="State"
+            android:entries="@array/Terengganu"
+            android:entryValues="@array/Terengganu"
+            />
+
+<!--        <DropDownPreference-->
+<!--            app:key="sync"-->
+<!--            app:title="City"-->
+
+<!--            />-->
+
+
+
 
     </PreferenceCategory>
 
@@ -23,12 +29,28 @@
             app:key="sync"
             app:title="@string/sync_title" />
 
-        <SwitchPreferenceCompat
-            app:dependency="sync"
-            app:key="attachment"
-            app:summaryOff="@string/attachment_summary_off"
-            app:summaryOn="@string/attachment_summary_on"
-            app:title="@string/attachment_title" />
+
+        <DropDownPreference
+            app:defaultValue="reply"
+            android:entries="@array/post_properties"
+            android:entryValues="@array/post_properties"
+            app:title="post properties"
+            app:useSimpleSummaryProvider="true"
+            android:defaultValue="false"
+            />
+        <com.nfx.android.rangebarpreference.RangeBarPreferenceCompat
+            android:title="Price"
+            app:summary="set the price for apartment rents or the budget for personal posts"
+            app:showSeekBarValue="true"
+            app:rbp_tickStart="100"
+            app:rbp_tickEnd="10000"
+            app:rbp_tickInterval="100"
+            app:rbp_view_defaultLowValue="4000"
+            app:rbp_view_defaultHighValue="6000"
+            />
+
+
+
 
     </PreferenceCategory>
 

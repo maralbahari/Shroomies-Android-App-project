@@ -1,18 +1,30 @@
 package com.example.shroomies;
 
-import android.app.Activity;
 import android.os.Bundle;
-import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.preference.Preference;
+import androidx.preference.DropDownPreference;
+import androidx.preference.PreferenceFragmentCompat;
 
-public class SearchSettingsFragment extends PreferenceActivity {
+public class SearchSettingsFragment extends PreferenceFragmentCompat {
+    DropDownPreference dropDownPreference;
+
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+        setPreferencesFromResource(R.xml.root_preferences, rootKey);
     }
 
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+
+    }
 }

@@ -1,5 +1,6 @@
  package com.example.shroomies;
 
+ import android.content.Intent;
  import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -76,6 +77,7 @@ import java.util.List;
     private OnOverPullListener onOverPullListener;
     private Toolbar toolbar;
     private CollectionReference apartmentPostReference;
+    private ImageView optionsButton;
 
 
     @Override
@@ -122,6 +124,8 @@ import java.util.List;
         viewOptionsRadioGroup = v.findViewById(R.id.radio_view_options);
         toolbar  = getActivity().findViewById(R.id.toolbar);
         searchView = toolbar.findViewById(R.id.SVsearch_disc);
+        optionsButton = toolbar.findViewById(R.id.search_settings);
+
         tabLayout = v.findViewById(R.id.tabLayout);
         staggeredGridLayoutManager =  new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         staggeredGridLayoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
@@ -193,6 +197,17 @@ import java.util.List;
                         recyclerView.setAdapter(recycleViewAdapterApartments);
                         getApartments();
                 }
+            }
+        });
+
+        optionsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.fragmentContainer, new SearchSettingsFragment())
+                        .addToBackStack("SEARCH_FRAGMENT")
+                        .commit();
             }
         });
 

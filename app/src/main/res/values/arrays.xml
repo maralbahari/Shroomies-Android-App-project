@@ -5,8 +5,25 @@
         <item>Reply to all</item>
     </string-array>
 
-    <string-array name="reply_values">
-        <item>reply</item>
-        <item>reply_all</item>
+    <string-array name="post_properties">
+        <item>male only</item>
+        <item>female only</item>
+        <item>pets allowed</item>
+        <item>non-smoking</item>
     </string-array>
+
+    <string-array name="Terengganu">
+        <item>Kuala Terengganu</item>
+        <item>Chukai</item>
+        <item>Dungun</item>
+        <item>Kerteh</item>
+        <item>Kuala Berang</item>
+        <item>Marang</item>
+        <item>Paka</item>
+        <item>Jerteh</item>
+    </string-array>
+
+
+
+
 </resources>
