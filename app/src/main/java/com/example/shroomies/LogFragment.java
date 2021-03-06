@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -43,11 +44,13 @@ public class LogFragment extends Fragment {
         bundle=this.getArguments();
         if(bundle!=null){
             logs= bundle.getParcelableArrayList("LOG_LIST");
-            logAdapter=new LogAdapter(getContext(),logs,getParentFragmentManager());
+
+            logAdapter=new LogAdapter(getContext(),logs,getParentFragmentManager(),getTargetFragment());
             logRecycler.setAdapter(logAdapter);
             logAdapter.notifyDataSetChanged();
 
 
         }
     }
+
 }

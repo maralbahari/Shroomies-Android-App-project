@@ -11,13 +11,13 @@
         android:id="@+id/new_card_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Add a new card"
-        android:textSize="35sp"
-        android:textStyle="bold"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="20dp"
         android:layout_marginBottom="10dp"
-        />
+        android:text="Add a new card"
+        android:textSize="30sp"
+        android:textColor="@color/purple"
+        android:textStyle="bold" />
 
     <ImageView
         android:id="@+id/x_button_new_card"
@@ -86,8 +86,6 @@
         android:layout_marginLeft="50dp"
         android:layout_marginTop="10dp"
         />
-
-
     <RadioGroup
         android:id="@+id/newcard_radio_group"
         android:layout_width="wrap_content"
@@ -165,18 +163,19 @@
 
     <Button
         android:id="@+id/split_expenses"
-        android:background="@drawable/mention_text_box"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/new_card_description"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="60dp"
-        android:layout_marginTop="30dp"
         android:layout_alignParentRight="true"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="30dp"
+        android:layout_marginRight="60dp"
+        android:background="@drawable/button_round_corner_purple"
         android:drawableStart="@drawable/ic_division"
         android:elevation="5dp"
         android:padding="5dp"
         android:text="     Split expenses!"
+        android:textColor="@color/y"
         android:textSize="8dp" />
 
     <TextView

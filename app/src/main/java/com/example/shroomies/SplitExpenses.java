@@ -1,6 +1,7 @@
 package com.example.shroomies;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -9,6 +10,7 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -17,6 +19,7 @@ import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -31,19 +34,22 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class SplitExpenses extends DialogFragment {
+public class SplitExpenses extends DialogFragment implements UserAdapterSplitExpenses.shroomiesShares {
   private View v;
   private TextView cancel,ok,totalText;
   private EditText amount;
   private RecyclerView splitRecycler;
   private ShroomiesApartment apartment;
-  private static ArrayList<User> shroomiesList;
+  private  ArrayList<User> shroomiesList=new ArrayList<>();
   private DatabaseReference rootRef;
   private FirebaseAuth mAuth;
   private UserAdapterSplitExpenses splitAdapter;
   private static String enteredAmount="0";
-  private HashMap<String,Object> sharedSplit=new HashMap<>();
+  private HashMap<String,Integer> sharedSplit=new HashMap<>();
   membersShares myMembersShares;
+  private boolean acceptedInput;
+  private Fragment splitExpenses;
+   int total=0;
 
 
     @Override
@@ -87,6 +93,9 @@ public class SplitExpenses extends DialogFragment {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         splitRecycler.setHasFixedSize(true);
         splitRecycler.setLayoutManager(linearLayoutManager);
+
+        splitAdapter= new UserAdapterSplitExpenses(this);
+        splitRecycler.setAdapter(splitAdapter);
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -94,12 +103,15 @@ public class SplitExpenses extends DialogFragment {
             }
         });
         final Bundle bundle = this.getArguments();
-
+        splitExpenses=this;
         if(bundle!=null){
             apartment=bundle.getParcelable("APARTMENT_DETAILS");
             shroomiesList=bundle.getParcelableArrayList("MEMBERS");
             setShroomiesToRecycler(shroomiesList,enteredAmount);
         }
+
+
+
         amount.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -109,7 +121,7 @@ public class SplitExpenses extends DialogFragment {
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                enteredAmount=charSequence.toString();
-                splitAdapter= new UserAdapterSplitExpenses(apartment,shroomiesList,getContext(),enteredAmount,totalText);
+                splitAdapter= new UserAdapterSplitExpenses(apartment,shroomiesList,getContext(),enteredAmount,totalText,splitExpenses,ok,myMembersShares);
                 splitRecycler.setAdapter(splitAdapter);
 
 
@@ -123,19 +135,53 @@ public class SplitExpenses extends DialogFragment {
         ok.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-             sharedSplit= splitAdapter.getMembersSplitShares();
-             myMembersShares.sendInput(sharedSplit);
-             dismiss();
+
+                if(acceptedInput){
+//                    sharedSplit=UserAdapterSplitExpenses.getMembersSplitShares();
+                    if(sharedSplit!=null){
+                        myMembersShares.sendInput(sharedSplit);
+                        dismiss();
+                    }
+
+                }else{
+                    Toast.makeText(getContext(),"please split properly",Toast.LENGTH_LONG).show();
+
+                }
+
             }
         });
 
 
     }
+
+    @Override
+    public void sendInput(HashMap<String, Integer> sharesHash) {
+        this.total=0;
+        this.sharedSplit=sharesHash;
+        if (!sharedSplit.isEmpty()) {
+            for (int amount : sharedSplit.values()) {
+                this.total += amount;
+
+            }
+            if (this.total > Integer.parseInt(enteredAmount)) {
+                acceptedInput=false;
+                totalText.setText("Total: " + total + ">" + enteredAmount);
+                totalText.setTextColor(Color.RED);
+
+            } else {
+                acceptedInput=true;
+                totalText.setTextColor(Color.parseColor("#794C74"));
+                totalText.setText("Total: " + total + "RM");
+            }
+        }
+    }
+
+
     public interface membersShares{
-        void sendInput(HashMap<String,Object> sharedSplit);
+        void sendInput(HashMap<String,Integer> sharedSplit);
     }
     private void setShroomiesToRecycler(ArrayList<User> shroomies,String amount){
-        splitAdapter= new UserAdapterSplitExpenses(apartment,shroomies,getContext(),amount,totalText);
+        splitAdapter= new UserAdapterSplitExpenses(apartment,shroomies,getContext(),amount,totalText,this,ok,myMembersShares);
         splitRecycler.setAdapter(splitAdapter);
         splitAdapter.notifyDataSetChanged();
     }
@@ -148,17 +194,5 @@ public class SplitExpenses extends DialogFragment {
 
         }
     }
-    public static int getTotalAmount(){
-        int total=0;
-        for(User shroomie:shroomiesList){
-            total=+shroomie.getSharedAmount();
-            if(total<=Integer.parseInt(enteredAmount)){
 
-            }else{
-                return -1;
-            }
-        }
-        return total;
-
-    }
 }

@@ -132,7 +132,7 @@ public class ViewCards extends DialogFragment {
                 String mentions=expensesCard.getMention();
                 String importance=expensesCard.getImportance();
                 String imagePath=expensesCard.getAttachedFile();
-                HashMap <String,Object> membersShares=expensesCard.getMembersShares();
+                HashMap <String,Integer> membersShares=expensesCard.getMembersShares();
                 if(!due.isEmpty() ){
                     dueDate.setText(due);
                 }if(!descriptionCard.isEmpty()){
@@ -179,7 +179,7 @@ public class ViewCards extends DialogFragment {
 
     }
 
-    private void getMembersShares(final HashMap<String, Object> membersShares) {
+    private void getMembersShares(final HashMap<String, Integer> membersShares) {
         shroomiesList=new ArrayList<>();
         splitAdapter= new UserAdapterSplitExpenses(shroomiesList,getContext(),true);
         viewCardRecycler.setAdapter(splitAdapter);

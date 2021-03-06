@@ -15,9 +15,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentResultListener;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.tabs.TabLayout;
@@ -34,7 +36,8 @@ import java.util.Comparator;
 import java.util.Date;
 
 
-public class MyShroomies extends Fragment   {
+
+public class MyShroomies extends Fragment implements LogAdapter.cardBundles  {
     View v;
     private Button  memberButton, addCardButton;
     private TabLayout myShroomiesTablayout;
@@ -61,9 +64,13 @@ public class MyShroomies extends Fragment   {
     private Bundle selectedCard;
     private String selectedCardID;
     private String selectedCardType;
+    private final int RESULT_CODE=500;
+    private boolean recyclerPositionChanged=false;
+    private int recyclerPosition=0;
+    private CustomLoadingProgressBar customLoadingProgressBar;
 
 
-
+    
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -101,34 +108,7 @@ public class MyShroomies extends Fragment   {
         tasksCardsList=new ArrayList<>();
         tasksCardAdapter=new TasksCardAdapter(tasksCardsList,getContext(),false,apartment,getParentFragmentManager());
         myTasksRecyclerView.setAdapter(tasksCardAdapter);
-        selectedCard=this.getArguments();
-        if(selectedCard!=null){
-            Toast.makeText(getContext(),"here",Toast.LENGTH_LONG);
-            selectedCardID=selectedCard.getString("CARDID_SELECTED");
-            selectedCardType=selectedCard.getString("SELECTED_CARD_TYPE");
-            if(selectedCardType.equals("tasks")){
-                for (TasksCard card:tasksCardsList){
-                    if(card.getCardId().equals(selectedCardID)){
-                        int position=tasksCardsList.indexOf(card);
-                        myShroomiesTablayout.getTabAt(1);
-                        myTasksRecyclerView.smoothScrollToPosition(position);
-                        Toast.makeText(getContext(),"position:"+position,Toast.LENGTH_LONG);
-                    }
-                }
 
-            }if(selectedCardType.equals("expenses")){
-                for(ExpensesCard card:expensesCardsList){
-                    if(card.getCardId().equals(selectedCardID)){
-                        myShroomiesTablayout.getTabAt(0);
-                        int position=tasksCardsList.indexOf(card);
-                        myExpensesRecyclerView.smoothScrollToPosition(position);
-                        Toast.makeText(getContext(),"position:"+position,Toast.LENGTH_LONG);
-
-                    }
-                }
-
-            }
-        }
         myShroomiesTablayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
@@ -224,6 +204,7 @@ public class MyShroomies extends Fragment   {
                 Bundle bundle=new Bundle();
                 bundle.putParcelableArrayList("LOG_LIST",apartmentlogList);
                 logFragment.setArguments(bundle);
+                logFragment.setTargetFragment(MyShroomies.this,RESULT_CODE);
                 fm = getParentFragmentManager();
                 ft = fm.beginTransaction();
                 ft.addToBackStack(null);
@@ -231,8 +212,14 @@ public class MyShroomies extends Fragment   {
                 ft.commit();
             }
         });
+        scroll();
+
+
     }
     private void getApartmentDetails (){
+        customLoadingProgressBar = new CustomLoadingProgressBar(getActivity(),"loading...",R.raw.loading_animation);
+        customLoadingProgressBar.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        customLoadingProgressBar.show();
         rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -244,7 +231,9 @@ public class MyShroomies extends Fragment   {
                             if(snapshot.exists()){
                                 apartment=snapshot.getValue(ShroomiesApartment.class);
                                 retreiveExpensesCards(apartment.getApartmentID());
+
                                 getApartmentLog(apartment.getApartmentID());
+
                             }
 
                         }
@@ -266,7 +255,31 @@ public class MyShroomies extends Fragment   {
             }
         });
     }
+private void scroll(){
+    if(selectedCardID!=null){
 
+        if(selectedCardType.equals("tasks")){
+
+            if(recyclerPositionChanged){
+                myShroomiesTablayout.getTabAt(1).select();
+                myTasksRecyclerView.setVisibility(View.VISIBLE);
+                myExpensesRecyclerView.setVisibility(View.GONE);
+                myTasksRecyclerView.scrollToPosition(recyclerPosition);
+            }
+        }
+        if(selectedCardType.equals("expenses")){
+            Toast.makeText(getContext(),"position:"+recyclerPosition,Toast.LENGTH_LONG).show();
+            if(recyclerPositionChanged){
+                myShroomiesTablayout.getTabAt(0).select();
+                myTasksRecyclerView.setVisibility(View.GONE);
+                myExpensesRecyclerView.setVisibility(View.VISIBLE);
+                myExpensesRecyclerView.scrollToPosition(recyclerPosition);
+            }
+        }
+    }else{
+        Toast.makeText(getContext(),"cardID:"+selectedCardID,Toast.LENGTH_LONG).show();
+    }
+}
    private void getApartmentLog(final String apartmentID){
        apartmentlogList=new ArrayList<>();
        logListener=rootRef.child("logs").child(apartmentID).addValueEventListener(new ValueEventListener() {
@@ -279,6 +292,7 @@ public class MyShroomies extends Fragment   {
                        apartmentlogList.add(log);
                    }
                    getUserDetailsForLog(apartmentlogList);
+
 
                }
            }
@@ -299,6 +313,7 @@ public class MyShroomies extends Fragment   {
                         User user=snapshot.getValue(User.class);
                         log.setActorName(user.getName());
                         log.setActorPic(user.getImage());
+                        customLoadingProgressBar.dismiss();
                     }
                 }
 
@@ -330,6 +345,7 @@ public class MyShroomies extends Fragment   {
                         tasksCardsList.add(tasksCard);
                     }
                     tasksCardAdapter.notifyDataSetChanged();
+
                 }
             }
             @Override
@@ -360,6 +376,8 @@ public class MyShroomies extends Fragment   {
 
                     }
                     expensesCardAdapter.notifyDataSetChanged();
+
+
                 }
             }
             @Override
@@ -371,23 +389,15 @@ public class MyShroomies extends Fragment   {
     }
 
 
+
     private void sortAccordingToOldest(String tab) {
         if(tab.equals("expenses")){
             expensesCardsList.sort(new Comparator<ExpensesCard>() {
                 @Override
                 public int compare(ExpensesCard o1, ExpensesCard o2) {
-                    Date dateO1 = null;
-                    Date dateO2 = null;
-                    String d1 = o1.getDate();
-                    String d2 = o2.getDate();
-                    SimpleDateFormat format = new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
-                    try {
-                        dateO1 = format.parse(d1);
-                        dateO2 = format.parse(d2);
+                    Date dateO1 = new Date(o1.getDate());
+                    Date dateO2 = new Date(o2.getDate());
 
-                    } catch (ParseException | java.text.ParseException e) {
-
-                    }
 
                     return dateO1.compareTo(dateO2);
 
@@ -398,18 +408,9 @@ public class MyShroomies extends Fragment   {
             tasksCardsList.sort(new Comparator<TasksCard>() {
                 @Override
                 public int compare(TasksCard o1, TasksCard o2) {
-                    Date dateO1 = null;
-                    Date dateO2 = null;
-                    String d1 = o1.getDate();
-                    String d2 = o2.getDate();
-                    SimpleDateFormat format = new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
-                    try {
-                        dateO1 = format.parse(d1);
-                        dateO2 = format.parse(d2);
+                    Date dateO1 = new Date(o1.getDate());
+                    Date dateO2 = new Date(o2.getDate());
 
-                    } catch (ParseException | java.text.ParseException e) {
-
-                    }
 
                     return dateO2.compareTo(dateO1);
                 }
@@ -426,18 +427,9 @@ public class MyShroomies extends Fragment   {
             expensesCardsList.sort(new Comparator<ExpensesCard>() {
                 @Override
                 public int compare(ExpensesCard o1, ExpensesCard o2) {
-                    Date dateO1 = null;
-                    Date dateO2 = null;
-                    String d1 = o1.getDate();
-                    String d2 = o2.getDate();
-                    SimpleDateFormat format = new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
-                    try {
-                        dateO1 = format.parse(d1);
-                        dateO2 = format.parse(d2);
+                    Date dateO1 = new Date(o1.getDate());
+                    Date dateO2 = new Date(o2.getDate());
 
-                    } catch (ParseException | java.text.ParseException e) {
-
-                    }
 
                     return dateO2.compareTo(dateO1);
 
@@ -450,18 +442,10 @@ public class MyShroomies extends Fragment   {
             tasksCardsList.sort(new Comparator<TasksCard>() {
                 @Override
                 public int compare(TasksCard o1, TasksCard o2) {
-                    Date dateO1 = null;
-                    Date dateO2 = null;
-                    String d1 = o1.getDate();
-                    String d2 = o2.getDate();
-                    SimpleDateFormat format = new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
-                    try {
-                        dateO1 = format.parse(d1);
-                        dateO2 = format.parse(d2);
+                    Date dateO1 =new Date(o1.getDate());
+                    Date dateO2 =new Date(o2.getDate());
 
-                    } catch (ParseException | java.text.ParseException e) {
 
-                    }
 
                     return dateO2.compareTo(dateO1);
                 }
@@ -547,6 +531,47 @@ public class MyShroomies extends Fragment   {
 
         }
 
+    }
+
+    @Override
+    public void sendInput(String cardID, String cardType) {
+        this.selectedCardID = cardID;
+        this.selectedCardType=cardType;
+
+
+        if(selectedCardType.equals("tasks")){
+            for (TasksCard card:tasksCardsList){
+                if(card.getCardId().equals(selectedCardID)){
+                    final int position=tasksCardsList.indexOf(card);
+                    if(position!=-1){
+                        this.recyclerPosition=position;
+                        recyclerPositionChanged=true;
+                    }else{
+                        Toast.makeText(getContext(),"this card doesnt exist anymore",Toast.LENGTH_LONG).show();
+
+                    }
+
+                }
+            }
+
+        }if(selectedCardType.equals("expenses")){
+
+            for(ExpensesCard card:expensesCardsList){
+                if(card.getCardId().equals(selectedCardID)){
+                    final int position=expensesCardsList.indexOf(card);
+                    if(position!=-1){
+                        this.recyclerPosition=position;
+                        recyclerPositionChanged=true;
+                    }else{
+                        Toast.makeText(getContext(),"this card doesnt exist anymore",Toast.LENGTH_LONG).show();
+
+                    }
+
+
+                }
+            }
+
+        }
     }
 
 }

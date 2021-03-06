@@ -33,6 +33,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.hendraanggrian.widget.SocialTextView;
 
@@ -365,12 +366,9 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
     private void saveToDeleteLog(String apartmentID,TasksCard card){
         DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
         String logID=ref.getKey();
-        Calendar calendarDate = Calendar.getInstance();
-        SimpleDateFormat mcurrentDate = new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
-        String saveCurrentDate = mcurrentDate.format(calendarDate.getTime());
         final HashMap<String, Object> newRecord=new HashMap<>();
         newRecord.put("actor",mAuth.getCurrentUser().getUid());
-        newRecord.put("when",saveCurrentDate);
+        newRecord.put("when",ServerValue.TIMESTAMP);
         newRecord.put("cardTitle",card.getTitle());
         newRecord.put("action","deletingCard");
         newRecord.put("logID",logID);
@@ -386,12 +384,10 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
     private void saveToArchiveLog(String apartmentID,TasksCard card){
         DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
         String logID=ref.getKey();
-        Calendar calendarDate = Calendar.getInstance();
-        SimpleDateFormat mcurrentDate = new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
-        String saveCurrentDate = mcurrentDate.format(calendarDate.getTime());
+
         final HashMap<String, Object> newRecord=new HashMap<>();
         newRecord.put("actor",mAuth.getCurrentUser().getUid());
-        newRecord.put("when",saveCurrentDate);
+        newRecord.put("when",ServerValue.TIMESTAMP);
         newRecord.put("cardTitle",card.getTitle());
         newRecord.put("action","archivingCard");
         newRecord.put("logID",logID);
@@ -408,12 +404,9 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
     private void saveToDeleteArchiveLog(String apartmentID,TasksCard card){
         DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
         String logID=ref.getKey();
-        Calendar calendarDate = Calendar.getInstance();
-        SimpleDateFormat mcurrentDate = new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
-        String saveCurrentDate = mcurrentDate.format(calendarDate.getTime());
         final HashMap<String, Object> newRecord=new HashMap<>();
         newRecord.put("actor",mAuth.getCurrentUser().getUid());
-        newRecord.put("when",saveCurrentDate);
+        newRecord.put("when",ServerValue.TIMESTAMP);
         newRecord.put("cardTitle",card.getTitle());
         newRecord.put("action","deletingArchivedCard");
         newRecord.put("logID",logID);
@@ -429,12 +422,9 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
     private void saveToDoneLog(String apartmentID,TasksCard card){
         DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
         String logID=ref.getKey();
-        Calendar calendarDate = Calendar.getInstance();
-        SimpleDateFormat mcurrentDate = new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
-        String saveCurrentDate = mcurrentDate.format(calendarDate.getTime());
         final HashMap<String, Object> newRecord=new HashMap<>();
         newRecord.put("actor",mAuth.getCurrentUser().getUid());
-        newRecord.put("when",saveCurrentDate);
+        newRecord.put("when",ServerValue.TIMESTAMP);
         newRecord.put("cardTitle",card.getTitle());
         newRecord.put("action","markingDone");
         newRecord.put("logID",logID);
@@ -451,12 +441,10 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
     private void saveToUnDoneLog(String apartmentID,TasksCard card){
         DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
         String logID=ref.getKey();
-        Calendar calendarDate = Calendar.getInstance();
-        SimpleDateFormat mcurrentDate = new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
-        String saveCurrentDate = mcurrentDate.format(calendarDate.getTime());
+
         final HashMap<String, Object> newRecord=new HashMap<>();
         newRecord.put("actor",mAuth.getCurrentUser().getUid());
-        newRecord.put("when",saveCurrentDate);
+        newRecord.put("when", ServerValue.TIMESTAMP);
         newRecord.put("cardTitle",card.getTitle());
         newRecord.put("action","unMarkingDone");
         newRecord.put("logID",logID);

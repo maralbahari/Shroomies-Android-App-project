@@ -7,15 +7,16 @@ import java.util.HashMap;
 
 public class ExpensesCard implements Parcelable {
 
-    String attachedFile, description, title, dueDate, importance,members, date, cardId, done, mention;
-    HashMap<String,Object> membersShares=new HashMap<>();
+    String attachedFile, description, title, dueDate, importance,members, cardId, done, mention;
+    HashMap<String,Integer> membersShares=new HashMap<>();
+    long date;
 
     public ExpensesCard() {
 
     }
 
 
-    public ExpensesCard(String attachedFile, String description, String title, String dueDate, String importance, String members,String cardId, String done, String mention,HashMap<String,Object> membersShares) {
+    public ExpensesCard(String attachedFile, String description, String title, String dueDate, String importance, String members,String cardId, String done, String mention,HashMap<String,Integer> membersShares) {
         this.attachedFile = attachedFile;
         this.description = description;
         this.title = title;
@@ -35,7 +36,7 @@ public class ExpensesCard implements Parcelable {
         dueDate = in.readString();
         importance = in.readString();
         members = in.readString();
-        date = in.readString();
+        date = in.readLong();
         cardId = in.readString();
         done = in.readString();
         mention = in.readString();
@@ -54,11 +55,11 @@ public class ExpensesCard implements Parcelable {
         }
     };
 
-    public HashMap<String, Object> getMembersShares() {
+    public HashMap<String, Integer> getMembersShares() {
         return membersShares;
     }
 
-    public void setMembersShares(HashMap<String, Object> membersShares) {
+    public void setMembersShares(HashMap<String, Integer> membersShares) {
         this.membersShares = membersShares;
     }
 
@@ -94,7 +95,7 @@ public class ExpensesCard implements Parcelable {
         this.members = members;
     }
 
-    public void setDate(String date) {
+    public void setDate(long date) {
         this.date = date;
     }
 
@@ -130,7 +131,7 @@ public class ExpensesCard implements Parcelable {
         return members;
     }
 
-    public String getDate() {
+    public long getDate() {
         return date;
     }
 
@@ -155,7 +156,7 @@ public class ExpensesCard implements Parcelable {
         parcel.writeString(dueDate);
         parcel.writeString(importance);
         parcel.writeString(members);
-        parcel.writeString(date);
+        parcel.writeLong(date);
         parcel.writeString(cardId);
         parcel.writeString(done);
         parcel.writeString(mention);
