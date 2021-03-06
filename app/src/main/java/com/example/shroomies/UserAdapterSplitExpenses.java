@@ -2,15 +2,19 @@ package com.example.shroomies;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.signature.ObjectKey;
@@ -29,22 +33,38 @@ public class UserAdapterSplitExpenses extends RecyclerView.Adapter<UserAdapterSp
    private static String amount="";
    private View v;
    private DatabaseReference rootRef;
-   private static HashMap<String,Object> sharedSplit=new HashMap<>();
+   private static HashMap<String,Integer> sharedSplit=new HashMap<>();
    private TextView totalText;
    private boolean fromViewCard=false;
+   private HashMap<String,Integer> sharesHashmap=new HashMap<>();
+   shroomiesShares shares;
+   private Fragment targetedFragment;
+   private TextView ok;
+    SplitExpenses.membersShares myMemberShares;
 
-    public UserAdapterSplitExpenses(ShroomiesApartment apartment, ArrayList<User> shroomieList, Context context, String amount,TextView totalText) {
+
+
+   public UserAdapterSplitExpenses(shroomiesShares shroomiesShares){
+       this.shares=shroomiesShares;
+
+   }
+
+    public UserAdapterSplitExpenses(ShroomiesApartment apartment, ArrayList<User> shroomieList, Context context, String amount,TextView totalText,Fragment targetedFragment,TextView ok,SplitExpenses.membersShares myMemberShares) {
         this.apartment = apartment;
         this.shroomieList = shroomieList;
         this.context = context;
         this.amount = amount;
         this.totalText=totalText;
+        this.targetedFragment=targetedFragment;
+        this.ok=ok;
+        this.myMemberShares=myMemberShares;
     }
     public UserAdapterSplitExpenses(ArrayList<User> shroomieList,Context context,boolean fromViewCard){
         this.shroomieList=shroomieList;
         this.context=context;
         this.fromViewCard=fromViewCard;
     }
+
 
     @NonNull
     @Override
@@ -76,10 +96,8 @@ public class UserAdapterSplitExpenses extends RecyclerView.Adapter<UserAdapterSp
                 holder.amountSeekBar.setMax((Integer.parseInt(amount)));
                 holder.amountSeekBar.setProgress(Integer.parseInt(amount)/shroomieList.size());
                 holder.sharedAmount.setText((Integer.parseInt(amount)/shroomieList.size())+" RM");
-
-
-
-
+                shroomieList.get(position).setSharedAmount(holder.amountSeekBar.getProgress());
+                sharesHashmap.put(shroomieList.get(position).getID(),shroomieList.get(position).getSharedAmount());
             }
     }
 
@@ -95,7 +113,7 @@ public class UserAdapterSplitExpenses extends RecyclerView.Adapter<UserAdapterSp
         private ImageView profilePic;
         private TextView userName,sharedAmount;
         private SeekBar amountSeekBar;
-        private int total;
+
         public UserViewHolderSplit(@NonNull View itemView) {
             super(itemView);
             profilePic=itemView.findViewById(R.id.shroomie_split_pic);
@@ -111,58 +129,55 @@ public class UserAdapterSplitExpenses extends RecyclerView.Adapter<UserAdapterSp
                 public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
                     sharedAmount.setText(amountSeekBar.getProgress()+" RM");
                     shroomieList.get(getAdapterPosition()).setSharedAmount(amountSeekBar.getProgress());
+                    sharesHashmap.put(shroomieList.get(getAdapterPosition()).getID(),shroomieList.get(getAdapterPosition()).getSharedAmount());
+
+
 
                 }
 
                 @Override
                 public void onStartTrackingTouch(SeekBar seekBar) {
 
+
                 }
 
                 @Override
                 public void onStopTrackingTouch(SeekBar seekBar) {
-                    total=SplitExpenses.getTotalAmount();
-                    if(total==-1){
-                        totalText.setText("above your specified amount");
-                        totalText.setTextColor(Color.RED);
+//                    shares.sendInput(sharesHashmap,totalText,context,ok,myMemberShares);
+                    shares.sendInput(sharesHashmap);
 
-                    }else{
-                        totalText.setText("Total: "+total+" RM");
-                    }
+
+
                 }
             });
 
-        }
-//        private int getTotalAmount(){
-//            int total=0;
-//            for(int i=0;i<shroomieList.size();i++){
-//                total=+shroomieList.get(getAdapterPosition()).getSharedAmount();
-//                if(total<=Integer.parseInt(amount)){
-//
-//                }else{
-//                   return -1;
-//                }
-//            }
-//            return total;
-//
-//        }
 
+
+
+
+        }
 
     }
 
-    public static HashMap<String, Object> getMembersSplitShares(){
-        int total=0;
-        for(User user:shroomieList){
-            total=+user.getSharedAmount();
-            if(total<=Integer.parseInt(amount)){
-                sharedSplit.put(user.getID(),user.getSharedAmount());
-            }else{
-                Toast.makeText(context,"the total amount of shared for each shroomie is bigger than you specified",Toast.LENGTH_LONG).show();
-            }
+    @Override
+    public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
+        super.onAttachedToRecyclerView(recyclerView);
+        try {
+            shares = (shroomiesShares) targetedFragment;
+        }catch(ClassCastException e){
 
+        }
+    }
+
+    public static HashMap<String, Integer> getMembersSplitShares(){
+        for(User user:shroomieList){
+                sharedSplit.put(user.getID(),user.getSharedAmount());
         }
         return sharedSplit;
     }
 
 
+    public interface shroomiesShares{
+        void sendInput(HashMap<String,Integer> sharesHash);
+    }
 }

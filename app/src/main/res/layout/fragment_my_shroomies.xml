@@ -1,120 +1,118 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:paddingTop="59dp"
     android:paddingBottom="60dp"
-    android:paddingTop="60dp"
+    android:scrollIndicators="none"
     tools:context=".MyShroomies">
 
     <ImageView
         android:id="@+id/my_shroomie"
         android:layout_width="250dp"
         android:layout_height="250dp"
-        android:src="@drawable/yellow_mushroom_transparent_background"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
         android:alpha="0.1"
-        android:layout_marginTop="220dp"
-        android:layout_marginLeft="70dp"
-        />
+        android:src="@drawable/yellow_mushroom_transparent_background" />
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/my_shroomies_tablayout"
         android:layout_width="match_parent"
-        android:background="@drawable/tablayout_round"
-        android:elevation="5dp"
-        android:layout_marginTop="10dp"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
-        app:tabIndicatorGravity="stretch"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/tablayout_round"
+        android:elevation="10dp"
+        android:scrollIndicators="none"
         app:tabIndicatorColor="@color/Alabaster"
-        >
+        app:tabIndicatorGravity="stretch">
 
         <com.google.android.material.tabs.TabItem
             android:id="@+id/my_shroomie_expense_tab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:text="Expenses" />
 
         <com.google.android.material.tabs.TabItem
             android:id="@+id/my_shroomie_task_tab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:text="Tasks" />
     </com.google.android.material.tabs.TabLayout>
 
-   <Button
-       android:id="@+id/my_shroomies_log"
-       android:layout_width="match_parent"
-       android:layout_height="35dp"
-       android:text="Log activities"
-       android:background="@drawable/rounded_button_myshroomies_layout"
-       android:layout_below="@+id/my_shroomies_tablayout"
-       android:textSize="10sp"
-       android:padding="10dp"
-       android:elevation="10dp"
-       android:layout_marginRight="280dp"
-       android:drawablePadding="5dp"
-       android:layout_alignParentLeft="true"
-       android:layout_marginLeft="10dp"
-       android:drawableStart="@drawable/ic_history_24"
-       android:textColor="@color/Black"
-
-       />
     <Button
-        android:layout_marginBottom="10dp"
-        android:minHeight="0dp"
-        android:minWidth="0dp"
+        android:id="@+id/my_shroomies_log"
+        android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:layout_below="@+id/my_shroomies_tablayout"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="290dp"
+        android:background="@drawable/rounded_button_myshroomies_layout"
+        android:drawableStart="@drawable/ic_history_24"
+        android:drawablePadding="3dp"
+        android:elevation="10dp"
+        android:padding="5dp"
+        android:text="Log activities"
+        android:textColor="@color/Black"
+        android:textSize="8sp"
+
+        />
+
+    <Button
         android:id="@+id/my_shroomies_member_btn"
         android:layout_width="match_parent"
+        android:layout_height="35dp"
+        android:layout_below="@+id/my_shroomies_tablayout"
+        android:layout_centerHorizontal="true"
         android:layout_marginLeft="150dp"
         android:layout_marginRight="150dp"
-        android:drawablePadding="5dp"
-        android:layout_height="35dp"
-        android:layout_centerHorizontal="true"
-        android:layout_below="@+id/my_shroomies_tablayout"
+        android:layout_marginBottom="10dp"
         android:background="@drawable/rounded_button_myshroomies_layout"
-        android:text="Members"
-        android:textSize="10sp"
-        android:padding="10dp"
-        android:elevation="10dp"
-        android:textColor="@color/Black"
         android:drawableStart="@drawable/ic_member"
+        android:drawablePadding="5dp"
+        android:elevation="10dp"
+        android:minWidth="0dp"
+        android:minHeight="0dp"
+        android:padding="10dp"
+        android:text="Members"
+        android:textColor="@color/Black"
+        android:textSize="8sp"
 
-         />
+        />
 
     <LinearLayout
-        android:elevation="10dp"
         android:id="@+id/shroomie_linearlayout_filter"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/my_shroomies_tablayout"
+        android:layout_alignParentRight="true"
+        android:layout_marginLeft="290dp"
         android:layout_marginRight="10dp"
         android:layout_marginBottom="5dp"
-        android:layout_marginLeft="280dp"
+        android:background="@drawable/rounded_button_myshroomies_layout"
+        android:elevation="5dp"
+        android:gravity="center"
         android:orientation="horizontal"
         android:paddingTop="5dp"
-        android:paddingBottom="5dp"
-        android:gravity="center"
-        android:layout_alignParentRight="true"
-        android:background="@drawable/rounded_button_myshroomies_layout"
-        >
+        android:paddingBottom="5dp">
+
         <View
             android:layout_width="10dp"
             android:layout_height="10dp"
-            android:background="@drawable/ic_filter"
             android:layout_marginLeft="10dp"
-            />
+            android:background="@drawable/ic_filter" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp"
-            android:textSize="10sp"
-            android:textStyle="bold"
+            android:text="FILTER"
             android:textColor="@color/Black"
-            android:text="FILTER"/>
+            android:textSize="10sp"
+             />
 
         <Spinner
             android:id="@+id/shroomie_spinner_filter"
@@ -128,25 +126,23 @@
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
-        android:layout_marginRight="5dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginLeft="5dp"
         android:id="@+id/my_expenses_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/my_shroomies_member_btn"
-        />
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="5dp" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:layout_marginRight="20dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginLeft="20dp"
         android:id="@+id/my_tasks_recycler_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="gone"
         android:layout_below="@+id/my_shroomies_member_btn"
-        />
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="20dp"
+        android:visibility="gone" />
 
     <Button
         android:id="@+id/my_shroomies_add_card_btn"
@@ -155,7 +151,7 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
         android:background="@drawable/ic_add_card"
-        android:elevation="3dp"/>
+        android:elevation="3dp" />
 
 
 </RelativeLayout>

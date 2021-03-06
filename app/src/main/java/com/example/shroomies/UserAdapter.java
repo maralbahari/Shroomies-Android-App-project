@@ -32,6 +32,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 
@@ -290,13 +291,10 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     private void saveToRemovedLog(final String apartmentID,String username){
         DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
         String logID=ref.getKey();
-        Calendar calendarDate = Calendar.getInstance();
-        SimpleDateFormat mcurrentDate = new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
-        String saveCurrentDate = mcurrentDate.format(calendarDate.getTime());
         final HashMap<String,Object> newRecord=new HashMap<>();
         newRecord.put("actor",apartment.getOwnerID());
         newRecord.put("action","removing");
-        newRecord.put("when",saveCurrentDate);
+        newRecord.put("when",ServerValue.TIMESTAMP);
         newRecord.put("removedUser",username);
         newRecord.put("logID",logID);
         ref.updateChildren(newRecord).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -310,13 +308,11 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
 
     }
     private void saveToRequestsLog(final String apartmentID,String userID){
-        Calendar calendarDate = Calendar.getInstance();
-        SimpleDateFormat mcurrentDate = new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
-        String saveCurrentDate = mcurrentDate.format(calendarDate.getTime());
+
         DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
         String uniqueID=ref.getKey();
         final HashMap<String,Object> newRecord=new HashMap<>();
-        newRecord.put("when",saveCurrentDate);
+        newRecord.put("when", ServerValue.TIMESTAMP);
         newRecord.put("actor",mAuth.getCurrentUser().getUid());
         newRecord.put("receivedBy",userID);
         newRecord.put("logID",uniqueID);

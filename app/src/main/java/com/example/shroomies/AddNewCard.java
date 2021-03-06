@@ -59,6 +59,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -113,7 +114,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
     ImageView close;
     private Button splitExpenses;
     private HashMap<String,String> apartmentMembers=new HashMap<>();
-    public  HashMap<String,Object> sharedAmountsList;
+    public  HashMap<String,Integer> sharedAmountsList;
     private static int DIALOG_RESULT=100;
     private ArrayList<User> shroomies=new ArrayList<>();
 
@@ -263,9 +264,11 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                     }
                 }, year, month, day);
                 dialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
+                dialog.setIcon(R.drawable.ic_notification_icon);
                 dialog.show();
             }
         });
+
 
 
         requestQueue = Volley.newRequestQueue(getActivity());
@@ -324,14 +327,13 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
         final HashMap<String,Object> newRecord=new HashMap<>();
         Calendar calendarDate = Calendar.getInstance();
         final String uniqueID = ref.getKey();
-        SimpleDateFormat mcurrentDate = new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
-        saveCurrentDate = mcurrentDate.format(calendarDate.getTime());
+
 
         newCard.put("description", mdescription);
         newCard.put("title", mtitle);
         newCard.put("dueDate", mdueDate);
         newCard.put("importance", importance);
-        newCard.put("date", saveCurrentDate);
+        newCard.put("date", ServerValue.TIMESTAMP);
         newCard.put("cardId", uniqueID);
         newCard.put("done", "false");
         newCard.put("mention", mMention);
@@ -339,7 +341,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
 
         newRecord.put("actor",mAuth.getCurrentUser().getUid());
         newRecord.put("cardTitle",mtitle);
-        newRecord.put("when",saveCurrentDate);
+        newRecord.put("when", ServerValue.TIMESTAMP);
         newRecord.put("action","addingCard");
         newRecord.put("cardType","tasks");
         newRecord.put("cardID",uniqueID);
@@ -397,7 +399,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
     }
 
 
-    public void saveToFireBase(String title, String description, String dueDate, String attachUrl, String importance, final String mMention, final String apartmentID, final HashMap<String,Object> shareAmounts) {
+    public void saveToFireBase(String title, String description, String dueDate, String attachUrl, String importance, final String mMention, final String apartmentID, final HashMap<String,Integer> shareAmounts) {
         if (!mMention.isEmpty()) {
             notify = true;
         }
@@ -406,15 +408,14 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
         final HashMap<String,Object> newRecord=new HashMap<>();
         Calendar calendarDate = Calendar.getInstance();
         final String uniqueID = ref.getKey();
-        SimpleDateFormat mcurrentDate = new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
-        saveCurrentDate = mcurrentDate.format(calendarDate.getTime());
+
 
         newCard.put("description", description);
         newCard.put("title", title);
         newCard.put("dueDate", dueDate);
         newCard.put("importance", importance);
         newCard.put("attachedFile", attachUrl);
-        newCard.put("date", saveCurrentDate);
+        newCard.put("date", ServerValue.TIMESTAMP);
         newCard.put("cardId", uniqueID);
         newCard.put("done", "false");
         newCard.put("mention", mMention);
@@ -423,7 +424,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
         }
         newRecord.put("actor",mAuth.getCurrentUser().getUid());
         newRecord.put("cardTitle",title);
-        newRecord.put("when",saveCurrentDate);
+        newRecord.put("when",ServerValue.TIMESTAMP);
         newRecord.put("action","addingCard");
         newRecord.put("cardType","expenses");
         newRecord.put("cardID",uniqueID);
@@ -461,7 +462,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
     }
 
 
-    public void uploadImgToFirebaseStorage(final String title, final String description, final String dueDate, final String importance, Uri imgUri, final String mMention,final HashMap<String,Object> sharedAmounts) {
+    public void uploadImgToFirebaseStorage(final String title, final String description, final String dueDate, final String importance, Uri imgUri, final String mMention,final HashMap<String,Integer> sharedAmounts) {
         if (imgUri == null) {
             saveToFireBase(title, description, dueDate, "", importance, mMention,apartment.getApartmentID(),sharedAmounts);
         } else {
@@ -639,7 +640,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
     }
 
     @Override
-    public void sendInput(HashMap<String, Object> sharedSplit) {
+    public void sendInput(HashMap<String,Integer> sharedSplit) {
         this.sharedAmountsList=sharedSplit;
         if(!sharedAmountsList.isEmpty()){
             splitExpenses.setText("Splited");

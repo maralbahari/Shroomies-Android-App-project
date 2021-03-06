@@ -34,6 +34,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.hendraanggrian.widget.SocialTextView;
@@ -217,17 +218,19 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
             done = v.findViewById(R.id.expense_done);
             markAsDone = v.findViewById(R.id.shroomie_markasdone);
             expensesCardView=v.findViewById(R.id.my_shroomie_expenses_card);
-            final int position=getAdapterPosition();
+
             done.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     if (done.isChecked()){
-                        rootRef.child("apartments").child(apartment.getApartmentID()).child("expensesCards").child(expensesCardArrayList.get(getAdapterPosition()).getCardId()).child("done").setValue("true").addOnSuccessListener(new OnSuccessListener<Void>() {
+                        rootRef.child("apartments").child(apartment.getApartmentID()).child("expensesCards").child(expensesCardArrayList.get(getAdapterPosition()).getCardId()).child("done").setValue("true").addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
-                            public void onSuccess(Void aVoid) {
-                                markAsDone.setText("Done!");
-                                saveToDoneLog(apartment.getApartmentID(),expensesCardArrayList.get(getAdapterPosition()));
-
+                            public void onComplete(@NonNull Task<Void> task) {
+                                if(task.isSuccessful()){
+                                    markAsDone.setText("Done!");
+                                    Toast.makeText(context,"pos"+getAdapterPosition(),Toast.LENGTH_LONG).show();
+                                    saveToDoneLog(apartment.getApartmentID(),expensesCardArrayList.get(getLayoutPosition()));
+                                }
                             }
                         });
                         AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -244,8 +247,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                         yesBtn.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                Toast.makeText(context,"position:"+position,Toast.LENGTH_LONG).show();
-                                archive(position,expensesCardArrayList.get(position));
+                                archive(getLayoutPosition(),expensesCardArrayList.get(getLayoutPosition()));
 
                                 alertDialog.cancel();
                             }
@@ -260,7 +262,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                         rootRef.child("apartments").child(apartment.getApartmentID()).child("expensesCards").child(expensesCardArrayList.get(getAdapterPosition()).getCardId()).child("done").setValue("false").addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                saveToUnDoneLog(apartment.getApartmentID(),expensesCardArrayList.get(getAdapterPosition()));
+                                saveToUnDoneLog(apartment.getApartmentID(),expensesCardArrayList.get(getLayoutPosition()));
 
                             }
                         });
@@ -391,12 +393,9 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
     private void saveToDeleteLog(String apartmentID,ExpensesCard card){
         DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
         String logID=ref.getKey();
-        Calendar calendarDate = Calendar.getInstance();
-        SimpleDateFormat mcurrentDate = new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
-        String saveCurrentDate = mcurrentDate.format(calendarDate.getTime());
         final HashMap<String, Object> newRecord=new HashMap<>();
         newRecord.put("actor",mAuth.getCurrentUser().getUid());
-        newRecord.put("when",saveCurrentDate);
+        newRecord.put("when",ServerValue.TIMESTAMP);
         newRecord.put("cardTitle",card.getTitle());
         newRecord.put("action","deletingCard");
         newRecord.put("logID",logID);
@@ -412,12 +411,10 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
     private void saveToArchiveLog(String apartmentID,ExpensesCard card){
         DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
         String logID=ref.getKey();
-        Calendar calendarDate = Calendar.getInstance();
-        SimpleDateFormat mcurrentDate = new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
-        String saveCurrentDate = mcurrentDate.format(calendarDate.getTime());
+
         final HashMap<String, Object> newRecord=new HashMap<>();
         newRecord.put("actor",mAuth.getCurrentUser().getUid());
-        newRecord.put("when",saveCurrentDate);
+        newRecord.put("when",ServerValue.TIMESTAMP);
         newRecord.put("cardTitle",card.getTitle());
         newRecord.put("action","archivingCard");
         newRecord.put("logID",logID);
@@ -434,12 +431,10 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
     private void saveToDeleteArchiveLog(String apartmentID,ExpensesCard card){
         DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
         String logID=ref.getKey();
-        Calendar calendarDate = Calendar.getInstance();
-        SimpleDateFormat mcurrentDate = new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
-        String saveCurrentDate = mcurrentDate.format(calendarDate.getTime());
+
         final HashMap<String, Object> newRecord=new HashMap<>();
         newRecord.put("actor",mAuth.getCurrentUser().getUid());
-        newRecord.put("when",saveCurrentDate);
+        newRecord.put("when",ServerValue.TIMESTAMP);
         newRecord.put("cardTitle",card.getTitle());
         newRecord.put("action","deletingArchivedCard");
         newRecord.put("logID",logID);
@@ -455,12 +450,10 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
     private void saveToDoneLog(String apartmentID,ExpensesCard card){
         DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
         String logID=ref.getKey();
-        Calendar calendarDate = Calendar.getInstance();
-        SimpleDateFormat mcurrentDate = new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
-        String saveCurrentDate = mcurrentDate.format(calendarDate.getTime());
+
         final HashMap<String, Object> newRecord=new HashMap<>();
         newRecord.put("actor",mAuth.getCurrentUser().getUid());
-        newRecord.put("when",saveCurrentDate);
+        newRecord.put("when",ServerValue.TIMESTAMP);
         newRecord.put("cardTitle",card.getTitle());
         newRecord.put("action","markingDone");
         newRecord.put("logID",logID);
@@ -478,12 +471,9 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
     private void saveToUnDoneLog(String apartmentID,ExpensesCard card){
         DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
         String logID=ref.getKey();
-        Calendar calendarDate = Calendar.getInstance();
-        SimpleDateFormat mcurrentDate = new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
-        String saveCurrentDate = mcurrentDate.format(calendarDate.getTime());
         final HashMap<String, Object> newRecord=new HashMap<>();
         newRecord.put("actor",mAuth.getCurrentUser().getUid());
-        newRecord.put("when",saveCurrentDate);
+        newRecord.put("when", ServerValue.TIMESTAMP);
         newRecord.put("cardTitle",card.getTitle());
         newRecord.put("action","unMarkingDone");
         newRecord.put("logID",logID);

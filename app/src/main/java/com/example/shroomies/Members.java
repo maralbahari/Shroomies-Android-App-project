@@ -221,6 +221,7 @@ public class Members extends DialogFragment {
 
     private void leaveApartment(final String apartmentID) {
         final CustomLoadingProgressBar customLoadingProgressBar = new CustomLoadingProgressBar(getActivity(),"Leaving room...",R.raw.loading_animation);
+        customLoadingProgressBar.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         customLoadingProgressBar.show();
         final DatabaseReference ref= rootRef.child("apartments").push();
         final String newApartmentID =ref.getKey();

@@ -30,6 +30,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.google.gson.Gson;
 
@@ -306,19 +307,16 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
     private void saveToJoinedLog(final String apartmentID){
         DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
         String logID=ref.getKey();
-        Calendar calendarDate = Calendar.getInstance();
-        SimpleDateFormat mcurrentDate = new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
-        String saveCurrentDate = mcurrentDate.format(calendarDate.getTime());
         final HashMap<String,Object> newRecord=new HashMap<>();
         newRecord.put("actor",mAuth.getCurrentUser().getUid());
         newRecord.put("action","joined");
-        newRecord.put("when",saveCurrentDate);
+        newRecord.put("when", ServerValue.TIMESTAMP);
         newRecord.put("logID",logID);
         ref.updateChildren(newRecord).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
-                    Toast.makeText(context,"I am here",Toast.LENGTH_SHORT).show();
+
                 }
             }
         });

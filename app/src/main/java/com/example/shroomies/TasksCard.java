@@ -7,12 +7,13 @@ import java.lang.reflect.ParameterizedType;
 
 public class TasksCard implements Parcelable {
 
-    String description, title,dueDate, importance, members, date, cardId, done,mention;
+    String description, title,dueDate, importance, members, cardId, done,mention;
+    long  date;
 
     public TasksCard() {
     }
 
-    public TasksCard(String description, String taskTitle, String taskDueDate, String taskImportance, String date, String taskCardId, String members, String done, String mention) {
+    public TasksCard(String description, String taskTitle, String taskDueDate, String taskImportance, long date, String taskCardId, String members, String done, String mention) {
         this.cardId = taskCardId;
         this.date = date;
         this.description = description;
@@ -30,7 +31,7 @@ public class TasksCard implements Parcelable {
         dueDate = in.readString();
         importance = in.readString();
         members = in.readString();
-        date = in.readString();
+        date = in.readLong();
         cardId = in.readString();
         done = in.readString();
         mention = in.readString();
@@ -76,7 +77,7 @@ public class TasksCard implements Parcelable {
         this.members = members;
     }
 
-    public void setDate(String date) {
+    public void setDate(long date) {
         this.date = date;
     }
 
@@ -108,7 +109,7 @@ public class TasksCard implements Parcelable {
         return members;
     }
 
-    public String getDate() {
+    public long getDate() {
         return date;
     }
 
@@ -132,7 +133,7 @@ public class TasksCard implements Parcelable {
         parcel.writeString(dueDate);
         parcel.writeString(importance);
         parcel.writeString(members);
-        parcel.writeString(date);
+        parcel.writeLong(date);
         parcel.writeString(cardId);
         parcel.writeString(done);
         parcel.writeString(mention);

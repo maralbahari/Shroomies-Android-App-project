@@ -4,10 +4,11 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class Log implements Parcelable {
-    String logID,actor,action,when,cardTitle,cardType,receivedBy,removedUser,cardID;
+    String logID,actor,action,cardTitle,cardType,receivedBy,removedUser,cardID;
     String actorPic,actorName;
+    long when;
 
-    public Log(String logID, String actor, String action, String when, String cardTitle, String cardType, String receivedBy, String removedUser,String cardID) {
+    public Log(String logID, String actor, String action, long when, String cardTitle, String cardType, String receivedBy, String removedUser,String cardID) {
         this.logID = logID;
         this.actor = actor;
         this.action = action;
@@ -34,7 +35,7 @@ public class Log implements Parcelable {
         logID = in.readString();
         actor = in.readString();
         action = in.readString();
-        when = in.readString();
+        when=in.readLong();
         cardTitle = in.readString();
         cardType = in.readString();
         receivedBy = in.readString();
@@ -96,11 +97,11 @@ public class Log implements Parcelable {
         this.action = action;
     }
 
-    public String getWhen() {
+    public long getWhen() {
         return when;
     }
 
-    public void setWhen(String when) {
+    public void setWhen(long when) {
         this.when = when;
     }
 
@@ -146,7 +147,7 @@ public class Log implements Parcelable {
         parcel.writeString(logID);
         parcel.writeString(actor);
         parcel.writeString(action);
-        parcel.writeString(when);
+        parcel.writeLong(when);
         parcel.writeString(cardTitle);
         parcel.writeString(cardType);
         parcel.writeString(receivedBy);
