@@ -69,11 +69,20 @@ public class ExploreApartmentsAdapter extends RecyclerView.Adapter<ExploreApartm
                 .load(storageReference)
                 .transform(new RoundedCorners(20))
                 .into(holder.apartmentImage);
-        List<Boolean> preferences = apartmentList.get(position).getPreferences();
-        if(preferences.get(0)){holder.maleButton.setVisibility(View.VISIBLE);}else{holder.maleButton.setVisibility(View.GONE);}
-        if(preferences.get(1)){holder.femaleButton.setVisibility(View.VISIBLE);}else{holder.femaleButton.setVisibility(View.GONE);}
-        if(preferences.get(2)){holder.petsAllowedButton.setVisibility(View.VISIBLE);}else{holder.petsAllowedButton.setVisibility(View.GONE);}
-        if(preferences.get(3)){holder.smokeFreeButton.setVisibility(View.VISIBLE);}else{holder.smokeFreeButton.setVisibility(View.GONE);}
+        List<String> preferences = apartmentList.get(position).getPreferences();
+        for (String preference
+                :preferences) {
+            switch (preference) {
+                case "male":
+                    holder.maleButton.setVisibility(View.VISIBLE);break;
+                case "female":
+                    holder.femaleButton.setVisibility(View.VISIBLE);break;
+                case "pet":
+                    holder.petsAllowedButton.setVisibility(View.VISIBLE);break;
+                case "non_smoking":
+                    holder.smokeFreeButton.setVisibility(View.VISIBLE);
+            }
+        }
 
         String id = apartmentList.get(position).getUserID();
             FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();

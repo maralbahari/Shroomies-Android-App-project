@@ -4,13 +4,9 @@
     android:id="@+id/find_roomMate_Motion_Layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginTop="56dp"
-    android:layout_marginBottom="50dp"
     app:layoutDescription="@xml/fragment_find_roommate_scene2"
     tools:context=".FindRoommate"
     >
-
-
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tabLayout"

@@ -87,11 +87,24 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
         holder.dotsIndicator.setViewPager(holder.apartmentViewPager);
         viewPagerAdapter.registerDataSetObserver(holder.dotsIndicator.getDataSetObserver());
 
-        List<Boolean> preferences = apartmentList.get(position).getPreferences();
-        if(preferences.get(0)){holder.maleButton.setVisibility(View.VISIBLE);}else{holder.maleButton.setVisibility(View.GONE);}
-        if(preferences.get(1)){holder.femaleButton.setVisibility(View.VISIBLE);}else{holder.femaleButton.setVisibility(View.GONE);}
-        if(preferences.get(2)){holder.petsAllowedButton.setVisibility(View.VISIBLE);}else{holder.petsAllowedButton.setVisibility(View.GONE);}
-        if(preferences.get(3)){holder.smokeFreeButton.setVisibility(View.VISIBLE);}else{holder.smokeFreeButton.setVisibility(View.GONE);}
+        List<String> preferences = apartmentList.get(position).getPreferences();
+
+        for (String preference
+                :preferences) {
+            switch (preference) {
+                case "male":
+                    holder.maleButton.setVisibility(View.VISIBLE);
+                    break;
+                case "female":
+                    holder.femaleButton.setVisibility(View.VISIBLE);
+                    break;
+                case "pet":
+                    holder.petsAllowedButton.setVisibility(View.VISIBLE);
+                    break;
+                case "non_smoking":
+                    holder.smokeFreeButton.setVisibility(View.VISIBLE);
+            }
+        }
 //
 //        String id = apartmentList.get(position).getUserID();
 //        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -246,11 +259,6 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
                     // add the parcelable apartment object to the intent and use it's values to
                     //update the apartment view class
                     intent.putExtra("apartment",apartmentList.get(getAdapterPosition()));
-                    boolean[] prefrerancesArray = new boolean[4];
-                    for (int i = 0 ; i<apartmentList.get(getAdapterPosition()).getPreferences().size(); i++){
-                        prefrerancesArray[i] = apartmentList.get(getAdapterPosition()).getPreferences().get(i);
-                    }
-                    intent.putExtra("apartmentPreferences" , prefrerancesArray);
                     context.startActivity(intent);
                 }
             });

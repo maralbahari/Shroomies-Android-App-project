@@ -94,7 +94,7 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
 //    String postUniqueName;
     TextView budgetTextView, numberOfRoomMatesTextView ,addImageWarning;
     int budget , numberOfRoommates;
-    List<Boolean> preferences ;
+    List<String> preferences ;
     Validate validate;
 
 
@@ -127,7 +127,7 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
     }
     // override the interface method "sendInput" to get the preferances
     @Override
-    public void sendInput(int budget, int numberRoomMates, List<Boolean> preferences) {
+    public void sendInput(int budget, int numberRoomMates, List<String> preferences) {
         //store the data from the dialog fragment
         this.budget = budget;
         this.preferences= preferences;
@@ -144,28 +144,35 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
         NumberFormat numberFormat = NumberFormat.getInstance();
         numberFormat.setGroupingUsed(true);
         budgetTextView.setText(numberFormat.format(budget) + " RM");
-        if(preferences.get(0)){
-            maleImage.setVisibility(View.VISIBLE);
-            preferencesTextView.setVisibility(View.VISIBLE);
-        }else{maleImage.setVisibility(View.GONE);}
-        if(preferences.get(1)){
-            femaleImage.setVisibility(View.VISIBLE);
-            preferencesTextView.setVisibility(View.VISIBLE);
-        }else{femaleImage.setVisibility(View.GONE);}
-        if(preferences.get(2)){
-            petImage.setVisibility(View.VISIBLE);
-            preferencesTextView.setVisibility(View.VISIBLE);
-        }else{petImage.setVisibility(View.GONE);}
-        if(preferences.get(3)){
-            smokingImage.setVisibility(View.VISIBLE);
-            preferencesTextView.setVisibility(View.VISIBLE);
 
-        }else{smokingImage.setVisibility(View.GONE);}
-
+            if(preferences.contains("male")){
+                maleImage.setVisibility(View.VISIBLE);
+                preferencesTextView.setVisibility(View.VISIBLE);
+            }else{
+                maleImage.setVisibility(View.GONE);
+            }
+            if(preferences.contains("female")){
+                femaleImage.setVisibility(View.VISIBLE);
+                preferencesTextView.setVisibility(View.VISIBLE);
+            }else{
+                femaleImage.setVisibility(View.GONE);
+            }
+            if(preferences.contains("pet")){
+                petImage.setVisibility(View.VISIBLE);
+                preferencesTextView.setVisibility(View.VISIBLE);
+            }else{
+                petImage.setVisibility(View.GONE);
+            }
+            if(preferences.contains("non_smoking")){
+                smokingImage.setVisibility(View.VISIBLE);
+                preferencesTextView.setVisibility(View.VISIBLE);
+            }else{
+                smokingImage.setVisibility(View.GONE);
+            }
 
         //check if the user didn't set any preferences
         //and remove the preferences text view
-        if(!preferences.get(0)&&!preferences.get(1)&&!preferences.get(2)&&!preferences.get(3)){
+        if(preferences.size()==0){
             preferencesTextView.setVisibility(View.GONE);
         }
 
@@ -557,7 +564,7 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
     }
 
 
-    void postImagesAddToDatabase(final LatLng locationLtLng , final  String description , final int numberRoomMate , final int price , final  List<Boolean> property , final List<Uri> imageUri  , final String locality , final String subLocality) {
+    void postImagesAddToDatabase(final LatLng locationLtLng , final  String description , final int numberRoomMate , final int price , final  List<String> property , final List<Uri> imageUri  , final String locality , final String subLocality) {
         getFragment(new FindRoommate());
         publishPostButton.setVisibility(View.INVISIBLE);
 
@@ -612,7 +619,7 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
         return  saveCurrentDate+saveCurrentTime;
     }
 
-    void addToRealTimeDatabase(LatLng locationLtLng , String description , int numberRoomMate , int price , List<Boolean> property ,List<String> IMAGE_URL , String locality , String subLocality){
+    void addToRealTimeDatabase(LatLng locationLtLng , String description , int numberRoomMate , int price , List<String> property ,List<String> IMAGE_URL , String locality , String subLocality){
         String hash = GeoFireUtils.getGeoHashForLocation(new GeoLocation(locationLtLng.latitude, locationLtLng.longitude));
         String userUid =  FirebaseAuth.getInstance().getCurrentUser().getUid();
         HashMap<String ,Object> post = new HashMap<>();
@@ -646,7 +653,7 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
 
     }
 
-    void publishPersonalPost(String description , int price , List<Boolean> property ){
+    void publishPersonalPost(String description , int price , List<String> property ){
         String userUid =  FirebaseAuth.getInstance().getCurrentUser().getUid();
         //move to the publish post page while the data is being posted
         getFragment(new PublishPost());

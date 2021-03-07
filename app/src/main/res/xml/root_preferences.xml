@@ -3,55 +3,79 @@
 <PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <PreferenceCategory app:title="location"  >
 
-        <DropDownPreference
-            app:key="sync"
+    <PreferenceCategory android:title="View type">
+
+        <SwitchPreferenceCompat
+            app:key="single_card_view_preference"
+            app:title="Single card view"
+            app:summary="change the layout of the apartment search page to single card view "
+           />
+
+    </PreferenceCategory>
+
+
+    <PreferenceCategory app:title="location filters"
+        >
+
+        <ListPreference
+            android:key="state_preference"
             app:title="State"
-            android:entries="@array/Terengganu"
-            android:entryValues="@array/Terengganu"
+            android:entries="@array/empty_array"
+            android:entryValues="@array/empty_array"
+            app:allowDividerBelow="true"
+            app:summary="Display posts according to a set Location"
+            android:defaultValue="true"
+
+
             />
 
-<!--        <DropDownPreference-->
-<!--            app:key="sync"-->
-<!--            app:title="City"-->
 
-<!--            />-->
+        <DropDownPreference
+            app:key="city_preference"
+            app:title="City"
+            android:entries="@array/empty_array"
+            android:entryValues="@array/empty_array"
+            app:isPreferenceVisible="false"
+
+            />
 
 
 
 
     </PreferenceCategory>
 
-    <PreferenceCategory app:title="@string/sync_header">
-
-        <SwitchPreferenceCompat
-            app:key="sync"
-            app:title="@string/sync_title" />
 
 
-        <DropDownPreference
-            app:defaultValue="reply"
+    <PreferenceCategory app:title="Post filters"
+        app:summary="filter each retrieved post according to selected preferences"
+        app:allowDividerBelow="true"
+        >
+
+
+
+        <MultiSelectListPreference
+            android:key="properties"
+            app:isPreferenceVisible="true"
+            app:title="Post properties"
             android:entries="@array/post_properties"
             android:entryValues="@array/post_properties"
-            app:title="post properties"
-            app:useSimpleSummaryProvider="true"
-            android:defaultValue="false"
-            />
+            android:defaultValue="@array/empty_array"
+            ></MultiSelectListPreference>
+
         <com.nfx.android.rangebarpreference.RangeBarPreferenceCompat
+            android:key="range_preference"
             android:title="Price"
             app:summary="set the price for apartment rents or the budget for personal posts"
             app:showSeekBarValue="true"
             app:rbp_tickStart="100"
             app:rbp_tickEnd="10000"
             app:rbp_tickInterval="100"
-            app:rbp_view_defaultLowValue="4000"
-            app:rbp_view_defaultHighValue="6000"
+            app:rbp_view_defaultLowValue="100"
+            app:rbp_view_defaultHighValue="10000"
             />
 
-
-
-
     </PreferenceCategory>
+
 
 </PreferenceScreen>

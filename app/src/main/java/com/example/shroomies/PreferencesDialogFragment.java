@@ -31,7 +31,7 @@ public class PreferencesDialogFragment extends DialogFragment {
 
     public interface OnPreferencesSet{
 
-        void sendInput(int budget , int numberRoomMates ,List<Boolean> preferences);
+        void sendInput(int budget , int numberRoomMates ,List<String> preferences);
 
     }
 
@@ -104,11 +104,20 @@ public class PreferencesDialogFragment extends DialogFragment {
         setOptions.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               List <Boolean> preferences = new ArrayList<>();
-               preferences.add(maleCheckbox.isChecked());
-               preferences.add(femaleCheckBox.isChecked());
-               preferences.add(petAllowedCheckBox.isChecked());
-               preferences.add(nonSmokingCheckBox.isChecked());
+               List <String> preferences = new ArrayList<>();
+               if(maleCheckbox.isChecked()){
+                   preferences.add("male");
+               }
+               if(femaleCheckBox.isChecked()){
+                   preferences.add("female");
+               }
+               if(petAllowedCheckBox.isChecked()){
+                   preferences.add("pet");
+               }
+               if (nonSmokingCheckBox.isChecked()){
+                   preferences.add("non_smoking");
+               }
+
                 int budget = budgetNumberPicker.getValue()*100;
                 int numberRooMates = numberOfRoomMatesNumberPicker.getValue();
                 if(tabSelected!=1) {
