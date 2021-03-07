@@ -473,12 +473,14 @@ import com.google.firebase.database.FirebaseDatabase;
          if(prefs!=null){
              selectedCity= prefs.getString("city_preference" ,null );
              Set<String> selections = prefs.getStringSet("properties", null);
+             if(selections!=null){
              String []  selected = selections.toArray(new String[]{});
              if(selected.length>0) {
                  // create a new list to store all properties
                  for (int i = 0; i < selected.length; i++) {
                      addedPostProperties.add(selected[i]);
                  }
+             }
              }
              String seekBar = prefs.getString("range_preference" , "");
               maxPrice = RangeBarHelper.getHighValueFromJsonString(seekBar);
@@ -489,9 +491,9 @@ import com.google.firebase.database.FirebaseDatabase;
          query =  apartmentPostReference
                  .orderBy("price")
                  .orderBy(FieldPath.documentId())
-                 .orderBy("locality")
-                 .whereGreaterThanOrEqualTo("price" , minPrice)
-                 .whereLessThanOrEqualTo("price", maxPrice);
+                 .orderBy("locality");
+//                 .whereGreaterThanOrEqualTo("price" , minPrice)
+//                 .whereLessThanOrEqualTo("price", maxPrice);
 
 
          if(selectedCity!=null){
@@ -499,11 +501,11 @@ import com.google.firebase.database.FirebaseDatabase;
                  query = query.whereEqualTo("locality" , selectedCity);
              }
          }
-//         if(addedPostProperties!=null) {
-//             if (!addedPostProperties.isEmpty()) {
-//                 query = query.orderBy(FieldPath.documentId()).whereEqualTo("preferences", addedPostProperties);;
-//             }
-//         }
+         if(addedPostProperties!=null) {
+             if (!addedPostProperties.isEmpty()) {
+                 query = query.whereArrayContainsAny("preferences", addedPostProperties);
+             }
+         }
          //finally order by timestamp
 //         query = query.orderBy("time_stamp", Query.Direction.DESCENDING);
          return query;
