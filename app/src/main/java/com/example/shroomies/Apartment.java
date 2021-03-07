@@ -23,7 +23,7 @@ public class Apartment implements Parcelable {
     double longitude;
 
     List<String> image_url;
-     List<Boolean> preferences;
+     List<String> preferences;
     int price;
     Apartment(){
 
@@ -55,7 +55,7 @@ public class Apartment implements Parcelable {
         return image_url;
     }
 
-    public List<Boolean> getPreferences() {
+    public List<String> getPreferences() {
         return preferences;
     }
 

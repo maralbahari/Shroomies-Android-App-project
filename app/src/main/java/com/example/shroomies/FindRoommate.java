@@ -1,13 +1,12 @@
  package com.example.shroomies;
 
- import android.content.Intent;
+ import android.content.SharedPreferences;
  import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
  import android.widget.ArrayAdapter;
  import android.widget.ImageView;
- import android.widget.RadioButton;
  import android.widget.RadioGroup;
  import android.widget.SearchView;
  import android.widget.Toast;
@@ -20,7 +19,8 @@ import androidx.annotation.Nullable;
  import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.recyclerview.widget.LinearLayoutManager;
+ import androidx.preference.PreferenceManager;
+ import androidx.recyclerview.widget.LinearLayoutManager;
  import androidx.recyclerview.widget.StaggeredGridLayoutManager;
 
  import com.factor.bouncy.BouncyRecyclerView;
@@ -35,17 +35,22 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
  import com.google.firebase.firestore.FieldPath;
+ import com.google.firebase.firestore.FieldValue;
  import com.google.firebase.firestore.Query;
 
  import com.google.firebase.firestore.CollectionReference;
  import com.google.firebase.firestore.FirebaseFirestore;
  import com.google.firebase.firestore.QueryDocumentSnapshot;
  import com.google.firebase.firestore.QuerySnapshot;
+ import com.google.firestore.v1.Target;
+ import com.nfx.android.rangebarpreference.RangeBarHelper;
 
+ import java.lang.reflect.Array;
+ import java.lang.reflect.Field;
  import java.util.ArrayList;
-import java.util.List;
- import java.util.Timer;
- import java.util.TimerTask;
+ import java.util.Arrays;
+ import java.util.List;
+ import java.util.Set;
 
  public class FindRoommate extends Fragment {
     MotionLayout motionLayout;
@@ -53,7 +58,7 @@ import java.util.List;
     private static final String  PERSONAL_SEARCH = "PERSONAL_SEARCH";
     private static final String  USER_SEARCH = "USER_SEARCH";
 
-    public static final int APARTMENT_PER_PAGINATION =5;
+    public static final int APARTMENT_PER_PAGINATION =10;
     private View v;
     private BouncyRecyclerView recyclerView;
     private RadioGroup viewOptionsRadioGroup;
@@ -78,6 +83,10 @@ import java.util.List;
     private Toolbar toolbar;
     private CollectionReference apartmentPostReference;
     private ImageView optionsButton;
+    private  List<String> addedPostProperties;
+    private  String selectedCity;
+    private  float maxPrice;
+    private float minPrice;
 
 
     @Override
@@ -133,6 +142,7 @@ import java.util.List;
         layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(staggeredGridLayoutManager);
         recyclerView.setItemAnimator(null);
+
 
         motionLayout.addTransitionListener(new MotionLayout.TransitionListener() {
             @Override
@@ -409,20 +419,26 @@ import java.util.List;
 
 
     void getApartments() {
-        Query query;
+
+
         paginate = false;
         searchState= false;
 
         // gets the N most recent apartments in the users city
         // check if the last card key is empty
         // if its empty this is the first data to be loaded
+
+
+        Query query = getPreferences();
         if (lastCardKey!=null) {
-            query = apartmentPostReference.orderBy(FieldPath.documentId()).startAfter(lastCardKey).limit(APARTMENT_PER_PAGINATION);
+            query = query.startAfter(lastCardKey)
+                    .limit(APARTMENT_PER_PAGINATION);
             paginate=true;
         }else{
             // starts from the beginning
-            query = apartmentPostReference.orderBy(FieldPath.documentId()).limit(APARTMENT_PER_PAGINATION);
+            query =query.limit(APARTMENT_PER_PAGINATION);
         }
+
 
         query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -449,7 +465,51 @@ import java.util.List;
 
 
     }
-    void closeProgressBarsSetOverPullListener(){
+
+     private Query getPreferences() {
+        Query  query = null;
+        addedPostProperties =new ArrayList<>();
+         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+         if(prefs!=null){
+             selectedCity= prefs.getString("city_preference" ,null );
+             Set<String> selections = prefs.getStringSet("properties", null);
+             String []  selected = selections.toArray(new String[]{});
+             if(selected.length>0) {
+                 // create a new list to store all properties
+                 for (int i = 0; i < selected.length; i++) {
+                     addedPostProperties.add(selected[i]);
+                 }
+             }
+             String seekBar = prefs.getString("range_preference" , "");
+              maxPrice = RangeBarHelper.getHighValueFromJsonString(seekBar);
+              minPrice = RangeBarHelper.getLowValueFromJsonString(seekBar);
+
+         }
+
+         query =  apartmentPostReference
+                 .orderBy("price")
+                 .orderBy(FieldPath.documentId())
+                 .orderBy("locality")
+                 .whereGreaterThanOrEqualTo("price" , minPrice)
+                 .whereLessThanOrEqualTo("price", maxPrice);
+
+
+         if(selectedCity!=null){
+             if (!selectedCity.isEmpty()){
+                 query = query.whereEqualTo("locality" , selectedCity);
+             }
+         }
+//         if(addedPostProperties!=null) {
+//             if (!addedPostProperties.isEmpty()) {
+//                 query = query.orderBy(FieldPath.documentId()).whereEqualTo("preferences", addedPostProperties);;
+//             }
+//         }
+         //finally order by timestamp
+//         query = query.orderBy("time_stamp", Query.Direction.DESCENDING);
+         return query;
+     }
+
+     void closeProgressBarsSetOverPullListener(){
         recyclerView.setOnOverPullListener(onOverPullListener);
         if(customLoadingProgressBar!=null){
             customLoadingProgressBar.dismiss();
