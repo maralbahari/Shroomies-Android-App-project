@@ -16,14 +16,18 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -137,14 +141,19 @@ public class SplitExpenses extends DialogFragment implements UserAdapterSplitExp
             public void onClick(View view) {
 
                 if(acceptedInput){
-//                    sharedSplit=UserAdapterSplitExpenses.getMembersSplitShares();
                     if(sharedSplit!=null){
                         myMembersShares.sendInput(sharedSplit);
                         dismiss();
                     }
 
                 }else{
-                    Toast.makeText(getContext(),"please split properly",Toast.LENGTH_LONG).show();
+                   Snackbar snack= Snackbar.make(view,"please split properly", BaseTransientBottomBar.LENGTH_SHORT);
+                    View v = snack.getView();
+                    FrameLayout.LayoutParams params =(FrameLayout.LayoutParams)v.getLayoutParams();
+                    params.gravity = Gravity.TOP;
+                    v.setLayoutParams(params);
+                    snack.show();
+
 
                 }
 

@@ -29,6 +29,8 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -59,13 +61,15 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
     private ShroomiesApartment apartment;
     private FirebaseStorage storage;
     private FragmentManager fragmentManager;
+    private View parentView;
 
-    public ExpensesCardAdapter(ArrayList<ExpensesCard> expensesCardArrayList, Context context, Boolean fromArchive,ShroomiesApartment apartment,FragmentManager fragmentManager) {
+    public ExpensesCardAdapter(ArrayList<ExpensesCard> expensesCardArrayList, Context context, Boolean fromArchive,ShroomiesApartment apartment,FragmentManager fragmentManager,View parentView) {
         this.expensesCardArrayList = expensesCardArrayList;
         this.context=context;
         this.fromArchive = fromArchive;
         this.apartment=apartment;
         this.fragmentManager=fragmentManager;
+        this.parentView=parentView;
     }
 
     public void setItemTouchHelper(ItemTouchHelper itemTouchHelper){
@@ -101,9 +105,17 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
     public void onBindViewHolder(@NonNull final ExpensesCardAdapter.ExpensesViewHolder holder, final int position) {
         holder.title.setText(expensesCardArrayList.get(position).getTitle());
         holder.description.setText(expensesCardArrayList.get(position).getDescription());
-        holder.dueDate.setText(expensesCardArrayList.get(position).getDueDate());
+        if(expensesCardArrayList.get(position).getDueDate().equals("Due Date")){
+            holder.dueDate.setVisibility(View.INVISIBLE);
+        }else {
+            holder.dueDate.setText(expensesCardArrayList.get(position).getDueDate());
+        }
         String importanceViewColor = expensesCardArrayList.get(position).getImportance();
-        holder.mention.setText(expensesCardArrayList.get(position).getMention());
+        if(!expensesCardArrayList.get(position).getMention().isEmpty()) {
+            holder.mention.setText(expensesCardArrayList.get(position).getMention());
+        }else{
+            holder.mention.setVisibility(View.INVISIBLE);
+        }
         Boolean cardStatus = expensesCardArrayList.get(position).getDone().equals("true");
         if (cardStatus){
             holder.done.setChecked(true);
@@ -179,6 +191,9 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
             @Override
             public void onSuccess(Void aVoid) {
                saveToDeleteArchiveLog(apartment.getApartmentID(),expensesCard);
+                Snackbar snack=Snackbar.make(parentView,"Card deleted", BaseTransientBottomBar.LENGTH_SHORT);
+                snack.setAnchorView(R.id.bottomNavigationView);
+                snack.show();
                 notifyItemRemoved(position);
 
             }
@@ -338,16 +353,12 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
     public void archive(final int position,final ExpensesCard expensesCard){
         DatabaseReference ref = rootRef.child("archive").child(apartment.getApartmentID()).child("expensesCards").push();
         HashMap<String ,Object> newCard = new HashMap<>();
-        Calendar calendarDate=Calendar.getInstance();
-        String saveCurrentDate;
         String uniqueID = ref.getKey();
-        SimpleDateFormat mcurrentDate=new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
-        saveCurrentDate=mcurrentDate.format(calendarDate.getTime());
         newCard.put("description" , expensesCard.getDescription());
         newCard.put("title" ,expensesCard.getTitle());
         newCard.put("dueDate", expensesCard.getDueDate());
         newCard.put("importance", expensesCard.getImportance());
-        newCard.put("date",saveCurrentDate);
+        newCard.put("date",ServerValue.TIMESTAMP);
         newCard.put("cardId",uniqueID);
         newCard.put("attachedFile", expensesCard.getAttachedFile());
         newCard.put("done", expensesCard.getDone());
@@ -360,6 +371,9 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                     @Override
                     public void onSuccess(Void aVoid) {
                         saveToArchiveLog(apartment.getApartmentID(),expensesCard);
+                        Snackbar.make(parentView,"Card archived", BaseTransientBottomBar.LENGTH_SHORT)
+                                .setAnchorView(R.id.bottomNavigationView)
+                                .show();
                         notifyItemRemoved(position);
                     }
                 });
@@ -383,6 +397,9 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                 @Override
                 public void onSuccess(Void aVoid) {
                     saveToDeleteLog(apartment.getApartmentID(),expensesCard);
+                    Snackbar snack=Snackbar.make(parentView,"Card deleted", BaseTransientBottomBar.LENGTH_SHORT);
+                    snack.setAnchorView(R.id.bottomNavigationView);
+                    snack.show();
                     notifyItemRemoved(position);
                 }
             });

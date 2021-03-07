@@ -20,32 +20,30 @@
     <TextView
         android:layout_toRightOf="@+id/archive_photo"
         android:layout_marginLeft="30dp"
-        android:layout_marginBottom="20dp"
+        android:layout_marginBottom="10dp"
         android:layout_marginTop="30dp"
         android:id="@+id/archive_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Archived Cards"
-        android:textColor="@color/Black"
+        android:textColor="@color/purple"
         android:textStyle="bold"
         android:textSize="25sp"
         />
 
 
     <com.google.android.material.tabs.TabLayout
-        android:elevation="5dp"
         android:id="@+id/my_tablayout_archive"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/archive_tv"
-        android:layout_margin="20dp"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginBottom="20dp"
+        android:layout_marginTop="5dp"
         android:background="@drawable/tablayout_round"
-        app:tabIndicatorGravity="stretch"
-        app:tabIndicatorColor="@color/Alabaster">
+        android:elevation="10dp"
+        app:tabMode="fixed"
+        app:tabIndicator="@drawable/tab_indicator_left"
+        app:tabIndicatorColor="@color/Alabaster"
+        app:tabIndicatorGravity="stretch">
 
         <com.google.android.material.tabs.TabItem
             android:id="@+id/my_archive_expense_tab"

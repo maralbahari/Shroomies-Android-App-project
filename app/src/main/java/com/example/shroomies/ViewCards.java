@@ -138,6 +138,7 @@ public class ViewCards extends DialogFragment {
                 }if(!descriptionCard.isEmpty()){
                     description.setText(descriptionCard);
                 }if(!mentions.isEmpty()){
+                    mention.setMentionColor(Color.BLUE);
                     mention.setText(mentions);
                 }
                 if(!importance.isEmpty() ){

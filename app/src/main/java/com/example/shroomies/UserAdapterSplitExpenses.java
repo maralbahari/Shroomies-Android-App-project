@@ -98,6 +98,7 @@ public class UserAdapterSplitExpenses extends RecyclerView.Adapter<UserAdapterSp
                 holder.sharedAmount.setText((Integer.parseInt(amount)/shroomieList.size())+" RM");
                 shroomieList.get(position).setSharedAmount(holder.amountSeekBar.getProgress());
                 sharesHashmap.put(shroomieList.get(position).getID(),shroomieList.get(position).getSharedAmount());
+                shares.sendInput(sharesHashmap);
             }
     }
 
@@ -143,7 +144,6 @@ public class UserAdapterSplitExpenses extends RecyclerView.Adapter<UserAdapterSp
 
                 @Override
                 public void onStopTrackingTouch(SeekBar seekBar) {
-//                    shares.sendInput(sharesHashmap,totalText,context,ok,myMemberShares);
                     shares.sendInput(sharesHashmap);
 
 

@@ -20,6 +20,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.rpc.context.AttributeContext;
 
 import java.util.ArrayList;
 
@@ -82,11 +83,13 @@ public class Request extends Fragment {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 if(tab.getPosition()==0){
+                    requestTab.setSelectedTabIndicator(R.drawable.tab_indicator_left);
                     invitationRecyclerView.setVisibility(View.VISIBLE);
                     requestRecyclerView.setVisibility(View.GONE);
                     getSenderId();
                 }
                 else if(tab.getPosition()==1){
+                    requestTab.setSelectedTabIndicator(R.drawable.tab_indicator_right);
                     invitationRecyclerView.setVisibility(View.GONE);
                     requestRecyclerView.setVisibility(View.VISIBLE);
                     getReceiverID();

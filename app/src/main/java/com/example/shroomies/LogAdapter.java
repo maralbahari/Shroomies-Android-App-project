@@ -124,13 +124,13 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
 
 
         Spannable nameOfActor = new SpannableString(actorName);
-        nameOfActor.setSpan(new ForegroundColorSpan(Color.BLUE), 0, nameOfActor.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        nameOfActor.setSpan(new ForegroundColorSpan(Color.BLACK), 0, nameOfActor.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        nameOfActor.setSpan(new StyleSpan(Typeface.BOLD),0,nameOfActor.length(),Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         holder.logMessage.setText(nameOfActor);
         ClickableSpan cardClick = new ClickableSpan() {
             @Override
             public void onClick(View textView) {
 
-//                MyShroomies shroomies=new MyShroomies();
                 cardBundle.sendInput(cardID,cardType);
                 ft = fm.beginTransaction();
                 ft.replace(R.id.fragmentContainer, targetedFragment);
@@ -148,14 +148,14 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
         };
         if(cardTitle!=null){
             cardName = new SpannableString(cardTitle);
-            cardName.setSpan(new ForegroundColorSpan(Color.BLACK), 0, cardTitle.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            cardName.setSpan(new ForegroundColorSpan(Color.BLUE), 0, cardTitle.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             cardName.setSpan(new StyleSpan(Typeface.BOLD),0,cardTitle.length(),Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
             if(cardID!=null){
                 holder.logMessage.setClickable(true);
                 holder.logMessage.setMovementMethod(LinkMovementMethod.getInstance());
                 cardName.setSpan(cardClick,0,cardTitle.length(),Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                cardName.setSpan(new ForegroundColorSpan(Color.BLACK), 0, cardTitle.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                cardName.setSpan(new ForegroundColorSpan(Color.BLUE), 0, cardTitle.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 cardName.setSpan(new StyleSpan(Typeface.BOLD),0,cardTitle.length(),Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
             }
@@ -283,7 +283,7 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
                 if(snapshot.exists()){
                     requestedUserName=snapshot.getValue().toString();
                     SpannableString requestedUser=new SpannableString(requestedUserName);
-                    requestedUser.setSpan(new ForegroundColorSpan(Color.BLACK),0,requestedUserName.length(),Spannable.SPAN_EXCLUSIVE_EXCLUSIVE );
+                    requestedUser.setSpan(new ForegroundColorSpan(Color.BLUE),0,requestedUserName.length(),Spannable.SPAN_EXCLUSIVE_EXCLUSIVE );
                     requestedUser.setSpan(new StyleSpan(Typeface.BOLD),0,requestedUserName.length(),Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     message.append(" requested ");
                     message.append(requestedUser);

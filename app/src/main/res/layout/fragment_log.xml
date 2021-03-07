@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -9,18 +9,33 @@
     tools:context=".LogFragment"
     android:orientation="vertical"
     android:background="@color/y">
+
+    <Button
+        android:id="@+id/back_btn_log"
+        android:layout_width="match_parent"
+        android:layout_height="20dp"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="360dp"
+        android:layout_marginBottom="5dp"
+        android:background="@drawable/ic_arrow_back_"
+        android:backgroundTint="@color/Black" />
     <TextView
+        android:id="@+id/recent_events"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Recent Events"
+        android:layout_marginLeft="60dp"
         android:textColor="@color/Black"
-        android:layout_margin="10dp"
         android:textStyle="bold"
         android:textSize="20sp"
         />
+
 <androidx.recyclerview.widget.RecyclerView
     android:layout_margin="10dp"
     android:id="@+id/log_recycler"
     android:layout_width="match_parent"
+    android:layout_below="@id/recent_events"
     android:layout_height="match_parent"/>
-</LinearLayout>
+</RelativeLayout>

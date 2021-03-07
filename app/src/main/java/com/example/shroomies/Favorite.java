@@ -33,8 +33,6 @@ public class Favorite extends Fragment {
     List<Apartment> apartmentList;
     RecyclerView favAptRecyclerView;
     RecycleViewAdapterApartments favAptRecyclerAdapter;
-    TextView favText;
-
     View v;
     FirebaseUser firebaseUser;
     ArrayList<String> apartmentIds;
@@ -48,9 +46,6 @@ public class Favorite extends Fragment {
         // Inflate the layout for this fragment
         v=inflater.inflate(R.layout.fragment_my_favorite, container, false);
         rootRef = FirebaseDatabase.getInstance().getReference();
-        favText = v.findViewById(R.id.FavNoAptText);
-        favText.setVisibility(View.GONE);
-
     return v;
     }
 
@@ -71,14 +66,18 @@ public class Favorite extends Fragment {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 if(tab.getPosition()==0){
+                    tabLayoutFavorite.setSelectedTabIndicator(R.drawable.tab_indicator_left);
                     getApartments();
-                    favText.setVisibility(View.GONE);
+
+
 
 
                 }
                 else if(tab.getPosition()==1){
+                    tabLayoutFavorite.setSelectedTabIndicator(R.drawable.tab_indicator_right);
+
                     getPersonal();
-                    favText.setVisibility(View.GONE);
+
                 }
             }
 
@@ -115,8 +114,7 @@ public class Favorite extends Fragment {
 
                 }
                 else {
-                    favText = v.findViewById(R.id.FavNoAptText);
-                    favText.setVisibility(View.VISIBLE);
+
                 }
 
             }
@@ -158,8 +156,7 @@ public class Favorite extends Fragment {
 
                 }
                 else {
-                    favText = v.findViewById(R.id.FavNoAptText);
-                    favText.setVisibility(View.VISIBLE);
+
                 }
             }
 

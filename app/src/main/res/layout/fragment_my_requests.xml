@@ -12,15 +12,14 @@
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/request_tablayout"
             android:layout_width="match_parent"
-            android:elevation="5dp"
+            android:elevation="10dp"
             android:layout_height="wrap_content"
             android:layout_below="@id/request_photo"
             android:background="@drawable/tablayout_round"
-            android:layout_marginLeft="20dp"
-            android:layout_marginTop="20dp"
-            android:layout_marginRight="20dp"
             app:tabIndicatorGravity="stretch"
-            app:tabIndicatorColor="@color/Alabaster"
+            app:tabMode="fixed"
+            app:tabIndicator="@drawable/tab_indicator_left"
+           app:tabIndicatorColor="@color/Alabaster"
             app:tabSelectedTextColor="@color/Black"
             >
 
@@ -29,7 +28,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="my invitiations" />
+                android:text="my invitiations"
+                />
 
             <com.google.android.material.tabs.TabItem
                 android:id="@+id/my_request_invitations"
@@ -42,10 +42,10 @@
         <ImageView
             android:layout_marginTop="10dp"
             android:layout_marginLeft="30dp"
-
             android:id="@+id/request_photo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
             android:src="@drawable/ic_shroomies_request"/>
 
         <TextView
@@ -53,10 +53,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Shroomies Requests"
-            android:textSize="25sp"
+            android:textSize="20sp"
             android:textStyle="bold"
             android:layout_toRightOf="@id/request_photo"
-            android:textColor="@color/Black"
+            android:textColor="@color/purple"
             android:layout_marginLeft="20dp"
             android:layout_marginTop="20dp"
             />

@@ -86,6 +86,8 @@
                 android:layout_marginTop="20dp"
                 android:layout_marginBottom="10dp"
                 android:background="@android:color/transparent"
+                android:padding="10dp"
+                android:elevation="10dp"
                 />
 
             <ImageButton
@@ -95,10 +97,11 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@id/expense_done"
                 android:layout_toRightOf="@id/archive_card_btn"
-                android:layout_marginLeft="20dp"
+                android:layout_marginLeft="5dp"
                 android:layout_marginTop="20dp"
                 android:layout_marginBottom="10dp"
-
+                android:padding="10dp"
+                android:elevation="10dp"
                 android:background="@android:color/transparent"
                 />
 
@@ -115,21 +118,9 @@
                 android:gravity="center"
                 android:background="@drawable/mention_text_box"
                 android:elevation="3dp"
+                android:textColor="@color/purple"
+                android:textStyle="bold"
                 />
-
-            <TextView
-                android:id="@+id/mention_text_view"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Mentions"
-                android:layout_toLeftOf="@id/expenses_mention_et"
-                android:layout_marginTop="22dp"
-                android:layout_marginRight="10dp"
-
-              android:layout_below="@id/shroomie_markasdone"
-                android:textSize="10sp"
-                />
-
             <com.hendraanggrian.widget.SocialTextView
                 android:id="@+id/expenses_mention_et"
                 android:background="@drawable/mention_text_box"
@@ -148,11 +139,6 @@
                 android:textStyle="bold"
                 android:textColor="@color/Black"
               />
-
-
-
-
-
         </RelativeLayout>
 
 

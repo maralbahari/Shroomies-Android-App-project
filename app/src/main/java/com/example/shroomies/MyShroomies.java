@@ -1,27 +1,28 @@
 package com.example.shroomies;
 
-import android.net.ParseException;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.Spinner;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentResultListener;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -30,8 +31,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 
@@ -61,11 +62,10 @@ public class MyShroomies extends Fragment implements LogAdapter.cardBundles  {
     private ArrayList<Log> apartmentlogList;
     private  FragmentTransaction ft;
     private FragmentManager fm;
-    private Bundle selectedCard;
     private String selectedCardID;
     private String selectedCardType;
     private final int RESULT_CODE=500;
-    private boolean recyclerPositionChanged=false;
+    private boolean cardFound =false;
     private int recyclerPosition=0;
     private CustomLoadingProgressBar customLoadingProgressBar;
 
@@ -103,16 +103,17 @@ public class MyShroomies extends Fragment implements LogAdapter.cardBundles  {
         myTasksRecyclerView.setHasFixedSize(true);
         myTasksRecyclerView.setLayoutManager(linearLayoutManager1);
         expensesCardsList=new ArrayList<>();
-        expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList,getContext(), false,apartment,getParentFragmentManager());
+        expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList,getContext(), false,apartment,getParentFragmentManager(),getView());
         myExpensesRecyclerView.setAdapter(expensesCardAdapter);
         tasksCardsList=new ArrayList<>();
-        tasksCardAdapter=new TasksCardAdapter(tasksCardsList,getContext(),false,apartment,getParentFragmentManager());
+        tasksCardAdapter=new TasksCardAdapter(tasksCardsList,getContext(),false,apartment,getParentFragmentManager(),getView());
         myTasksRecyclerView.setAdapter(tasksCardAdapter);
 
         myShroomiesTablayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 if(tab.getPosition()==0){
+                    myShroomiesTablayout.setSelectedTabIndicator(R.drawable.tab_indicator_left);
                     myExpensesRecyclerView.setVisibility(View.VISIBLE);
                     myTasksRecyclerView.setVisibility(View.GONE);
                     tabSelected="expenses";
@@ -122,6 +123,7 @@ public class MyShroomies extends Fragment implements LogAdapter.cardBundles  {
 
                 }
                 else if(tab.getPosition()==1){
+                    myShroomiesTablayout.setSelectedTabIndicator(R.drawable.tab_indicator_right);
                     myTasksRecyclerView.setVisibility(View.VISIBLE);
                     myExpensesRecyclerView.setVisibility(View.GONE);
                     tabSelected="tasks";
@@ -260,24 +262,34 @@ private void scroll(){
 
         if(selectedCardType.equals("tasks")){
 
-            if(recyclerPositionChanged){
+            if(cardFound){
                 myShroomiesTablayout.getTabAt(1).select();
+                myShroomiesTablayout.setSelectedTabIndicator(R.drawable.tab_indicator_right);
                 myTasksRecyclerView.setVisibility(View.VISIBLE);
                 myExpensesRecyclerView.setVisibility(View.GONE);
                 myTasksRecyclerView.scrollToPosition(recyclerPosition);
+            }else{
+
+                Snackbar snack=Snackbar.make(v,"this card doesn't exsit anymore", BaseTransientBottomBar.LENGTH_SHORT);
+                snack.setAnchorView(R.id.bottomNavigationView);
+                snack.show();
+
             }
         }
         if(selectedCardType.equals("expenses")){
-            Toast.makeText(getContext(),"position:"+recyclerPosition,Toast.LENGTH_LONG).show();
-            if(recyclerPositionChanged){
+
+            if(cardFound){
                 myShroomiesTablayout.getTabAt(0).select();
+                myShroomiesTablayout.setSelectedTabIndicator(R.drawable.tab_indicator_left);
                 myTasksRecyclerView.setVisibility(View.GONE);
                 myExpensesRecyclerView.setVisibility(View.VISIBLE);
                 myExpensesRecyclerView.scrollToPosition(recyclerPosition);
+            }else{
+                Snackbar snack=Snackbar.make(v,"this card doesn't exsit anymore", BaseTransientBottomBar.LENGTH_SHORT);
+                snack.setAnchorView(R.id.bottomNavigationView);
+                snack.show();
             }
         }
-    }else{
-        Toast.makeText(getContext(),"cardID:"+selectedCardID,Toast.LENGTH_LONG).show();
     }
 }
    private void getApartmentLog(final String apartmentID){
@@ -291,6 +303,7 @@ private void scroll(){
                        Log log=sp.getValue(Log.class);
                        apartmentlogList.add(log);
                    }
+                   Collections.reverse(apartmentlogList);
                    getUserDetailsForLog(apartmentlogList);
 
 
@@ -328,7 +341,7 @@ private void scroll(){
    }
     private void retrieveTaskCards(String apartmentID) {
         tasksCardsList=new ArrayList<>();
-        tasksCardAdapter= new TasksCardAdapter(tasksCardsList,getContext(),false,apartment,getParentFragmentManager());
+        tasksCardAdapter= new TasksCardAdapter(tasksCardsList,getContext(),false,apartment,getParentFragmentManager(),getView());
         ItemTouchHelper.Callback callback = new CardsTouchHelper(tasksCardAdapter);
         ItemTouchHelper itemTouchHelperTask = new ItemTouchHelper(callback);
         tasksCardAdapter.setItemTouchHelper(itemTouchHelperTask);
@@ -344,6 +357,7 @@ private void scroll(){
                         TasksCard tasksCard = sp.getValue(TasksCard.class);
                         tasksCardsList.add(tasksCard);
                     }
+                    Collections.reverse(tasksCardsList);
                     tasksCardAdapter.notifyDataSetChanged();
 
                 }
@@ -358,7 +372,7 @@ private void scroll(){
 
     public void retreiveExpensesCards(String apartmentID){
         expensesCardsList=new ArrayList<>();
-        expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList,getContext(), false,apartment,getParentFragmentManager());
+        expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList,getContext(), false,apartment,getParentFragmentManager(),getView());
         ItemTouchHelper.Callback callback = new CardsTouchHelper(expensesCardAdapter);
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
         expensesCardAdapter.setItemTouchHelper(itemTouchHelper);
@@ -375,6 +389,7 @@ private void scroll(){
                         expensesCardsList.add(expensesCard);
 
                     }
+                    Collections.reverse(expensesCardsList);
                     expensesCardAdapter.notifyDataSetChanged();
 
 
@@ -545,10 +560,9 @@ private void scroll(){
                     final int position=tasksCardsList.indexOf(card);
                     if(position!=-1){
                         this.recyclerPosition=position;
-                        recyclerPositionChanged=true;
+                        cardFound =true;
                     }else{
-                        Toast.makeText(getContext(),"this card doesnt exist anymore",Toast.LENGTH_LONG).show();
-
+                        cardFound=false;
                     }
 
                 }
@@ -561,9 +575,9 @@ private void scroll(){
                     final int position=expensesCardsList.indexOf(card);
                     if(position!=-1){
                         this.recyclerPosition=position;
-                        recyclerPositionChanged=true;
+                        cardFound =true;
                     }else{
-                        Toast.makeText(getContext(),"this card doesnt exist anymore",Toast.LENGTH_LONG).show();
+                        cardFound=false;
 
                     }
 

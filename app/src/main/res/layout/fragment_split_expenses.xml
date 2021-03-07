@@ -4,7 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    tools:context=".SplitExpenses">
+    tools:context=".SplitExpenses"
+    android:layout_marginBottom="30dp">
 
   <TextView
       android:id="@+id/split_tv"
@@ -13,7 +14,10 @@
       android:text="Amount you want to split"
       android:textSize="20dp"
       android:layout_centerHorizontal="true"
-      android:layout_margin="50dp"
+      android:layout_marginBottom="20dp"
+      android:layout_marginLeft="50dp"
+      android:layout_marginRight="50dp"
+      android:layout_marginTop="50dp"
       android:textColor="@color/Black"
       android:textStyle="bold"
       />
@@ -45,7 +49,7 @@
       android:textColor="@color/purple"
       android:textStyle="bold"
       android:layout_below="@id/shroomie_split_recycler"
-      android:layout_marginTop="10dp"
+      android:layout_marginTop="20dp"
       android:textSize="15dp"
       android:paddingBottom="10dp"
       android:layout_marginBottom="10dp"
@@ -62,7 +66,7 @@
       android:layout_marginRight="80dp"
       android:layout_marginLeft="270dp"
       android:layout_below="@id/shroomie_split_recycler"
-      android:layout_marginTop="10dp"
+      android:layout_marginTop="20dp"
       android:textSize="15dp"
       android:paddingBottom="10dp"
       android:layout_marginBottom="10dp"
@@ -75,7 +79,7 @@
       android:layout_height="wrap_content"
       android:layout_below="@id/shroomie_split_recycler"
       android:layout_alignParentRight="true"
-      android:layout_marginTop="9dp"
+      android:layout_marginTop="20dp"
       android:layout_marginRight="60dp"
       android:layout_marginBottom="10dp"
       android:paddingBottom="10dp"
