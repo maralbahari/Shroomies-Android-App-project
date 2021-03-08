@@ -1,23 +1,17 @@
 package com.example.shroomies;
 
 import android.content.Context;
-import android.graphics.Color;
-import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.signature.ObjectKey;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -27,16 +21,16 @@ import java.util.HashMap;
 
 public class UserAdapterSplitExpenses extends RecyclerView.Adapter<UserAdapterSplitExpenses.UserViewHolderSplit> {
    private ShroomiesApartment apartment;
-   private static ArrayList<User> shroomieList;
-   private static Context context;
+   private  ArrayList<User> shroomieList;
+   private  Context context;
    private FirebaseAuth mAuth;
-   private static String amount="";
+   private  String amount="";
    private View v;
    private DatabaseReference rootRef;
-   private static HashMap<String,Integer> sharedSplit=new HashMap<>();
+
    private TextView totalText;
    private boolean fromViewCard=false;
-   private HashMap<String,Integer> sharesHashmap=new HashMap<>();
+   private HashMap<String, Float> sharesHashmap=new HashMap<String, Float>();
    shroomiesShares shares;
    private Fragment targetedFragment;
    private TextView ok;
@@ -93,14 +87,17 @@ public class UserAdapterSplitExpenses extends RecyclerView.Adapter<UserAdapterSp
         holder.sharedAmount.setText(shroomieList.get(position).getSharedAmount()+" RM");
     }if(!fromViewCard){
             if(!amount.isEmpty()){
-                holder.amountSeekBar.setMax((Integer.parseInt(amount)));
-                holder.amountSeekBar.setProgress(Integer.parseInt(amount)/shroomieList.size());
-                holder.sharedAmount.setText((Integer.parseInt(amount)/shroomieList.size())+" RM");
+
+                holder.amountSeekBar.setMaxFloat(Float.parseFloat(amount));
+                holder.amountSeekBar.setValue(Float.parseFloat(amount)/shroomieList.size());
+                holder.amountSeekBar.setKeyProgressIncrement(1);
+                holder.sharedAmount.setText((holder.amountSeekBar.getValue())+" RM");
                 shroomieList.get(position).setSharedAmount(holder.amountSeekBar.getProgress());
                 sharesHashmap.put(shroomieList.get(position).getID(),shroomieList.get(position).getSharedAmount());
                 shares.sendInput(sharesHashmap);
             }
     }
+
 
     }
 
@@ -113,7 +110,7 @@ public class UserAdapterSplitExpenses extends RecyclerView.Adapter<UserAdapterSp
     public class UserViewHolderSplit extends RecyclerView.ViewHolder {
         private ImageView profilePic;
         private TextView userName,sharedAmount;
-        private SeekBar amountSeekBar;
+        private FloatSeekBar amountSeekBar;
 
         public UserViewHolderSplit(@NonNull View itemView) {
             super(itemView);
@@ -128,8 +125,8 @@ public class UserAdapterSplitExpenses extends RecyclerView.Adapter<UserAdapterSp
             amountSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                 @Override
                 public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                    sharedAmount.setText(amountSeekBar.getProgress()+" RM");
-                    shroomieList.get(getAdapterPosition()).setSharedAmount(amountSeekBar.getProgress());
+                    sharedAmount.setText(amountSeekBar.getValue()+" RM");
+                    shroomieList.get(getAdapterPosition()).setSharedAmount(amountSeekBar.getValue());
                     sharesHashmap.put(shroomieList.get(getAdapterPosition()).getID(),shroomieList.get(getAdapterPosition()).getSharedAmount());
 
 
@@ -169,15 +166,9 @@ public class UserAdapterSplitExpenses extends RecyclerView.Adapter<UserAdapterSp
         }
     }
 
-    public static HashMap<String, Integer> getMembersSplitShares(){
-        for(User user:shroomieList){
-                sharedSplit.put(user.getID(),user.getSharedAmount());
-        }
-        return sharedSplit;
-    }
 
 
     public interface shroomiesShares{
-        void sendInput(HashMap<String,Integer> sharesHash);
+        void sendInput(HashMap<String, Float> sharesHash);
     }
 }

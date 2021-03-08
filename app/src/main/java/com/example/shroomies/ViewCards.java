@@ -8,7 +8,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -132,7 +131,7 @@ public class ViewCards extends DialogFragment {
                 String mentions=expensesCard.getMention();
                 String importance=expensesCard.getImportance();
                 String imagePath=expensesCard.getAttachedFile();
-                HashMap <String,Integer> membersShares=expensesCard.getMembersShares();
+                HashMap<String, Float> membersShares=expensesCard.getMembersShares();
                 if(!due.isEmpty() ){
                     dueDate.setText(due);
                 }if(!descriptionCard.isEmpty()){
@@ -180,7 +179,7 @@ public class ViewCards extends DialogFragment {
 
     }
 
-    private void getMembersShares(final HashMap<String, Integer> membersShares) {
+    private void getMembersShares(final HashMap<String, Float> membersShares) {
         shroomiesList=new ArrayList<>();
         splitAdapter= new UserAdapterSplitExpenses(shroomiesList,getContext(),true);
         viewCardRecycler.setAdapter(splitAdapter);

@@ -10,7 +10,6 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -20,20 +19,15 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,11 +43,11 @@ public class SplitExpenses extends DialogFragment implements UserAdapterSplitExp
   private FirebaseAuth mAuth;
   private UserAdapterSplitExpenses splitAdapter;
   private static String enteredAmount="0";
-  private HashMap<String,Integer> sharedSplit=new HashMap<>();
+  private HashMap<String, Float> sharedSplit=new HashMap<String, Float>();
   membersShares myMembersShares;
   private boolean acceptedInput;
   private Fragment splitExpenses;
-   int total=0;
+   float total= (float) 0.0;
 
 
     @Override
@@ -108,6 +102,7 @@ public class SplitExpenses extends DialogFragment implements UserAdapterSplitExp
         });
         final Bundle bundle = this.getArguments();
         splitExpenses=this;
+
         if(bundle!=null){
             apartment=bundle.getParcelable("APARTMENT_DETAILS");
             shroomiesList=bundle.getParcelableArrayList("MEMBERS");
@@ -164,15 +159,15 @@ public class SplitExpenses extends DialogFragment implements UserAdapterSplitExp
     }
 
     @Override
-    public void sendInput(HashMap<String, Integer> sharesHash) {
-        this.total=0;
+    public void sendInput(HashMap<String, Float> sharesHash) {
+        this.total= (float) 0.0;
         this.sharedSplit=sharesHash;
         if (!sharedSplit.isEmpty()) {
-            for (int amount : sharedSplit.values()) {
+            for (Float amount : sharedSplit.values()) {
                 this.total += amount;
 
             }
-            if (this.total > Integer.parseInt(enteredAmount)) {
+            if (this.total > Float.parseFloat(enteredAmount)) {
                 acceptedInput=false;
                 totalText.setText("Total: " + total + ">" + enteredAmount);
                 totalText.setTextColor(Color.RED);
@@ -187,7 +182,7 @@ public class SplitExpenses extends DialogFragment implements UserAdapterSplitExp
 
 
     public interface membersShares{
-        void sendInput(HashMap<String,Integer> sharedSplit);
+        void sendInput(HashMap<String, Float> sharedSplit);
     }
     private void setShroomiesToRecycler(ArrayList<User> shroomies,String amount){
         splitAdapter= new UserAdapterSplitExpenses(apartment,shroomies,getContext(),amount,totalText,this,ok,myMembersShares);

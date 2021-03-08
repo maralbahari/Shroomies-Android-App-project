@@ -41,10 +41,13 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.hendraanggrian.widget.SocialTextView;
 
+import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapter.ExpensesViewHolder> implements ItemTouchHelperAdapter {
 
@@ -105,10 +108,25 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
     public void onBindViewHolder(@NonNull final ExpensesCardAdapter.ExpensesViewHolder holder, final int position) {
         holder.title.setText(expensesCardArrayList.get(position).getTitle());
         holder.description.setText(expensesCardArrayList.get(position).getDescription());
-        if(expensesCardArrayList.get(position).getDueDate().equals("Due Date")){
-            holder.dueDate.setVisibility(View.INVISIBLE);
+        if(expensesCardArrayList.get(position).getDueDate().equals("Due date")){
+            holder.dueDate.setText(" None");
         }else {
-            holder.dueDate.setText(expensesCardArrayList.get(position).getDueDate());
+            holder.dueDate.setText(" "+expensesCardArrayList.get(position).getDueDate());
+            String dueString=expensesCardArrayList.get(position).getDueDate();
+            ParsePosition pos = new ParsePosition(0);
+            SimpleDateFormat simpledateformat = new SimpleDateFormat("EEE, MMM d,");
+            Date dueDate=simpledateformat.parse(dueString,pos);
+            Date currentDate=(new Date(System.currentTimeMillis()));
+            long diff=currentDate.getTime()-dueDate.getTime();
+            long diffInSec = TimeUnit.MILLISECONDS.toSeconds(diff);
+            diffInSec /= 60;
+            diffInSec /= 60;
+            diffInSec /= 24;
+            long days = diffInSec;
+            if(days<2){
+                holder.dueDate.setTextColor(Color.RED);
+            }
+
         }
         String importanceViewColor = expensesCardArrayList.get(position).getImportance();
         if(!expensesCardArrayList.get(position).getMention().isEmpty()) {
@@ -206,6 +224,10 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
         return expensesCardArrayList.size();
     }
 
+    @Override
+    public long getItemId(int position) {
+        return Long.parseLong(expensesCardArrayList.get(position).getCardId());
+    }
 
     public class ExpensesViewHolder extends RecyclerView.ViewHolder {
         View importanceView;
@@ -237,47 +259,47 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
             done.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    final ExpensesCard selectedCard=expensesCardArrayList.get(getLayoutPosition());
                     if (done.isChecked()){
                         rootRef.child("apartments").child(apartment.getApartmentID()).child("expensesCards").child(expensesCardArrayList.get(getAdapterPosition()).getCardId()).child("done").setValue("true").addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if(task.isSuccessful()){
                                     markAsDone.setText("Done!");
-                                    Toast.makeText(context,"pos"+getAdapterPosition(),Toast.LENGTH_LONG).show();
-                                    saveToDoneLog(apartment.getApartmentID(),expensesCardArrayList.get(getLayoutPosition()));
+                                    saveToDoneLog(apartment.getApartmentID(),selectedCard);
+                                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                                    LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                    View alert = inflater.inflate(R.layout.do_you_want_to_archive,null);
+                                    builder.setView(alert);
+                                    final AlertDialog alertDialog = builder.create();
+                                    alertDialog.getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
+                                    alertDialog.getWindow().setBackgroundDrawableResource(R.drawable.dialogfragment_add_member);
+                                    alertDialog.show();
+                                    yesBtn = ((AlertDialog) alertDialog).findViewById(R.id.btn_yes);
+                                    noBtn = ((AlertDialog) alertDialog).findViewById(R.id.no_btn);
+                                    shroomieArch = ((AlertDialog) alertDialog).findViewById(R.id.shroomie_archive);
+                                    yesBtn.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+                                            archive(getLayoutPosition(),selectedCard);
+                                            alertDialog.cancel();
+                                        }
+                                    });
+                                    noBtn.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+                                            alertDialog.cancel();
+                                        }
+                                    });
                                 }
                             }
                         });
-                        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                        View alert = inflater.inflate(R.layout.do_you_want_to_archive,null);
-                        builder.setView(alert);
-                        final AlertDialog alertDialog = builder.create();
-                        alertDialog.getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
-                        alertDialog.getWindow().setBackgroundDrawableResource(R.drawable.dialogfragment_add_member);
-                        alertDialog.show();
-                        yesBtn = ((AlertDialog) alertDialog).findViewById(R.id.btn_yes);
-                        noBtn = ((AlertDialog) alertDialog).findViewById(R.id.no_btn);
-                        shroomieArch = ((AlertDialog) alertDialog).findViewById(R.id.shroomie_archive);
-                        yesBtn.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                archive(getLayoutPosition(),expensesCardArrayList.get(getLayoutPosition()));
 
-                                alertDialog.cancel();
-                            }
-                        });
-                        noBtn.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                alertDialog.cancel();
-                            }
-                        });
                     }else{
                         rootRef.child("apartments").child(apartment.getApartmentID()).child("expensesCards").child(expensesCardArrayList.get(getAdapterPosition()).getCardId()).child("done").setValue("false").addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                saveToUnDoneLog(apartment.getApartmentID(),expensesCardArrayList.get(getLayoutPosition()));
+                                saveToUnDoneLog(apartment.getApartmentID(),selectedCard);
 
                             }
                         });

@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,6 +24,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.tabs.TabItem;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -52,7 +54,7 @@ public class MyShroomies extends Fragment implements LogAdapter.cardBundles  {
     private TasksCardAdapter tasksCardAdapter;
     private  ExpensesCardAdapter expensesCardAdapter;
     private String tabSelected="expenses";
-    private String apartmentID="";
+    private String apartmentID;
     private ShroomiesApartment apartment;
     private ValueEventListener expensesCardListener;
     private ValueEventListener tasksCardListener;
@@ -95,19 +97,26 @@ public class MyShroomies extends Fragment implements LogAdapter.cardBundles  {
         logButton=v.findViewById(R.id.my_shroomies_log);
         myShroomiesTablayout = v.findViewById(R.id.my_shroomies_tablayout);
         myExpensesRecyclerView = v.findViewById(R.id.my_expenses_recycler_view);
+        shroomieSpinnerFilter = v.findViewById(R.id.shroomie_spinner_filter);
+
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         myExpensesRecyclerView.setHasFixedSize(true);
         myExpensesRecyclerView.setLayoutManager(linearLayoutManager);
-        shroomieSpinnerFilter = v.findViewById(R.id.shroomie_spinner_filter);
+
+
         LinearLayoutManager linearLayoutManager1 =new LinearLayoutManager(getContext());
         myTasksRecyclerView.setHasFixedSize(true);
         myTasksRecyclerView.setLayoutManager(linearLayoutManager1);
+
         expensesCardsList=new ArrayList<>();
         expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList,getContext(), false,apartment,getParentFragmentManager(),getView());
         myExpensesRecyclerView.setAdapter(expensesCardAdapter);
+
+
         tasksCardsList=new ArrayList<>();
         tasksCardAdapter=new TasksCardAdapter(tasksCardsList,getContext(),false,apartment,getParentFragmentManager(),getView());
         myTasksRecyclerView.setAdapter(tasksCardAdapter);
+
 
         myShroomiesTablayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -226,15 +235,18 @@ public class MyShroomies extends Fragment implements LogAdapter.cardBundles  {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()){
-                    apartmentID=snapshot.getValue().toString();
+                   final String  apartmentID=snapshot.getValue().toString();
                     apartmentListener=rootRef.child("apartments").child(apartmentID).addValueEventListener(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
                             if(snapshot.exists()){
                                 apartment=snapshot.getValue(ShroomiesApartment.class);
-                                retreiveExpensesCards(apartment.getApartmentID());
+                                if(expensesCardsList.isEmpty()){
+                                    retreiveExpensesCards(apartment.getApartmentID());
+                                }
 
                                 getApartmentLog(apartment.getApartmentID());
+
 
                             }
 
@@ -256,6 +268,7 @@ public class MyShroomies extends Fragment implements LogAdapter.cardBundles  {
 
             }
         });
+
     }
 private void scroll(){
     if(selectedCardID!=null){

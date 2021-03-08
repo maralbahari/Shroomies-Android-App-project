@@ -47,6 +47,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
     private View v;
@@ -99,29 +100,32 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
 
           Date happend=(new Date(when));
           Date currentDate=(new Date(System.currentTimeMillis()));
-
-          if(currentDate.getDay()-happend.getDay()>0){
-              holder.logDate.setText(currentDate.getDay()-happend.getDay()+"d");
-          }else{
-              if(currentDate.getHours()-happend.getHours()>0){
-                  holder.logDate.setText(currentDate.getHours()-happend.getHours()+"h");
-              }else{
-                  if(currentDate.getMinutes()-happend.getMinutes()>0){
-                      holder.logDate.setText(currentDate.getMinutes()-happend.getMinutes()+"m");
-                  }else{
-                      if(currentDate.getSeconds()-happend.getSeconds()>0){
-                          holder.logDate.setText(currentDate.getSeconds()-happend.getSeconds()+"s");
-                      }else{
-                          holder.logDate.setText("now");
-                      }
-                  }
-              }
-          }
-
-
-
-
-
+          long diff=currentDate.getTime()-happend.getTime();
+          long diffInSec = TimeUnit.MILLISECONDS.toSeconds(diff);
+        long seconds = diffInSec % 60;
+         diffInSec /= 60;
+        long minutes = diffInSec % 60;
+        diffInSec /= 60;
+        long hours = diffInSec % 24;
+        diffInSec /= 24;
+        long days = diffInSec;
+         if(days>0){
+             holder.logDate.setText(days+"d");
+         }else{
+             if(hours>0){
+                 holder.logDate.setText(hours+"h");
+             }else{
+                 if(minutes>0){
+                     holder.logDate.setText(minutes+"m");
+                 }else{
+                     if(seconds>0){
+                         holder.logDate.setText(seconds+"s");
+                     }else{
+                         holder.logDate.setText("now");
+                     }
+                 }
+             }
+         }
 
         Spannable nameOfActor = new SpannableString(actorName);
         nameOfActor.setSpan(new ForegroundColorSpan(Color.BLACK), 0, nameOfActor.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);

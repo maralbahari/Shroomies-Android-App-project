@@ -12,7 +12,7 @@ public class User implements Parcelable{
     private String image;
     private String ID;
     private Context context;
-    private int sharedAmount;
+    private float sharedAmount;
 
     public User() {
 
@@ -53,11 +53,11 @@ public class User implements Parcelable{
         }
     };
 
-    public int getSharedAmount() {
+    public float getSharedAmount() {
         return sharedAmount;
     }
 
-    public void setSharedAmount(int sharedAmount) {
+    public void setSharedAmount(float sharedAmount) {
         this.sharedAmount = sharedAmount;
     }
 

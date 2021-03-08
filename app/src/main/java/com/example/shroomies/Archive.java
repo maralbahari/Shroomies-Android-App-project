@@ -35,7 +35,6 @@ public class Archive extends Fragment {
    TasksCardAdapter tasksCardAdapter;
    ExpensesCardAdapter expensesCardAdapter;
    ShroomiesApartment apartment;
-   String apartmentID="";
    private ValueEventListener expensesCardListener;
    private ValueEventListener taskCardsListener;
 
@@ -56,13 +55,16 @@ public class Archive extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()){
-                    apartmentID=snapshot.getValue().toString();
+                    String apartmentID=snapshot.getValue().toString();
                     rootRef.child("apartments").child(apartmentID).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
                             if(snapshot.exists()){
                                 apartment=snapshot.getValue(ShroomiesApartment.class);
-                                retreiveExpensesCards(apartment.getApartmentID());
+                                if(expensesCardsList.isEmpty()){
+                                    retreiveExpensesCards(apartment.getApartmentID());
+                                }
+
                             }
 
                         }

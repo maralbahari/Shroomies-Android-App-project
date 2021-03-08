@@ -27,8 +27,8 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_below="@+id/split_tv"
-      android:layout_marginLeft="50dp"
-      android:layout_marginRight="50dp"
+      android:layout_marginLeft="20dp"
+      android:layout_marginRight="20dp"
       android:drawableEnd="@drawable/ic_malaysian_ringgit"
       android:hint="Enter a number"
       android:inputType="numberDecimal" />
@@ -36,8 +36,8 @@
       android:id="@+id/shroomie_split_recycler"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-      android:layout_marginRight="50dp"
-      android:layout_marginLeft="50dp"
+      android:layout_marginRight="20dp"
+      android:layout_marginLeft="20dp"
       android:layout_below="@id/amount_split"
       android:layout_marginTop="10dp"
     />
@@ -54,7 +54,7 @@
       android:paddingBottom="10dp"
       android:layout_marginBottom="10dp"
       android:layout_alignParentLeft="true"
-      android:layout_marginLeft="50dp"/>
+      android:layout_marginLeft="20dp"/>
 
   <TextView
       android:id="@+id/cancle_split"

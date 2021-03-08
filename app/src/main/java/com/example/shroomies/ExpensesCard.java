@@ -8,7 +8,7 @@ import java.util.HashMap;
 public class ExpensesCard implements Parcelable {
 
     String attachedFile, description, title, dueDate, importance,members, cardId, done, mention;
-    HashMap<String,Integer> membersShares=new HashMap<>();
+    HashMap<String, Float> membersShares=new HashMap<String, Float>();
     long date;
 
     public ExpensesCard() {
@@ -16,7 +16,7 @@ public class ExpensesCard implements Parcelable {
     }
 
 
-    public ExpensesCard(String attachedFile, String description, String title, String dueDate, String importance, String members,String cardId, String done, String mention,HashMap<String,Integer> membersShares) {
+    public ExpensesCard(String attachedFile, String description, String title, String dueDate, String importance, String members, String cardId, String done, String mention, HashMap<String, Float> membersShares) {
         this.attachedFile = attachedFile;
         this.description = description;
         this.title = title;
@@ -55,11 +55,11 @@ public class ExpensesCard implements Parcelable {
         }
     };
 
-    public HashMap<String, Integer> getMembersShares() {
+    public HashMap<String, Float> getMembersShares() {
         return membersShares;
     }
 
-    public void setMembersShares(HashMap<String, Integer> membersShares) {
+    public void setMembersShares(HashMap<String, Float> membersShares) {
         this.membersShares = membersShares;
     }
 

@@ -236,7 +236,6 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
     @NonNull
     @Override
     public TasksCardAdapter.TasksCardViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        LinearLayout task_card ;
         LayoutInflater layoutInflater = LayoutInflater.from(context);
         view = layoutInflater.inflate(R.layout.my_shroomie_tasks_card, parent, false);
         rootRef = FirebaseDatabase.getInstance().getReference();
@@ -253,7 +252,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         holder.title.setText(tasksCardsList.get(position).getTitle());
         holder.description.setText(tasksCardsList.get(position).getDescription());
         if(tasksCardsList.get(position).getDueDate().equals("Due date")){
-            holder.dueDate.setVisibility(View.INVISIBLE);
+            holder.dueDate.setText(" None");
         }else{
             holder.dueDate.setText(tasksCardsList.get(position).getDueDate());
         }
