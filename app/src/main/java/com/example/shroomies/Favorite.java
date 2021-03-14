@@ -1,5 +1,6 @@
 package com.example.shroomies;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,43 +14,52 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 
 public class Favorite extends Fragment {
+    private static final String PERSONAL_FAVOURITES = "PERSONAL_FAVOURITES";
+    private static final String APARTMENT_FAVOURITES = "APARTMENT_FAVOURITES";
+    private TabLayout tabLayoutFavorite;
+    private List<PersonalPostModel> personalPostModelList;
+    private List<Apartment> apartmentList;
+    private RecyclerView favAptRecyclerView;
+    private RecycleViewAdapterApartments favAptRecyclerAdapter;
+    private TextView favText;
+    private  View v;
+    private FirebaseAuth mAuth;
+    private CollectionReference apartmentPostReference;
+    private CollectionReference personalPostReference;
+    private PersonalPostRecyclerAdapter personalPostRecyclerAdapter;
+    private Set<String> apartmentFavouriteSet;
+    private Set<String> personalFavouritesSet;
+    private FirebaseFirestore mDocRef;
 
-    TabLayout tabLayoutFavorite;
-    List<PersonalPostModel> personalPostModelList;
-    List<Apartment> apartmentList;
-    RecyclerView favAptRecyclerView;
-    RecycleViewAdapterApartments favAptRecyclerAdapter;
-    TextView favText;
-
-    View v;
-    FirebaseUser firebaseUser;
-    ArrayList<String> apartmentIds;
-    DatabaseReference rootRef;
-    ArrayList<String> personalPostIds;
-    PersonalPostRecyclerAdapter personalPostRecyclerAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         v=inflater.inflate(R.layout.fragment_my_favorite, container, false);
-        rootRef = FirebaseDatabase.getInstance().getReference();
-        favText = v.findViewById(R.id.FavNoAptText);
-        favText.setVisibility(View.GONE);
+        mDocRef = FirebaseFirestore.getInstance();
+        mAuth = FirebaseAuth.getInstance();
+        apartmentPostReference = mDocRef.collection("postApartment");
+        personalPostReference = mDocRef.collection("postPersonal");
 
     return v;
     }
@@ -60,24 +70,39 @@ public class Favorite extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         tabLayoutFavorite = v.findViewById(R.id.tab_layout_Fav);
         favAptRecyclerView = v.findViewById(R.id.fav_recycler_view);
+        favText = v.findViewById(R.id.FavNoAptText);
+        favText.setVisibility(View.GONE);
+
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         favAptRecyclerView.setLayoutManager(linearLayoutManager);
-        firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        getApartments();
+
+        apartmentList = new ArrayList<>();
+        favAptRecyclerAdapter = new RecycleViewAdapterApartments(apartmentList , getActivity() , mAuth.getCurrentUser().getUid() , true);
+        favAptRecyclerView.setAdapter(favAptRecyclerAdapter);
 
 
+        personalPostModelList = new ArrayList<>();
+        personalPostRecyclerAdapter = new PersonalPostRecyclerAdapter(personalPostModelList , getActivity(),mAuth.getCurrentUser().getUid(),  true);
+
+        apartmentFavouriteSet = getActivity().getSharedPreferences(mAuth.getCurrentUser().getUid(), Context.MODE_PRIVATE).getStringSet(APARTMENT_FAVOURITES, null);
+        personalFavouritesSet  = getActivity().getSharedPreferences(mAuth.getCurrentUser().getUid(), Context.MODE_PRIVATE).getStringSet(PERSONAL_FAVOURITES, null);
+        getApartmentPostFromId();
 
         tabLayoutFavorite.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 if(tab.getPosition()==0){
-                    getApartments();
+                    favAptRecyclerView.setAdapter(favAptRecyclerAdapter );
+                    if(favAptRecyclerAdapter.getItemCount()<1) {
+                        getApartmentPostFromId();
+                    }
                     favText.setVisibility(View.GONE);
-
-
                 }
                 else if(tab.getPosition()==1){
-                    getPersonal();
+                    favAptRecyclerView.setAdapter(personalPostRecyclerAdapter );
+                    if(personalPostRecyclerAdapter.getItemCount()<1) {
+                        getPersonalPostFromId();
+                    }
                     favText.setVisibility(View.GONE);
                 }
             }
@@ -95,129 +120,35 @@ public class Favorite extends Fragment {
 
     }
 
-    void getPersonal(){
-        personalPostIds = new ArrayList<>();
-        personalPostModelList = new ArrayList<>();
-        personalPostRecyclerAdapter = new PersonalPostRecyclerAdapter(personalPostModelList , getActivity(), true);
-        favAptRecyclerView.setAdapter(personalPostRecyclerAdapter);
-        final String CurrUserId = firebaseUser.getUid();
-        rootRef.child("Favorite").child(CurrUserId).child("PersonalPost").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
 
-                    for(DataSnapshot dataSnapshot : snapshot.getChildren()){
-                        String postId = dataSnapshot.getKey();
-                        personalPostIds.add(postId);
-                    }
+    private void getApartmentPostFromId() {
 
-                    getPersonalPostFromId(personalPostIds);
-
-                }
-                else {
-                    favText = v.findViewById(R.id.FavNoAptText);
-                    favText.setVisibility(View.VISIBLE);
-                }
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getContext(), "An unexpected error occurred", Toast.LENGTH_LONG);
-
-            }
-        });
-
-
-
-    }
-
-
-
-    void getApartments(){
-        apartmentIds = new ArrayList<>();
-        apartmentList = new ArrayList<>();
-        favAptRecyclerAdapter = new RecycleViewAdapterApartments(apartmentList , getActivity(), true);
-        favAptRecyclerView.setAdapter(favAptRecyclerAdapter);
-        final String CurrUserId = firebaseUser.getUid();
-        rootRef.child("Favorite").child(CurrUserId).child("ApartmentPost").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    for(DataSnapshot dataSnapshot
-                    : snapshot.getChildren()){
-                        //get  the apartment post ids
-                        // once u have the id
-                        // find the post in the apartment posts section
-                        String apartmentId = dataSnapshot.getKey();
-                        apartmentIds.add(apartmentId);
-                    }
-                    // once all apartments are obtained
-                    //get the apartments
-                    getApartmentPostFromId(apartmentIds);
-
-                }
-                else {
-                    favText = v.findViewById(R.id.FavNoAptText);
-                    favText.setVisibility(View.VISIBLE);
-                }
-            }
-
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getContext(), "An unexpected error occurred", Toast.LENGTH_LONG);
-
-            }
-
-
-        });
-    }
-
-    private void getApartmentPostFromId(ArrayList<String> apartmentIds) {
         for (String id
-        :apartmentIds){
-            rootRef.child("postApartment").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
+                : apartmentFavouriteSet) {
+            apartmentPostReference.document(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
                 @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    if (snapshot.exists()) {
-                        Apartment favApt = snapshot.getValue(Apartment.class);
-                        apartmentList.add(favApt);
-                        // once the list has been populated
-                        // notify the adapter
-                        favAptRecyclerAdapter.notifyDataSetChanged();
-                    }
-
-                }
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-                    Toast.makeText(getContext(), "An unexpected error occurred", Toast.LENGTH_LONG);
-
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                   Apartment apartment = (task.getResult().toObject(Apartment.class));
+                   apartment.setApartmentID(task.getResult().getId());
+                   apartmentList.add(apartment);
+                    favAptRecyclerAdapter.notifyDataSetChanged();
                 }
             });
         }
-
     }
-    private void getPersonalPostFromId(ArrayList<String> personalPostIds) {
-    for (String id: personalPostIds){
-        rootRef.child("postPersonal").child(id).addListenerForSingleValueEvent(new ValueEventListener(){
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-            if(snapshot.exists()){
-                PersonalPostModel favPersonal = snapshot.getValue(PersonalPostModel.class);
-                personalPostModelList.add(favPersonal);
-                personalPostRecyclerAdapter.notifyDataSetChanged();
 
+    private void getPersonalPostFromId() {
+    for (String id: personalFavouritesSet){
+            personalPostReference.document(id).get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                    PersonalPostModel personalPost = (task.getResult().toObject(PersonalPostModel.class));
+                    personalPost.setPostID(task.getResult().getId());
+                    personalPostModelList.add(personalPost);
+                    personalPostRecyclerAdapter.notifyDataSetChanged();
+                }
+            });
 
-            }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(getContext(), "An unexpected error occurred", Toast.LENGTH_LONG);
-
-            }
-        });
     }
 
     }

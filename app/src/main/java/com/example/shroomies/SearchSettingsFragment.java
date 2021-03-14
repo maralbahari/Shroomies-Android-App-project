@@ -90,6 +90,7 @@ public class SearchSettingsFragment extends PreferenceFragmentCompat {
             JSONObject jsonObject  = new JSONObject(responce);
             JSONArray jsonArray = (JSONArray) jsonObject.get(state);
             List<String> citiesList = new ArrayList<>();
+            citiesList.add("none");
             for(int i = 0; i < jsonArray.length(); i++){
                 citiesList.add(jsonArray.get(i).toString());
             }

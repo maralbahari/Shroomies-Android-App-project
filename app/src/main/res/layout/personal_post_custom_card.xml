@@ -186,17 +186,16 @@
                 android:src="@drawable/ic_message"
                 />
 
-    <ImageButton
+    <CheckBox
         android:id="@+id/favorite_check_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/user_image_personal_card"
-
         android:layout_toLeftOf="@id/personal_card_text_view"
         android:layout_marginTop="10dp"
         android:layout_marginRight="5dp"
-        android:background="@android:color/transparent"
-        android:src="@drawable/ic_heart_unfilled" />
+        android:button="@android:color/transparent"
+        android:background="@drawable/start_check_button" />
 
 
 

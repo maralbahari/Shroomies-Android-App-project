@@ -2,11 +2,13 @@ package com.example.shroomies;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Geocoder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -34,23 +36,37 @@ import com.google.firebase.storage.StorageReference;
 import com.make.dots.dotsindicator.DotsIndicator;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleViewAdapterApartments.ViewHolder> {
-
+    private static final String APARTMENT_FAVOURITES = "APARTMENT_FAVOURITES";
     private List<Apartment> apartmentList;
     private Context context;
     private Geocoder geocoder;
     private User receiverUser;
     private DatabaseReference rootRef;
-    private FirebaseAuth mAuth;
-    Boolean isFromAptFav;
+
+    boolean isFromAptFav;
+    Set<String> favoriteSet;
+    private String userId;
 
 
-    public RecycleViewAdapterApartments(List<Apartment> apartmentList, Context context, Boolean isFromAptFav){
+    public RecycleViewAdapterApartments(List<Apartment> apartmentList, Context context, String userId , boolean isFromAptFav){
+        this.isFromAptFav = isFromAptFav;
         this.apartmentList = apartmentList;
         this.context = context;
         this.isFromAptFav = isFromAptFav;
+        this.userId = userId;
+        // retrieve the users favorite post ids from shared prefs
+
+        favoriteSet = context.getSharedPreferences(userId , Context.MODE_PRIVATE).getStringSet(APARTMENT_FAVOURITES, null);
+        if(favoriteSet==null){
+            favoriteSet = new HashSet<>();
+        }
         setHasStableIds(true);
     }
 
@@ -105,90 +121,12 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
                     holder.smokeFreeButton.setVisibility(View.VISIBLE);
             }
         }
-//
-//        String id = apartmentList.get(position).getUserID();
-//        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-//        final String Uid = firebaseUser.getUid();
-//
-//        if(id.equals(Uid)){
-//            holder.sendMessageButton.setVisibility(View.GONE);
-//            holder.BUT_fav_apt.setVisibility(View.GONE);
-//        }
-//        else {
-//            holder.sendMessageButton.setVisibility(View.VISIBLE);
-//            holder.BUT_fav_apt.setVisibility(View.VISIBLE);
-//        }
-//
-//        //favorite
-//        final Boolean[] checkClick = {false};
-//
-//        final DatabaseReference favRef = FirebaseDatabase.getInstance().getReference().child("Favorite");
-//
-//        DatabaseReference anotherFavRef = FirebaseDatabase.getInstance().getReference().child("Favorite");
-//        anotherFavRef.addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                if(snapshot.child(Uid).child("ApartmentPost").hasChild(apartmentList.get(position).getId())){
-//                    holder.BUT_fav_apt.setImageResource(R.drawable.ic_icon_awesome_star_checked);
-//                }
-//
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//
-//            }
-//        });
-//        if(isFromAptFav){
-//
-//            holder.BUT_fav_apt.setImageResource(R.drawable.ic_icon_awesome_star_checked);
-//
-//        }
-//
-//        else {
-//
-//            holder.BUT_fav_apt.setOnClickListener(new View.OnClickListener() {
-//                @Override
-//                public void onClick(View v) {
-//                    checkClick[0] = true;
-//                    favRef.addValueEventListener(new ValueEventListener() {
-//                        @Override
-//                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                            if (checkClick[0])
-//                                if (snapshot.child(Uid).child("ApartmentPost").hasChild(apartmentList.get(position).getId())) {
-//                                    favRef.child(Uid).child("ApartmentPost").child(apartmentList.get(position).getId()).removeValue();
-//                                    holder.BUT_fav_apt.setImageResource(R.drawable.ic_icon_awesome_star_unchecked);
-//                                    Toast.makeText(context, "Post removed from favorites", Toast.LENGTH_LONG).show();
-//                                    checkClick[0] = false;
-//                                } else {
-//                                    DatabaseReference anotherRef = favRef.child(Uid).child("ApartmentPost").child(apartmentList.get(position).getId());
-//                                    anotherRef.child("id").setValue(apartmentList.get(position).getId());
-//                                    anotherRef.child("userID").setValue(apartmentList.get(position).getUserID());
-//                                    anotherRef.child("image_url").setValue(apartmentList.get(position).getImage_url());
-//                                    anotherRef.child("price").setValue(apartmentList.get(position).getPrice());
-//                                    anotherRef.child("date").setValue(apartmentList.get(position).getDate());
-//                                    anotherRef.child("description").setValue(apartmentList.get(position).getDescription());
-//                                    anotherRef.child("preferences").setValue(apartmentList.get(position).getPreferences());
-//                                    anotherRef.child("latitude").setValue(apartmentList.get(position).getLatitude());
-//                                    anotherRef.child("longitude").setValue(apartmentList.get(position).getLongitude());
-//                                    anotherRef.child("numberOfRoommates").setValue(apartmentList.get(position).getNumberOfRoommates());
-//                                    Toast.makeText(context, "Post added to favorites", Toast.LENGTH_LONG).show();
-//                                    holder.BUT_fav_apt.setImageResource(R.drawable.ic_icon_awesome_star_checked);
-//                                    checkClick[0] = false;
-//
-//                                }
-//
-//
-//                        }
-//
-//                        @Override
-//                        public void onCancelled(@NonNull DatabaseError error) {
-//
-//                        }
-//                    });
-//                }
-//            });
-//        }
+        if(favoriteSet!=null){
+        if(favoriteSet.contains(apartmentList.get(position).getApartmentID())) {
+            holder.favoriteCheckBox.setChecked(true);
+        }
+        }
+
     }
 
 
@@ -262,34 +200,29 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
                     context.startActivity(intent);
                 }
             });
-
-
-
-
-
-            if(isFromAptFav){
-
-                FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-                final String Uid = firebaseUser.getUid();
-                final DatabaseReference favRef = FirebaseDatabase.getInstance().getReference().child("Favorite");
-
-            favoriteCheckBox.setOnClickListener(new View.OnClickListener() {
+            // on check add to shared preferences
+            favoriteCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
-                public void onClick(View view) {
-
-                    favRef.child(Uid).child("ApartmentPost").child(apartmentList.get(getAdapterPosition()).getId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-
-                               apartmentList.remove(getAdapterPosition());
-                                notifyItemRemoved(getAdapterPosition());
-
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    SharedPreferences prefs = context.getSharedPreferences(userId, Context.MODE_PRIVATE);
+                    SharedPreferences.Editor edit = prefs.edit();
+                        if(isChecked) {
+                            favoriteSet.add(apartmentList.get(getAdapterPosition()).getApartmentID());
+                            edit.putStringSet(APARTMENT_FAVOURITES, favoriteSet);
+                            edit.commit();
+                        }else{
+                            favoriteSet.remove(apartmentList.get(getAdapterPosition()).getApartmentID());
+                            edit.putStringSet(APARTMENT_FAVOURITES, favoriteSet);
+                            edit.commit();
+                        if(isFromAptFav){
+                            apartmentList.remove(getAdapterPosition());
+                            notifyItemRemoved(getAdapterPosition());
                         }
-                    });
+                        }
 
                 }
             });
-        }
+
     }
 
 }

@@ -161,7 +161,7 @@ public class UserProfile extends Fragment {
 
     private void getApartmentPosts() {
         apartmentPostList = new ArrayList<>();
-        apartmentAdapter = new RecycleViewAdapterApartments(apartmentPostList , getActivity(), false);
+        apartmentAdapter = new RecycleViewAdapterApartments(apartmentPostList , getActivity(), mAuth.getCurrentUser().getUid() , false);
         recyclerView.setAdapter(apartmentAdapter);
 
         profileid = mAuth.getInstance().getCurrentUser().getUid();
@@ -192,7 +192,7 @@ public class UserProfile extends Fragment {
     private void getPersonalPosts(){
 
         postListPersonal = new ArrayList<>();
-        personalPostRecyclerAdapter = new PersonalPostRecyclerAdapter(postListPersonal , getActivity(), false);
+        personalPostRecyclerAdapter = new PersonalPostRecyclerAdapter(postListPersonal , getActivity(),mAuth.getCurrentUser().getUid(), false);
         recyclerView.setAdapter(personalPostRecyclerAdapter);
         rootRef.child("postPersonal").orderByChild("userID").equalTo(mAuth.getInstance().getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
             @Override

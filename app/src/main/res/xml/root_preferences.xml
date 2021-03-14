@@ -7,9 +7,10 @@
     <PreferenceCategory android:title="View type">
 
         <SwitchPreferenceCompat
-            app:key="single_card_view_preference"
-            app:title="Single card view"
-            app:summary="change the layout of the apartment search page to single card view "
+            app:key="grid_view_preference"
+            app:title="Grid view"
+            app:summary="Display apartment posts in grid format"
+            android:icon="@drawable/ic_grid_view_icon"
            />
 
     </PreferenceCategory>
@@ -24,9 +25,8 @@
             android:entries="@array/empty_array"
             android:entryValues="@array/empty_array"
             app:allowDividerBelow="true"
-            app:summary="Display posts according to a set Location"
             android:defaultValue="true"
-
+            android:summary="%s"
 
             />
 
@@ -36,8 +36,7 @@
             app:title="City"
             android:entries="@array/empty_array"
             android:entryValues="@array/empty_array"
-            app:isPreferenceVisible="false"
-
+            android:summary="%s"
             />
 
 

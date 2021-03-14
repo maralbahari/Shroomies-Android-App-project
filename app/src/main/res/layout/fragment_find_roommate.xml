@@ -86,53 +86,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/tabLayout" />
 
-    <RadioGroup
-        android:id="@+id/radio_view_options"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        android:layout_marginBottom="10dp"
-        android:orientation="horizontal"
-        android:background="@drawable/radio_view_option_background"
-        android:gravity="center"
-        android:elevation="5dp"
-        android:paddingLeft="4dp"
-
-        >
-        <RadioButton
-            android:id="@+id/multi_card_option_radio"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:layout_marginEnd="15dp"
-            android:button="@android:color/transparent"
-            android:drawableTop="@drawable/ic_grid_view_icon"
-
-            android:checked="true"
-            android:text="grid"
-            android:textSize="12sp"
-
-
-            android:layout_margin="5dp"/>
-        <RadioButton
-            android:id="@+id/single_card_option_radio"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:drawableTop="@drawable/ic_single_box_view"
-            android:drawablePadding="5dp"
-            android:text="single"
-            android:textSize="12sp"
-            android:layout_gravity="center"
-            android:button="@android:color/transparent"
-            android:checked="false"
-            android:elevation="4dp"
-          android:layout_margin="5dp"/>
-
-    </RadioGroup>
 
 
 

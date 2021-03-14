@@ -88,7 +88,26 @@ public class MapSearchFragment extends Fragment {
     public void onStart() {
         super.onStart();
         mDocRef = FirebaseFirestore.getInstance();
+        setSearchViewVisible();
         apartmentPostReference = mDocRef.collection("postApartment");
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        setSearchViewGone();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        setSearchViewGone();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        setSearchViewGone();
     }
 
     private OnMapReadyCallback callback = new OnMapReadyCallback() {
@@ -131,9 +150,10 @@ public class MapSearchFragment extends Fragment {
                 @Override
                 public boolean onMarkerClick(Marker marker) {
                     Apartment selectedApartment = markerMap.get(marker);
-
+                    LatLng latLng = new LatLng(selectedApartment.getLatitude() , selectedApartment.getLongitude());
                     MapApartmentDialogFragment mapApartmentDialogFragment = new MapApartmentDialogFragment(selectedApartment);
                     mapApartmentDialogFragment.show(getParentFragmentManager() , null);
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
                     return false;
 
                 }
@@ -238,7 +258,7 @@ public class MapSearchFragment extends Fragment {
                         }
 
                         if (tasks.size() > 0) {
-                            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 13));
+                            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12));
                         } else {
                             //TODO add message
                         }
@@ -330,5 +350,29 @@ public class MapSearchFragment extends Fragment {
         }
 
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+
+    void setSearchViewVisible(){
+        toolbar.findViewById(R.id.SVsearch_disc).animate().alpha(1.0f).setDuration(200);
+        toolbar.findViewById(R.id.search_settings).animate().alpha(1.0f).setDuration(200);
+        toolbar.findViewById(R.id.logo).animate().alpha(0.0f).setDuration(200);
+        toolbar.findViewById(R.id.logo_toolbar).animate().alpha(0.0f).setDuration(200);
+        toolbar.findViewById(R.id.logo).setVisibility(View.GONE);
+        toolbar.findViewById(R.id.logo_toolbar).setVisibility(View.GONE);
+        toolbar.findViewById(R.id.SVsearch_disc).setVisibility(View.VISIBLE);
+        toolbar.findViewById(R.id.search_settings).setVisibility(View.VISIBLE);
+
+    }
+
+    void setSearchViewGone(){
+        toolbar.findViewById(R.id.SVsearch_disc).animate().alpha(0.0f).setDuration(200);
+        toolbar.findViewById(R.id.search_settings).animate().alpha(0.0f).setDuration(200);
+        toolbar.findViewById(R.id.logo).animate().alpha(1.0f).setDuration(200);
+        toolbar.findViewById(R.id.logo_toolbar).animate().alpha(1.0f).setDuration(200);
+        toolbar.findViewById(R.id.SVsearch_disc).setVisibility(View.GONE);
+        toolbar.findViewById(R.id.search_settings).setVisibility(View.GONE);
+        toolbar.findViewById(R.id.logo).setVisibility(View.VISIBLE);
+        toolbar.findViewById(R.id.logo_toolbar).setVisibility(View.VISIBLE);
     }
 }

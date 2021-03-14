@@ -41,127 +41,142 @@ import java.io.IOException;
 import java.util.List;
 
 public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCallback {
+    private static final String MAP_VIEW_BUNDLE_KEY = "MapViewBundleKey";
     ViewPager viewPager;
     ImageButton messageButton;
     DotsIndicator dotsIndicator;
-    TextView priceTextView;
-    TextView descriptionTextView;
+    TextView priceTextView,descriptionTextView, numberOfRoomMates, date, username, locationAddressTextView;
     ViewPagerAdapterApartmentView viewPagerAdapterApartmentView;
     Apartment apartment;
-    TextView numberOfRoomMates;
-    TextView date;
-    TextView username;
     CustomMapView mapView;
     GoogleMap mMap;
-    TextView locationAddressTextView;
     Geocoder geocoder;
     Toolbar toolbar;
     ImageView userImageView , maleImageView , femaleImageView , petsImageView , smokeFreeImageView;
     User user;
     FirebaseAuth mAuth;
-    boolean[] preferences;
 
-    private static final String MAPVIEW_BUNDLE_KEY = "MapViewBundleKey";
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        mapView.onStart();
+
+
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_apartment_page);
-        if(getIntent().getExtras()!=null) {
+        if (getIntent().getExtras() != null) {
             apartment = new Apartment();
             apartment = getIntent().getExtras().getParcelable("apartment");
-            preferences = getIntent().getExtras().getBooleanArray("apartmentPreferences");
         }
+        setContentView(R.layout.activity_apartment_page);
         maleImageView = findViewById(R.id.male_image_view_apartment);
         femaleImageView = findViewById(R.id.female_image_view_apartment);
         petsImageView = findViewById(R.id.pets_allowd_image_view_apartment);
         smokeFreeImageView = findViewById(R.id.non_smoking_image_view_apartment);
-
         locationAddressTextView = findViewById(R.id.location_address_text_view);
-            viewPager = findViewById(R.id.view_pager_apartment_view);
-            dotsIndicator = findViewById(R.id.dotsIndicator_apartment_view);
-            priceTextView = findViewById(R.id.price_text_view_apartment_card);
-            descriptionTextView = findViewById(R.id.user_description_text_view);
-            numberOfRoomMates = findViewById(R.id.number_of_roommates_text_view);
-            userImageView = findViewById(R.id.user_image_view);
-            date = findViewById(R.id.date_of_post_text_view);
-            username = findViewById(R.id.name_of_user_text_view);
-            mapView = findViewById(R.id.apartment_post_page_map);
-            toolbar = (Toolbar) findViewById(R.id.toolbar);
-            messageButton = findViewById(R.id.message_user_button);
-            setSupportActionBar(toolbar);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setDisplayShowHomeEnabled(true);
-            initGoogleMap(savedInstanceState);
+        viewPager = findViewById(R.id.view_pager_apartment_view);
+        dotsIndicator = findViewById(R.id.dotsIndicator_apartment_view);
+        priceTextView = findViewById(R.id.price_text_view_apartment_card);
+        descriptionTextView = findViewById(R.id.user_description_text_view);
+        numberOfRoomMates = findViewById(R.id.number_of_roommates_text_view);
+        userImageView = findViewById(R.id.user_image_view);
+        date = findViewById(R.id.date_of_post_text_view);
+        username = findViewById(R.id.name_of_user_text_view);
+        mapView = findViewById(R.id.apartment_post_page_map);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        messageButton = findViewById(R.id.message_user_button);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+        initGoogleMap(savedInstanceState);
 
-            mapView.getMapAsync(this);
+        mapView.getMapAsync(this);
 
-            //set the desicription
+        //set the desicription
+        if (apartment.getDescription() != null) {
             descriptionTextView.setText(apartment.getDescription());
-            //set the no of roommates
-            numberOfRoomMates.setText(Integer.toString(apartment.getNumberOfRoommates() ) + " Room mates required ");
-//            // set the date
-//            date.setText(apartment.getDate().split(" ")[0]);
-
-            messageButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-
-                    if(user!=null){
-
-                        chatWithThisUser(user);
-                    }
+        }
+        //set the no of roommates
+        numberOfRoomMates.setText((apartment.getNumberOfRoommates()) + " Room mates required ");
+//        date.setText(apartment.getDate().toString());
+        messageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (user != null) {
+                    chatWithThisUser(user);
                 }
-            });
+            }
+        });
 
-            //set the location address
+        //set the location address
         geocoder = new Geocoder(getApplicationContext());
         try {
             // for some reason the latitude and the longitude are saved oppositly
-            locationAddressTextView.setText(geocoder.getFromLocation(apartment.getLatitude(), apartment.getLongitude(),1).get(0).getAddressLine(0));
+            locationAddressTextView.setText(geocoder.getFromLocation(apartment.getLatitude(), apartment.getLongitude(), 1).get(0).getAddressLine(0));
         } catch (IOException e) {
             e.printStackTrace();
         }
         // get the username and profile picture from the database
-            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(apartment.getUserID());
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(apartment.getUserID());
 
-            databaseReference.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    user = new User();
-                    user = snapshot.getValue(User.class);
-                    if(mAuth.getInstance().getCurrentUser().getUid().equals(user.getID())){
-                        messageButton.setVisibility(View.GONE);
-                        username.setText("you");
-                    }else{
-                        username.setText(user.getName());
-                    }
-
-                    if(!user.getImage().isEmpty()){
-                        GlideApp.with(getApplication())
-                                .load(user.getImage())
-                                .transform( new CircleCrop())
-                                .into(userImageView);
-                    }
-
+        databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                user = new User();
+                user = snapshot.getValue(User.class);
+                if (mAuth.getInstance().getCurrentUser().getUid().equals(user.getID())) {
+                    messageButton.setVisibility(View.GONE);
+                    username.setText("you");
+                } else {
+                    username.setText(user.getName());
                 }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-
+                if (!user.getImage().isEmpty()) {
+                    GlideApp.with(getApplication())
+                            .load(user.getImage())
+                            .transform(new CircleCrop())
+                            .into(userImageView);
+                    userImageView.setPadding(2,2,2,2);
                 }
-            });
 
-            viewPagerAdapterApartmentView = new ViewPagerAdapterApartmentView(getApplicationContext(), apartment.getImage_url());
-            viewPager.setAdapter(viewPagerAdapterApartmentView);
-            dotsIndicator.setViewPager(viewPager);
-            viewPager.getAdapter().registerDataSetObserver(dotsIndicator.getDataSetObserver());
+            }
 
-//        if(preferences[0]){maleImageView.setVisibility(View.VISIBLE);}
-//        if(preferences[1]){femaleImageView.setVisibility(View.VISIBLE);}
-//        if(preferences[2]){petsImageView.setVisibility(View.VISIBLE);}
-//        if(preferences[3]){smokeFreeImageView.setVisibility(View.VISIBLE);}
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+        viewPagerAdapterApartmentView = new ViewPagerAdapterApartmentView(getApplicationContext(), apartment.getImage_url());
+        viewPager.setAdapter(viewPagerAdapterApartmentView);
+        dotsIndicator.setViewPager(viewPager);
+        viewPager.getAdapter().registerDataSetObserver(dotsIndicator.getDataSetObserver());
+
+        List<String> preferences = apartment.getPreferences();
+        if (preferences!=null)
+            for (String preference
+                    : preferences) {
+                if(preference!=null) {
+                    switch (preference) {
+                        case "male":
+                            maleImageView.setVisibility(View.VISIBLE);
+                            break;
+                        case "female":
+                            femaleImageView.setVisibility(View.VISIBLE);
+                            break;
+                        case "pet":
+                            petsImageView.setVisibility(View.VISIBLE);
+                            break;
+                        case "non_smoking":
+                            smokeFreeImageView.setVisibility(View.VISIBLE);
+                    }
+                }
+            }
 
 
     }
@@ -175,13 +190,6 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
     }
 
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-            mapView.onStart();
-
-    }
 
     @Override
     protected void onStop() {
@@ -226,10 +234,10 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        Bundle mapViewBundle = outState.getBundle(MAPVIEW_BUNDLE_KEY);
+        Bundle mapViewBundle = outState.getBundle(MAP_VIEW_BUNDLE_KEY);
         if (mapViewBundle == null) {
             mapViewBundle = new Bundle();
-            outState.putBundle(MAPVIEW_BUNDLE_KEY, mapViewBundle);
+            outState.putBundle(MAP_VIEW_BUNDLE_KEY, mapViewBundle);
         }
         if(mapView!=null) {
             mapView.onSaveInstanceState(outState);
@@ -262,7 +270,7 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
         // objects or sub-Bundles.
         Bundle mapViewBundle = null;
         if (savedInstanceState != null) {
-            mapViewBundle = savedInstanceState.getBundle(MAPVIEW_BUNDLE_KEY);
+            mapViewBundle = savedInstanceState.getBundle(MAP_VIEW_BUNDLE_KEY);
         }
 
         mapView.onCreate(mapViewBundle);

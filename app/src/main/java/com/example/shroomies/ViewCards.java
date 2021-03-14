@@ -68,7 +68,7 @@ public class ViewCards extends DialogFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        title=v.findViewById(R.id.view_card_title);
+        title=v.findViewById(R.id.view_card_title_tv);
         dueDate=v.findViewById(R.id.view_card_date);
         description=v.findViewById(R.id.view_card_description);
         mention=v.findViewById(R.id.view_card_mention);

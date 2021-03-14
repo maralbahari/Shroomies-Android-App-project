@@ -29,26 +29,22 @@ import androidx.fragment.app.FragmentTransaction;
  import com.google.android.gms.tasks.OnFailureListener;
  import com.google.android.gms.tasks.Task;
  import com.google.android.material.tabs.TabLayout;
+ import com.google.firebase.auth.FirebaseAuth;
  import com.google.firebase.database.ChildEventListener;
  import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
  import com.google.firebase.firestore.FieldPath;
- import com.google.firebase.firestore.FieldValue;
  import com.google.firebase.firestore.Query;
 
  import com.google.firebase.firestore.CollectionReference;
  import com.google.firebase.firestore.FirebaseFirestore;
  import com.google.firebase.firestore.QueryDocumentSnapshot;
  import com.google.firebase.firestore.QuerySnapshot;
- import com.google.firestore.v1.Target;
  import com.nfx.android.rangebarpreference.RangeBarHelper;
 
- import java.lang.reflect.Array;
- import java.lang.reflect.Field;
  import java.util.ArrayList;
- import java.util.Arrays;
  import java.util.List;
  import java.util.Set;
 
@@ -57,16 +53,15 @@ import com.google.firebase.database.FirebaseDatabase;
     private static final String MAP_FRAGMENT = "MAP_FRAGMENT";
     private static final String  PERSONAL_SEARCH = "PERSONAL_SEARCH";
     private static final String  USER_SEARCH = "USER_SEARCH";
+    FirebaseAuth mAuth;
 
-    public static final int APARTMENT_PER_PAGINATION =10;
+    public static final int APARTMENT_PER_PAGINATION =20;
     private View v;
     private BouncyRecyclerView recyclerView;
-    private RadioGroup viewOptionsRadioGroup;
     private FirebaseFirestore mDocRef;
     private List<Apartment> apartmentList;
     private SearchView searchView;
     private TabLayout tabLayout;
-    private ArrayAdapter searchArrayAdapter;
     private RefreshProgressBar refreshProgressBar;
     private int newContentRange, previousContentRange;
     private String lastCardKey ;
@@ -83,10 +78,11 @@ import com.google.firebase.database.FirebaseDatabase;
     private Toolbar toolbar;
     private CollectionReference apartmentPostReference;
     private ImageView optionsButton;
-    private  List<String> addedPostProperties;
-    private  String selectedCity;
-    private  float maxPrice;
+    private List<String> addedPostProperties;
+    private String selectedCity;
+    private float maxPrice;
     private float minPrice;
+    private boolean gridViewOn;
 
 
     @Override
@@ -95,6 +91,7 @@ import com.google.firebase.database.FirebaseDatabase;
         // Inflate the layout for this fragment
          v = inflater.inflate(R.layout.fragment_find_roommate, container, false);
          mDocRef = FirebaseFirestore.getInstance();
+         mAuth = FirebaseAuth.getInstance();
          apartmentPostReference = mDocRef.collection("postApartment");
          searchState = false;
         return v;
@@ -130,7 +127,8 @@ import com.google.firebase.database.FirebaseDatabase;
         customLoadingProgressBar.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         apartmentList = new ArrayList<>();
         recyclerView = v.findViewById(R.id.apartment_recycler_view);
-        viewOptionsRadioGroup = v.findViewById(R.id.radio_view_options);
+
+
         toolbar  = getActivity().findViewById(R.id.toolbar);
         searchView = toolbar.findViewById(R.id.SVsearch_disc);
         optionsButton = toolbar.findViewById(R.id.search_settings);
@@ -140,10 +138,7 @@ import com.google.firebase.database.FirebaseDatabase;
         staggeredGridLayoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
         staggeredGridLayoutManager.invalidateSpanAssignments();
         layoutManager = new LinearLayoutManager(getActivity());
-        recyclerView.setLayoutManager(staggeredGridLayoutManager);
         recyclerView.setItemAnimator(null);
-
-
         motionLayout.addTransitionListener(new MotionLayout.TransitionListener() {
             @Override
             public void onTransitionStarted(MotionLayout motionLayout, int i, int i1) {
@@ -173,42 +168,30 @@ import com.google.firebase.database.FirebaseDatabase;
                 }
             }
         });
-        // adapter for mutliple cards
-        exploreApartmentsAdapter = new ExploreApartmentsAdapter(getActivity() , apartmentList);
-        // adapter for single cards
-        recycleViewAdapterApartments = new RecycleViewAdapterApartments(apartmentList , getActivity() ,false);
-
-        recyclerView.setAdapter(exploreApartmentsAdapter);
-
-        customLoadingProgressBar.show();
-        getApartments();
         fragmentManager =getParentFragmentManager();
 
-         // get the bundle from the filter dialog fragment
+        //check which view option has been selected
+        gridViewOn = PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean("grid_view_preference" , false );
+        apartmentList = new ArrayList<>();
+        lastCardKey = null;
+        // adjust the view options
+        if(gridViewOn) {
+            // adapter for mutliple cards
+             recyclerView.setLayoutManager(staggeredGridLayoutManager);
+               exploreApartmentsAdapter = new ExploreApartmentsAdapter(getActivity(), apartmentList , mAuth.getCurrentUser().getUid());
+               recyclerView.setAdapter(exploreApartmentsAdapter);
+
+        }
+            else{
+            // adapter for single cards
+            recyclerView.setLayoutManager(layoutManager);
+               recycleViewAdapterApartments = new RecycleViewAdapterApartments(apartmentList, getActivity(), mAuth.getCurrentUser().getUid() , false);
+               recyclerView.setAdapter(recycleViewAdapterApartments);
+        }
+        customLoadingProgressBar.show();
+        getApartments();
 
 
-        viewOptionsRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(RadioGroup group, int checkedId) {
-                switch(checkedId){
-                    case R.id.multi_card_option_radio:
-                        apartmentList = new ArrayList<>();
-                        lastCardKey=null;
-                        recyclerView.setLayoutManager(staggeredGridLayoutManager);
-                        exploreApartmentsAdapter = new ExploreApartmentsAdapter(getActivity() , apartmentList);
-                        recyclerView.setAdapter(exploreApartmentsAdapter);
-                        getApartments();
-                        break;
-                    case R.id.single_card_option_radio:
-                        apartmentList = new ArrayList<>();
-                        lastCardKey=null;
-                        recyclerView.setLayoutManager(layoutManager);
-                        recycleViewAdapterApartments = new RecycleViewAdapterApartments(apartmentList , getActivity() ,false);
-                        recyclerView.setAdapter(recycleViewAdapterApartments);
-                        getApartments();
-                }
-            }
-        });
 
         optionsButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -231,7 +214,7 @@ import com.google.firebase.database.FirebaseDatabase;
                     lastCardKey = null;
                     apartmentList = new ArrayList<>();
                     recyclerView.setLayoutManager(layoutManager);
-                    recycleViewAdapterApartments = new RecycleViewAdapterApartments(apartmentList,getActivity()  , false);
+                    recycleViewAdapterApartments = new RecycleViewAdapterApartments(apartmentList,getActivity()  , mAuth.getCurrentUser().getUid() , false);
                     recyclerView.setAdapter(recycleViewAdapterApartments);
 
                     searchView.clearFocus();
@@ -277,14 +260,14 @@ import com.google.firebase.database.FirebaseDatabase;
                     // apply the adapter accordingly
                     // if nothing is selected go to explore adapter
 
-                    if(viewOptionsRadioGroup.getCheckedRadioButtonId()==R.id.single_card_option_radio ){
+                    if(!gridViewOn ){
                         recyclerView.setLayoutManager(layoutManager);
-                        recycleViewAdapterApartments = new RecycleViewAdapterApartments( apartmentList , getActivity(),false);
+                        recycleViewAdapterApartments = new RecycleViewAdapterApartments( apartmentList , getActivity(),mAuth.getCurrentUser().getUid() , false);
                         recyclerView.setAdapter(recycleViewAdapterApartments);
 
                     }else{
                         recyclerView.setLayoutManager(staggeredGridLayoutManager);
-                        exploreApartmentsAdapter =new ExploreApartmentsAdapter(getActivity() , apartmentList);
+                        exploreApartmentsAdapter =new ExploreApartmentsAdapter(getActivity() , apartmentList , mAuth.getCurrentUser().getUid());
                         recyclerView.setAdapter(exploreApartmentsAdapter);
                     }
                     lastCardKey =null;
@@ -419,25 +402,9 @@ import com.google.firebase.database.FirebaseDatabase;
 
 
     void getApartments() {
-
-
         paginate = false;
         searchState= false;
-
-        // gets the N most recent apartments in the users city
-        // check if the last card key is empty
-        // if its empty this is the first data to be loaded
-
-
-        Query query = getPreferences();
-        if (lastCardKey!=null) {
-            query = query.startAfter(lastCardKey)
-                    .limit(APARTMENT_PER_PAGINATION);
-            paginate=true;
-        }else{
-            // starts from the beginning
-            query =query.limit(APARTMENT_PER_PAGINATION);
-        }
+        Query query = buildQuery();
 
 
         query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -466,7 +433,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
     }
 
-     private Query getPreferences() {
+     private Query buildQuery() {
         Query  query = null;
         addedPostProperties =new ArrayList<>();
          SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -489,16 +456,15 @@ import com.google.firebase.database.FirebaseDatabase;
          }
 
          query =  apartmentPostReference
-                 .orderBy("price")
-                 .orderBy(FieldPath.documentId())
-                 .orderBy("locality");
-//                 .whereGreaterThanOrEqualTo("price" , minPrice)
-//                 .whereLessThanOrEqualTo("price", maxPrice);
-
-
-         if(selectedCity!=null){
-             if (!selectedCity.isEmpty()){
-                 query = query.whereEqualTo("locality" , selectedCity);
+                   .orderBy(FieldPath.documentId());
+//         if(selectedCity!=null){
+//             if (!selectedCity.isEmpty()){
+//               query = query.whereEqualTo("locality" , selectedCity);
+//             }
+//         }
+         if(searchState){
+             if(searchUserId!=null){
+                 query = query.whereEqualTo("userID" ,  searchUserId);
              }
          }
          if(addedPostProperties!=null) {
@@ -506,8 +472,22 @@ import com.google.firebase.database.FirebaseDatabase;
                  query = query.whereArrayContainsAny("preferences", addedPostProperties);
              }
          }
+         // gets the N most recent apartments in the users city
+         // check if the last card key is empty
+         // if its empty this is the first data to be loaded
+
          //finally order by timestamp
-//         query = query.orderBy("time_stamp", Query.Direction.DESCENDING);
+//         query = query.orderBy("time_stamp", Query.Direction.ASCENDING);
+
+         if (lastCardKey!=null) {
+             query = query.startAfter(lastCardKey)
+                     .limit(APARTMENT_PER_PAGINATION);
+             paginate=true;
+         }else{
+             // starts from the beginning
+             query =query.limit(APARTMENT_PER_PAGINATION);
+         }
+
          return query;
      }
 
@@ -522,6 +502,11 @@ import com.google.firebase.database.FirebaseDatabase;
     }
 
     void setAdapterData(Task<QuerySnapshot> task) {
+        // initialize an integer to check if the filtered
+        // data is less than the required per pagination
+        // this is needed because we have to filter for price on the  client side
+        // and if the amount of data retrieved is too low the the user has to pull down and retrieve  a small sets of data
+        int dataRetrieved = 0;
         if(apartmentList.size()==0){
             newContentRange=0;
             previousContentRange = 0;
@@ -530,16 +515,28 @@ import com.google.firebase.database.FirebaseDatabase;
                     task.getResult()) {
                     lastCardKey = document.getId();
                     Apartment apartment = document.toObject(Apartment.class);
+                    apartment.setDate();
                     apartment.setApartmentID(document.getId());
+
+                    //filter the result for  price range
+                if(apartment.getPrice()>=minPrice  && apartment.getPrice()<=maxPrice) {
                     apartmentList.add(apartment);
+                    dataRetrieved++;
                     newContentRange++;
+                }
             }
 
+//            if data retrieved is low then load more data
+            if(dataRetrieved<APARTMENT_PER_PAGINATION){
+                if(!searchState){
+                    getApartments();
+                }
+            }
             //check which adapter is being used
-        if(viewOptionsRadioGroup.getCheckedRadioButtonId()== R.id.multi_card_option_radio) {
+        if(gridViewOn) {
             exploreApartmentsAdapter.notifyItemRangeInserted(previousContentRange, newContentRange);
         }
-        if (viewOptionsRadioGroup.getCheckedRadioButtonId()==R.id.single_card_option_radio || searchState){  // check if the single card has been selected or search state because we are  using single view for search state
+        if (!gridViewOn || searchState){  // check if the single card has been selected or search state because we are  using single view for search state
             recycleViewAdapterApartments.notifyItemRangeInserted(previousContentRange , newContentRange);
         }
         previousContentRange = newContentRange;
@@ -589,15 +586,9 @@ import com.google.firebase.database.FirebaseDatabase;
     }
     void getUserApartments(String id){
 
-        Query query;
+
         paginate = false;
-        if (lastCardKey!=null) {
-            query = apartmentPostReference.orderBy("time_stamp", Query.Direction.DESCENDING).whereEqualTo("userID" , id).orderBy(FieldPath.documentId()).startAfter(lastCardKey).limit(APARTMENT_PER_PAGINATION);
-            paginate=true;
-        }else{
-            // starts from the beginning
-            query = apartmentPostReference.orderBy("time_stamp", Query.Direction.DESCENDING).whereEqualTo("userID",id).orderBy(FieldPath.documentId()).limit(APARTMENT_PER_PAGINATION);
-        }
+        Query query = buildQuery();
         query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {

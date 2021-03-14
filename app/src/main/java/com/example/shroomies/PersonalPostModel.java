@@ -4,16 +4,25 @@ import java.util.List;
 
 public class PersonalPostModel {
 
-    String date, description,  userID, id;
-    int price;
-    long latitude, longitude;
-    List<Boolean> preferences;
+    private String date, description,  userID, id;
+    private int price;
+    private long latitude, longitude;
+    private List<String> preferences;
+    private String postID;
+
+    public String getPostID() {
+        return postID;
+    }
+
+    public void setPostID(String postID) {
+        this.postID = postID;
+    }
 
     public PersonalPostModel() {
 
     }
 
-    public PersonalPostModel(String date, String description, String userID, String id, int price, long latitude, long longitude, List<Boolean> preferences) {
+    public PersonalPostModel(String date, String description, String userID, String id, int price, long latitude, long longitude, List<String> preferences) {
         this.date = date;
         this.description = description;
         this.userID = userID;
@@ -80,11 +89,11 @@ public class PersonalPostModel {
         this.longitude = longitude;
     }
 
-    public List<Boolean> getPreferences() {
+    public List<String> getPreferences() {
         return preferences;
     }
 
-    public void setPreferences(List<Boolean> preferences) {
+    public void setPreferences(List<String> preferences) {
         this.preferences = preferences;
     }
 }
