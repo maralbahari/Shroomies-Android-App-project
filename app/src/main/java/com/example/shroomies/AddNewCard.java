@@ -396,7 +396,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                 attachedFile.setVisibility(View.VISIBLE);
             }if(requestCode==CAMERA_REQUEST_CODE){
                 chosenImage = data.getData();
-                attachedFile.setVisibility(View.VISIBLE);
+                attachedFile.setVisibility(View.INVISIBLE);
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
