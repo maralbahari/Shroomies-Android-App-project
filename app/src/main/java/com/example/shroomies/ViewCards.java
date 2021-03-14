@@ -189,7 +189,7 @@ public class ViewCards extends DialogFragment {
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     if (snapshot.exists()){
                         User user = snapshot.getValue(User.class);
-                        user.setSharedAmount(Integer.valueOf(membersShares.get(id).toString()));
+                        user.setSharedAmount(Float.valueOf(membersShares.get(id).toString()));
                         shroomiesList.add(user);
 
                     }

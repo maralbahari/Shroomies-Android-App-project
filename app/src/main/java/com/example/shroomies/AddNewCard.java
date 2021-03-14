@@ -396,7 +396,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                 attachedFile.setVisibility(View.VISIBLE);
             }if(requestCode==CAMERA_REQUEST_CODE){
                 chosenImage = data.getData();
-                attachedFile.setVisibility(View.INVISIBLE);
+                attachedFile.setVisibility(View.VISIBLE);
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
@@ -644,25 +644,25 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
 
     }
 
-//    private boolean checkStoragePermisson() {
-//        boolean result = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == (PackageManager.PERMISSION_GRANTED);
-//        return result;
-//    }
-//
-//    private void requestStoragePermission() {
-//        ActivityCompat.requestPermissions(getActivity(), storagePermissions, STORAGE_REQUEST_CODE);
-//    }
-//
-//    private boolean checkCameraPermisson() {
-//        boolean resultCam = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) == (PackageManager.PERMISSION_GRANTED);
-//        boolean resultStorage = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == (PackageManager.PERMISSION_GRANTED);
-//
-//        return resultCam && resultStorage;
-//    }
-//
-//    private void requestCameraPermission() {
-//        ActivityCompat.requestPermissions(getActivity(), cameraPermissions, CAMERA_REQUEST_CODE);
-//    }
+    private boolean checkStoragePermisson() {
+        boolean result = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == (PackageManager.PERMISSION_GRANTED);
+        return result;
+    }
+
+    private void requestStoragePermission() {
+        ActivityCompat.requestPermissions(getActivity(), storagePermissions, STORAGE_REQUEST_CODE);
+    }
+
+    private boolean checkCameraPermisson() {
+        boolean resultCam = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) == (PackageManager.PERMISSION_GRANTED);
+        boolean resultStorage = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == (PackageManager.PERMISSION_GRANTED);
+
+        return resultCam && resultStorage;
+    }
+
+    private void requestCameraPermission() {
+        ActivityCompat.requestPermissions(getActivity(), cameraPermissions, CAMERA_REQUEST_CODE);
+    }
 
     //this method is called when user press allow or deny form permission request dialog
 //    @Override
