@@ -22,7 +22,9 @@
                 android:id="@+id/importance_view"
                 android:layout_width="match_parent"
                 android:layout_height="5dp"
+                android:layout_alignParentTop="true"
                 android:background="@color/okGreen"
+                android:layout_marginBottom="5dp"
                 />
 
             <TextView
@@ -31,11 +33,11 @@
                 android:textColor="@color/Black"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Clean basment"
+                android:text="Clean basment "
                 android:layout_toLeftOf="@+id/dueDate_card"
                 android:id="@+id/title_card"
                 android:textSize="25sp"
-                android:layout_marginRight="60dp"
+                android:layout_marginRight="20dp"
                 android:lines="1"
                 android:layout_marginTop="25dp"
                 android:layout_marginLeft="25dp"
@@ -47,8 +49,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/card_description"
-                android:layout_marginTop="20dp"
-                android:layout_marginLeft="18dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="23dp"
                 android:layout_above="@id/archive_card_btn"
                 android:buttonTint="@color/okGreen"
                 />
@@ -59,9 +61,11 @@
                 android:layout_height="wrap_content"
                 android:text="Mark as done"
                 android:layout_below="@+id/card_description"
-                android:layout_marginLeft="55dp"
+                android:layout_marginLeft="10dp"
+                android:layout_toRightOf="@+id/expense_done"
                 android:textSize="12sp"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="23dp"
+                android:layout_marginBottom="50dp"
                 />
 
             <TextView
@@ -73,7 +77,9 @@
                 android:layout_marginLeft="27dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginRight="23dp"
+                android:layout_marginBottom="10dp"
                 android:layout_toLeftOf="@id/card_img"
+                android:minHeight="80dp"
                 android:text="the mechanic  is +1232313123 please contact him asap!" />
 
             <ImageView
@@ -91,10 +97,12 @@
                 android:src="@drawable/ic_archive"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/shroomie_markasdone"
+                android:layout_below="@id/card_img"
                 android:layout_marginLeft="24dp"
                 android:layout_marginTop="20dp"
                 android:layout_marginBottom="10dp"
+                android:padding="10dp"
+                android:elevation="5dp"
                 android:background="@android:color/transparent"
 
 
@@ -105,12 +113,13 @@
                 android:src="@drawable/ic_delete"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/shroomie_markasdone"
+                android:layout_below="@id/card_img"
                 android:layout_toRightOf="@id/archive_card_btn"
-                android:layout_marginLeft="20dp"
+                android:layout_marginLeft="7dp"
                 android:layout_marginTop="20dp"
                 android:layout_marginBottom="10dp"
-
+                android:padding="10dp"
+                android:elevation="5dp"
                 android:background="@android:color/transparent"
                 />
 
@@ -120,44 +129,38 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_marginLeft="30dp"
-                android:layout_marginTop="30dp"
+                android:layout_marginTop="20dp"
                 android:layout_marginRight="10dp"
                 android:background="@drawable/mention_text_box"
                 android:elevation="3dp"
                 android:gravity="center"
                 android:inputType="date"
-                android:text="Due date"
+                android:text="  Due date"
+                android:padding="5dp"
+                android:layout_alignParentTop="true"
+                android:textColor="@color/jetBlack"
+                android:textStyle="bold"
+                android:drawableStart="@drawable/ic_alarm_"
                 android:textSize="10sp" />
-
-            <TextView
-                android:id="@+id/mention_text_view"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Mentions"
-                android:layout_toLeftOf="@id/expenses_mention_et"
-                android:layout_marginTop="10dp"
-                android:layout_marginRight="10dp"
-                android:layout_below="@id/card_img"
-                android:textSize="10sp"
-                />
 
             <com.hendraanggrian.widget.SocialTextView
                 android:id="@+id/expenses_mention_et"
                 android:background="@drawable/mention_text_box"
-                android:elevation="5dp"
+                android:elevation="3dp"
                 android:layout_width="wrap_content"
-                android:maxWidth="150dp"
+                android:maxWidth="230dp"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="20dp"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="18dp"
                 android:layout_marginBottom="20dp"
+                android:layout_marginLeft="10dp"
                 android:lines="1"
                 android:layout_alignParentRight="true"
                 android:textSize="10sp"
                 android:layout_below="@id/card_img"
-                android:padding="5dp"
+                android:padding="10dp"
                 android:textStyle="bold"
-                android:textColor="@color/Black"
+                android:textColor="@color/darkBlue"
                 />
         </RelativeLayout>
     </androidx.cardview.widget.CardView>

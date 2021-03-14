@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingTop="59dp"
-    android:paddingBottom="60dp"
+
     android:scrollIndicators="none"
     tools:context=".MyShroomies">
 
@@ -26,7 +25,10 @@
         android:background="@drawable/tablayout_round"
         android:elevation="10dp"
         android:scrollIndicators="none"
+        app:tabIndicatorAnimationDuration="0"
+        app:tabMode="fixed"
         app:tabIndicatorColor="@color/Alabaster"
+
         app:tabIndicatorGravity="stretch">
 
         <com.google.android.material.tabs.TabItem

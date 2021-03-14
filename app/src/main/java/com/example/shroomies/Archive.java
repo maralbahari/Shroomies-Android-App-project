@@ -21,6 +21,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class Archive extends Fragment {
    View view;
@@ -34,7 +35,6 @@ public class Archive extends Fragment {
    TasksCardAdapter tasksCardAdapter;
    ExpensesCardAdapter expensesCardAdapter;
    ShroomiesApartment apartment;
-   String apartmentID="";
    private ValueEventListener expensesCardListener;
    private ValueEventListener taskCardsListener;
 
@@ -55,13 +55,16 @@ public class Archive extends Fragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()){
-                    apartmentID=snapshot.getValue().toString();
+                    String apartmentID=snapshot.getValue().toString();
                     rootRef.child("apartments").child(apartmentID).addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
                             if(snapshot.exists()){
                                 apartment=snapshot.getValue(ShroomiesApartment.class);
-                                retreiveExpensesCards(apartment.getApartmentID());
+                                if(expensesCardsList.isEmpty()){
+                                    retreiveExpensesCards(apartment.getApartmentID());
+                                }
+
                             }
 
                         }
@@ -99,7 +102,7 @@ public class Archive extends Fragment {
         tasksRecyclerView.setHasFixedSize(true);
         tasksRecyclerView.setLayoutManager(linearLayoutManager1);
         expensesCardsList=new ArrayList<>();
-        expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList,getContext(), false,apartment,getParentFragmentManager());
+        expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList,getContext(), false,apartment,getParentFragmentManager(),getView());
         expensesRecyclerview.setAdapter(expensesCardAdapter);
 
 
@@ -107,12 +110,14 @@ public class Archive extends Fragment {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
                 if(tab.getPosition()==0){
+                    archiveTablayout.setSelectedTabIndicator(R.drawable.tab_indicator_left);
                     tasksRecyclerView.setVisibility(View.GONE);
                     expensesRecyclerview.setVisibility(View.VISIBLE);
                     expensesCardsList = new ArrayList<>();
                     retreiveExpensesCards(apartment.getApartmentID());
                 }
                 else if(tab.getPosition()==1){
+                    archiveTablayout.setSelectedTabIndicator(R.drawable.tab_indicator_right);
                     tasksRecyclerView.setVisibility(View.VISIBLE);
                     expensesRecyclerview.setVisibility(View.GONE);
                     tasksCardsList=new ArrayList<>();
@@ -132,7 +137,7 @@ public class Archive extends Fragment {
 
     private void retrieveTaskCards(String apartmentID) {
         tasksCardsList = new ArrayList<>();
-        tasksCardAdapter = new TasksCardAdapter(tasksCardsList, getContext(),true,apartment,getParentFragmentManager());
+        tasksCardAdapter = new TasksCardAdapter(tasksCardsList, getContext(),true,apartment,getParentFragmentManager(),getView());
         ItemTouchHelper.Callback callback = new CardsTouchHelper(tasksCardAdapter);
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
         tasksCardAdapter.setItemTouchHelper(itemTouchHelper);
@@ -147,6 +152,7 @@ public class Archive extends Fragment {
                         TasksCard tasksCard = sp.getValue(TasksCard.class);
                         tasksCardsList.add(tasksCard);
                     }
+                    Collections.reverse(tasksCardsList);
                     tasksCardAdapter.notifyDataSetChanged();
                 }
             }
@@ -162,7 +168,7 @@ public class Archive extends Fragment {
     private void retreiveExpensesCards(String apartmentID){
 
         expensesCardsList = new ArrayList<>();
-        expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList, getContext(), true,apartment,getParentFragmentManager());
+        expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList, getContext(), true,apartment,getParentFragmentManager(),getView());
         ItemTouchHelper.Callback callback = new CardsTouchHelper(expensesCardAdapter);
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
         expensesCardAdapter.setItemTouchHelper(itemTouchHelper);
@@ -177,6 +183,7 @@ public class Archive extends Fragment {
                         ExpensesCard expensesCard = sp.getValue(ExpensesCard.class);
                         expensesCardsList.add(expensesCard);
                     }
+                    Collections.reverse(expensesCardsList);
                    expensesCardAdapter.notifyDataSetChanged();
                 }
             }

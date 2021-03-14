@@ -87,6 +87,8 @@ dependencies {
     implementation'com.hendraanggrian:socialview-core:0.11.1'
     implementation 'it.xabaras.android:recyclerview-swipedecorator:1.2.3'
     implementation 'com.nfx.android:range-bar-preference:0.0.6'
+    implementation 'com.xw.repo:bubbleseekbar:3.20'
+    implementation 'com.karumi:dexter:6.2.2'
 
 
 }

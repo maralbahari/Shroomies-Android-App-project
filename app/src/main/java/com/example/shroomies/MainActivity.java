@@ -46,7 +46,6 @@ public class MainActivity extends AppCompatActivity {
     FragmentManager fm;
     ImageView myShroomies;
     TextView usernameDrawer;
-    FirebaseUser user;
     FirebaseAuth mAuth;
     FirebaseAuth.AuthStateListener authStateListener;
     SessionManager sessionManager;
@@ -55,8 +54,8 @@ public class MainActivity extends AppCompatActivity {
     DatabaseReference rootRef;
     ImageView profilePic;
     View headerView;
-
     DatabaseReference myRef;
+    User user;
 
     @SuppressLint("RestrictedApi")
     @Override
@@ -64,24 +63,25 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         //Creating session in main activity
+        rootRef = FirebaseDatabase.getInstance().getReference();
+        mAuth = FirebaseAuth.getInstance();
+
         Bundle extras = getIntent().getExtras();
         if(extras!=null){
             String userID = extras.getString("ID");
             String userEmail=extras.getString("EMAIL");
             sessionManager=new SessionManager(getApplicationContext(),userID);
             sessionManager.createSession(userID,userEmail);
-
+            loadUserDetails();
 
         }
         firebaseMessaging = new FirebaseMessaging();
         firebaseMessaging.onNewToken(FirebaseInstanceId.getInstance().getToken());
 
-        rootRef = FirebaseDatabase.getInstance().getReference();
         btm_view = findViewById(R.id.bottomNavigationView);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawerLayout);
         toolbar = (Toolbar) findViewById(R.id.toolbar);
 
-        mAuth = FirebaseAuth.getInstance();
 
         setSupportActionBar(toolbar);
         getFragment(new FindRoommate());
@@ -94,7 +94,8 @@ public class MainActivity extends AppCompatActivity {
         headerView = navigationView.getHeaderView(0);
         getSupportActionBar().setTitle(null);
 
-        updateNavHead();
+
+
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
@@ -239,15 +240,6 @@ public class MainActivity extends AppCompatActivity {
     public void updateNavHead(){
         usernameDrawer= headerView.findViewById(R.id.drawer_nav_profile_name);
         profilePic = headerView.findViewById(R.id.drawer_nav_profile_pic);
-        myRef = FirebaseDatabase.getInstance().getReference().child("Users").child((mAuth.getCurrentUser().getUid()));
-
-        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.exists()){
-
-                    User user = snapshot.getValue(User.class);
-
                     usernameDrawer.setText(user.getName());
                 //accept request here crashes
                     if (user.getImage()!=null){
@@ -256,13 +248,25 @@ public class MainActivity extends AppCompatActivity {
                                 .fitCenter()
                                 .centerCrop()
                                 .into(profilePic);}
+
+
+
+    }
+    private void loadUserDetails(){
+        rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
+                    user=snapshot.getValue(User.class);
+                    updateNavHead();
                 }
             }
+
             @Override
-            public void onCancelled(@NonNull DatabaseError error) { }
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
         });
-
-
     }
 
 

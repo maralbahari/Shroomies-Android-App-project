@@ -280,7 +280,6 @@ public class Members extends DialogFragment {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
-                    Toast.makeText(getContext(),"I am here",Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -299,7 +298,7 @@ public class Members extends DialogFragment {
 
     private void getMemberDetail(final HashMap<String,String> membersId) {
         membersList = new ArrayList<>();
-        userAdapter = new UserAdapter(membersList, getContext(),false,apartment);
+        userAdapter = new UserAdapter(membersList, getContext(),apartment,getView());
         membersRecycler.setAdapter(userAdapter);
         for (String id: membersId.values()){
             rootRef.child("Users").child(id).addListenerForSingleValueEvent(new ValueEventListener() {

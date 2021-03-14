@@ -28,6 +28,8 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -56,14 +58,16 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
     private Button cont, no;
     private ShroomiesApartment apartment;
     private FragmentManager fragmentManager;
+    private View parentView;
 
 
-    public TasksCardAdapter(ArrayList<TasksCard> tasksCardsList, Context context,boolean fromArchive,ShroomiesApartment apartment,FragmentManager fragmentManager) {
+    public TasksCardAdapter(ArrayList<TasksCard> tasksCardsList, Context context,boolean fromArchive,ShroomiesApartment apartment,FragmentManager fragmentManager,View parentView) {
         this.tasksCardsList = tasksCardsList;
         this.context = context;
         this.fromArchive = fromArchive;
         this.apartment=apartment;
         this.fragmentManager=fragmentManager;
+        this.parentView=parentView;
     }
 
 
@@ -219,6 +223,9 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
             @Override
             public void onSuccess(Void aVoid) {
                 saveToDeleteLog(apartment.getApartmentID(),taskcard);
+                Snackbar snack=Snackbar.make(parentView,"Card deleted", BaseTransientBottomBar.LENGTH_SHORT);
+                snack.setAnchorView(R.id.bottomNavigationView);
+                snack.show();
                 notifyItemRemoved(position);
             }
         });
@@ -229,7 +236,6 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
     @NonNull
     @Override
     public TasksCardAdapter.TasksCardViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        LinearLayout task_card ;
         LayoutInflater layoutInflater = LayoutInflater.from(context);
         view = layoutInflater.inflate(R.layout.my_shroomie_tasks_card, parent, false);
         rootRef = FirebaseDatabase.getInstance().getReference();
@@ -245,8 +251,16 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
 
         holder.title.setText(tasksCardsList.get(position).getTitle());
         holder.description.setText(tasksCardsList.get(position).getDescription());
-        holder.dueDate.setText(tasksCardsList.get(position).getDueDate());
-        holder.mention.setText(tasksCardsList.get(position).getMention());
+        if(tasksCardsList.get(position).getDueDate().equals("Due date")){
+            holder.dueDate.setText(" None");
+        }else{
+            holder.dueDate.setText(tasksCardsList.get(position).getDueDate());
+        }
+        if(!tasksCardsList.get(position).getMention().isEmpty()){
+            holder.mention.setText(tasksCardsList.get(position).getMention());
+        }else{
+            holder.mention.setVisibility(View.INVISIBLE);
+        }
         String importanceView = tasksCardsList.get(position).getImportance();
         Boolean cardStatus = tasksCardsList.get(position).getDone().equals("true");
             if (cardStatus){
@@ -256,7 +270,6 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
                 holder.done.setChecked(false);
                 holder.markAsDone.setText("Mark as done");
             }
-
 
         if (fromArchive){
             holder.archive.setVisibility(view.GONE);
@@ -317,6 +330,9 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
             @Override
             public void onSuccess(Void aVoid) {
                saveToDeleteArchiveLog(apartment.getApartmentID(),tasksCard);
+                Snackbar snack=Snackbar.make(parentView,"Card deleted", BaseTransientBottomBar.LENGTH_SHORT);
+                snack.setAnchorView(R.id.bottomNavigationView);
+                snack.show();
                 notifyItemRemoved(position);
 
 
@@ -335,16 +351,12 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
     public void archive(final int position,final TasksCard tasksCard){
         DatabaseReference ref = rootRef.child("archive").child(apartment.getApartmentID()).child("tasksCards").push();
         HashMap<String ,Object> newCard = new HashMap<>();
-        Calendar calendarDate=Calendar.getInstance();
-        String saveCurrentDate;
         String uniqueID = ref.getKey();
-        SimpleDateFormat mcurrentDate=new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
-        saveCurrentDate=mcurrentDate.format(calendarDate.getTime());
         newCard.put("description" , tasksCard.getDescription());
         newCard.put("title" ,tasksCard.getTitle());
         newCard.put("dueDate", tasksCard.getDueDate());
         newCard.put("importance", tasksCard.getImportance());
-        newCard.put("date",saveCurrentDate);
+        newCard.put("date",ServerValue.TIMESTAMP);
         newCard.put("cardId",uniqueID);
         newCard.put("done", tasksCard.getDone());
         newCard.put("mention",tasksCard.getMention());
@@ -356,6 +368,9 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
                         @Override
                         public void onSuccess(Void aVoid) {
                             saveToArchiveLog(apartment.getApartmentID(),tasksCard);
+                            Snackbar.make(parentView,"Card archived", BaseTransientBottomBar.LENGTH_SHORT)
+                                    .setAnchorView(R.id.bottomNavigationView)
+                                    .show();
                             notifyItemRemoved(position);
                         }
                     });

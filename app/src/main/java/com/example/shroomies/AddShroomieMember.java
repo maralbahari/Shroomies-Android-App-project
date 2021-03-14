@@ -16,6 +16,8 @@ import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -136,13 +138,9 @@ public class AddShroomieMember extends DialogFragment {
 
                     }
 
-
-                    //add the members already selected
-
-
-
                 }else{
-                    Toast.makeText(getContext(),"User not found",Toast.LENGTH_LONG).show();
+                    Snackbar snack=Snackbar.make(getView(),"This shroomie doesn't exist", BaseTransientBottomBar.LENGTH_SHORT);
+                    snack.show();
                 }
 
 

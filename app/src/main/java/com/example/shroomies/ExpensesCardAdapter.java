@@ -29,6 +29,8 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -39,10 +41,13 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.hendraanggrian.widget.SocialTextView;
 
+import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.concurrent.TimeUnit;
 
 public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapter.ExpensesViewHolder> implements ItemTouchHelperAdapter {
 
@@ -59,13 +64,15 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
     private ShroomiesApartment apartment;
     private FirebaseStorage storage;
     private FragmentManager fragmentManager;
+    private View parentView;
 
-    public ExpensesCardAdapter(ArrayList<ExpensesCard> expensesCardArrayList, Context context, Boolean fromArchive,ShroomiesApartment apartment,FragmentManager fragmentManager) {
+    public ExpensesCardAdapter(ArrayList<ExpensesCard> expensesCardArrayList, Context context, Boolean fromArchive,ShroomiesApartment apartment,FragmentManager fragmentManager,View parentView) {
         this.expensesCardArrayList = expensesCardArrayList;
         this.context=context;
         this.fromArchive = fromArchive;
         this.apartment=apartment;
         this.fragmentManager=fragmentManager;
+        this.parentView=parentView;
     }
 
     public void setItemTouchHelper(ItemTouchHelper itemTouchHelper){
@@ -101,9 +108,32 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
     public void onBindViewHolder(@NonNull final ExpensesCardAdapter.ExpensesViewHolder holder, final int position) {
         holder.title.setText(expensesCardArrayList.get(position).getTitle());
         holder.description.setText(expensesCardArrayList.get(position).getDescription());
-        holder.dueDate.setText(expensesCardArrayList.get(position).getDueDate());
+        if(expensesCardArrayList.get(position).getDueDate().equals("Due date")){
+            holder.dueDate.setText(" None");
+        }else {
+            holder.dueDate.setText(" "+expensesCardArrayList.get(position).getDueDate());
+            String dueString=expensesCardArrayList.get(position).getDueDate();
+            ParsePosition pos = new ParsePosition(0);
+            SimpleDateFormat simpledateformat = new SimpleDateFormat("EEE, MMM d,");
+            Date dueDate=simpledateformat.parse(dueString,pos);
+            Date currentDate=(new Date(System.currentTimeMillis()));
+            long diff=currentDate.getTime()-dueDate.getTime();
+            long diffInSec = TimeUnit.MILLISECONDS.toSeconds(diff);
+            diffInSec /= 60;
+            diffInSec /= 60;
+            diffInSec /= 24;
+            long days = diffInSec;
+            if(days<2){
+                holder.dueDate.setTextColor(Color.RED);
+            }
+
+        }
         String importanceViewColor = expensesCardArrayList.get(position).getImportance();
-        holder.mention.setText(expensesCardArrayList.get(position).getMention());
+        if(!expensesCardArrayList.get(position).getMention().isEmpty()) {
+            holder.mention.setText(expensesCardArrayList.get(position).getMention());
+        }else{
+            holder.mention.setVisibility(View.INVISIBLE);
+        }
         Boolean cardStatus = expensesCardArrayList.get(position).getDone().equals("true");
         if (cardStatus){
             holder.done.setChecked(true);
@@ -179,6 +209,9 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
             @Override
             public void onSuccess(Void aVoid) {
                saveToDeleteArchiveLog(apartment.getApartmentID(),expensesCard);
+                Snackbar snack=Snackbar.make(parentView,"Card deleted", BaseTransientBottomBar.LENGTH_SHORT);
+                snack.setAnchorView(R.id.bottomNavigationView);
+                snack.show();
                 notifyItemRemoved(position);
 
             }
@@ -191,6 +224,10 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
         return expensesCardArrayList.size();
     }
 
+    @Override
+    public long getItemId(int position) {
+        return Long.parseLong(expensesCardArrayList.get(position).getCardId());
+    }
 
     public class ExpensesViewHolder extends RecyclerView.ViewHolder {
         View importanceView;
@@ -222,47 +259,47 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
             done.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    final ExpensesCard selectedCard=expensesCardArrayList.get(getLayoutPosition());
                     if (done.isChecked()){
                         rootRef.child("apartments").child(apartment.getApartmentID()).child("expensesCards").child(expensesCardArrayList.get(getAdapterPosition()).getCardId()).child("done").setValue("true").addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if(task.isSuccessful()){
                                     markAsDone.setText("Done!");
-                                    Toast.makeText(context,"pos"+getAdapterPosition(),Toast.LENGTH_LONG).show();
-                                    saveToDoneLog(apartment.getApartmentID(),expensesCardArrayList.get(getLayoutPosition()));
+                                    saveToDoneLog(apartment.getApartmentID(),selectedCard);
+                                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                                    LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+                                    View alert = inflater.inflate(R.layout.do_you_want_to_archive,null);
+                                    builder.setView(alert);
+                                    final AlertDialog alertDialog = builder.create();
+                                    alertDialog.getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
+                                    alertDialog.getWindow().setBackgroundDrawableResource(R.drawable.dialogfragment_add_member);
+                                    alertDialog.show();
+                                    yesBtn = ((AlertDialog) alertDialog).findViewById(R.id.btn_yes);
+                                    noBtn = ((AlertDialog) alertDialog).findViewById(R.id.no_btn);
+                                    shroomieArch = ((AlertDialog) alertDialog).findViewById(R.id.shroomie_archive);
+                                    yesBtn.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+                                            archive(getLayoutPosition(),selectedCard);
+                                            alertDialog.cancel();
+                                        }
+                                    });
+                                    noBtn.setOnClickListener(new View.OnClickListener() {
+                                        @Override
+                                        public void onClick(View view) {
+                                            alertDialog.cancel();
+                                        }
+                                    });
                                 }
                             }
                         });
-                        AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                        View alert = inflater.inflate(R.layout.do_you_want_to_archive,null);
-                        builder.setView(alert);
-                        final AlertDialog alertDialog = builder.create();
-                        alertDialog.getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
-                        alertDialog.getWindow().setBackgroundDrawableResource(R.drawable.dialogfragment_add_member);
-                        alertDialog.show();
-                        yesBtn = ((AlertDialog) alertDialog).findViewById(R.id.btn_yes);
-                        noBtn = ((AlertDialog) alertDialog).findViewById(R.id.no_btn);
-                        shroomieArch = ((AlertDialog) alertDialog).findViewById(R.id.shroomie_archive);
-                        yesBtn.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                archive(getLayoutPosition(),expensesCardArrayList.get(getLayoutPosition()));
 
-                                alertDialog.cancel();
-                            }
-                        });
-                        noBtn.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                alertDialog.cancel();
-                            }
-                        });
                     }else{
                         rootRef.child("apartments").child(apartment.getApartmentID()).child("expensesCards").child(expensesCardArrayList.get(getAdapterPosition()).getCardId()).child("done").setValue("false").addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                saveToUnDoneLog(apartment.getApartmentID(),expensesCardArrayList.get(getLayoutPosition()));
+                                saveToUnDoneLog(apartment.getApartmentID(),selectedCard);
 
                             }
                         });
@@ -338,16 +375,12 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
     public void archive(final int position,final ExpensesCard expensesCard){
         DatabaseReference ref = rootRef.child("archive").child(apartment.getApartmentID()).child("expensesCards").push();
         HashMap<String ,Object> newCard = new HashMap<>();
-        Calendar calendarDate=Calendar.getInstance();
-        String saveCurrentDate;
         String uniqueID = ref.getKey();
-        SimpleDateFormat mcurrentDate=new SimpleDateFormat("dd-MMMM-yyyy HH:MM:ss aa");
-        saveCurrentDate=mcurrentDate.format(calendarDate.getTime());
         newCard.put("description" , expensesCard.getDescription());
         newCard.put("title" ,expensesCard.getTitle());
         newCard.put("dueDate", expensesCard.getDueDate());
         newCard.put("importance", expensesCard.getImportance());
-        newCard.put("date",saveCurrentDate);
+        newCard.put("date",ServerValue.TIMESTAMP);
         newCard.put("cardId",uniqueID);
         newCard.put("attachedFile", expensesCard.getAttachedFile());
         newCard.put("done", expensesCard.getDone());
@@ -360,6 +393,9 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                     @Override
                     public void onSuccess(Void aVoid) {
                         saveToArchiveLog(apartment.getApartmentID(),expensesCard);
+                        Snackbar.make(parentView,"Card archived", BaseTransientBottomBar.LENGTH_SHORT)
+                                .setAnchorView(R.id.bottomNavigationView)
+                                .show();
                         notifyItemRemoved(position);
                     }
                 });
@@ -383,6 +419,9 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                 @Override
                 public void onSuccess(Void aVoid) {
                     saveToDeleteLog(apartment.getApartmentID(),expensesCard);
+                    Snackbar snack=Snackbar.make(parentView,"Card deleted", BaseTransientBottomBar.LENGTH_SHORT);
+                    snack.setAnchorView(R.id.bottomNavigationView);
+                    snack.show();
                     notifyItemRemoved(position);
                 }
             });

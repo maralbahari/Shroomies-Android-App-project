@@ -25,6 +25,8 @@ import com.example.shroomies.notifications.Token;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -195,7 +197,8 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
                                                            rootRef.child("shroomieRequests").child(senderID).child(mAuth.getCurrentUser().getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                                                                @Override
                                                                public void onSuccess(Void aVoid) {
-                                                                   Toast.makeText(context,"your personal cards are deleted, you are part of "+senderName+" apartment now",Toast.LENGTH_LONG).show();
+                                                                   Snackbar.make(v,"your personal cards are deleted, you are part of "+senderName+" apartment now", BaseTransientBottomBar.LENGTH_LONG).show();
+
                                                                    sendNotification(senderID,currentUserName+" accepted your request");
                                                                    saveToJoinedLog(apartment.getApartmentID());
                                                                    notifyItemRemoved(getAdapterPosition());
@@ -223,12 +226,13 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
         }
         private boolean checkEliglibity(){
             if(apartment.getOwnerID().equals(mAuth.getCurrentUser().getUid()) && !(apartment.getApartmentMembers().values().isEmpty())){
-                Toast.makeText(context,"You have existing Shroomies in your apartment and not allowed to accept request",Toast.LENGTH_LONG).show();
+               Snackbar.make(v,"You have existing Shroomies in your apartment and not allowed to accept request",BaseTransientBottomBar.LENGTH_LONG).show();
+
                 return false;
             }if(apartment.getOwnerID().equals(mAuth.getCurrentUser().getUid()) && apartment.getApartmentMembers().values().isEmpty()){
                 return true;
             }if(apartment.getApartmentMembers().containsValue(mAuth.getCurrentUser().getUid())){
-                Toast.makeText(context,"You cannot accept requests, you are part of an apartment already",Toast.LENGTH_LONG).show();
+                Snackbar.make(v,"You cannot accept requests, you are part of an apartment already",BaseTransientBottomBar.LENGTH_LONG).show();
                 return false;
             }else{
                 return false;

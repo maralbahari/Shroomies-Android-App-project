@@ -27,6 +27,8 @@ import com.example.shroomies.notifications.Token;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -52,18 +54,19 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
    View v;
    private DatabaseReference rootRef;
    private FirebaseAuth mAuth;
-   Boolean fromSearchMember ;
+   Boolean fromSearchMember =false;
    RequestQueue requestQueue;
    ShroomiesApartment apartment;
    private String senderName="";
    private HashMap<String,Boolean> requestAlreadySent=new HashMap<>();
+   private View parentView;
 
 
-    public UserAdapter(ArrayList<User> userList, Context context, Boolean fromSearchMember,ShroomiesApartment apartment) {
+    public UserAdapter(ArrayList<User> userList, Context context,ShroomiesApartment apartment,View parentView) {
         this.userList = userList;
         this.context = context;
-        this.fromSearchMember=fromSearchMember;
         this.apartment=apartment;
+        this.parentView=parentView;
     }
     public UserAdapter(ArrayList<User> userList, Context context, Boolean fromSearchMember,ShroomiesApartment apartment,HashMap<String,Boolean> requestAlreadySent) {
         this.userList = userList;
@@ -174,7 +177,9 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                                         @Override
                                         public void onSuccess(Void aVoid) {
                                             saveToRemovedLog(apartment.getApartmentID(),userList.get(getAdapterPosition()).getName());
-                                            Toast.makeText(context,"User deleted successfully",Toast.LENGTH_LONG).show();
+                                            Snackbar snack=Snackbar.make(parentView,userList.get(getAdapterPosition()).getName()+"removed successfully", BaseTransientBottomBar.LENGTH_SHORT);
+                                            snack.setAnchorView(R.id.bottomNavigationView);
+                                            snack.show();
                                             notifyItemRemoved(getAdapterPosition());
 
                                         }

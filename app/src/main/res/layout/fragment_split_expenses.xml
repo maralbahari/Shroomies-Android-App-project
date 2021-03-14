@@ -4,21 +4,21 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    tools:context=".SplitExpenses">
+    tools:context=".SplitExpenses"
+    android:layout_marginBottom="30dp">
 
   <TextView
       android:id="@+id/split_tv"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-
-      android:text="Split the expense with the rest of your shroomies."
-      android:textSize="15dp"
-     android:fontFamily="@font/amiko"
-      android:layout_toLeftOf="@id/cancle_split"
-      android:layout_marginTop="10dp"
-      android:layout_marginRight="10dp"
-      android:layout_marginLeft="10dp"
-      android:textColor="@color/jetBlack"
+      android:text="Amount you want to split"
+      android:textSize="20dp"
+      android:layout_centerHorizontal="true"
+      android:layout_marginBottom="20dp"
+      android:layout_marginLeft="50dp"
+      android:layout_marginRight="50dp"
+      android:layout_marginTop="50dp"
+      android:textColor="@color/Black"
       android:textStyle="bold"
       />
 
@@ -27,24 +27,17 @@
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
       android:layout_below="@+id/split_tv"
-      android:drawablePadding="10dp"
-
-      android:drawableEnd="@drawable/ic_malaysian_ringgit"
-      android:hint="Enter the amount"
-      android:layout_marginTop="10dp"
-      android:fontFamily="@font/amiko"
-      android:layout_marginBottom="10dp"
-      android:layout_marginLeft="10dp"
+      android:layout_marginLeft="20dp"
       android:layout_marginRight="20dp"
-
+      android:drawableEnd="@drawable/ic_malaysian_ringgit"
+      android:hint="Enter a number"
       android:inputType="numberDecimal" />
   <androidx.recyclerview.widget.RecyclerView
       android:id="@+id/shroomie_split_recycler"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
-    android:layout_marginRight="10dp"
-      android:layout_marginLeft="10dp"
-
+      android:layout_marginRight="20dp"
+      android:layout_marginLeft="20dp"
       android:layout_below="@id/amount_split"
       android:layout_marginTop="10dp"
     />
@@ -53,56 +46,45 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:text="Total: 0 RM"
-      android:textColor="@color/jetBlack"
-      android:fontFamily="@font/amiko"
+      android:textColor="@color/purple"
+      android:textStyle="bold"
       android:layout_below="@id/shroomie_split_recycler"
-      android:layout_marginTop="15dp"
+      android:layout_marginTop="20dp"
       android:textSize="15dp"
-
+      android:paddingBottom="10dp"
       android:layout_marginBottom="10dp"
       android:layout_alignParentLeft="true"
-      android:layout_marginLeft="10dp"/>
+      android:layout_marginLeft="20dp"/>
 
-  <ImageButton
+  <TextView
       android:id="@+id/cancle_split"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
-      android:layout_alignParentRight="true"
-      android:layout_marginTop="5dp"
-      android:layout_marginRight="5dp"
-      android:layout_marginBottom="10dp"
-android:elevation="3dp"
-
-      android:background="null"
-      android:fontFamily="@font/amiko"
-      android:src="@drawable/ic_close_icon"
       android:text="cancel"
+      android:textColor="@color/purple"
+      android:textStyle="bold"
+      android:layout_marginRight="80dp"
+      android:layout_marginLeft="270dp"
+      android:layout_below="@id/shroomie_split_recycler"
+      android:layout_marginTop="20dp"
       android:textSize="15dp"
+      android:paddingBottom="10dp"
+      android:layout_marginBottom="10dp"
 
-      />
+    />
 
-  <Button
+  <TextView
       android:id="@+id/ok_split"
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:layout_below="@id/shroomie_split_recycler"
       android:layout_alignParentRight="true"
-      android:layout_marginTop="10dp"
-      android:layout_marginRight="20dp"
+      android:layout_marginTop="20dp"
+      android:layout_marginRight="60dp"
       android:layout_marginBottom="10dp"
-      android:background="@drawable/button_circle_timberwolf_small"
-      android:minHeight="0dp"
-      android:minWidth="0dp"
-      android:paddingTop="3dp"
-      android:paddingBottom="3dp"
-      android:paddingRight="10dp"
-      android:paddingLeft="10dp"
-      android:textAllCaps="false"
-      android:elevation="3dp"
-      android:text="Next"
-      android:fontFamily="@font/amiko"
-
-      android:textColor="@color/jetBlack"
+      android:paddingBottom="10dp"
+      android:text="OK"
+      android:textColor="@color/purple"
       android:textSize="15dp"
       android:textStyle="bold" />
 </RelativeLayout>
