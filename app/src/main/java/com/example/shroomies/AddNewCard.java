@@ -585,7 +585,6 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                                             }
                                             @Override
                                             public void onDismissed(Snackbar snackbar, int event) {
-                                                Toast.makeText(getContext(),"",Toast.LENGTH_LONG).show();
                                                 dismiss();
                                                 // Event handler for when the given Snackbar has been dismissed
                                             }
