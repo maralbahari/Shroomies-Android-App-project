@@ -127,12 +127,11 @@
         android:id="@+id/add_new_card_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Tag a shroomie"
         android:layout_below="@+id/newcard_radio_group"
-        android:layout_marginTop="10dp"
         android:layout_marginLeft="50dp"
-        android:textSize="20sp"
-        />
+        android:layout_marginTop="10dp"
+        android:text="Tag a shroomie"
+        android:textSize="15sp" />
 
     <com.hendraanggrian.widget.SocialAutoCompleteTextView
         android:gravity="center"

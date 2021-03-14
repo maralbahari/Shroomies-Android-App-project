@@ -59,6 +59,16 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.google.gson.Gson;
 import com.hendraanggrian.widget.SocialAutoCompleteTextView;
+import com.karumi.dexter.Dexter;
+import com.karumi.dexter.MultiplePermissionsReport;
+import com.karumi.dexter.PermissionToken;
+import com.karumi.dexter.listener.PermissionDeniedResponse;
+import com.karumi.dexter.listener.PermissionGrantedResponse;
+import com.karumi.dexter.listener.PermissionRequest;
+import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
+import com.karumi.dexter.listener.multi.SnackbarOnAnyDeniedMultiplePermissionsListener;
+import com.karumi.dexter.listener.single.PermissionListener;
+import com.karumi.dexter.listener.single.SnackbarOnDeniedPermissionListener;
 
 
 import org.json.JSONException;
@@ -68,6 +78,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
@@ -490,107 +501,206 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
             public void onClick(DialogInterface dialog, int which) {
 
                 if (which == 0) {
-                    if (!checkStoragePermisson()) {
-                        requestStoragePermission();
-                    } else {
+//                    if (!checkStoragePermisson()) {
+//                        requestStoragePermission();
+//                    } else {
                         pickFromGallery();
-                    }
+//                    }
                 }if(which==1){
-                    if (!checkStoragePermisson()) {
-                        requestStoragePermission();
-                    } else {
+//                    if (!checkStoragePermisson()) {
+//                        requestStoragePermission();
+//                    } else {
                         pickFromPDF();
-                    }
+//                    }
                 }if(which==2){
-                    if(!checkCameraPermisson()){
-                        requestCameraPermission();
-
-                    }else{
+//                    if(!checkCameraPermisson()){
+//                        requestCameraPermission();
+//
+//                    }else{
                         pickFromCamera();
-                    }
+//                    }
                 }
             }
         });
         builder.create().show();
     }
     private void pickFromPDF(){
-        Intent intent = new Intent(Intent.ACTION_PICK);
-        intent.setType("application/pdf");
-        startActivityForResult(intent,PDF_PICK_CODE);
+        Dexter.withContext(getContext()).withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+                .withListener(new PermissionListener() {
+                    @Override
+                    public void onPermissionGranted(PermissionGrantedResponse permissionGrantedResponse) {
+                        Intent intent = new Intent(Intent.ACTION_PICK);
+                        intent.setType("application/pdf");
+                        startActivityForResult(Intent.createChooser(intent,"Select pdf file"),PDF_PICK_CODE);
+                    }
+
+                    @Override
+                    public void onPermissionDenied(PermissionDeniedResponse permissionDeniedResponse) {
+                        PermissionListener snackbarPermissionListener =
+                                SnackbarOnDeniedPermissionListener.Builder
+                                        .with(v, "access to gallery is needed")
+                                        .withOpenSettingsButton("Settings")
+                                        .withCallback(new Snackbar.Callback() {
+                                            @Override
+                                            public void onShown(Snackbar snackbar) {
+                                                pickFromGallery();
+                                                // Event handler for when the given Snackbar is visible
+                                            }
+                                            @Override
+                                            public void onDismissed(Snackbar snackbar, int event) {
+                                                dismiss();
+                                                // Event handler for when the given Snackbar has been dismissed
+                                            }
+                                        }).build();
+                    }
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(PermissionRequest permissionRequest, PermissionToken permissionToken) {
+
+                    }
+                }).check();
+
     }
     private void pickFromGallery() {
-        Intent intent = new Intent(Intent.ACTION_PICK);
-        intent.setType("image/*");
-        startActivityForResult(intent, IMAGE_PICK_GALLERY_CODE);
+        Dexter.withContext(getContext()).withPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+                .withListener(new PermissionListener() {
+                    @Override
+                    public void onPermissionGranted(PermissionGrantedResponse permissionGrantedResponse) {
+                        Intent intent = new Intent(Intent.ACTION_PICK);
+                        intent.setType("image/*");
+                        startActivityForResult(intent, IMAGE_PICK_GALLERY_CODE);
+                    }
+
+                    @Override
+                    public void onPermissionDenied(PermissionDeniedResponse permissionDeniedResponse) {
+                        PermissionListener snackbarPermissionListener =
+                                SnackbarOnDeniedPermissionListener.Builder
+                                        .with(v, "access to gallery is needed")
+                                        .withOpenSettingsButton("Settings")
+                                        .withCallback(new Snackbar.Callback() {
+                                            @Override
+                                            public void onShown(Snackbar snackbar) {
+                                                pickFromGallery();
+                                                // Event handler for when the given Snackbar is visible
+                                            }
+                                            @Override
+                                            public void onDismissed(Snackbar snackbar, int event) {
+                                                dismiss();
+                                                // Event handler for when the given Snackbar has been dismissed
+                                            }
+                                        }).build();
+                    }
+
+                    @Override
+                    public void onPermissionRationaleShouldBeShown(PermissionRequest permissionRequest, PermissionToken permissionToken) {
+
+                    }
+                }).check();
+
     }
 
     private void pickFromCamera() {
-//        ContentValues cv = new ContentValues();
-//        cv.put(MediaStore.Images.Media.TITLE, "Temp Pick");
-//        cv.put(MediaStore.Images.Media.DESCRIPTION, "temp describe");
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        startActivityForResult(takePictureIntent, CAMERA_REQUEST_CODE);
-//        chosenImage = getContext().getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, cv);
+    Dexter.withContext(getContext()).withPermissions(Manifest.permission.CAMERA,Manifest.permission.READ_EXTERNAL_STORAGE)
+            .withListener(new MultiplePermissionsListener() {
+                @Override
+                public void onPermissionsChecked(MultiplePermissionsReport multiplePermissionsReport) {
+                    if(multiplePermissionsReport.areAllPermissionsGranted()){
+                        ContentValues cv = new ContentValues();
+                        cv.put(MediaStore.Images.Media.TITLE, "Temp Pick");
+                        cv.put(MediaStore.Images.Media.DESCRIPTION, "temp describe");
+                        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                        startActivityForResult(takePictureIntent, CAMERA_REQUEST_CODE);
+                        chosenImage = getContext().getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, cv);
+                    }else{
+                        MultiplePermissionsListener snackbarMultiplePermissionsListener =
+                                SnackbarOnAnyDeniedMultiplePermissionsListener.Builder
+                                        .with(v, "Camera and storage access are needed to take picture")
+                                        .withOpenSettingsButton("Settings")
+                                        .withCallback(new Snackbar.Callback() {
+                                            @Override
+                                            public void onShown(Snackbar snackbar) {
+                                                pickFromCamera();
+                                                // Event handler for when the given Snackbar is visible
+                                            }
+                                            @Override
+                                            public void onDismissed(Snackbar snackbar, int event) {
+                                                dismiss();
+                                                // Event handler for when the given Snackbar has been dismissed
+                                            }
+                                        })
+                                        .build();
+                    }
+
+                }
+
+                @Override
+                public void onPermissionRationaleShouldBeShown(List<PermissionRequest> list, PermissionToken permissionToken) {
+
+                }
+            }).check();
+
+
+
 
     }
 
-    private boolean checkStoragePermisson() {
-        boolean result = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == (PackageManager.PERMISSION_GRANTED);
-        return result;
-    }
-
-    private void requestStoragePermission() {
-        ActivityCompat.requestPermissions(getActivity(), storagePermissions, STORAGE_REQUEST_CODE);
-    }
-
-    private boolean checkCameraPermisson() {
-        boolean resultCam = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) == (PackageManager.PERMISSION_GRANTED);
-        boolean resultStorage = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == (PackageManager.PERMISSION_GRANTED);
-
-        return resultCam && resultStorage;
-    }
-
-    private void requestCameraPermission() {
-        ActivityCompat.requestPermissions(getActivity(), cameraPermissions, CAMERA_REQUEST_CODE);
-    }
+//    private boolean checkStoragePermisson() {
+//        boolean result = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == (PackageManager.PERMISSION_GRANTED);
+//        return result;
+//    }
+//
+//    private void requestStoragePermission() {
+//        ActivityCompat.requestPermissions(getActivity(), storagePermissions, STORAGE_REQUEST_CODE);
+//    }
+//
+//    private boolean checkCameraPermisson() {
+//        boolean resultCam = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) == (PackageManager.PERMISSION_GRANTED);
+//        boolean resultStorage = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == (PackageManager.PERMISSION_GRANTED);
+//
+//        return resultCam && resultStorage;
+//    }
+//
+//    private void requestCameraPermission() {
+//        ActivityCompat.requestPermissions(getActivity(), cameraPermissions, CAMERA_REQUEST_CODE);
+//    }
 
     //this method is called when user press allow or deny form permission request dialog
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-            case CAMERA_REQUEST_CODE: {
-                if (grantResults.length > 0) {
-                    boolean cameraAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-                    boolean storageAccepted = grantResults[1] == PackageManager.PERMISSION_GRANTED;
-                    if (cameraAccepted && storageAccepted) {
-                        pickFromCamera();
-                    } else {
-                        requestPermissions(new String[]{Manifest.permission.CAMERA}, CAMERA_REQUEST_CODE);
-                        Toast.makeText(getContext(), "Camera and storage both permissions are neccessary....", Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-
-                }
-            }
-            break;
-            case STORAGE_REQUEST_CODE: {
-                if (grantResults.length > 0) {
-                    boolean storageAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
-                    if (storageAccepted) {
-                        showImagePickDialog();
-                    } else {
-                        requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, STORAGE_REQUEST_CODE);
-                        Toast.makeText(getContext(), " storage permission is neccessary....", Toast.LENGTH_SHORT).show();
-                        showImagePickDialog();
-
-                    }
-                }
-            }
-            break;
-        }
-    }
-
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+//        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+//        switch (requestCode) {
+//            case CAMERA_REQUEST_CODE: {
+//                if (grantResults.length > 0) {
+//                    boolean cameraAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+//                    boolean storageAccepted = grantResults[1] == PackageManager.PERMISSION_GRANTED;
+//                    if (cameraAccepted && storageAccepted) {
+//                        pickFromCamera();
+//                    } else {
+//                        requestPermissions(new String[]{Manifest.permission.CAMERA}, CAMERA_REQUEST_CODE);
+//                        Toast.makeText(getContext(), "Camera and storage both permissions are neccessary....", Toast.LENGTH_SHORT).show();
+//                    }
+//                } else {
+//
+//                }
+//            }
+//            break;
+//            case STORAGE_REQUEST_CODE: {
+//                if (grantResults.length > 0) {
+//                    boolean storageAccepted = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+//                    if (storageAccepted) {
+//                        showImagePickDialog();
+//                    } else {
+//                        requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, STORAGE_REQUEST_CODE);
+//                        Toast.makeText(getContext(), " storage permission is neccessary....", Toast.LENGTH_SHORT).show();
+//                        showImagePickDialog();
+//
+//                    }
+//                }
+//            }
+//            break;
+//        }
+//    }
+//
 
 
     private void sendNotification(final String receiverID,final String message) {
