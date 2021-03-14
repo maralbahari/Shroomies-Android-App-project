@@ -225,7 +225,7 @@
 
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
 android:layout_below="@id/apartment_post_page_map"
                 android:layout_marginLeft="15dp"
@@ -239,7 +239,7 @@ android:layout_below="@id/apartment_post_page_map"
                 <TextView
                     android:id="@+id/preferances_text_view"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
                     android:gravity="center_vertical"
                     android:layout_marginLeft="5dp"
                     android:text="Preferences"
@@ -261,7 +261,7 @@ android:layout_below="@id/apartment_post_page_map"
                     android:padding="10dp"
 
                     android:src="@drawable/ic_icon_ionic_ios_male"
-                    android:visibility="gone"/>
+                    android:visibility="visible"/>
 
 
                 <Space
@@ -275,7 +275,7 @@ android:layout_below="@id/apartment_post_page_map"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
 
-                    android:visibility="gone"
+                    android:visibility="visible"
                     android:elevation="1dp"
                     android:padding="10dp"
                     android:src="@drawable/ic_icon_ionic_ios_female" />
@@ -294,7 +294,7 @@ android:layout_below="@id/apartment_post_page_map"
                     android:layout_gravity="center_horizontal"
 
 
-                    android:visibility="gone"
+                    android:visibility="visible"
                     android:elevation="1dp"
                     android:padding="10dp"
                     android:src="@drawable/ic_icon_map_pet_store" />
@@ -312,7 +312,7 @@ android:layout_below="@id/apartment_post_page_map"
 
                     android:elevation="1dp"
                     android:padding="10dp"
-                    android:visibility="gone"
+                    android:visibility="visible"
                     android:src="@drawable/ic_icon_material_smoke_free"
                     />
             </LinearLayout>

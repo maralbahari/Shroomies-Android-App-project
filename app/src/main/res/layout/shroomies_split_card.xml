@@ -1,72 +1,91 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
-    android:layout_margin="5dp"
     android:background="@android:color/transparent"
-    android:layout_height="wrap_content">
+    android:layout_marginBottom="0.2dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:elevation="5dp"
+    android:padding="5dp"
+    app:cardCornerRadius="1dp"
+    >
 
-    <androidx.cardview.widget.CardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:elevation="5dp"
-        android:padding="5dp"
-        android:layout_margin="3dp"
-        app:cardCornerRadius="20dp"
-        android:backgroundTint="@color/Alabaster"
-       >
+
 
         <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent">
 
+
+            <CheckBox
+                android:id="@+id/checkbox_add_expense"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:checked="true"
+                android:elevation="3dp"
+                android:outlineProvider="background"
+
+
+                />
             <ImageView
                 android:elevation="5dp"
                 android:src="@drawable/ic_user_profile_svgrepo_com"
-                android:layout_margin="10dp"
+                android:layout_marginRight="5dp"
+
+                android:layout_marginTop="10dp"
+
+                android:layout_toRightOf="@id/checkbox_add_expense"
                 android:id="@+id/shroomie_split_pic"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:padding="12dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:adjustViewBounds="true"
+                android:maxHeight="50dp"
+                android:maxWidth="50dp"
+                android:padding="10dp"
                 android:background="@drawable/circle_white_button"
                 />
 
             <TextView
                 android:textStyle="bold"
-                android:layout_marginTop="25dp"
+                android:layout_marginTop="10dp"
                 android:id="@+id/shroomie_split_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Name"
-                android:layout_marginRight="5dp"
                 android:layout_toRightOf="@+id/shroomie_split_pic"
                 />
-            <com.example.shroomies.FloatSeekBar
-                android:layout_width="match_parent"
-                android:layout_height="30dp"
-                android:layout_toEndOf="@+id/shroomie_split_name"
-                android:layout_marginTop="20dp"
-                android:layout_marginRight="80dp"
-                android:layout_marginLeft="5dp"
-                android:progressDrawable="@drawable/custom_seekbar"
-                android:thumb="@drawable/seekbar_thumb"
+            <SeekBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+               android:layout_toRightOf="@id/shroomie_split_pic"
+               android:layout_toLeftOf="@id/split_amount_tv"
+                android:layout_below="@id/shroomie_split_name"
+               android:layout_marginTop="10dp"
+
+                android:layout_marginBottom="10dp"
+
+                android:outlineSpotShadowColor="@color/LogoYellow"
+                android:outlineAmbientShadowColor="@color/LogoYellow"
                 android:id="@+id/shroomie_split_seekbar"
+
                 />
 
             <TextView
                 android:id="@+id/split_amount_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_marginTop="24dp"
                 android:layout_marginRight="10dp"
+                android:layout_alignParentRight="true"
+                android:layout_alignBottom="@id/shroomie_split_seekbar"
                 android:text="0 RM" />
 
 
         </RelativeLayout>
 
-    </androidx.cardview.widget.CardView>
 
-</LinearLayout>
+
+</androidx.cardview.widget.CardView>
