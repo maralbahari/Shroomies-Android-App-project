@@ -59,8 +59,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
     private FirebaseAuth mAuth;
     private ItemTouchHelper itemTouchHelper;
     private Boolean fromArchive;
-   private ImageView sadShroomie, stars;
-    private Button cont, no;
+
     private ShroomiesApartment apartment;
     private FirebaseStorage storage;
     private FragmentManager fragmentManager;
@@ -137,60 +136,59 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
         Boolean cardStatus = expensesCardArrayList.get(position).getDone().equals("true");
         if (cardStatus){
             holder.done.setChecked(true);
-            holder.markAsDone.setText("Done!");
+            holder.done.setText("Done!");
         }else{
             holder.done.setChecked(false);
-            holder.markAsDone.setText("Mark as done");
+            holder.done.setText("Mark as done");
         }
 
 
         if (fromArchive){
             holder.archive.setVisibility(view.GONE);
             holder.done.setVisibility(View.GONE);
-            holder.markAsDone.setVisibility(View.GONE);
-            holder.delete.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                    LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                    final View alert = inflater.inflate(R.layout.are_you_sure,null);
-                    builder.setView(alert);
-                    final AlertDialog alertDialog = builder.create();
-                    alertDialog.getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
-                    alertDialog.getWindow().setBackgroundDrawableResource(R.drawable.dialogfragment_add_member);
-                    alertDialog.show();
-                    sadShroomie = ((AlertDialog) alertDialog).findViewById(R.id.sad_shroomie);
-                    stars = ((AlertDialog) alertDialog).findViewById(R.id.stars);
-                    cont = ((AlertDialog) alertDialog).findViewById(R.id.button_continue);
-                    no = ((AlertDialog) alertDialog).findViewById(R.id.button_no);
-
-                    cont.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                           deleteFromArchive(position,expensesCardArrayList.get(position));
-                            alertDialog.cancel();
-                        }
-                    });
-                    no.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            alertDialog.cancel();
-                        }
-                    });
-
-                }
-            });
+//            holder.delete.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View view) {
+//                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+//                    LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+//                    final View alert = inflater.inflate(R.layout.are_you_sure,null);
+//                    builder.setView(alert);
+//                    final AlertDialog alertDialog = builder.create();
+//                    alertDialog.getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
+//                    alertDialog.getWindow().setBackgroundDrawableResource(R.drawable.dialogfragment_add_member);
+//                    alertDialog.show();
+//                    sadShroomie = ((AlertDialog) alertDialog).findViewById(R.id.sad_shroomie);
+//                    stars = ((AlertDialog) alertDialog).findViewById(R.id.stars);
+//                    cont = ((AlertDialog) alertDialog).findViewById(R.id.button_continue);
+//                    no = ((AlertDialog) alertDialog).findViewById(R.id.button_no);
+//
+//                    cont.setOnClickListener(new View.OnClickListener() {
+//                        @Override
+//                        public void onClick(View view) {
+//                           deleteFromArchive(position,expensesCardArrayList.get(position));
+//                            alertDialog.cancel();
+//                        }
+//                    });
+//                    no.setOnClickListener(new View.OnClickListener() {
+//                        @Override
+//                        public void onClick(View view) {
+//                            alertDialog.cancel();
+//                        }
+//                    });
+//
+//                }
+//            });
         }
 
         switch (importanceViewColor) {
             case "0":
-                holder.importanceView.setBackgroundColor(Color.GREEN);
+                holder.importanceView.setBackgroundColor(context.getColor(R.color.okGreen));
                 break;
             case  "2":
-                holder.importanceView.setBackgroundColor(Color.RED);
+                holder.importanceView.setBackgroundColor(context.getColor(R.color.canceRed));
                 break;
             case  "1":
-                holder.importanceView.setBackgroundColor(Color.parseColor("#F59C34"));
+                holder.importanceView.setBackgroundColor(context.getColor(R.color.orange));
                 break;
             default:
                 holder.importanceView.setBackgroundColor(Color.parseColor("#F5CB5C"));
@@ -199,8 +197,10 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
         if (!expensesCardArrayList.get(position).getAttachedFile().isEmpty()) {
             GlideApp.with(context)
                     .load(expensesCardArrayList.get(position).getAttachedFile())
-                    .transform( new CenterCrop() , new RoundedCorners(40) )
+                    .transform( new CenterCrop() , new RoundedCorners(15) )
                     .into(holder.cardImage);
+            holder.cardImage.setPadding(0,0,0,0);
+
         }
 
     }
@@ -232,10 +232,10 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
     public class ExpensesViewHolder extends RecyclerView.ViewHolder {
         View importanceView;
         GestureDetector gestureDetector;
-        TextView title,description,dueDate,markAsDone;
+        TextView title,description,dueDate;
         private SocialTextView mention;
         ImageView cardImage;
-        ImageButton archive, delete;
+        ImageButton archive;
         ImageView sadShroomie, stars, shroomieArch;
         Button cont, no,yesBtn,noBtn;
         CheckBox done;
@@ -249,11 +249,11 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
             dueDate = v.findViewById(R.id.dueDate_card);
             cardImage= v.findViewById(R.id.card_img);
             archive = v.findViewById(R.id.archive_card_btn);
-            delete = v.findViewById(R.id.delete_card_btn);
+//            delete = v.findViewById(R.id.delete_card_btn);
             mention = v.findViewById(R.id.expenses_mention_et);
             mention.setMentionColor(Color.BLUE);
             done = v.findViewById(R.id.expense_done);
-            markAsDone = v.findViewById(R.id.shroomie_markasdone);
+
             expensesCardView=v.findViewById(R.id.my_shroomie_expenses_card);
 
             done.setOnClickListener(new View.OnClickListener() {
@@ -265,7 +265,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if(task.isSuccessful()){
-                                    markAsDone.setText("Done!");
+                                    done.setText("Done!");
                                     saveToDoneLog(apartment.getApartmentID(),selectedCard);
                                     AlertDialog.Builder builder = new AlertDialog.Builder(context);
                                     LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -320,40 +320,40 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
             });
 
 
-            delete.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                    LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                    View alert = inflater.inflate(R.layout.are_you_sure,null);
-                    builder.setView(alert);
-                    final AlertDialog alertDialog = builder.create();
-                    alertDialog.getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
-                    alertDialog.getWindow().setBackgroundDrawableResource(R.drawable.dialogfragment_add_member);
-                    alertDialog.show();
-                    sadShroomie = ((AlertDialog) alertDialog).findViewById(R.id.sad_shroomie);
-                    stars = ((AlertDialog) alertDialog).findViewById(R.id.stars);
-                    cont = ((AlertDialog) alertDialog).findViewById(R.id.button_continue);
-                    no = ((AlertDialog) alertDialog).findViewById(R.id.button_no);
-
-
-
-                    cont.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            deleteExpensesCard(getAdapterPosition());
-                            alertDialog.cancel();
-                        }
-                    });
-                    no.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            alertDialog.cancel();
-                        }
-                    });
-
-                }
-            });
+//            delete.setOnClickListener(new View.OnClickListener() {
+//                @Override
+//                public void onClick(View view) {
+//                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+//                    LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+//                    View alert = inflater.inflate(R.layout.are_you_sure,null);
+//                    builder.setView(alert);
+//                    final AlertDialog alertDialog = builder.create();
+//                    alertDialog.getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
+//                    alertDialog.getWindow().setBackgroundDrawableResource(R.drawable.dialogfragment_add_member);
+//                    alertDialog.show();
+//                    sadShroomie = ((AlertDialog) alertDialog).findViewById(R.id.sad_shroomie);
+//                    stars = ((AlertDialog) alertDialog).findViewById(R.id.stars);
+//                    cont = ((AlertDialog) alertDialog).findViewById(R.id.button_continue);
+//                    no = ((AlertDialog) alertDialog).findViewById(R.id.button_no);
+//
+//
+//
+//                    cont.setOnClickListener(new View.OnClickListener() {
+//                        @Override
+//                        public void onClick(View view) {
+//                            deleteExpensesCard(getAdapterPosition());
+//                            alertDialog.cancel();
+//                        }
+//                    });
+//                    no.setOnClickListener(new View.OnClickListener() {
+//                        @Override
+//                        public void onClick(View view) {
+//                            alertDialog.cancel();
+//                        }
+//                    });
+//
+//                }
+//            });
             expensesCardView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {

@@ -1,14 +1,20 @@
 package com.example.shroomies;
 
+import android.animation.Animator;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.LayoutAnimationController;
+import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,6 +28,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.factor.bouncy.BouncyRecyclerView;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabItem;
@@ -42,10 +49,9 @@ import java.util.Date;
 
 public class MyShroomies extends Fragment implements LogAdapter.cardBundles  {
     View v;
-    private Button  memberButton, addCardButton;
+    private Button  memberButton;
     private TabLayout myShroomiesTablayout;
-    private RecyclerView myExpensesRecyclerView;
-    private RecyclerView myTasksRecyclerView;
+    private BouncyRecyclerView myExpensesRecyclerView,myTasksRecyclerView;
     private Spinner shroomieSpinnerFilter;
     private DatabaseReference rootRef;
     private FirebaseAuth mAuth;
@@ -61,6 +67,7 @@ public class MyShroomies extends Fragment implements LogAdapter.cardBundles  {
     private ValueEventListener apartmentListener;
     private ValueEventListener logListener;
     private Button logButton;
+    private ImageButton addCardButton , expandButton;
     private ArrayList<Log> apartmentlogList;
     private  FragmentTransaction ft;
     private FragmentManager fm;
@@ -70,7 +77,7 @@ public class MyShroomies extends Fragment implements LogAdapter.cardBundles  {
     private boolean cardFound =false;
     private int recyclerPosition=0;
     private CustomLoadingProgressBar customLoadingProgressBar;
-
+    private LinearLayout buttonsLinearLayout;
 
     
     @Override
@@ -98,6 +105,8 @@ public class MyShroomies extends Fragment implements LogAdapter.cardBundles  {
         myShroomiesTablayout = v.findViewById(R.id.my_shroomies_tablayout);
         myExpensesRecyclerView = v.findViewById(R.id.my_expenses_recycler_view);
         shroomieSpinnerFilter = v.findViewById(R.id.shroomie_spinner_filter);
+        expandButton = v.findViewById(R.id.expand_button);
+        buttonsLinearLayout = v.findViewById(R.id.buttons_linear_layout);
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         myExpensesRecyclerView.setHasFixedSize(true);
@@ -116,6 +125,28 @@ public class MyShroomies extends Fragment implements LogAdapter.cardBundles  {
         tasksCardsList=new ArrayList<>();
         tasksCardAdapter=new TasksCardAdapter(tasksCardsList,getContext(),false,apartment,getParentFragmentManager(),getView());
         myTasksRecyclerView.setAdapter(tasksCardAdapter);
+
+
+        expandButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if(buttonsLinearLayout.getVisibility()  == View.INVISIBLE){
+                    expandButton.animate().rotation(0).start();
+                    Animation animation = new TranslateAnimation(getView().getWidth(),0 , 0,0);
+                    animation.setDuration(500);
+                    buttonsLinearLayout.setAnimation(animation);
+                    buttonsLinearLayout.setVisibility(View.VISIBLE);
+                }else{
+                    expandButton.animate().rotation(180).start();
+                    Animation animation = new TranslateAnimation(0,getView().getWidth() , 0,0);
+                    animation.setDuration(500);
+                    buttonsLinearLayout.setAnimation(animation);
+                    buttonsLinearLayout.setVisibility(View.INVISIBLE);
+                }
+
+            }
+        });
 
 
         myShroomiesTablayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
@@ -205,7 +236,11 @@ public class MyShroomies extends Fragment implements LogAdapter.cardBundles  {
                 Bundle bundle1=new Bundle();
                 bundle1.putParcelable("APARTMENT_DETAILS",apartment);
                 members.setArguments(bundle1);
-                members.show(getParentFragmentManager(),"show member");
+                fm = getParentFragmentManager();
+                ft = fm.beginTransaction();
+                ft.addToBackStack(null);
+                ft.replace(R.id.fragmentContainer, members);
+                ft.commit();
             }
         });
         logButton.setOnClickListener(new View.OnClickListener() {
@@ -227,6 +262,8 @@ public class MyShroomies extends Fragment implements LogAdapter.cardBundles  {
 
 
     }
+
+
     private void getApartmentDetails (){
         customLoadingProgressBar = new CustomLoadingProgressBar(getActivity(),"loading...",R.raw.loading_animation);
         customLoadingProgressBar.getWindow().setBackgroundDrawableResource(android.R.color.transparent);

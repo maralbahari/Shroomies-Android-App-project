@@ -17,6 +17,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -38,7 +39,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-public class Members extends DialogFragment {
+public class Members extends Fragment {
     View v;
     Button addMember, leaveRoom;
     FirebaseAuth mAuth;
@@ -69,16 +70,6 @@ public class Members extends DialogFragment {
         return v;
     }
 
-
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        if(getDialog()!=null) {
-            getDialog().getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.WRAP_CONTENT);
-            getDialog().getWindow().setBackgroundDrawableResource(R.drawable.dialogfragment_add_member);
-        }
-    }
 
 
     @Override
@@ -153,7 +144,6 @@ public class Members extends DialogFragment {
                  }else{
                      ownerName.setText(owner.getName());
                  }
-
                                     if(!owner.getImage().isEmpty()){
                                         GlideApp.with(getContext())
                                                 .load(owner.getImage())
@@ -207,7 +197,7 @@ public class Members extends DialogFragment {
                 if(snapshot.exists()){
                     isPartOfRoomID=snapshot.getValue().toString();
                     if(!isPartOfRoomID.equals(apartment.getApartmentID())){
-                        dismiss();
+                        //TODO go back
                     }
                 }
             }
@@ -287,12 +277,6 @@ public class Members extends DialogFragment {
     }
 
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        getDialog().getWindow().setWindowAnimations(R.style.DialogAnimation);
-    }
-
 
 
 
@@ -326,11 +310,12 @@ public class Members extends DialogFragment {
     public void onDestroy() {
         super.onDestroy();
         rootRef.removeEventListener(apartmentListener);
+        rootRef.removeEventListener(roomIDListener);
     }
 
     @Override
-    public void onDismiss(@NonNull DialogInterface dialog) {
-        super.onDismiss(dialog);
+    public void onDetach() {
+        super.onDetach();
         rootRef.removeEventListener(apartmentListener);
         rootRef.removeEventListener(roomIDListener);
     }

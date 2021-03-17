@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,7 @@ import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -113,7 +115,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
     ShroomiesApartment apartment;
     boolean notify = false;
     ImageView close;
-    private Button splitExpenses;
+    private RadioButton splitExpenses;
     private HashMap<String,String> apartmentMembers=new HashMap<>();
     public HashMap<String, Float> sharedAmountsList;
     private static int DIALOG_RESULT=100;
@@ -140,8 +142,10 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
     public void onStart() {
         super.onStart();
         if (getDialog() != null) {
-            getDialog().getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
+            getDialog().getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.WRAP_CONTENT);
             getDialog().getWindow().setBackgroundDrawableResource(R.drawable.create_group_fragment_background);
+            getDialog().getWindow().setGravity(Gravity.BOTTOM);
+
         }
     }
 
@@ -761,7 +765,9 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
     public void sendInput(HashMap<String, Float> sharedSplit) {
         this.sharedAmountsList=sharedSplit;
         if(!sharedAmountsList.isEmpty()){
-            splitExpenses.setText("Splited");
+            splitExpenses.setText("Split");
+            splitExpenses.setChecked(true);
+            splitExpenses.setTextColor(getActivity().getColor(R.color.white));
         }
 
     }

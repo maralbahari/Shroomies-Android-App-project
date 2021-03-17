@@ -4,6 +4,8 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -33,7 +35,7 @@ public class UserAdapterSplitExpenses extends RecyclerView.Adapter<UserAdapterSp
    private HashMap<String, Float> sharesHashmap=new HashMap<String, Float>();
    shroomiesShares shares;
    private Fragment targetedFragment;
-   private TextView ok;
+   private Button ok;
     SplitExpenses.membersShares myMemberShares;
 
 
@@ -43,7 +45,7 @@ public class UserAdapterSplitExpenses extends RecyclerView.Adapter<UserAdapterSp
 
    }
 
-    public UserAdapterSplitExpenses(ShroomiesApartment apartment, ArrayList<User> shroomieList, Context context, String amount,TextView totalText,Fragment targetedFragment,TextView ok,SplitExpenses.membersShares myMemberShares) {
+    public UserAdapterSplitExpenses(ShroomiesApartment apartment, ArrayList<User> shroomieList, Context context, String amount, TextView totalText, Fragment targetedFragment, Button ok, SplitExpenses.membersShares myMemberShares) {
         this.apartment = apartment;
         this.shroomieList = shroomieList;
         this.context = context;

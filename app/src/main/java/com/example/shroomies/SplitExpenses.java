@@ -19,8 +19,10 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.google.android.material.snackbar.BaseTransientBottomBar;
@@ -34,7 +36,9 @@ import java.util.HashMap;
 
 public class SplitExpenses extends DialogFragment implements UserAdapterSplitExpenses.shroomiesShares {
   private View v;
-  private TextView cancel,ok,totalText;
+  private TextView totalText;
+  private ImageButton cancel;
+  private Button ok ;
   private EditText amount;
   private RecyclerView splitRecycler;
   private ShroomiesApartment apartment;
@@ -65,7 +69,7 @@ public class SplitExpenses extends DialogFragment implements UserAdapterSplitExp
     public void onStart() {
         super.onStart();
         if (getDialog() != null) {
-            getDialog().getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.WRAP_CONTENT);
+            getDialog().getWindow().setLayout(ActionBar.LayoutParams.WRAP_CONTENT, Toolbar.LayoutParams.WRAP_CONTENT);
             getDialog().getWindow().setBackgroundDrawableResource(R.drawable.dialogfragment_add_member);
         }
     }
@@ -169,13 +173,13 @@ public class SplitExpenses extends DialogFragment implements UserAdapterSplitExp
             }
             if (this.total > Float.parseFloat(enteredAmount)) {
                 acceptedInput=false;
-                totalText.setText("Total: " + total + ">" + enteredAmount);
+                totalText.setText( total + ">" + enteredAmount);
                 totalText.setTextColor(Color.RED);
 
             } else {
                 acceptedInput=true;
-                totalText.setTextColor(Color.parseColor("#794C74"));
-                totalText.setText("Total: " + total + "RM");
+                totalText.setTextColor(getActivity().getColor(R.color.lightGrey));
+                totalText.setText( total + "RM");
             }
         }
     }

@@ -6,40 +6,48 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".AddNewCard">
-
+<RelativeLayout
+    android:id="@+id/relative_layout_add_new_card"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:elevation="3dp">
     <TextView
         android:id="@+id/new_card_tv"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp"
-        android:layout_marginBottom="10dp"
+        android:layout_margin="10dp"
         android:text="Add a new card"
-        android:textSize="30sp"
-        android:textColor="@color/LogoYellow"
-        android:textStyle="bold" />
+        android:textSize="15sp"
+        android:textColor="@color/jetBlack"
+        android:fontFamily="@font/amiko"
+        android:drawableStart="@drawable/ic_edit"
+        android:drawablePadding="10dp"
+         />
 
     <ImageView
         android:id="@+id/x_button_new_card"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="33dp"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
         android:layout_alignParentRight="true"
-        android:layout_toRightOf="@id/new_card_tv"
-        app:srcCompat="@drawable/cross" />
+
+        app:srcCompat="@drawable/ic_close_icon" />
+    </RelativeLayout>
 
     <EditText
+
         android:id="@+id/new_card_title"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="wrap_content"
         android:hint="Title:"
-        android:layout_marginLeft="45dp"
-        android:layout_marginRight="10dp"
-        android:background="@null"
-        android:layout_toLeftOf="@id/due_date"
-        android:layout_below="@+id/new_card_tv"
+       android:layout_marginTop="10dp"
+        android:fontFamily="@font/amiko"
+        android:background="@drawable/add_new_card_text_background"
+        android:padding="5dp"
+
+        android:layout_below="@+id/due_date"
         />
 
     <EditText
@@ -47,14 +55,12 @@
         android:id="@+id/new_card_description"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="180dp"
+        android:minHeight="150dp"
         android:hint="Description:"
-        android:layout_marginTop="15dp"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"
-        android:background="@drawable/post_card_rectangle_round"
+        android:fontFamily="@font/amiko"
+        android:background="@drawable/add_new_card_text_background"
         android:elevation="3dp"
-        android:padding="20dp"
+        android:padding="5dp"
         android:layout_below="@+id/new_card_title"
 
 
@@ -64,11 +70,14 @@
         android:id="@+id/due_date"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/new_card_tv"
+        android:layout_below="@+id/relative_layout_add_new_card"
         android:layout_alignParentRight="true"
         android:layout_marginTop="10dp"
-        android:layout_marginRight="30dp"
-        android:padding="8dp"
+        android:layout_marginRight="10dp"
+        android:paddingTop="3dp"
+        android:paddingBottom="3dp"
+        android:paddingLeft="7dp"
+        android:paddingRight="7dp"
         android:elevation="3dp"
         android:textColor="@color/jetBlack"
         android:background="@drawable/mention_text_box"
@@ -81,10 +90,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Importance:"
-        android:textStyle="bold"
+        android:fontFamily="@font/amiko"
         android:textColor="@color/Black"
         android:layout_below="@+id/new_card_description"
-        android:layout_marginLeft="40dp"
+        android:layout_marginLeft="30dp"
         android:layout_marginTop="10dp"
         />
     <RadioGroup
@@ -98,7 +107,7 @@
             android:id="@+id/newcard_red_radio_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="40dp"
+            android:layout_marginLeft="30dp"
             android:layout_marginTop="10dp"
             android:buttonTint="@color/red"
             android:checked="true"
@@ -128,9 +137,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/newcard_radio_group"
-        android:layout_marginLeft="50dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="15dp"
         android:text="Tag a shroomie"
+        android:fontFamily="@font/amiko"
+        android:textColor="@color/jetBlack"
         android:textSize="15sp" />
 
     <com.hendraanggrian.widget.SocialAutoCompleteTextView
@@ -138,31 +149,37 @@
         android:id="@+id/tag_shroomie"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="30dp"
-        android:layout_marginRight="30dp"
-        android:background="@drawable/textbox_round"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:minHeight="50dp"
+        android:background="@drawable/mention_text_box"
         android:layout_below="@+id/add_new_card_tv"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp"
-        android:elevation="5dp"
+android:elevation="3dp"
         />
 
     <Button
         android:id="@+id/my_shroomies_attach_button"
-        android:layout_width="match_parent"
-        android:layout_height="40dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_below="@id/tag_shroomie"
-        android:layout_marginLeft="40dp"
-        android:layout_marginTop="18dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="20dp"
         android:layout_alignParentLeft="true"
-        android:layout_marginRight="270dp"
         android:background="@drawable/button_rounded_corner_attach"
         android:drawableLeft="@drawable/ic_attach"
-        android:padding="7dp"
-        android:text="attach file"
+        android:minHeight="0dp"
+        android:paddingRight="10dp"
+        android:paddingLeft="10dp"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp"
+        android:text="Attach File"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
         android:textSize="10sp" />
 
-    <Button
+    <RadioButton
         android:id="@+id/split_expenses"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -171,13 +188,15 @@
         android:layout_marginLeft="20dp"
         android:layout_marginTop="30dp"
         android:layout_marginRight="30dp"
-        android:background="@color/y"
-        android:drawableStart="@drawable/ic_division"
+        android:background="@drawable/split_expenses_button"
+        android:drawablePadding="10dp"
         android:elevation="5dp"
-        android:padding="5dp"
-        android:text="     Split expenses"
-        android:textColor="@color/jetBlack"
-        android:textSize="10dp" />
+        android:padding="10dp"
+        android:text="Split expenses"
+        android:button="@android:color/transparent"
+        android:checked="false"
+        android:textColor="@color/LogoYellow"
+        android:textSize="15dp" />
 
     <TextView
         android:id="@+id/attached_files"
@@ -194,12 +213,15 @@
         android:id="@+id/my_shroomies_add_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/tag_shroomie"
-        android:layout_alignParentBottom="true"
-        android:layout_marginTop="170dp"
+        android:layout_below="@+id/my_shroomies_attach_button"
+
+        android:layout_marginTop="30dp"
         android:layout_marginBottom="0dp"
         android:background="@color/LogoYellow"
         android:elevation="5dp"
+        android:textColor="@color/white"
+
+        android:textAllCaps="false"
         android:text="Add card" />
 
 

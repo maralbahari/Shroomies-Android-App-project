@@ -14,10 +14,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -45,7 +48,8 @@ public class ViewCards extends DialogFragment {
     private ArrayList<User> shroomiesList;
     private UserAdapterSplitExpenses splitAdapter;
     private DatabaseReference rootRef;
-    private Button close;
+    private ImageButton close;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -59,15 +63,16 @@ public class ViewCards extends DialogFragment {
     public void onStart() {
         super.onStart();
         if (getDialog() != null) {
-            getDialog().getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.WRAP_CONTENT);
-            getDialog().getWindow().setBackgroundDrawableResource(R.drawable.create_group_fragment_background);
+            getDialog().getWindow().setLayout(ActionBar.LayoutParams.WRAP_CONTENT, Toolbar.LayoutParams.WRAP_CONTENT);
+            getDialog().getWindow().setBackgroundDrawableResource(R.drawable.expense_card_image_background);
+            getDialog().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
         }
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        title=v.findViewById(R.id.view_card_title);
+        title=v.findViewById(R.id.view_card_title_tv);
         dueDate=v.findViewById(R.id.view_card_date);
         description=v.findViewById(R.id.view_card_description);
         mention=v.findViewById(R.id.view_card_mention);
@@ -76,8 +81,8 @@ public class ViewCards extends DialogFragment {
         close=v.findViewById(R.id.close_view_card);
         viewCardRecycler=v.findViewById(R.id.view_card_recycler);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
-        viewCardRecycler.setHasFixedSize(true);
         viewCardRecycler.setLayoutManager(linearLayoutManager);
+
         close.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -106,20 +111,16 @@ public class ViewCards extends DialogFragment {
                 if(!importance.isEmpty() ){
                     switch (importance) {
                         case "0":
-                            importanceView.setBackgroundColor(Color.GREEN);
-                            close.setBackgroundColor(Color.GREEN);
+                            importanceView.setBackgroundColor(getActivity().getColor(R.color.okGreen));
                             break;
-                        case "2":
-                            importanceView.setBackgroundColor(Color.RED);
-                            close.setBackgroundColor(Color.RED);
+                        case  "2":
+                            importanceView.setBackgroundColor(getActivity().getColor(R.color.canceRed));
                             break;
-                        case "1":
-                            importanceView.setBackgroundColor(Color.parseColor("#F59C34"));
-                            close.setBackgroundColor(Color.parseColor("#F59C34"));
+                        case  "1":
+                            importanceView.setBackgroundColor(getActivity().getColor(R.color.orange));
                             break;
                         default:
                             importanceView.setBackgroundColor(Color.parseColor("#F5CB5C"));
-                            close.setBackgroundColor(Color.parseColor("#F5CB5C"));
                     }
 
                 }
@@ -132,6 +133,11 @@ public class ViewCards extends DialogFragment {
                 String importance=expensesCard.getImportance();
                 String imagePath=expensesCard.getAttachedFile();
                 HashMap<String, Float> membersShares=expensesCard.getMembersShares();
+                if(!membersShares.isEmpty()){
+                    getMembersShares(membersShares);
+                }else if(membersShares.isEmpty()){
+//                    viewCardRecycler.setVisibility(View.GONE);
+                }
                 if(!due.isEmpty() ){
                     dueDate.setText(due);
                 }if(!descriptionCard.isEmpty()){
@@ -140,39 +146,31 @@ public class ViewCards extends DialogFragment {
                     mention.setMentionColor(Color.BLUE);
                     mention.setText(mentions);
                 }
-                if(!importance.isEmpty() ){
-                    switch (importance) {
-                        case "0":
-                            importanceView.setBackgroundColor(Color.GREEN);
-                            close.setBackgroundColor(Color.GREEN);
-                            break;
-                        case "2":
-                            importanceView.setBackgroundColor(Color.RED);
-                            close.setBackgroundColor(Color.RED);
-                            break;
-                        case "1":
-                            importanceView.setBackgroundColor(Color.parseColor("#F59C34"));
-                            close.setBackgroundColor(Color.parseColor("#F59C34"));
-                            break;
-                        default:
-                            importanceView.setBackgroundColor(Color.parseColor("#F5CB5C"));
-                            close.setBackgroundColor(Color.parseColor("#F5CB5C"));
+
+                        if(!importance.isEmpty() ){
+                            switch (importance) {
+                                case "0":
+                                    importanceView.setBackgroundColor(getActivity().getColor(R.color.okGreen));
+                                    break;
+                                case  "2":
+                                    importanceView.setBackgroundColor(getActivity().getColor(R.color.canceRed));
+                                    break;
+                                case  "1":
+                                    importanceView.setBackgroundColor(getActivity().getColor(R.color.orange));
+                                    break;
+                                default:
+                                    importanceView.setBackgroundColor(Color.parseColor("#F5CB5C"));
+                            }
                     }
 
-                }
                 if(!imagePath.isEmpty()){
                     GlideApp.with(getContext())
                             .load(imagePath)
-                            .transform( new CircleCrop())
+                            .centerCrop()
                             .into(attachedFile);
-                }else if(imagePath.isEmpty()){
-                    attachedFile.setVisibility(View.GONE);
+                    attachedFile.setPadding(0,0,0,0);
                 }
-                if(!membersShares.isEmpty()){
-                    getMembersShares(membersShares);
-                }else if(membersShares.isEmpty()){
-                    viewCardRecycler.setVisibility(View.GONE);
-                }
+
             }
         }
 
@@ -183,6 +181,7 @@ public class ViewCards extends DialogFragment {
         shroomiesList=new ArrayList<>();
         splitAdapter= new UserAdapterSplitExpenses(shroomiesList,getContext(),true);
         viewCardRecycler.setAdapter(splitAdapter);
+
         for (final String id: membersShares.keySet()){
             rootRef.child("Users").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -191,10 +190,9 @@ public class ViewCards extends DialogFragment {
                         User user = snapshot.getValue(User.class);
                         user.setSharedAmount(Float.valueOf(membersShares.get(id).toString()));
                         shroomiesList.add(user);
+                        splitAdapter.notifyItemInserted(shroomiesList.indexOf(user));
 
                     }
-                    splitAdapter.notifyDataSetChanged();
-
                 }
 
                 @Override
@@ -202,6 +200,7 @@ public class ViewCards extends DialogFragment {
 
                 }
             });
+
         }
 
     }

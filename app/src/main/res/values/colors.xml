@@ -10,10 +10,11 @@
     <color name="okGreen">#5ABE07</color>
     <color name="purple">#794C74</color>
     <color name="darkBlue">#3A0CA3</color>
+    <color name="mentionBlue">#7284E5</color>
     <color name="Black">#000000</color>
     <color name="pink">#F72585</color>
     <color name="jetBlack">#333533</color>
-    <color name="lightGrey">#7E807E</color>
+    <color name="lightGrey">#A4A6A4</color>
     <color name="canceRed">#F25454</color>
     <color name="orange">#FF7915</color>
     <color name="y">#FEFCF8</color>
