@@ -1,10 +1,13 @@
 package com.example.shroomies;
 
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -35,7 +38,6 @@ public class AddShroomieMember extends DialogFragment {
     SearchView memberSearchView;
     RecyclerView addShroomieRecycler;
     UserAdapter userRecyclerAdapter;
-    Button backToShroomie;
     DatabaseReference rootRef;
     FirebaseDatabase firebaseDatabase;
     FirebaseAuth mAuth;
@@ -45,6 +47,25 @@ public class AddShroomieMember extends DialogFragment {
     Collection<String> listMemberId=new ArrayList<>();
     ShroomiesApartment apartment;
     private HashMap<String,Boolean> requestAlreadySent=new HashMap<>();
+    ImageButton closeButton;
+    TextView infoTextView;
+    TextView recommendedUsers;
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        if(getDialog()!=null) {
+            getDialog().getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.WRAP_CONTENT);
+            getDialog().getWindow().setBackgroundDrawableResource(R.drawable.create_group_fragment_background);
+            getDialog().getWindow().setGravity(Gravity.BOTTOM);
+        }
+    }
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getDialog().getWindow().setWindowAnimations(R.style.DialogAnimation);
+    }
 
 
     @Nullable
@@ -64,8 +85,15 @@ public class AddShroomieMember extends DialogFragment {
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         addShroomieRecycler.setHasFixedSize(true);
         addShroomieRecycler.setLayoutManager(linearLayoutManager);
-
-
+        closeButton = v.findViewById(R.id.close_button_add_shroomie);
+        infoTextView = v.findViewById(R.id.information_text_view);
+        recommendedUsers = v.findViewById(R.id.recommended_text_view);
+        closeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dismiss();
+            }
+        });
         if (getArguments()!=null){
             Bundle bundle = getArguments();
             apartment=bundle.getParcelable("APARTMENT_DETAILS");
@@ -94,16 +122,11 @@ public class AddShroomieMember extends DialogFragment {
     }
 
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        if(getDialog()!=null) {
-            getDialog().getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.WRAP_CONTENT);
-            getDialog().getWindow().setBackgroundDrawableResource(R.drawable.dialogfragment_add_member);
-        }
-    }
+
+
 
     private void retreiveUser(String query) {
+
         suggestedUser = new ArrayList<>();
         userRecyclerAdapter= new UserAdapter(suggestedUser,getContext(),true,apartment,requestAlreadySent);
         addShroomieRecycler.setAdapter(userRecyclerAdapter);
@@ -113,6 +136,8 @@ public class AddShroomieMember extends DialogFragment {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
+                    infoTextView.setVisibility(View.GONE);
+                    recommendedUsers.setVisibility(View.GONE);
                     for (DataSnapshot ds : snapshot.getChildren()) {
                         User user = ds.getValue(User.class);
                         Boolean duplicate = false;
@@ -121,7 +146,6 @@ public class AddShroomieMember extends DialogFragment {
                                 duplicate = true;
                             }
                         }
-
                             if (!duplicate&&!user.getID().equals(mAuth.getInstance().getCurrentUser().getUid())){
                                 if(listMemberId!=null){
                                     if(!listMemberId.contains(user.getID())){
@@ -153,11 +177,7 @@ public class AddShroomieMember extends DialogFragment {
         });
     }
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        getDialog().getWindow().setWindowAnimations(R.style.DialogAnimation);
-    }
+
 
 
     private void addInboxUsersToRecycler(final List<String> inboxListUsers) {

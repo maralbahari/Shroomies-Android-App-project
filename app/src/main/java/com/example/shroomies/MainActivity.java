@@ -246,8 +246,9 @@ public class MainActivity extends AppCompatActivity {
                         Glide.with(getApplicationContext()).
                                 load(user.getImage())
                                 .fitCenter()
-                                .centerCrop()
-                                .into(profilePic);}
+                                .circleCrop()
+                                .into(profilePic);
+                    }
 
 
 

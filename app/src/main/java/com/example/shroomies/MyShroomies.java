@@ -45,8 +45,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 
-
-
 public class MyShroomies extends Fragment implements LogAdapter.cardBundles  {
     View v;
     private Button  memberButton;
@@ -132,15 +130,17 @@ public class MyShroomies extends Fragment implements LogAdapter.cardBundles  {
             public void onClick(View v) {
 
                 if(buttonsLinearLayout.getVisibility()  == View.INVISIBLE){
-                    expandButton.animate().rotation(0).start();
+                    expandButton.animate().rotation(180).start();
                     Animation animation = new TranslateAnimation(getView().getWidth(),0 , 0,0);
                     animation.setDuration(500);
                     buttonsLinearLayout.setAnimation(animation);
                     buttonsLinearLayout.setVisibility(View.VISIBLE);
                 }else{
-                    expandButton.animate().rotation(180).start();
+
+                    expandButton.animate().rotation(0).start();
                     Animation animation = new TranslateAnimation(0,getView().getWidth() , 0,0);
                     animation.setDuration(500);
+
                     buttonsLinearLayout.setAnimation(animation);
                     buttonsLinearLayout.setVisibility(View.INVISIBLE);
                 }
@@ -264,7 +264,7 @@ public class MyShroomies extends Fragment implements LogAdapter.cardBundles  {
     }
 
 
-    private void getApartmentDetails (){
+    private void getApartmentDetails(){
         customLoadingProgressBar = new CustomLoadingProgressBar(getActivity(),"loading...",R.raw.loading_animation);
         customLoadingProgressBar.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         customLoadingProgressBar.show();
@@ -281,10 +281,7 @@ public class MyShroomies extends Fragment implements LogAdapter.cardBundles  {
                                 if(expensesCardsList.isEmpty()){
                                     retreiveExpensesCards(apartment.getApartmentID());
                                 }
-
                                 getApartmentLog(apartment.getApartmentID());
-
-
                             }
 
                         }
@@ -357,6 +354,8 @@ private void scroll(){
                    getUserDetailsForLog(apartmentlogList);
 
 
+               }else{
+                   customLoadingProgressBar.dismiss();
                }
            }
 
@@ -376,8 +375,9 @@ private void scroll(){
                         User user=snapshot.getValue(User.class);
                         log.setActorName(user.getName());
                         log.setActorPic(user.getImage());
-                        customLoadingProgressBar.dismiss();
+
                     }
+                    customLoadingProgressBar.dismiss();
                 }
 
                 @Override
@@ -443,6 +443,8 @@ private void scroll(){
                     expensesCardAdapter.notifyDataSetChanged();
 
 
+                }else{
+                    customLoadingProgressBar.dismiss();
                 }
             }
             @Override
@@ -524,6 +526,7 @@ private void scroll(){
     @Override
     public void onDestroy() {
         super.onDestroy();
+        if(expensesCardListener!=null)
         rootRef.removeEventListener(expensesCardListener);
         rootRef.removeEventListener(tasksCardListener);
         rootRef.removeEventListener(apartmentListener);

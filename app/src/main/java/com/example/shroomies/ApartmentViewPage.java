@@ -6,11 +6,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -43,7 +45,7 @@ import java.util.List;
 public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCallback {
     private static final String MAP_VIEW_BUNDLE_KEY = "MapViewBundleKey";
     ViewPager viewPager;
-    ImageButton messageButton;
+    ImageButton messageButton , expandImagesButton;
     DotsIndicator dotsIndicator;
     TextView priceTextView,descriptionTextView, numberOfRoomMates, date, username, locationAddressTextView;
     ViewPagerAdapterApartmentView viewPagerAdapterApartmentView;
@@ -60,10 +62,7 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
     @Override
     protected void onStart() {
         super.onStart();
-
         mapView.onStart();
-
-
     }
 
     @Override
@@ -74,6 +73,7 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
             apartment = getIntent().getExtras().getParcelable("apartment");
         }
         setContentView(R.layout.activity_apartment_page);
+        expandImagesButton = findViewById(R.id.expand_button);
         maleImageView = findViewById(R.id.male_image_view_apartment);
         femaleImageView = findViewById(R.id.female_image_view_apartment);
         petsImageView = findViewById(R.id.pets_allowd_image_view_apartment);
@@ -156,6 +156,13 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
         viewPager.setAdapter(viewPagerAdapterApartmentView);
         dotsIndicator.setViewPager(viewPager);
         viewPager.getAdapter().registerDataSetObserver(dotsIndicator.getDataSetObserver());
+        expandImagesButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ImageViewPager imageViewPager = new ImageViewPager(apartment.getImage_url());
+                imageViewPager.show(getSupportFragmentManager() , null);
+            }
+        });
 
         List<String> preferences = apartment.getPreferences();
         if (preferences!=null)
@@ -307,8 +314,6 @@ class ViewPagerAdapterApartmentView extends PagerAdapter {
     @Override
     public Object instantiateItem(@NonNull ViewGroup container, int position) {
         ImageView imageView = new ImageView(context);
-
-
 
         StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(imageUrls.get(position));
 

@@ -16,7 +16,7 @@
         android:layout_height="wrap_content"
 
         android:background="@drawable/tablayout_round"
-        android:elevation="10dp"
+        android:elevation="3dp"
         android:scrollIndicators="none"
         app:tabIndicatorAnimationDuration="0"
         app:tabMode="fixed"
@@ -41,23 +41,23 @@
         android:id="@+id/expand_button_wrapper"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:elevation="5dp"
+        android:elevation="3dp"
         android:layout_alignBottom="@id/buttons_linear_layout"
         android:layout_alignParentRight="true"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="15dp"
         android:layout_below="@+id/my_shroomies_tablayout"
         android:background="@drawable/yellow_background_round_left_bottom_top">
-    <ImageButton
-        android:id="@+id/expand_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_expand_icon"
-        android:paddingTop="15dp"
-        android:paddingBottom="15dp"
-        android:paddingRight="5dp"
-        android:paddingLeft="5dp"
-        android:background="@android:color/transparent"
-        />
+
+        <ImageButton
+            android:id="@+id/expand_button"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent"
+            android:paddingLeft="5dp"
+            android:paddingTop="15dp"
+            android:paddingRight="5dp"
+            android:paddingBottom="15dp"
+            android:src="@drawable/ic_expand_icon" />
     </LinearLayout>
     <LinearLayout
         android:id="@+id/buttons_linear_layout"
@@ -67,13 +67,11 @@
         android:layout_below="@+id/my_shroomies_tablayout"
         android:layout_toLeftOf="@id/expand_button_wrapper"
         android:animateLayoutChanges="true"
-
-        android:elevation="3dp"
-        android:layout_marginTop="10dp"
+        android:elevation="2dp"
+        android:layout_marginTop="15dp"
         android:layout_marginBottom="5dp"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="-4dp"
-
         android:visibility="invisible"
         android:background="@drawable/yellow_background_round_left_bottom_top"
         android:orientation="horizontal">
@@ -166,6 +164,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/my_shroomies_tablayout"
+
+        android:layout_marginLeft="3dp"
+        android:layout_marginRight="3dp"
         app:recyclerview_fling_animation_size=".5"
         app:recyclerview_overscroll_animation_size=".5"
         app:recyclerview_damping_ratio="DAMPING_RATIO_LOW_BOUNCY"
@@ -178,9 +179,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/my_shroomies_tablayout"
-        android:layout_marginLeft="20dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginRight="20dp"
+
+        android:layout_marginLeft="3dp"
+        android:layout_marginRight="3dp"
+
         android:visibility="gone"
         app:recyclerview_fling_animation_size=".5"
         app:recyclerview_overscroll_animation_size=".5"
@@ -196,7 +198,7 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
         android:src="@drawable/ic_edit"
-        android:background="@drawable/button_circle_yellow"
+        android:background="@drawable/button_round_alabaster"
         android:layout_margin="20dp"
         android:padding="20dp"
         android:elevation="3dp" />

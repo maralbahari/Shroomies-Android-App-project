@@ -406,7 +406,6 @@ import com.google.firebase.database.FirebaseDatabase;
         searchState= false;
         Query query = buildQuery();
 
-
         query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {
@@ -449,10 +448,14 @@ import com.google.firebase.database.FirebaseDatabase;
                  }
              }
              }
-             String seekBar = prefs.getString("range_preference" , "");
-              maxPrice = RangeBarHelper.getHighValueFromJsonString(seekBar);
-              minPrice = RangeBarHelper.getLowValueFromJsonString(seekBar);
-
+             String seekBar = prefs.getString("range_preference" , null);
+             if (seekBar == null){
+                 maxPrice=10000;
+                 minPrice= 100;
+             }else {
+                 maxPrice = RangeBarHelper.getHighValueFromJsonString(seekBar);
+                 minPrice = RangeBarHelper.getLowValueFromJsonString(seekBar);
+             }
          }
 
          query =  apartmentPostReference
@@ -506,6 +509,7 @@ import com.google.firebase.database.FirebaseDatabase;
         // data is less than the required per pagination
         // this is needed because we have to filter for price on the  client side
         // and if the amount of data retrieved is too low the the user has to pull down and retrieve  a small sets of data
+
         int dataRetrieved = 0;
         if(apartmentList.size()==0){
             newContentRange=0;
@@ -524,8 +528,8 @@ import com.google.firebase.database.FirebaseDatabase;
                     dataRetrieved++;
                     newContentRange++;
                 }
-            }
 
+            }
 //            if data retrieved is low then load more data
             if(dataRetrieved<APARTMENT_PER_PAGINATION){
                 if(!searchState){

@@ -38,7 +38,7 @@ public class ViewCards extends DialogFragment {
     private TasksCard tasksCard;
     private ExpensesCard expensesCard;
     private boolean taskCardSelected;
-    private TextView title,dueDate,description;
+    private TextView title,dueDate,description , noFileAddedTextView  , expensesTextView;
     private ImageView attachedFile;
     private RecyclerView sharedAmounts;
     private SocialTextView mention;
@@ -72,6 +72,7 @@ public class ViewCards extends DialogFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        noFileAddedTextView = v.findViewById(R.id.no_file_added);
         title=v.findViewById(R.id.view_card_title_tv);
         dueDate=v.findViewById(R.id.view_card_date);
         description=v.findViewById(R.id.view_card_description);
@@ -80,6 +81,7 @@ public class ViewCards extends DialogFragment {
         importanceView=v.findViewById(R.id.view_card_importance);
         close=v.findViewById(R.id.close_view_card);
         viewCardRecycler=v.findViewById(R.id.view_card_recycler);
+        expensesTextView = v.findViewById(R.id.expenses_text_view);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         viewCardRecycler.setLayoutManager(linearLayoutManager);
 
@@ -110,9 +112,6 @@ public class ViewCards extends DialogFragment {
                 }
                 if(!importance.isEmpty() ){
                     switch (importance) {
-                        case "0":
-                            importanceView.setBackgroundColor(getActivity().getColor(R.color.okGreen));
-                            break;
                         case  "2":
                             importanceView.setBackgroundColor(getActivity().getColor(R.color.canceRed));
                             break;
@@ -120,7 +119,7 @@ public class ViewCards extends DialogFragment {
                             importanceView.setBackgroundColor(getActivity().getColor(R.color.orange));
                             break;
                         default:
-                            importanceView.setBackgroundColor(Color.parseColor("#F5CB5C"));
+                            importanceView.setBackgroundColor(getActivity().getColor(R.color.okGreen));
                     }
 
                 }
@@ -135,8 +134,8 @@ public class ViewCards extends DialogFragment {
                 HashMap<String, Float> membersShares=expensesCard.getMembersShares();
                 if(!membersShares.isEmpty()){
                     getMembersShares(membersShares);
-                }else if(membersShares.isEmpty()){
-//                    viewCardRecycler.setVisibility(View.GONE);
+                }else {
+                    expensesTextView.setVisibility(View.GONE);
                 }
                 if(!due.isEmpty() ){
                     dueDate.setText(due);
@@ -169,6 +168,9 @@ public class ViewCards extends DialogFragment {
                             .centerCrop()
                             .into(attachedFile);
                     attachedFile.setPadding(0,0,0,0);
+                    noFileAddedTextView.setVisibility(View.GONE);
+                }else{
+
                 }
 
             }
@@ -191,7 +193,6 @@ public class ViewCards extends DialogFragment {
                         user.setSharedAmount(Float.valueOf(membersShares.get(id).toString()));
                         shroomiesList.add(user);
                         splitAdapter.notifyItemInserted(shroomiesList.indexOf(user));
-
                     }
                 }
 

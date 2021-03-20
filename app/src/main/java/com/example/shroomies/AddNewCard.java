@@ -24,7 +24,6 @@ import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -161,7 +160,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
         dueDate = v.findViewById(R.id.due_date);
         mention = v.findViewById(R.id.tag_shroomie);
         close=v.findViewById(R.id.x_button_new_card);
-        done = v.findViewById(R.id.expense_done);
+        done = v.findViewById(R.id.task_done);
         splitExpenses=v.findViewById(R.id.split_expenses);
         cameraPermissions = new String[]{Manifest.permission.CAMERA, Manifest.permission.WRITE_EXTERNAL_STORAGE};
         storagePermissions = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
@@ -188,6 +187,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
         splitExpenses.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                splitExpenses.setChecked(false);
                 SplitExpenses split=new SplitExpenses();
                 Bundle bundle1=new Bundle();
                 bundle1.putParcelable("APARTMENT_DETAILS",apartment);
@@ -765,6 +765,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
     public void sendInput(HashMap<String, Float> sharedSplit) {
         this.sharedAmountsList=sharedSplit;
         if(!sharedAmountsList.isEmpty()){
+            splitExpenses.setChecked(true);
             splitExpenses.setText("Split");
             splitExpenses.setChecked(true);
             splitExpenses.setTextColor(getActivity().getColor(R.color.white));

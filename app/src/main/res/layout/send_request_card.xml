@@ -41,19 +41,23 @@
                 android:layout_toRightOf="@+id/request_member_photo"
                 />
 
-            <androidx.appcompat.widget.AppCompatButton
+            <Button
                 android:id="@+id/send_request_btn"
-                android:layout_width="120dp"
-                android:layout_height="30dp"
-                android:background="@drawable/ic_send_request"
-                android:layout_marginTop="30dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@drawable/button_rounded_yello"
                 android:layout_alignParentRight="true"
                 android:layout_marginRight="10dp"
                 android:text="Send request"
                 android:textColor="@color/white"
-                android:textSize="10sp"
-                android:drawableStart="@drawable/ic_request"
+                android:layout_centerVertical="true"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
                 android:padding="5dp"
+                android:drawablePadding="3dp"
+                android:textAllCaps="false"
+                android:fontFamily="@font/amiko"
+                android:drawableStart="@drawable/ic_request"
                 android:visibility="gone"
                 />
 

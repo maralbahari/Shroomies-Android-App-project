@@ -5,16 +5,13 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -31,17 +28,12 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
-import com.google.firebase.database.ValueEventListener;
 import com.hendraanggrian.widget.SocialTextView;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 
 
@@ -88,7 +80,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
     public class TasksCardViewHolder extends RecyclerView.ViewHolder {
 
         View taskImportanceView;
-        TextView title, description, dueDate, markAsDone;
+        TextView title, description, dueDate;
         private SocialTextView mention;
         ImageButton delete, archive;
         ImageView sadShroomie, stars, shroomieArchive;
@@ -105,8 +97,8 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
             dueDate = v.findViewById(R.id.dueDate_card);
             delete = v.findViewById(R.id.delete_card_btn);
             archive = v.findViewById(R.id.archive_card_btn);
-            done = v.findViewById(R.id.expense_done);
-            markAsDone = v.findViewById(R.id.shroomie_markasdone);
+            done = v.findViewById(R.id.task_done);
+
             mention = v.findViewById(R.id.expenses_mention_et);
             mention.setMentionColor(Color.BLUE);
             taskCardView=v.findViewById(R.id.task_card_view);
@@ -160,7 +152,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
                         rootRef.child("apartments").child(apartment.getApartmentID()).child("tasksCards").child(tasksCardsList.get(getAdapterPosition()).getCardId()).child("done").setValue("true").addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
-                                markAsDone.setText("Done!");
+                                done.setText("Done!");
                                 saveToDoneLog(apartment.getApartmentID(),tasksCardsList.get(getAdapterPosition()));
                                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
                                 LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
@@ -265,16 +257,16 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         Boolean cardStatus = tasksCardsList.get(position).getDone().equals("true");
             if (cardStatus){
                 holder.done.setChecked(cardStatus);
-                holder.markAsDone.setText("Done!");
+                holder.done.setText("Done!");
             }else{
                 holder.done.setChecked(false);
-                holder.markAsDone.setText("Mark as done");
+                holder.done.setText("Mark as done");
             }
 
         if (fromArchive){
             holder.archive.setVisibility(view.GONE);
             holder.done.setVisibility(View.GONE);
-            holder.markAsDone.setVisibility(View.GONE);
+            holder.done.setVisibility(View.GONE);
             holder.mention.setText(tasksCardsList.get(position).getMention());
             holder.delete.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -311,17 +303,15 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         }
 
         switch (importanceView) {
-            case "0":
-                holder.taskImportanceView.setBackgroundColor(Color.GREEN);
+
+            case  "2":
+                holder.taskImportanceView.setBackgroundColor(context.getColor(R.color.canceRed));
                 break;
-            case "2":
-                holder.taskImportanceView.setBackgroundColor(Color.RED);
-                break;
-            case "1":
-                holder.taskImportanceView.setBackgroundColor(Color.parseColor("#F59C34"));
+            case  "1":
+                holder.taskImportanceView.setBackgroundColor(context.getColor(R.color.orange));
                 break;
             default:
-                holder.taskImportanceView.setBackgroundColor(Color.parseColor("#F5CB5C"));
+                holder.taskImportanceView.setBackgroundColor(context.getColor(R.color.okGreen));
         }
     }
 

@@ -4,8 +4,9 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.TranslateAnimation;
 import android.widget.Button;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -33,16 +34,15 @@ public class UserAdapterSplitExpenses extends RecyclerView.Adapter<UserAdapterSp
    private TextView totalText;
    private boolean fromViewCard=false;
    private HashMap<String, Float> sharesHashmap=new HashMap<String, Float>();
-   shroomiesShares shares;
+   ShroomiesShares shares;
    private Fragment targetedFragment;
    private Button ok;
     SplitExpenses.membersShares myMemberShares;
 
 
 
-   public UserAdapterSplitExpenses(shroomiesShares shroomiesShares){
+   public UserAdapterSplitExpenses(ShroomiesShares shroomiesShares){
        this.shares=shroomiesShares;
-
    }
 
     public UserAdapterSplitExpenses(ShroomiesApartment apartment, ArrayList<User> shroomieList, Context context, String amount, TextView totalText, Fragment targetedFragment, Button ok, SplitExpenses.membersShares myMemberShares) {
@@ -66,7 +66,6 @@ public class UserAdapterSplitExpenses extends RecyclerView.Adapter<UserAdapterSp
     @Override
     public UserViewHolderSplit onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(context);
-
         v = layoutInflater.inflate(R.layout.shroomies_split_card,parent,false);
         rootRef= FirebaseDatabase.getInstance().getReference();
         mAuth=FirebaseAuth.getInstance();
@@ -75,6 +74,7 @@ public class UserAdapterSplitExpenses extends RecyclerView.Adapter<UserAdapterSp
 
     @Override
     public void onBindViewHolder(@NonNull UserViewHolderSplit holder, int position) {
+
     if(!shroomieList.get(position).getImage().isEmpty()){
         GlideApp.with(context)
                 .load(shroomieList.get(position).getImage())
@@ -83,13 +83,13 @@ public class UserAdapterSplitExpenses extends RecyclerView.Adapter<UserAdapterSp
                 .into(holder.profilePic);
         holder.profilePic.setPadding(2,2,2,2);
     }
+
     holder.userName.setText(shroomieList.get(position).getName());
     if(fromViewCard){
         holder.amountSeekBar.setVisibility(View.INVISIBLE);
         holder.sharedAmount.setText(shroomieList.get(position).getSharedAmount()+" RM");
-    }if(!fromViewCard){
+    }else{
             if(!amount.isEmpty()){
-
                 holder.amountSeekBar.setMaxFloat(Float.parseFloat(amount));
                 holder.amountSeekBar.setValue(Float.parseFloat(amount)/shroomieList.size());
                 holder.amountSeekBar.setKeyProgressIncrement(1);
@@ -99,6 +99,9 @@ public class UserAdapterSplitExpenses extends RecyclerView.Adapter<UserAdapterSp
                 shares.sendInput(sharesHashmap);
             }
     }
+
+        // animate view changes
+        setFadeAnimation(holder.itemView);
 
 
     }
@@ -162,7 +165,7 @@ public class UserAdapterSplitExpenses extends RecyclerView.Adapter<UserAdapterSp
     public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
         try {
-            shares = (shroomiesShares) targetedFragment;
+            shares = (ShroomiesShares) targetedFragment;
         }catch(ClassCastException e){
 
         }
@@ -170,7 +173,14 @@ public class UserAdapterSplitExpenses extends RecyclerView.Adapter<UserAdapterSp
 
 
 
-    public interface shroomiesShares{
+    public interface ShroomiesShares {
         void sendInput(HashMap<String, Float> sharesHash);
+    }
+
+
+    private void setFadeAnimation(View view) {
+        Animation animation = new TranslateAnimation(0,0 , 0,view.getHeight());
+        animation.setDuration(1000);
+        view.startAnimation(animation);
     }
 }

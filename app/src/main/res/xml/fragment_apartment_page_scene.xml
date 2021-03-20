@@ -40,6 +40,21 @@
             android:id="@+id/view_pager_apartment_view"
             motion:layout_constraintEnd_toEndOf="parent"
             motion:layout_constraintTop_toBottomOf="@+id/include1" />
+        <Constraint
+            android:layout_height="wrap_content"
+            motion:layout_constraintBottom_toBottomOf="parent"
+            motion:layout_constraintLeft_toLeftOf="parent"
+            android:layout_width="match_parent"
+            motion:layout_constraintTop_toBottomOf="@+id/view_pager_apartment_view"
+            android:id="@+id/nestedScrollView2" />
+        <Constraint
+            android:id="@+id/expand_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            motion:layout_constraintLeft_toLeftOf="parent"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            motion:layout_constraintTop_toTopOf="@+id/view_pager_apartment_view" />
     </ConstraintSet>
 
     <ConstraintSet android:id="@+id/end">
@@ -65,5 +80,14 @@
             motion:layout_constraintEnd_toEndOf="parent"
             motion:layout_constraintTop_toBottomOf="@+id/view_pager_apartment_view"
             android:layout_marginEnd="20dp" />
+        <Constraint
+            android:layout_height="wrap_content"
+            motion:layout_editor_absoluteX="0dp"
+            android:layout_width="wrap_content"
+            motion:layout_constraintLeft_toLeftOf="parent"
+            motion:layout_constraintTop_toTopOf="@+id/view_pager_apartment_view"
+            android:id="@+id/expand_button"
+            motion:layout_editor_absoluteY="0dp"
+            android:alpha="0" />
     </ConstraintSet>
 </MotionScene>

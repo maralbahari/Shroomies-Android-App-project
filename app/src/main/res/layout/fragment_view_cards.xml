@@ -2,26 +2,31 @@
 <androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
+    android:layout_width="wrap_content"
     android:layout_height="match_parent"
     tools:context=".ViewCards"
+    android:animateLayoutChanges="true"
     >
     <RelativeLayout
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="match_parent"
-        android:background="@color/white">
+        android:background="@color/white"
+        android:animateLayoutChanges="true">
         <ImageView
             android:id="@+id/view_card_image"
             android:layout_width="match_parent"
             android:layout_height="160dp"
             android:background="@color/white"
-            android:padding="40dp"
-            app:srcCompat="@drawable/ic_icon_awesome_image"
+           android:padding="40dp"
+            app:srcCompat="@drawable/ic_no_file_added"
+
             />
         <TextView
+            android:id="@+id/no_file_added"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="No image added"
+            android:textColor="@color/lightGrey"
             android:layout_alignBottom="@id/view_card_image"
             android:layout_centerHorizontal="true"
             android:layout_marginBottom="10dp"
@@ -38,6 +43,8 @@
             android:id="@+id/view_card_title_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_toLeftOf="@id/view_card_date"
+            android:layout_alignParentLeft="true"
             android:layout_below="@id/view_card_importance"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="10dp"
@@ -54,10 +61,13 @@
             android:text="no due date picked"
             android:inputType="date"
             android:id="@+id/view_card_date"
+
             android:layout_below="@+id/view_card_importance"
-            android:layout_marginTop="10dp"
+
             android:textColor="@color/lightGrey"
+            android:paddingRight="10dp"
             android:layout_alignParentRight="true"
+            android:layout_marginTop="10dp"
             android:layout_marginRight="10dp"
             android:drawableStart="@drawable/ic_calendar_day"
             android:drawablePadding="8dp"
@@ -83,7 +93,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginRight="10dp"
-            android:layout_marginLeft="5dp"
+            android:layout_marginLeft="10dp"
             android:id="@+id/view_card_mention_tv"
             android:text="mentions"
             android:paddingLeft="5dp"
@@ -110,12 +120,25 @@
             android:id="@+id/view_card_mention"
             />
 
+        <TextView
+            android:id="@+id/expenses_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Expenses"
+            android:layout_marginTop="15dp"
+            android:layout_marginLeft="5dp"
+
+            android:fontFamily="@font/amiko"
+            android:textColor="@color/lightGrey"
+            android:layout_below="@id/view_card_mention"
+            />
+
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/view_card_recycler"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/view_card_mention"
-            android:layout_marginTop="10dp"
+            android:layout_below="@+id/expenses_text_view"
+            android:layout_marginTop="5dp"
             android:layout_marginBottom="10dp"
             android:layout_marginRight="5dp"
             android:layout_marginLeft="5dp"
@@ -126,11 +149,13 @@
             android:id="@+id/close_view_card"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_marginTop="5dp"
-            android:layout_marginRight="5dp"
+            android:layout_alignEnd="@id/view_card_image"
+           android:layout_marginTop="10dp"
+       android:layout_marginRight="10dp"
             android:elevation="3dp"
-            android:background="@null"
+            android:padding="5dp"
+
+            android:background="@drawable/circle_white_button_small"
             android:src="@drawable/ic_close_icon"
             android:textColor="@color/white" />
     </RelativeLayout>

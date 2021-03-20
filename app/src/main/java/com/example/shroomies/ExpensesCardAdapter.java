@@ -5,7 +5,6 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -13,7 +12,6 @@ import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -32,19 +30,15 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.hendraanggrian.widget.SocialTextView;
 
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.concurrent.TimeUnit;
@@ -181,9 +175,6 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
         }
 
         switch (importanceViewColor) {
-            case "0":
-                holder.importanceView.setBackgroundColor(context.getColor(R.color.okGreen));
-                break;
             case  "2":
                 holder.importanceView.setBackgroundColor(context.getColor(R.color.canceRed));
                 break;
@@ -191,7 +182,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                 holder.importanceView.setBackgroundColor(context.getColor(R.color.orange));
                 break;
             default:
-                holder.importanceView.setBackgroundColor(Color.parseColor("#F5CB5C"));
+                holder.importanceView.setBackgroundColor(context.getColor(R.color.okGreen));
         }
 
         if (!expensesCardArrayList.get(position).getAttachedFile().isEmpty()) {
@@ -200,7 +191,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                     .transform( new CenterCrop() , new RoundedCorners(15) )
                     .into(holder.cardImage);
             holder.cardImage.setPadding(0,0,0,0);
-
+            holder.noFileAttached.setVisibility(View.GONE);
         }
 
     }
@@ -232,7 +223,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
     public class ExpensesViewHolder extends RecyclerView.ViewHolder {
         View importanceView;
         GestureDetector gestureDetector;
-        TextView title,description,dueDate;
+        TextView title,description,dueDate , noFileAttached;
         private SocialTextView mention;
         ImageView cardImage;
         ImageButton archive;
@@ -252,7 +243,8 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
 //            delete = v.findViewById(R.id.delete_card_btn);
             mention = v.findViewById(R.id.expenses_mention_et);
             mention.setMentionColor(Color.BLUE);
-            done = v.findViewById(R.id.expense_done);
+            done = v.findViewById(R.id.task_done);
+            noFileAttached = v.findViewById(R.id.no_file_attached);
 
             expensesCardView=v.findViewById(R.id.my_shroomie_expenses_card);
 

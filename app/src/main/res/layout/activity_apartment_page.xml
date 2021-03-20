@@ -38,7 +38,6 @@
 
         android:layout_marginBottom="20dp"
         android:background="@drawable/dots_background"
-
         android:padding="4dp"
         app:dot_drawable="@drawable/ic_dot_darkgrey"
         app:dot_drawable_unselected="@drawable/ic_dot_lightgrey"
@@ -49,6 +48,16 @@
         app:layout_constraintEnd_toEndOf="@id/view_pager_apartment_view"
         app:layout_constraintStart_toStartOf="@id/view_pager_apartment_view"
 
+        />
+    <ImageButton
+        android:id="@+id/expand_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_expand_image_icon"
+        android:background="@android:color/transparent"
+        app:layout_constraintTop_toTopOf="@+id/view_pager_apartment_view"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_margin="10dp"
         />
     <ImageButton
         android:id="@+id/message_user_button"
@@ -66,6 +75,8 @@
         android:id="@+id/nestedScrollView2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:fadingEdge="none"
+        android:fillViewport="true"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/view_pager_apartment_view"
         >
@@ -73,7 +84,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingBottom="25dp"
+
             >
 
             <TextView
@@ -108,13 +119,24 @@
                 android:text="5 roommates required"
                 android:textSize="20sp" />
 
+            <RelativeLayout
+                android:id="@+id/user_info_relative_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/number_of_roommates_text_view"
+                android:background="@drawable/transparent_background_solid_borders"
+                android:layout_marginTop="10dp"
+                android:paddingBottom="15dp"
+                android:paddingTop="15dp"
+                android:layout_marginBottom="10dp">
+
             <TextView
                 android:id="@+id/post_by_text_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/number_of_roommates_text_view"
+
                 android:layout_marginStart="15dp"
-                android:layout_marginTop="15dp"
+
                 android:text="Post by"
                 android:fontFamily="@font/amiko"
 
@@ -126,14 +148,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:adjustViewBounds="true"
+                android:scaleType="fitXY"
                 android:maxWidth="60dp"
                 android:maxHeight="60dp"
                 android:layout_below="@+id/post_by_text_view"
                 android:layout_marginLeft="15dp"
-                android:layout_marginTop="5dp"
+                android:layout_marginBottom="5dp"
                 android:background="@drawable/circle_white_button"
                 android:padding="10dp"
-                android:elevation="3dp"
+                android:elevation="1dp"
                 android:src="@drawable/ic_user_profile_svgrepo_com" />
 
             <TextView
@@ -160,13 +183,15 @@
                 android:layout_toRightOf="@id/user_image_view"
                 android:text="posted on x-x-x" />
 
+            </RelativeLayout>
+
             <TextView
                 android:id="@+id/about_user_final_text_View"
                 android:fontFamily="@font/amiko"
 
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/user_image_view"
+                android:layout_below="@id/user_info_relative_layout"
                 android:layout_marginLeft="15dp"
                 android:layout_marginTop="10dp"
                 android:text="About this post"
@@ -182,17 +207,28 @@
                     android:layout_marginRight="15dp"
                     android:layout_marginTop="10dp"
 
+                    android:background="@drawable/apartment_post_background"
 
+                    android:padding="10dp"
+                    android:elevation="2dp"
                     android:text="hello my name is badr baswaid im a very funny guy  bvla blabla"
                     android:textSize="20dp" />
 
 
-
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/location_relative_layout"
+    android:layout_below="@id/user_description_text_view"
+    android:background="@drawable/transparent_background_solid_borders"
+    android:layout_marginTop="20dp"
+    android:layout_marginBottom="20dp"
+    >
             <TextView
                 android:id="@+id/location_text_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/user_description_text_view"
+
                 android:layout_marginLeft="15dp"
                 android:layout_marginTop="15dp"
                 android:text="Location"
@@ -204,13 +240,17 @@
 
             <TextView
                 android:id="@+id/location_address_text_view"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/location_text_view"
                 android:layout_marginLeft="15dp"
                 android:layout_marginTop="15dp"
+                android:layout_marginRight="15dp"
                 android:text="Latitud3 jalan lorong universiti"
                 android:fontFamily="@font/amiko"
+                android:padding="3dp"
+                android:elevation="1dp"
+                android:background="@drawable/apartment_post_background"
                 android:textSize="18dp" />
 
             <com.example.shroomies.CustomMapView
@@ -218,20 +258,22 @@
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
                 android:layout_below="@+id/location_address_text_view"
+                android:layout_marginBottom="15dp"
                 android:layout_marginLeft="15dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginRight="15dp" />
+                android:layout_marginRight="15dp"
+                />
+
+</RelativeLayout>
 
 
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-android:layout_below="@id/apartment_post_page_map"
+                android:layout_below="@id/location_relative_layout"
                 android:layout_marginLeft="15dp"
                 android:layout_marginRight="10dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp"
+                android:layout_marginBottom="20dp"
                 android:background="@drawable/text_low_alpha_background"
                 android:elevation="3dp"
                 android:orientation="horizontal"

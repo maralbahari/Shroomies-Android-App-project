@@ -34,7 +34,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class SplitExpenses extends DialogFragment implements UserAdapterSplitExpenses.shroomiesShares {
+public class SplitExpenses extends DialogFragment implements UserAdapterSplitExpenses.ShroomiesShares {
   private View v;
   private TextView totalText;
   private ImageButton cancel;

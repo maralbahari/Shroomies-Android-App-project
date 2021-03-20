@@ -71,17 +71,16 @@
 
             <ImageView
                 android:id="@+id/owner_image"
-                android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
-                android:adjustViewBounds="true"
-                android:maxHeight="50dp"
-                android:maxWidth="50dp"
+                android:layout_height="wrap_content"
                 android:layout_margin="10dp"
+                android:scaleType="fitXY"
                 android:background="@drawable/circle_white_button"
-                android:elevation="5dp"
+                android:elevation="3dp"
+                android:maxWidth="50dp"
+                android:maxHeight="50dp"
                 android:padding="10dp"
-                android:src="@drawable/ic_user_profile_svgrepo_com"
-                />
+                android:src="@drawable/ic_user_profile_svgrepo_com" />
 
             <TextView
                 android:id="@+id/owner_name"
