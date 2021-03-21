@@ -24,7 +24,6 @@
         app:tabIndicatorHeight="2dp"
         app:tabMode="scrollable"
         app:tabMinWidth="120dp"
-
         >
 
         <com.google.android.material.tabs.TabItem

@@ -19,7 +19,10 @@ android {
         manifestPlaceholders = [ mapsApiKey : properties.getProperty("MAPS_API_KEY", "") ]
 
     }
-
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 
     buildTypes {
         release {
@@ -29,6 +32,9 @@ android {
     }
     buildToolsVersion '29.0.2'
 
+    repositories {
+        jcenter()
+    }
 
 }
 
@@ -89,7 +95,9 @@ dependencies {
     implementation 'com.nfx.android:range-bar-preference:0.0.6'
     implementation 'com.xw.repo:bubbleseekbar:3.20'
     implementation 'com.karumi:dexter:6.2.2'
+    implementation 'com.virgilsecurity:ethree:2.0.8'
+    implementation platform('com.google.firebase:firebase-bom:26.7.0')
+    implementation 'com.google.firebase:firebase-functions'
 
 
 }
-apply plugin: 'com.google.gms.google-services'

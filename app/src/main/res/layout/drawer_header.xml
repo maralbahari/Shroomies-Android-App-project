@@ -7,9 +7,6 @@
     android:background="@android:color/transparent"
     android:backgroundTintMode="src_over">
 
-
-
-
             <ImageView
                 android:id="@+id/drawer_nav_profile_pic"
                 app:layout_constraintRight_toRightOf="parent"
@@ -24,10 +21,6 @@
                 android:elevation="3dp"
                 android:src="@drawable/ic_user_profile_svgrepo_com"
                />
-
-
-
-
 
     <TextView
         android:id="@+id/drawer_nav_profile_name"

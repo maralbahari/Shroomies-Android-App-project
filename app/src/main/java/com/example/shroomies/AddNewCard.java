@@ -88,12 +88,12 @@ import java.util.StringTokenizer;
 public class AddNewCard extends DialogFragment implements SplitExpenses.membersShares {
     View v;
      Button attachButton, addCard;
-    TextView newCardTv, dueDate, attachedFile;
+    TextView  dueDate, attachedFile;
     EditText title, description;
     private SocialAutoCompleteTextView mention;
     CheckBox done;
     RadioGroup newcardShroomieRadioGroup;
-    String fTitle, fDescription, fDueDate, fAttachUrl, fImportance, fDone;
+    String fTitle, fDescription;
     private static final int CAMERA_REQUEST_CODE = 100;
     private static final int STORAGE_REQUEST_CODE = 200;
     private static final int IMAGE_PICK_CAMERA_CODE = 300;
