@@ -19,11 +19,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.HashSet;
 import java.util.List;
@@ -126,7 +129,7 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
         ImageView IV_userPic;
         TextView TV_userName,TV_userBudget, TV_DatePosted,TV_userDescription;
         RelativeLayout Lay_card;
-        ImageButton  BT_message;
+        ImageButton  BT_message , deletPostButton;
         ImageView IV_male, IV_female, IV_pet, IV_smoke;
         CheckBox BT_fav;
 
@@ -146,6 +149,7 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
             IV_smoke = itemView.findViewById(R.id.non_smoking_image_view_apartment);
             BT_message = itemView.findViewById(R.id.start_chat_button);
             BT_fav = itemView.findViewById(R.id.favorite_check_button);
+            deletPostButton = itemView.findViewById(R.id.personal_post_delete_button);
 
             BT_message.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -167,6 +171,12 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
 
                         }
                     });
+                }
+            });
+            deletPostButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    deletPersonalPost();
                 }
             });
             BT_fav.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -194,5 +204,26 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
 
 
 }
+
+        private void deletPersonalPost() {
+            FirebaseFirestore
+                    .getInstance()
+                    .collection("postPersonal")
+                    .document(personalPostModelList.get(getAdapterPosition()).getId()).
+                    delete()
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            personalPostModelList.remove(getAdapterPosition());
+                            notifyItemRemoved(getAdapterPosition());
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    //TODO display a dialog
+                }
+            });
+
+        }
     }
 }

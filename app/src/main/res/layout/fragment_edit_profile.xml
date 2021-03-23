@@ -4,181 +4,176 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".EditProfile"
-    android:layout_marginTop="60dp"
-    android:layout_marginBottom="50dp"
     android:background="@drawable/gradient_yellow_background"
-  >
+    >
 
-<RelativeLayout
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <TextView
-        android:elevation="5dp"
-        android:background="@drawable/edit_profile_text_view"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp"
-        android:paddingTop="10dp"
-        android:paddingBottom="10dp"
-        android:textSize="20dp"
-        android:id="@+id/edit_profile_text_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Edit profile"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="40dp">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-    </TextView>
-    <ImageButton
-        android:id="@+id/edit_profile_picture"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toRightOf="@+id/edit_profile_image"
-        android:layout_below="@id/edit_profile_text_view"
-        android:src="@drawable/ic_icon_awesome_edit"
-        android:elevation="5dp"
-        android:background="@drawable/button_round"
-        android:layout_marginLeft="-15dp"
-        android:layout_marginTop="20dp"
-        android:padding="6dp"
-        />
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/edit_profile_image_view"
+            android:src="@drawable/ic_user_profile_svgrepo_com"
+            android:layout_centerHorizontal="true"
+            android:background="@color/white"
+            android:layout_marginTop="5dp"
+            android:scaleType="fitXY"
+            android:minHeight="280dp"
+            android:minWidth="300dp"
+            >
 
-    <ImageView
-        android:id="@+id/edit_profile_image"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:minHeight="140dp"
-        android:minWidth="140dp"
-        android:layout_centerHorizontal="true"
-        android:padding="20dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginBottom="5dp"
-        android:background="@drawable/circle_white_button"
-        android:layout_below="@id/edit_profile_text_view"
-        android:src="@drawable/ic_user_profile_svgrepo_com"/>
-
-    <Button
-        android:id="@+id/account_settings_button"
-        android:layout_below="@+id/edit_profile_image"
-        android:layout_width="wrap_content"
-        android:layout_height="30dp"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="20dp"
-        android:text="account settings "
-        android:background="@drawable/button_round_alabaster"
-       android:paddingLeft="5dp"
-        android:paddingRight="5dp"
-        android:drawableStart="@drawable/ic_icon_ionic_ios_settings"
-        android:drawablePadding="5dp"
-        android:textSize="9dp">
-
-    </Button>
-
-    <EditText
-        android:id="@+id/edit_bio"
-        android:layout_width="wrap_content"
-        android:layout_height="50dp"
-        android:layout_below="@id/account_settings_button"
-        android:layout_centerHorizontal="true"
-        android:layout_marginLeft="10dp"
-
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="10dp"
-        android:alpha="0.8"
-        android:background="@drawable/textbox_round"
-        android:drawableStart="@drawable/ic_icon_feather_info"
-        android:drawableEnd="@drawable/ic_icon_ionic_ios_arrow_back"
-        android:drawablePadding="8dp"
-        android:elevation="3dp"
-
-        android:padding="10dp"
-        android:text="Bio">
-
-    </EditText>
-
-    <Button
-        android:id="@+id/edit_username"
-        android:layout_width="wrap_content"
-        android:gravity="left"
-        android:layout_height="50dp"
-        android:layout_below="@id/edit_bio"
-        android:layout_centerHorizontal="true"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginBottom="10dp"
-        android:alpha="0.8"
-        android:background="@drawable/textbox_round"
-        android:drawableEnd="@drawable/ic_icon_ionic_ios_arrow_back"
-        android:elevation="3dp"
-        android:paddingTop="15dp"
-        android:paddingRight="10dp"
-        android:paddingLeft="10dp"
-        android:paddingBottom="10dp"
-        android:text="Change Username"
-        >
-
-    </Button>
-
-    <Button
-        android:gravity="left"
-        android:id="@+id/edit_email"
-        android:layout_width="wrap_content"
-        android:layout_height="50dp"
-        android:layout_below="@id/edit_username"
-        android:layout_centerHorizontal="true"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginBottom="10dp"
-        android:alpha="0.8"
-        android:background="@drawable/textbox_round"
-        android:drawableEnd="@drawable/ic_icon_ionic_ios_arrow_back"
-        android:elevation="3dp"
-        android:paddingTop="15dp"
-        android:paddingRight="10dp"
-        android:paddingLeft="10dp"
-        android:paddingBottom="10dp"
-        android:text="Change Email"
-        android:textAllCaps="false"></Button>
-
-    <Button
-        android:gravity="left"
-        android:id="@+id/edit_password"
-        android:layout_width="wrap_content"
-        android:layout_height="50dp"
-        android:layout_below="@id/edit_email"
-        android:layout_centerHorizontal="true"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginBottom="10dp"
-        android:alpha="0.8"
-        android:background="@drawable/textbox_round"
-        android:drawableEnd="@drawable/ic_icon_ionic_ios_arrow_back"
-        android:elevation="3dp"
-
-        android:text="Change Password"
-        android:paddingTop="15dp"
-        android:paddingRight="10dp"
-        android:paddingLeft="10dp"
-        android:paddingBottom="10dp">
-
-    </Button>
-
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/btn_save"
-        android:layout_marginTop="15dp"
-        android:layout_marginBottom="20dp"
-        android:layout_centerHorizontal="true"
-        android:background="@drawable/button_round_corner_purple"
-        android:text="Save"
-        android:textColor="@color/white"
-        android:layout_below="@+id/edit_password"
-        />
+        </ImageView>
 
 
-</RelativeLayout>
+        <ImageButton
+            android:id="@+id/change_profile_picture"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/edit_profile_image_view"
+            android:layout_marginLeft="-72dp"
+            android:layout_marginTop="-32dp"
+            android:layout_toRightOf="@+id/edit_profile_image_view"
+            android:background="@drawable/button_round"
+            android:elevation="5dp"
+            android:padding="10dp"
+            android:src="@drawable/ic_icon_edit">
+
+        </ImageButton>
+
+        <Button
+            android:id="@+id/edit_bio"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_below="@id/change_profile_picture"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="5dp"
+            android:alpha="0.8"
+            android:background="@drawable/textbox_rectangle"
+            android:drawableEnd="@drawable/ic_icon_ionic_ios_arrow_back"
+            android:drawablePadding="8dp"
+            android:elevation="5dp"
+            android:paddingLeft="10dp"
+            android:paddingTop="15dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="10dp"
+            android:text="Bio"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:gravity="left"
+            >
+        </Button>
+
+        <TextView
+            android:id="@+id/edit_profile_security"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/edit_bio"
+            android:padding="10dp"
+            android:shadowColor="#08020C"
+            android:shadowDx="2"
+            android:shadowDy="2"
+            android:shadowRadius="8"
+            android:text="Login and Security"
+            android:textColor="#FFFFFF"
+            android:textSize="25sp"
+            android:textStyle="bold">
+
+        </TextView>
+
+
+        <Button
+            android:id="@+id/edit_username"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_below="@id/edit_profile_security"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="3dp"
+            android:layout_marginBottom="3dp"
+            android:alpha="0.8"
+            android:background="@drawable/textbox_rectangle"
+            android:drawableEnd="@drawable/ic_icon_ionic_ios_arrow_back"
+            android:elevation="5dp"
+            android:gravity="left"
+            android:paddingLeft="10dp"
+            android:paddingTop="15dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="10dp"
+            android:text="Change Username"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:typeface="normal">
+
+        </Button>
+
+        <Button
+            android:id="@+id/edit_email"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_below="@id/edit_username"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="3dp"
+            android:layout_marginBottom="3dp"
+            android:alpha="0.8"
+            android:background="@drawable/textbox_rectangle"
+            android:drawableEnd="@drawable/ic_icon_ionic_ios_arrow_back"
+            android:elevation="5dp"
+            android:gravity="left"
+            android:paddingLeft="10dp"
+            android:paddingTop="15dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="10dp"
+            android:text="Change Email"
+            android:textAllCaps="false"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2">
+
+        </Button>
+
+        <Button
+            android:id="@+id/change_password"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_below="@id/edit_email"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="3dp"
+            android:alpha="0.8"
+            android:background="@drawable/textbox_rectangle"
+            android:drawableEnd="@drawable/ic_icon_ionic_ios_arrow_back"
+            android:elevation="5dp"
+            android:gravity="left"
+            android:paddingLeft="10dp"
+            android:paddingTop="15dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="10dp"
+            android:text="Change Password"
+            android:textAllCaps="false">
+
+        </Button>
+
+        <Button
+            android:id="@+id/delete_account_button"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_below="@id/change_password"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="25dp"
+            android:layout_marginBottom="5dp"
+            android:alpha="0.8"
+            android:background="@drawable/textbox_rectangle"
+            android:drawableEnd="@drawable/ic_icon_ionic_ios_arrow_back"
+            android:elevation="5dp"
+            android:gravity="left"
+            android:paddingLeft="10dp"
+            android:paddingTop="15dp"
+            android:paddingRight="10dp"
+            android:paddingBottom="10dp"
+            android:text="Delete Account"
+            android:textAllCaps="false"
+            android:textSize="14sp"
+            android:typeface="normal">
+
+        </Button>
+
+    </RelativeLayout>
+
 </androidx.core.widget.NestedScrollView>

@@ -168,41 +168,95 @@ public class SignUpActivity extends AppCompatActivity{
 
     }
 
-    private void getE3Token()  {
-        OnGetTokenCallback tokenCallback = new OnGetTokenCallback() {
-            @NotNull
+    private void getE3Token() {
+
+        com.virgilsecurity.common.callback.OnCompleteListener registerListener = new com.virgilsecurity.common.callback.OnCompleteListener() {
             @Override
-            public String onGetToken() {
-                /*Map<String, String> data*/FirebaseFunctions.getInstance()
+            public void onSuccess() {
+                Log.d("ethree register ", "success");
+            }
+
+            @Override
+            public void onError(@NotNull Throwable throwable) {
+                Log.d("ethree register ", throwable.toString());
+            }
+        };
+
+        OnGetTokenCallback tokenCallback = new OnGetTokenCallback() {
+            String token;
+            @NotNull @Override public String onGetToken() {
+                /*Map<String, String> data*/ FirebaseFunctions.getInstance()
                         .getHttpsCallable("getVirgilJwt")
                         .call()
                         .continueWith(new Continuation<HttpsCallableResult, Object>() {
                             @Override
-                            public Object then(@NonNull Task<HttpsCallableResult> task) {
-                                // save an instance of this token and store in a lckl variable
-                                token = ((Map<String, String>)task.getResult().getData()).get("token");
-                                Log.d("ethree", "success   :"+ token);
-                                eThree.register().addCallback(new com.virgilsecurity.common.callback.OnCompleteListener() {
-                                    @Override
-                                    public void onSuccess() {
-                                        Log.d("ethree register ", "success   :" + token);
-                                    }
-                                    @Override
-                                    public void onError(@NotNull Throwable throwable) {
-                                        Log.d("ethree register ", throwable.toString()+ "   " +token);
-                                    }
-                                });
-                                return token;
+                            public Object then(@NonNull Task<HttpsCallableResult> task) throws Exception {
+                                token = ((Map<String, String>) task.getResult().getData()).get("token");
+                                eThree.register().addCallback(registerListener);
+
+                                String encreyptedText = eThree.authEncrypt("Hi");
+                                Log.d("encrypted text ", encreyptedText);
+
+                                String decryptedText = eThree.authDecrypt(encreyptedText);
+                                Log.d("decrypted text ", decryptedText);
+                                return ((Map<String, String>) task.getResult().getData()).get("token");
                             }
                         });
-
                 return token;
+
+//                Map<String, String> data =
+//                        (Map<String, String>) FirebaseFunctions.getInstance()
+//                                .getHttpsCallable("getVirgilJwt")
+//                                .call()
+//                                .getResult()
+//                                .getData();
+//
+//                Log.d("data is ", data.toString());
+//                return data.get("token");
             }
         };
+//        OnResultListener<EThree> initializeListener = new OnResultListener<EThree>() {
+//
+//            @Override public void onSuccess(EThree result) {
+//                // Init done!
+//                // Save the eThree instance
+//            }
+//
+//            @Override public void onError(@NotNull Throwable throwable) {
+//                // Error handling
+//                Log.d("ethree intialize listener  ", throwable.toString());
+//            }
+//        };
+
+        // Initialize EThree SDK with JWT token from Firebase Function
+//        EThree.initialize(getApplicationContext(), tokenCallback).addCallback(initializeListener);
+//        Function0<String> function0 = new Function0<String>() {
+//            @Override
+//            public String invoke() {
+//                return tokenCallback.onGetToken();
+//            }
+//        };
+//
+//        EThreeParams params;
+//        params = new EThreeParams("Alice",
+//                function0,
+//                getApplicationContext());
+//        // initialize E3Kit with the EThreeParams
+//        EThree eThree = new EThree(params);
 
         eThree = new EThree(mAuth.getCurrentUser().getUid(),tokenCallback,getApplicationContext());
 
+// Initialize EThree SDK with JWT token from Firebase Function
+//
+//       eThree =  new EThree(mAuth.getCurrentUser().getUid(), tokenCallback, getApplicationContext());
+//
+
+//
+//        eThree.register().addCallback(registerListener);
+
+
     }
+
     @Override
     public void onDestroy() {
         super.onDestroy();
