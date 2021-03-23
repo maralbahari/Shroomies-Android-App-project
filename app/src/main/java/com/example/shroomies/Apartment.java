@@ -12,15 +12,19 @@ import java.util.List;
 
 public class Apartment implements Parcelable {
     private String userID,apartmentID, description, id ;
-    private Date date;
+
+
+    public Timestamp getTime_stamp() {
+        return time_stamp;
+    }
+
     private Timestamp time_stamp;
+
     private int numberOfRoommates;
     private double latitude,longitude;
     private List<String> image_url, preferences;
     private int price;
 
-
-    Apartment(){ }
     public String getUserID() {
         return userID;
     }
@@ -51,13 +55,11 @@ public class Apartment implements Parcelable {
     public String getId() {
         return id;
     }
-    public Date getDate(){ return date;}
     public void setApartmentID(String apartmentID) {
         this.apartmentID = apartmentID;
     }
-    public Timestamp getTime_stamp() { return time_stamp; }
-    public void setTime_stamp(Timestamp time_stamp) { this.time_stamp = time_stamp; }
 
+    Apartment(){ }
 
     protected Apartment(Parcel in) {
 
@@ -70,8 +72,6 @@ public class Apartment implements Parcelable {
         image_url = in.createStringArrayList();
         price = in.readInt();
         preferences = in.createStringArrayList();
-        date = (Date) in.readSerializable();
-
 
 
     }
@@ -108,15 +108,8 @@ public class Apartment implements Parcelable {
         dest.writeStringList(image_url);
         dest.writeStringList(preferences);
         dest.writeInt(price);
-        dest.writeSerializable(date);
-
-
 
     }
-    void setDate(){
-        date = time_stamp.toDate();
-    }
-
 
 
 }

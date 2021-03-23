@@ -11,6 +11,7 @@ import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,6 +25,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import java.text.DateFormat;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -100,6 +105,7 @@ public class ExploreApartmentsAdapter extends RecyclerView.Adapter<ExploreApartm
                 holder.favoriteCheckBox.setChecked(true);
             }
         }
+
 
     }
 
@@ -178,6 +184,10 @@ public class ExploreApartmentsAdapter extends RecyclerView.Adapter<ExploreApartm
         // add the parcelable apartment object to the intent and use it's values to
         //update the apartment view class
         intent.putExtra("apartment",apartmentList.get(position));
+
+        ZoneId currentZoneID = ZonedDateTime.now(ZoneId.systemDefault()).getZone();
+        DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+        intent.putExtra("POST_DATE"  , apartmentList.get(position).getTime_stamp().toDate().toInstant().atZone(currentZoneID).format(myFormatObj));
         context.startActivity(intent);
     }
 

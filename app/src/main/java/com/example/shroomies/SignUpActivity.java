@@ -13,6 +13,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -23,6 +24,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.functions.FirebaseFunctions;
+import com.google.firebase.functions.HttpsCallableResult;
 import com.virgilsecurity.android.common.callback.OnGetTokenCallback;
 import com.virgilsecurity.android.common.callback.OnKeyChangedCallback;
 import com.virgilsecurity.android.common.model.EThreeParams;
@@ -39,7 +41,7 @@ import java.util.Map;
 import kotlin.Function;
 import kotlin.jvm.functions.Function0;
 
-public class SignUpActivity extends AppCompatActivity {
+public class SignUpActivity extends AppCompatActivity{
 
     private EditText name;
     private EditText email;
@@ -50,7 +52,8 @@ public class SignUpActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     CustomLoadingProgressBar pd;
     SessionManager sessionManager;
-//    private EThree eThree;
+    private EThree eThree;
+    private String token ="" ;
 
    private String apartmentID;
     @Override
@@ -147,15 +150,13 @@ public class SignUpActivity extends AppCompatActivity {
             public void onComplete(@NonNull Task<Void> task) {
                 findViewById(R.id.registerbt).setEnabled(true);
                 if(task.isSuccessful()){
-                Toast.makeText(getApplicationContext(), "Registered Successfully. Verification email sent to " + user.getEmail(), Toast.LENGTH_SHORT).show();
 
+                    Toast.makeText(getApplicationContext(), "Registered Successfully. Verification email sent to " + user.getEmail(), Toast.LENGTH_SHORT).show();
                     getE3Token();
-//                      Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
+//                    Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
 //                    startActivity(intent);
                     //Toast.makeText(SignUpActivity.this, name+", you are a Shroomie now", Toast.LENGTH_SHORT).show();
                     //get public and private keys for Virgil e3 kit
-
-
                 }
                 else {
                     Log.e("Register", "Send Email verification failed!",task.getException());
@@ -167,77 +168,41 @@ public class SignUpActivity extends AppCompatActivity {
 
     }
 
-    private void getE3Token() {
-
+    private void getE3Token()  {
         OnGetTokenCallback tokenCallback = new OnGetTokenCallback() {
-
-            @NotNull @Override public String onGetToken() {
-                Map<String, String> data =
-                        (Map<String, String>) FirebaseFunctions.getInstance()
-                                .getHttpsCallable("getVirgilJwt")
-                                .call()
-                                .getResult()
-                                .getData();
-                return data.get("token");
-            }
-        };
-//        OnResultListener<EThree> initializeListener = new OnResultListener<EThree>() {
-//
-//            @Override public void onSuccess(EThree result) {
-//                // Init done!
-//                // Save the eThree instance
-//            }
-//
-//            @Override public void onError(@NotNull Throwable throwable) {
-//                // Error handling
-//                Log.d("ethree intialize listener  ", throwable.toString());
-//            }
-//        };
-
-        // Initialize EThree SDK with JWT token from Firebase Function
-//        EThree.initialize(getApplicationContext(), tokenCallback).addCallback(initializeListener);
-        Function0<String> function0 = new Function0<String>() {
+            @NotNull
             @Override
-            public String invoke() {
-                return tokenCallback.onGetToken();
+            public String onGetToken() {
+                /*Map<String, String> data*/FirebaseFunctions.getInstance()
+                        .getHttpsCallable("getVirgilJwt")
+                        .call()
+                        .continueWith(new Continuation<HttpsCallableResult, Object>() {
+                            @Override
+                            public Object then(@NonNull Task<HttpsCallableResult> task) {
+                                // save an instance of this token and store in a lckl variable
+                                token = ((Map<String, String>)task.getResult().getData()).get("token");
+                                Log.d("ethree", "success   :"+ token);
+                                eThree.register().addCallback(new com.virgilsecurity.common.callback.OnCompleteListener() {
+                                    @Override
+                                    public void onSuccess() {
+                                        Log.d("ethree register ", "success   :" + token);
+                                    }
+                                    @Override
+                                    public void onError(@NotNull Throwable throwable) {
+                                        Log.d("ethree register ", throwable.toString()+ "   " +token);
+                                    }
+                                });
+                                return token;
+                            }
+                        });
+
+                return token;
             }
         };
 
-        EThreeParams params;
-        params = new EThreeParams("Alice",
-                function0,
-                getApplicationContext());
-        // initialize E3Kit with the EThreeParams
-        EThree eThree = new EThree(params);
-
-        com.virgilsecurity.common.callback.OnCompleteListener registerListener = new com.virgilsecurity.common.callback.OnCompleteListener() {
-            @Override
-            public void onSuccess() {
-                Log.d("ethree register ", "success");
-            }
-
-            @Override
-            public void onError(@NotNull Throwable throwable) {
-                Log.d("ethree register ", throwable.toString());
-            }
-        };
-
-        eThree.register().addCallback(registerListener);
-
-
-
-
-// Initialize EThree SDK with JWT token from Firebase Function
-//
-//       eThree =  new EThree(mAuth.getCurrentUser().getUid(), tokenCallback, getApplicationContext());
-//
-
-//
-//        eThree.register().addCallback(registerListener);
-
+        eThree = new EThree(mAuth.getCurrentUser().getUid(),tokenCallback,getApplicationContext());
 
     }
-
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -245,6 +210,11 @@ public class SignUpActivity extends AppCompatActivity {
             pd.dismiss();
             pd = null;
         }
+    }
+
+   void  registerUserToEthree(){
+
+
     }
 
 }

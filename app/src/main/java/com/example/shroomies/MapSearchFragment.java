@@ -217,6 +217,7 @@ public class MapSearchFragment extends Fragment {
     }
 
 
+
     private List<Apartment> getApartments(final GoogleMap mMap, final LatLng latLng) {
         final GeoLocation center = new GeoLocation(latLng.latitude, latLng.longitude);
         final List<Apartment> apartments = new ArrayList<>();

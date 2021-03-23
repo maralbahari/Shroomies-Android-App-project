@@ -36,6 +36,9 @@ import com.google.firebase.storage.StorageReference;
 import com.make.dots.dotsindicator.DotsIndicator;
 
 import java.io.IOException;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -190,16 +193,7 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
                 }
             });
             // on click go to the apartment view
-            apartmentCardRelativeLayout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent = new Intent(context, ApartmentViewPage.class);
-                    // add the parcelable apartment object to the intent and use it's values to
-                    //update the apartment view class
-                    intent.putExtra("apartment",apartmentList.get(getAdapterPosition()));
-                    context.startActivity(intent);
-                }
-            });
+            apartmentCardRelativeLayout.setOnClickListener(v -> goToApartmentViewPage(getAdapterPosition()));
             // on check add to shared preferences
             favoriteCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
@@ -224,8 +218,22 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
             });
 
     }
+        private void goToApartmentViewPage(int position) {
+            Intent intent = new Intent(context, ApartmentViewPage.class);
+            // add the parcelable apartment object to the intent and use it's values to
+            //update the apartment view class
+            intent.putExtra("apartment",apartmentList.get(position));
+
+            ZoneId currentZoneID = ZonedDateTime.now(ZoneId.systemDefault()).getZone();
+            DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+            intent.putExtra("POST_DATE"  , apartmentList.get(position).getTime_stamp().toDate().toInstant().atZone(currentZoneID).format(myFormatObj));
+            context.startActivity(intent);
+        }
 
 }
+
+
+
 }
 
 
@@ -277,6 +285,9 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
                 container.removeView((View)object);
 
         }
+
+
+
 
 }
 

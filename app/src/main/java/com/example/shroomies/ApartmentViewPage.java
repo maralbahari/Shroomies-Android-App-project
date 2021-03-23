@@ -51,12 +51,13 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
     ViewPagerAdapterApartmentView viewPagerAdapterApartmentView;
     Apartment apartment;
     CustomMapView mapView;
-    GoogleMap mMap;
+
     Geocoder geocoder;
     Toolbar toolbar;
     ImageView userImageView , maleImageView , femaleImageView , petsImageView , smokeFreeImageView;
     User user;
     FirebaseAuth mAuth;
+    String postDate;
 
 
     @Override
@@ -69,8 +70,10 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getIntent().getExtras() != null) {
+
             apartment = new Apartment();
             apartment = getIntent().getExtras().getParcelable("apartment");
+            postDate  = getIntent().getStringExtra("POST_DATE");
         }
         setContentView(R.layout.activity_apartment_page);
         expandImagesButton = findViewById(R.id.expand_button);
@@ -93,7 +96,11 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+
         initGoogleMap(savedInstanceState);
+
+
 
         mapView.getMapAsync(this);
 
@@ -112,7 +119,12 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
                 }
             }
         });
-
+        if(postDate!=null){
+            date.setText(postDate);
+            Toast.makeText(getApplication() , postDate , Toast.LENGTH_LONG).show();
+        }else{
+            Toast.makeText(getApplication() , "date is null" , Toast.LENGTH_LONG).show();
+        }
         //set the location address
         geocoder = new Geocoder(getApplicationContext());
         try {

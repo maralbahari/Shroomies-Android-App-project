@@ -6,7 +6,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/linearLayout"
     android:orientation="horizontal"
-    android:maxHeight="60dp">
+    android:maxHeight="60dp"
+    android:elevation="3dp">
 
 
     <androidx.appcompat.widget.Toolbar

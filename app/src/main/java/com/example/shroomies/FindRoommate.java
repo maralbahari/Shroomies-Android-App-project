@@ -519,7 +519,6 @@ import com.google.firebase.database.FirebaseDatabase;
                     task.getResult()) {
                     lastCardKey = document.getId();
                     Apartment apartment = document.toObject(Apartment.class);
-                    apartment.setDate();
                     apartment.setApartmentID(document.getId());
 
                     //filter the result for  price range
