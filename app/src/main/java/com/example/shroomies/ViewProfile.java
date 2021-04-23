@@ -213,7 +213,6 @@ public class ViewProfile extends Fragment {
         apartmentPostList = new ArrayList<>();
         apartmentAdapter = new RecycleViewAdapterApartments(apartmentPostList , getActivity(), profileID, false);
         recyclerView.setAdapter(apartmentAdapter);
-
         Query query = mDocRef.collection("postApartment").orderBy("time_stamp", Query.Direction.DESCENDING).whereEqualTo("userID", profileID).limit(APARTMENT_PER_PAGINATION);
         query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override

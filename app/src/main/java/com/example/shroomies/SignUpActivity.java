@@ -2,6 +2,7 @@ package com.example.shroomies;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -13,6 +14,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.airbnb.lottie.L;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -30,6 +32,7 @@ import com.virgilsecurity.android.common.callback.OnKeyChangedCallback;
 import com.virgilsecurity.android.common.model.EThreeParams;
 import com.virgilsecurity.android.ethree.interaction.EThree;
 import com.virgilsecurity.common.callback.OnResultListener;
+import com.virgilsecurity.common.model.Data;
 import com.virgilsecurity.sdk.crypto.KeyPairType;
 
 import org.jetbrains.annotations.NotNull;
@@ -42,7 +45,6 @@ import kotlin.Function;
 import kotlin.jvm.functions.Function0;
 
 public class SignUpActivity extends AppCompatActivity{
-
     private EditText name;
     private EditText email;
     private EditText password;
@@ -52,10 +54,11 @@ public class SignUpActivity extends AppCompatActivity{
     private FirebaseAuth mAuth;
     CustomLoadingProgressBar pd;
     SessionManager sessionManager;
-    private EThree eThree;
-    private String token ="" ;
-
+    public static EThree eThree;
+    private  String token ="";
    private String apartmentID;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,8 +81,6 @@ public class SignUpActivity extends AppCompatActivity{
                 String txtEmail = email.getText().toString().trim();
                 String txtPass = password.getText().toString();
                 String txtConfpw = confirmpw.getText().toString();
-
-
                 if (TextUtils.isEmpty(txtName) || TextUtils.isEmpty(txtEmail) || TextUtils.isEmpty(txtPass)
                         || TextUtils.isEmpty(txtConfpw)){
                     Toast.makeText(SignUpActivity.this, "Empty credentials!", Toast.LENGTH_SHORT).show();
@@ -88,9 +89,7 @@ public class SignUpActivity extends AppCompatActivity{
                     Toast.makeText(SignUpActivity.this, "Password too short!", Toast.LENGTH_SHORT).show();
                 }
                 else {
-
                         registerUser(txtName , txtEmail , txtPass, txtConfpw);
-
                 }
             }
         });
@@ -116,9 +115,7 @@ public class SignUpActivity extends AppCompatActivity{
                 final HashMap<String,Object> apartmentDetails=new HashMap<>();
                 apartmentDetails.put("apartmentID",apartmentID);
                 apartmentDetails.put("ownerID",mAuth.getCurrentUser().getUid());
-
                 mRootref.child("Users").child(mAuth.getCurrentUser().getUid()).setValue(userDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
-
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
@@ -168,93 +165,40 @@ public class SignUpActivity extends AppCompatActivity{
 
     }
 
-    private void getE3Token() {
 
+
+    private void getE3Token() {
         com.virgilsecurity.common.callback.OnCompleteListener registerListener = new com.virgilsecurity.common.callback.OnCompleteListener() {
             @Override
             public void onSuccess() {
                 Log.d("ethree register ", "success");
-            }
 
+            }
             @Override
             public void onError(@NotNull Throwable throwable) {
                 Log.d("ethree register ", throwable.toString());
             }
         };
+        /*Map<String, String> data*/
+        FirebaseFunctions.getInstance()
+                .getHttpsCallable("getVirgilJwt")
+                .call()
+                .continueWith(new Continuation<HttpsCallableResult, Object>() {
+                    @Override
+                    public Object then(@NonNull Task<HttpsCallableResult> task) throws Exception {
+                        token = ((Map<String, String>) task.getResult().getData()).get("token");
+                        eThree = new EThree(mAuth.getCurrentUser().getUid()
+                                , (OnGetTokenCallback) () -> getToken()
+                                , getApplicationContext());
+                        eThree.register().addCallback(registerListener);
+                        return null;
 
-        OnGetTokenCallback tokenCallback = new OnGetTokenCallback() {
-            String token;
-            @NotNull @Override public String onGetToken() {
-                /*Map<String, String> data*/ FirebaseFunctions.getInstance()
-                        .getHttpsCallable("getVirgilJwt")
-                        .call()
-                        .continueWith(new Continuation<HttpsCallableResult, Object>() {
-                            @Override
-                            public Object then(@NonNull Task<HttpsCallableResult> task) throws Exception {
-                                token = ((Map<String, String>) task.getResult().getData()).get("token");
-                                eThree.register().addCallback(registerListener);
+                    }
+                });
+        }
 
-                                String encreyptedText = eThree.authEncrypt("Hi");
-                                Log.d("encrypted text ", encreyptedText);
-
-                                String decryptedText = eThree.authDecrypt(encreyptedText);
-                                Log.d("decrypted text ", decryptedText);
-                                return ((Map<String, String>) task.getResult().getData()).get("token");
-                            }
-                        });
-                return token;
-
-//                Map<String, String> data =
-//                        (Map<String, String>) FirebaseFunctions.getInstance()
-//                                .getHttpsCallable("getVirgilJwt")
-//                                .call()
-//                                .getResult()
-//                                .getData();
-//
-//                Log.d("data is ", data.toString());
-//                return data.get("token");
-            }
-        };
-//        OnResultListener<EThree> initializeListener = new OnResultListener<EThree>() {
-//
-//            @Override public void onSuccess(EThree result) {
-//                // Init done!
-//                // Save the eThree instance
-//            }
-//
-//            @Override public void onError(@NotNull Throwable throwable) {
-//                // Error handling
-//                Log.d("ethree intialize listener  ", throwable.toString());
-//            }
-//        };
-
-        // Initialize EThree SDK with JWT token from Firebase Function
-//        EThree.initialize(getApplicationContext(), tokenCallback).addCallback(initializeListener);
-//        Function0<String> function0 = new Function0<String>() {
-//            @Override
-//            public String invoke() {
-//                return tokenCallback.onGetToken();
-//            }
-//        };
-//
-//        EThreeParams params;
-//        params = new EThreeParams("Alice",
-//                function0,
-//                getApplicationContext());
-//        // initialize E3Kit with the EThreeParams
-//        EThree eThree = new EThree(params);
-
-        eThree = new EThree(mAuth.getCurrentUser().getUid(),tokenCallback,getApplicationContext());
-
-// Initialize EThree SDK with JWT token from Firebase Function
-//
-//       eThree =  new EThree(mAuth.getCurrentUser().getUid(), tokenCallback, getApplicationContext());
-//
-
-//
-//        eThree.register().addCallback(registerListener);
-
-
+    public String getToken(){
+        return token;
     }
 
     @Override
@@ -266,9 +210,6 @@ public class SignUpActivity extends AppCompatActivity{
         }
     }
 
-   void  registerUserToEthree(){
 
-
-    }
 
 }

@@ -3,6 +3,7 @@ package com.example.shroomies;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -18,6 +19,7 @@ import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -33,11 +35,15 @@ import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.functions.FirebaseFunctions;
+import com.google.firebase.functions.HttpsCallableResult;
+import com.virgilsecurity.android.common.callback.OnGetTokenCallback;
 import com.virgilsecurity.android.ethree.interaction.EThree;
 
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
+import java.util.Map;
 
 public class LoginActivity extends AppCompatActivity {
     protected EditText username;
@@ -51,6 +57,8 @@ public class LoginActivity extends AppCompatActivity {
     CustomLoadingProgressBar progressBar;
     Button google_sign;
     SessionManager sessionManager;
+    public static EThree eThree;
+    private String token;
 
     @Override
     protected void onStart() {
@@ -135,6 +143,7 @@ public class LoginActivity extends AppCompatActivity {
                             sessionManager= new SessionManager(LoginActivity.this,userID);
                             sessionManager.createSession(userID,userEmail);
                             sessionManager.setVerifiedEmail(mAuth.getCurrentUser().isEmailVerified());
+                            getE3Token();
                             Toast.makeText(LoginActivity.this, "Welcome to Shroomies! ", Toast.LENGTH_SHORT).show();
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                             intent.putExtra("ID",userID);
@@ -205,7 +214,6 @@ public class LoginActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == RC_SIGN_IN) {
-
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
             if(task.isSuccessful()){
 
@@ -268,6 +276,39 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+
+    private void getE3Token() {
+        com.virgilsecurity.common.callback.OnCompleteListener registerListener = new com.virgilsecurity.common.callback.OnCompleteListener() {
+            @Override
+            public void onSuccess() {
+                Log.d("ethree register ", "success");
+
+            }
+            @Override
+            public void onError(@NotNull Throwable throwable) {
+                Log.d("ethree register ", throwable.toString());
+            }
+        };
+        /*Map<String, String> data*/
+        FirebaseFunctions.getInstance()
+                .getHttpsCallable("getVirgilJwt")
+                .call()
+                .continueWith(new Continuation<HttpsCallableResult, Object>() {
+                    @Override
+                    public Object then(@NonNull Task<HttpsCallableResult> task) throws Exception {
+                        token = ((Map<String, String>) task.getResult().getData()).get("token");
+                        eThree = new EThree(mAuth.getCurrentUser().getUid()
+                                , (OnGetTokenCallback) () -> getToken()
+                                , getApplicationContext());
+                        return null;
+
+                    }
+                });
+    }
+    public String getToken(){
+        return token;
     }
 
 }

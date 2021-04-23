@@ -114,7 +114,7 @@ public class PrivateInboxRecycleViewAdapter extends RecyclerView.Adapter<Private
                 if(snapshot.exists()) {
                  Messages messages = snapshot.getValue(Messages.class);
                  if(messages.getType().equals("text")){
-                     viewHolder.lastMessage.setText(messages.getMessage());
+                     viewHolder.lastMessage.setText(messages.getText());
 
                  }else{
                      viewHolder.lastMessage.setText("Photo");

@@ -7,6 +7,8 @@ public class Messages {
     public String type;
     public String message;
     public String from;
+    public String streamKeyData;
+
 
     public String getIsSeen() {
         return isSeen;
@@ -39,8 +41,8 @@ public class Messages {
         this.type = type;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setText(String text) {
+        this.message = text;
     }
 
     public void setFrom(String from) {
@@ -59,11 +61,19 @@ public class Messages {
         return type;
     }
 
-    public String getMessage() {
+    public String getText() {
         return message;
     }
 
     public String getFrom() {
         return from;
+    }
+
+    public String getStreamKeyData() {
+        return streamKeyData;
+    }
+
+    public void setStreamKeyData(String streamKeyData) {
+        this.streamKeyData = streamKeyData;
     }
 }

@@ -39,8 +39,10 @@ import com.example.shroomies.notifications.Data;
 import com.example.shroomies.notifications.Sender;
 import com.example.shroomies.notifications.Token;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -50,12 +52,23 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.google.gson.Gson;
+import com.virgilsecurity.android.ethree.interaction.EThree;
+import com.virgilsecurity.common.callback.OnResultListener;
+import com.virgilsecurity.sdk.cards.Card;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -70,7 +83,7 @@ public class ChattingActivity extends AppCompatActivity {
     private ImageView receiverProfileImage,attacheButton;
     private TextView receiverUsername;
     private RecyclerView chattingRecycler;
-    private String receiverID,receiverName;
+    private String receiverID;
     private FirebaseAuth mAuth;
     private DatabaseReference rootRef;
     private String senderID;
@@ -90,6 +103,11 @@ public class ChattingActivity extends AppCompatActivity {
     StorageReference filePathName;
     private String imageUrl;
     private ValueEventListener seenLisenter;
+    private EThree eThree;
+    private Card recepientVirgilCard;
+    private Card senderVirgilCard;
+    private int messageEndPosition = 0;
+
 
 //    @Override
 //    protected void onStop() {
@@ -120,7 +138,12 @@ public class ChattingActivity extends AppCompatActivity {
 //    }
 
 
+    @Override
+    protected void onStart() {
+        super.onStart();
 
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -135,6 +158,11 @@ public class ChattingActivity extends AppCompatActivity {
         Bundle extras = getIntent().getExtras();
         if(!(extras==null)){
             receiverID=extras.getString("USERID");
+            //initialize ethree
+            eThree = LoginActivity.eThree;
+            // get the user pubilc key
+            getRecepientCard(receiverID);
+            getSenderCard();
             getUserDetail(receiverID);
         }
         initializeViews();
@@ -146,7 +174,6 @@ public class ChattingActivity extends AppCompatActivity {
         });
 
 
-        retrieveMessages();
 
        addImage.setOnClickListener(new View.OnClickListener() {
            @Override
@@ -181,53 +208,59 @@ public class ChattingActivity extends AppCompatActivity {
         requestQueue= Volley.newRequestQueue(getApplicationContext());
     }
     private void sendMessageToUser(){
+        String encryptedMessage = null;
+        final String messageText= messageBody.getText().toString();
+        if(TextUtils.isEmpty(messageText)) {
+            Toast.makeText(getApplicationContext(), "please enter a message", Toast.LENGTH_LONG).show();
+        }else {
 
-        final String messageText=messageBody.getText().toString();
-        if(TextUtils.isEmpty(messageText)){
-            Toast.makeText(getApplicationContext(),"please enter a message",Toast.LENGTH_LONG).show();
-        }else{
+            encryptedMessage = eThree.authEncrypt(messageText , recepientVirgilCard);
+
             messageBody.setText("");
-            notify=true;
+            // encrypt the message using the static
+            // ethree instance from the login activity
+
+            notify = true;
             // referencing to database which user is send message to whom
-           String messageSenderRef="Messages/"+senderID+"/"+receiverID;
-           String messageReceiverRef="Messages/"+receiverID+"/"+senderID;
-          //create the database ref
-            final String messagePushId= rootRef.child("Messages").child(senderID).child(receiverID).push().getKey();
+            String messageSenderRef = "Messages/" + senderID + "/" + receiverID;
+            String messageReceiverRef = "Messages/" + receiverID + "/" + senderID;
+            //create the database ref
+            final String messagePushId = rootRef.child("Messages").child(senderID).child(receiverID).push().getKey();
             //now making a unique id for each single message so that they wont be replaced and we save everything
 //            String messagePushId=userMessageKey.getKey();
-            Calendar calendarDate=Calendar.getInstance();
-            SimpleDateFormat currentDate=new SimpleDateFormat("dd-MMMM-yyyy");
-            saveCurrentDate=currentDate.format(calendarDate.getTime());
-            Calendar calendarTime=Calendar.getInstance();
-            SimpleDateFormat currentTime=new SimpleDateFormat("HH:mm aa");
-            saveCurrentTime=currentTime.format(calendarTime.getTime());
-            Map messageTextBody= new HashMap();
-            messageTextBody.put("message",messageText);
-            messageTextBody.put("time",saveCurrentTime);
-            messageTextBody.put("date",saveCurrentDate);
-            messageTextBody.put("type","text");
-            messageTextBody.put("from",senderID);
-            messageTextBody.put("isSeen" , "false");
-            Map messageBodyDetails=new HashMap();
-            messageBodyDetails.put(messageSenderRef+"/"+messagePushId,messageTextBody);
-           messageBodyDetails.put(messageReceiverRef+"/"+messagePushId,messageTextBody);
-           rootRef.updateChildren(messageBodyDetails).addOnCompleteListener(new OnCompleteListener() {
-               @Override
-               public void onComplete(@NonNull Task task) {
-                   if(task.isSuccessful()){
+            Calendar calendarDate = Calendar.getInstance();
+            SimpleDateFormat currentDate = new SimpleDateFormat("dd-MMMM-yyyy");
+            saveCurrentDate = currentDate.format(calendarDate.getTime());
+            Calendar calendarTime = Calendar.getInstance();
+            SimpleDateFormat currentTime = new SimpleDateFormat("HH:mm aa");
+            saveCurrentTime = currentTime.format(calendarTime.getTime());
+            Map messageTextBody = new HashMap();
+            messageTextBody.put("message", encryptedMessage);
+            messageTextBody.put("time", saveCurrentTime);
+            messageTextBody.put("date", saveCurrentDate);
+            messageTextBody.put("type", "text");
+            messageTextBody.put("from", senderID);
+            messageTextBody.put("isSeen", "false");
+            Map messageBodyDetails = new HashMap();
+            messageBodyDetails.put(messageSenderRef + "/" + messagePushId, messageTextBody);
+            messageBodyDetails.put(messageReceiverRef + "/" + messagePushId, messageTextBody);
+            rootRef.updateChildren(messageBodyDetails).addOnCompleteListener(new OnCompleteListener() {
+                @Override
+                public void onComplete(@NonNull Task task) {
+                    if (task.isSuccessful()) {
 
-                       chattingRecycler.smoothScrollToPosition(messagesAdapter.getItemCount()-1);
-                       if(firstChat){
-                           addUserToInbox();
-                       }
-                   }else{
-                       String message =task.getException().getMessage();
-                       Toast.makeText(getApplicationContext(),"Error "+message,Toast.LENGTH_SHORT).show();
+                        chattingRecycler.smoothScrollToPosition(messagesAdapter.getItemCount() - 1);
+                        if (firstChat) {
+                            addUserToInbox();
+                        }
+                    } else {
+                        String message = task.getException().getMessage();
+                        Toast.makeText(getApplicationContext(), "Error " + message, Toast.LENGTH_SHORT).show();
 
-                   }
+                    }
 
-               }
-           });
+                }
+            });
         }
 
        rootRef.child("Users").child(senderID).addValueEventListener(new ValueEventListener() {
@@ -236,7 +269,8 @@ public class ChattingActivity extends AppCompatActivity {
               if(snapshot.exists()){
                   User user=snapshot.getValue(User.class);
                   if(notify){
-                      sendNotification(receiverID,user.getName(),messageText);
+                      // TODO decrypt the notification
+//                      sendNotification(receiverID,user.getName(),encryptedMessage);
                   }
                   notify=false;
               }
@@ -304,29 +338,49 @@ public class ChattingActivity extends AppCompatActivity {
     }
     public void retrieveMessages(){
         messagesArrayList = new ArrayList<>();
-       messagesAdapter=new MessagesAdapter(messagesArrayList , getApplication());
-       chattingRecycler.setAdapter(messagesAdapter);
-        rootRef.child("Messages").child(senderID).child(receiverID).addValueEventListener(new ValueEventListener() {
+        messagesAdapter=new MessagesAdapter(messagesArrayList , getApplication() ,recepientVirgilCard , senderVirgilCard);
+        chattingRecycler.setAdapter(messagesAdapter);
+        rootRef.child("Messages").child(senderID).child(receiverID).addChildEventListener(new ChildEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                messagesArrayList.clear();
+            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                 if(snapshot.exists()){
-                    for (DataSnapshot dataSnapshot:
-                    snapshot.getChildren()){
-                        Messages messages = dataSnapshot.getValue(Messages.class);
-                        messagesArrayList.add(messages);
-                    }
+                        Messages message = snapshot.getValue(Messages.class);
+                        messagesArrayList.add(message);
+
+                        // decrypt the message and store in place of the encrypted message
+//                        Toast.makeText(getApplicationContext() , eThree.authDecrypt(message.getText() , senderVirgilCard ) , Toast.LENGTH_SHORT).show();
+                        if(message.getType().equals("text")) {
+                            if (message.getFrom().equals(mAuth.getCurrentUser().getUid())) {
+                                message.setText(eThree.authDecrypt(message.getText(), senderVirgilCard));
+                            } else {
+                                message.setText(eThree.authDecrypt(message.getText(), recepientVirgilCard));
+                            }
+                        }
+                    messagesAdapter.notifyItemInserted(messageEndPosition);
+                    messageEndPosition+=1;
+                    chattingRecycler.smoothScrollToPosition(chattingRecycler.getAdapter().getItemCount());
+
                 }
-                messagesAdapter.notifyDataSetChanged();
-                chattingRecycler.smoothScrollToPosition(chattingRecycler.getAdapter().getItemCount());
+
                 if (messagesArrayList.size()==0|| messagesArrayList==null){
 
                     firstChat= true;
                 }
-//                else{
-//                    // scroll to the end of the recycler if there are messages
-//                    chattingRecycler.smoothScrollToPosition(messagesAdapter.getItemCount()-1);
-//                }
+            }
+
+            @Override
+            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
+            }
+
+            @Override
+            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
+
             }
 
             @Override
@@ -335,7 +389,9 @@ public class ChattingActivity extends AppCompatActivity {
             }
         });
 }
-   private void showImagePickDialog(){
+
+
+    private void showImagePickDialog(){
         String[] options={"Gallery"};
        AlertDialog.Builder builder=new AlertDialog.Builder(this);
        builder.setTitle("Choose Image from");
@@ -402,28 +458,54 @@ public class ChattingActivity extends AppCompatActivity {
 
     }
     private void sendImageMessage(Uri image){
+        byte[] inputData = new byte[0];
         notify=true;
         final ProgressDialog progressDialog=new ProgressDialog(this);
         progressDialog.setMessage("sending image...");
         progressDialog.show();
         StorageReference storageReference = FirebaseStorage.getInstance().getReference();
-        filePathName=storageReference.child("chating images").child(image.getLastPathSegment()
-                +System.currentTimeMillis()+".jpg");
-               filePathName.putFile(image).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+        try {
+            InputStream iStream = getContentResolver().openInputStream(image);
+            try {
+              inputData = getBytes(iStream);
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+                //TODO handle error
+            }
+//            finally {
+//                try {
+//                    iStream.close();
+//                }catch (IOException e){
+//
+//                }
+//            }
+        }catch (FileNotFoundException e){
+            //TODO handle error
+        }
+        filePathName= storageReference.child("chatting images").child(image.getLastPathSegment()
+                +System.currentTimeMillis());
+        filePathName.child("image").putFile(image);
+        filePathName.child("bytes").putBytes(inputData);
+        List<byte[]> encryptedResult =  encryptImageMessage(inputData);
+
+
+        // put the encrypted image to firebase storage
+        // the key must be stored in the real time database
+
+               filePathName.putBytes(encryptedResult.get(1)).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                    @Override
                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                        if(task.isSuccessful()){
                           progressDialog.dismiss();
                            imageUrl=task.getResult().getMetadata().getReference().getPath().toString();
-                           addToRealTimeDataBase(imageUrl);
+                           addToRealTimeDataBase(imageUrl , encryptedResult.get(0));
                        }
-
                    }
                });
 
     }
-    private void addToRealTimeDataBase(String url){
-
+    private void addToRealTimeDataBase(String url , byte[] streamKeyData){
         String messageSenderRef="Messages/"+senderID+"/"+receiverID;
         String messageReceiverRef="Messages/"+receiverID+"/"+senderID;
         //create the database ref
@@ -437,6 +519,7 @@ public class ChattingActivity extends AppCompatActivity {
         SimpleDateFormat currentTime=new SimpleDateFormat("HH:mm aa");
         saveCurrentTime=currentTime.format(calendarTime.getTime());
         Map messageTextBody= new HashMap();
+        messageTextBody.put("streamKeyData" , Base64.getEncoder().encodeToString(streamKeyData));
         messageTextBody.put("message",url);
         messageTextBody.put("time",saveCurrentTime);
         messageTextBody.put("date",saveCurrentDate);
@@ -487,6 +570,7 @@ public class ChattingActivity extends AppCompatActivity {
                 if(snapshot.exists()) {
                     User recieverUser = snapshot.getValue(User.class);
                     if(!recieverUser.getImage().isEmpty()) {
+
                         GlideApp.with(getApplicationContext())
                                 .load(recieverUser.getImage())
                                 .fitCenter()
@@ -568,6 +652,78 @@ public class ChattingActivity extends AppCompatActivity {
 
 
 
+    }
+
+    private void getRecepientCard(String receiverID){
+          // get the reciver public key
+            OnResultListener<Card> findUsersListener =
+                    new OnResultListener<Card>() {
+                        @Override
+                        public void onSuccess(Card card) {
+//                            com.virgilsecurity.common.model.Data data = new com.virgilsecurity.common.model.Data(messageText.getBytes());
+//                            // Encrypt data using user public keys
+//                            com.virgilsecurity.common.model.Data encryptedData = eThree.authEncrypt(data, findUsersResult);
+                            // Encrypt message using user public key
+                            recepientVirgilCard = card;
+                           //TODO disable send button until cards are recived
+                        }
+                        @Override
+                        public void onError(@NotNull Throwable throwable) {
+
+                        }
+                    };
+            eThree.findUser(receiverID).addCallback(findUsersListener);
+
+    }
+    private void getSenderCard(){
+
+        OnResultListener<Card> findUsersListener =
+                new OnResultListener<Card>() {
+                    @Override public void onSuccess(Card senderCard) {
+                        senderVirgilCard = senderCard;
+
+                        retrieveMessages();
+                    }
+
+                    @Override public void onError(@NotNull Throwable throwable) {
+                        // Error handling
+                    }
+                };
+
+// Lookup destination user public keys
+        eThree.findUser(mAuth.getCurrentUser().getUid()).addCallback(findUsersListener);
+
+
+    }
+
+
+    List<byte[]> encryptImageMessage(byte[] imageByteArray){
+
+        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(imageByteArray);
+        int streamSize = imageByteArray.length;
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+
+        byte[] streamDataKey = eThree.encryptShared(byteArrayInputStream , streamSize , byteArrayOutputStream);
+        byte [] encryptedStreamDataKey =  eThree.authEncrypt(new com.virgilsecurity.common.model.Data(streamDataKey) , recepientVirgilCard).getValue();
+        List<byte[]> resultList= new ArrayList<>();
+        resultList.add(encryptedStreamDataKey);
+        resultList.add(byteArrayOutputStream.toByteArray());
+        Toast.makeText(getApplicationContext() , " " + byteArrayOutputStream.toByteArray().length , Toast.LENGTH_SHORT).show();
+
+        return resultList;
+    }
+
+
+    public byte[] getBytes(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
+        int bufferSize = 1024;
+        byte[] buffer = new byte[bufferSize];
+
+        int len = 0;
+        while ((len = inputStream.read(buffer)) != -1) {
+            byteBuffer.write(buffer, 0, len);
+        }
+        return byteBuffer.toByteArray();
     }
 
 }

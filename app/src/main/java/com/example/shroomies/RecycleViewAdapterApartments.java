@@ -195,17 +195,19 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
                     });
                 }
             });
+
             deletePostButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     deletePost();
                 }
-
-
             });
+
+
             // on click go to the apartment view
             apartmentCardRelativeLayout.setOnClickListener(v -> goToApartmentViewPage(getAdapterPosition()));
             // on check add to shared preferences
+
             favoriteCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
