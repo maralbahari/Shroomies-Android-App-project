@@ -106,7 +106,9 @@ public class ChattingActivity extends AppCompatActivity {
     private EThree eThree;
     private Card recepientVirgilCard;
     private Card senderVirgilCard;
+    private int messageStartPosition = 0;
     private int messageEndPosition = 0;
+
 
 
 //    @Override
@@ -340,47 +342,40 @@ public class ChattingActivity extends AppCompatActivity {
         messagesArrayList = new ArrayList<>();
         messagesAdapter=new MessagesAdapter(messagesArrayList , getApplication() ,recepientVirgilCard , senderVirgilCard);
         chattingRecycler.setAdapter(messagesAdapter);
-        rootRef.child("Messages").child(senderID).child(receiverID).addChildEventListener(new ChildEventListener() {
+        rootRef.child("Messages").child(senderID).child(receiverID).addValueEventListener(new ValueEventListener() {
             @Override
-            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                if(snapshot.exists()){
-                        Messages message = snapshot.getValue(Messages.class);
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                if(snapshot.exists()) {
+                    messageStartPosition = messagesArrayList.size();
+                    messagesArrayList.clear();
+
+                    for (DataSnapshot dataSnapshot
+                            : snapshot.getChildren()) {
+                        Messages message = dataSnapshot.getValue(Messages.class);
                         messagesArrayList.add(message);
+
 
                         // decrypt the message and store in place of the encrypted message
 //                        Toast.makeText(getApplicationContext() , eThree.authDecrypt(message.getText() , senderVirgilCard ) , Toast.LENGTH_SHORT).show();
-                        if(message.getType().equals("text")) {
+                        if (message.getType().equals("text")) {
                             if (message.getFrom().equals(mAuth.getCurrentUser().getUid())) {
                                 message.setText(eThree.authDecrypt(message.getText(), senderVirgilCard));
                             } else {
                                 message.setText(eThree.authDecrypt(message.getText(), recepientVirgilCard));
                             }
                         }
-                    messagesAdapter.notifyItemInserted(messageEndPosition);
-                    messageEndPosition+=1;
-                    chattingRecycler.smoothScrollToPosition(chattingRecycler.getAdapter().getItemCount());
+                    }
+                    messageEndPosition = messagesArrayList.size();
 
+                    messagesAdapter.notifyItemRangeInserted(messageStartPosition , messageEndPosition);
+
+                    chattingRecycler.smoothScrollToPosition(chattingRecycler.getAdapter().getItemCount());
                 }
 
                 if (messagesArrayList.size()==0|| messagesArrayList==null){
-
                     firstChat= true;
                 }
-            }
-
-            @Override
-            public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-            }
-
-            @Override
-            public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
             }
 
             @Override
