@@ -21,7 +21,6 @@
       android:layout_width="wrap_content"
       android:layout_height="wrap_content"
       android:text="Split your expense"
-      android:fontFamily="@font/amiko"
       android:textSize="15sp"
       android:layout_marginTop="10dp"
       android:layout_marginRight="10dp"
@@ -54,8 +53,9 @@
       android:layout_marginRight="10dp"
       android:drawableStart="@drawable/ic_malaysian_ringgit"
       android:hint="Enter a number"
-      android:inputType="numberDecimal"
-      android:fontFamily="@font/amiko"
+      android:inputType="number"
+      android:digits="1234567890"
+      android:maxLength="5"
       android:background="@null"
       />
   <androidx.recyclerview.widget.RecyclerView
@@ -78,7 +78,6 @@
       android:layout_below="@+id/shroomie_split_recycler"
       android:layout_marginTop="20dp"
       android:layout_marginLeft="10dp"
-      android:fontFamily="@font/amiko"
     />
   <TextView
       android:id="@+id/total_amount_split"
@@ -86,7 +85,6 @@
       android:layout_height="wrap_content"
       android:text="0 RM"
       android:gravity="center"
-      android:fontFamily="@font/amiko"
       android:layout_below="@id/text_view_total"
       android:layout_marginTop="10dp"
       android:textSize="15dp"
@@ -101,7 +99,7 @@
 
 
   <Button
-      android:id="@+id/ok_split"
+      android:id="@+id/next_button_split_expenses"
       android:layout_width="match_parent"
       android:layout_height="wrap_content"
      android:layout_below="@id/total_amount_split"

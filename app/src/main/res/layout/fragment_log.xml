@@ -8,33 +8,18 @@
     android:orientation="vertical"
     android:background="@color/y">
 
-    <TextView
-        android:id="@+id/recent_events"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Recent Events"
-        android:fontFamily="@font/amiko"
-        android:background="@color/white"
-        android:elevation="3dp"
-        android:textColor="@color/jetBlack"
-        android:textStyle="bold"
-        android:textSize="20sp"
-        android:padding="10dp"
-        />
 
 <com.factor.bouncy.BouncyRecyclerView
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
 
-    android:layout_marginLeft="3dp"
-    android:layout_marginRight="3dp"
     android:id="@+id/log_recycler"
-    android:layout_below="@id/recent_events"
     app:recyclerview_fling_animation_size=".5"
     app:recyclerview_overscroll_animation_size=".5"
     app:recyclerview_damping_ratio="DAMPING_RATIO_LOW_BOUNCY"
     app:recyclerview_stiffness="STIFFNESS_MEDIUM"
     app:allow_drag_reorder="true"
     app:allow_item_swipe="false"
+
     />
 </RelativeLayout>

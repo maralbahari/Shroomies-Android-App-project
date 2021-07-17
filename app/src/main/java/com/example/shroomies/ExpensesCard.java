@@ -7,9 +7,10 @@ import java.util.HashMap;
 
 public class ExpensesCard implements Parcelable {
 
-    String attachedFile, description, title, dueDate, importance,members, cardId, done, mention;
+    String attachedFile, description, title, dueDate, importance,members, cardId, done, mention , fileType;
     HashMap<String, Float> membersShares=new HashMap<String, Float>();
     long date;
+
 
     public ExpensesCard() {
 
@@ -70,6 +71,8 @@ public class ExpensesCard implements Parcelable {
     public void setMention(String mention) {
         this.mention = mention;
     }
+
+    public String getFileType() { return fileType; }
 
     public void setAttachedFile(String attachedFile) {
         this.attachedFile = attachedFile;

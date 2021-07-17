@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/my_shroomies_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/LogoYellow"
+        android:gravity="center"
+        app:contentInsetStart="0dp"
+        app:contentInsetStartWithNavigation="0dp"
+
+        >
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:backgroundTint="@color/LogoYellow"
+            android:background="@color/LogoYellow"
+            app:cardElevation="0dp"
+            app:cardCornerRadius="50dp"
+            android:clickable="true"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:elevation="0dp"
+
+            >
+        <ImageButton
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_shroomies_full_black_30x28"
+            android:background="@android:color/transparent"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:padding="5dp"
+
+            />
+        </androidx.cardview.widget.CardView>
+
+    </androidx.appcompat.widget.Toolbar>
+
+    <FrameLayout
+        android:id="@+id/my_shroomies_container"
+        android:layout_below="@id/my_shroomies_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"/>
+
+</RelativeLayout>

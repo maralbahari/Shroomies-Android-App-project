@@ -20,18 +20,17 @@
         android:text="Add a new card"
         android:textSize="15sp"
         android:textColor="@color/jetBlack"
-        android:fontFamily="@font/amiko"
-        android:drawableStart="@drawable/ic_edit"
+        android:layout_centerVertical="true"
         android:drawablePadding="10dp"
          />
 
-    <ImageView
+    <ImageButton
         android:id="@+id/x_button_new_card"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentRight="true"
         android:layout_margin="10dp"
-
+        android:background="@android:color/transparent"
         app:srcCompat="@drawable/ic_close_icon" />
     </RelativeLayout>
 
@@ -41,12 +40,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Title:"
-       android:layout_marginTop="10dp"
-        android:fontFamily="@font/amiko"
+        android:layout_marginTop="10dp"
         android:background="@drawable/add_new_card_text_background"
-        android:padding="5dp"
-
-        android:layout_below="@+id/due_date"
+        android:padding="10dp"
+        android:layout_below="@+id/relative_layout_add_new_card"
+        android:maxLength="30"
         />
 
     <EditText
@@ -55,8 +53,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="150dp"
+        android:maxLength="200"
         android:hint="Description:"
-        android:fontFamily="@font/amiko"
         android:background="@drawable/add_new_card_text_background"
         android:elevation="3dp"
         android:padding="5dp"
@@ -65,34 +63,16 @@
 
         />
 
-    <TextView
-        android:id="@+id/due_date"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/relative_layout_add_new_card"
-        android:layout_alignParentRight="true"
-        android:layout_marginTop="10dp"
-        android:layout_marginRight="10dp"
-        android:paddingTop="3dp"
-        android:paddingBottom="3dp"
-        android:paddingLeft="7dp"
-        android:paddingRight="7dp"
-        android:elevation="3dp"
-        android:textColor="@color/jetBlack"
-        android:background="@drawable/mention_text_box"
-        android:text="Due date"
-        android:textAlignment="center"
-        />
+
 
     <TextView
         android:id="@+id/new_card_important"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Importance:"
-        android:fontFamily="@font/amiko"
+        android:text="Card color"
         android:textColor="@color/Black"
-        android:layout_below="@+id/new_card_description"
-        android:layout_marginLeft="30dp"
+        android:layout_below="@+id/tag_shroomie"
+        android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
         />
     <RadioGroup
@@ -100,14 +80,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@+id/new_card_important"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
         android:orientation="horizontal">
 
         <RadioButton
             android:id="@+id/newcard_red_radio_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="30dp"
-            android:layout_marginTop="10dp"
+
             android:buttonTint="@color/red"
             android:checked="true"
             android:background="@drawable/importance_red_radio_selector"/>
@@ -116,7 +97,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
-            android:layout_marginTop="10dp"
             android:buttonTint="@color/orange"
             android:background="@drawable/importance_orange_radio_selector"/>
         <RadioButton
@@ -124,104 +104,243 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
-            android:layout_marginTop="10dp"
             android:buttonTint="@color/okGreen"
             android:background="@drawable/importance_green_radio_selector"
             />
 
     </RadioGroup>
 
-    <TextView
-        android:id="@+id/add_new_card_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/newcard_radio_group"
-        android:layout_marginLeft="30dp"
-        android:layout_marginTop="15dp"
-        android:text="Tag a shroomie"
-        android:fontFamily="@font/amiko"
-        android:textColor="@color/jetBlack"
-        android:textSize="15sp" />
+
 
     <com.hendraanggrian.widget.SocialAutoCompleteTextView
         android:gravity="center"
         android:id="@+id/tag_shroomie"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
         android:minHeight="50dp"
-        android:background="@drawable/mention_text_box"
-        android:layout_below="@+id/add_new_card_tv"
+        android:background="@color/white"
+        android:layout_below="@+id/new_card_description"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"
-android:elevation="3dp"
+        android:hint=" @Tag a shroomie"
+        android:elevation="3dp"
         />
 
-    <Button
-        android:id="@+id/my_shroomies_attach_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/tag_shroomie"
-        android:layout_marginLeft="30dp"
-        android:layout_marginTop="20dp"
-        android:layout_alignParentLeft="true"
-        android:background="@drawable/button_rounded_corner_attach"
-        android:drawableLeft="@drawable/ic_attach"
-        android:minHeight="0dp"
-        android:paddingRight="10dp"
-        android:paddingLeft="10dp"
-        android:paddingTop="5dp"
-        android:paddingBottom="5dp"
-        android:text="Attach File"
-        android:textAllCaps="false"
-        android:textColor="@color/white"
-        android:textSize="10sp" />
-
-    <RadioButton
-        android:id="@+id/split_expenses"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/new_card_description"
-        android:layout_alignParentRight="true"
-        android:layout_marginLeft="20dp"
-        android:layout_marginTop="30dp"
-        android:layout_marginRight="30dp"
-        android:background="@drawable/split_expenses_button"
-        android:drawablePadding="10dp"
-        android:elevation="5dp"
-        android:padding="10dp"
-        android:text="Split expenses"
-        android:button="@android:color/transparent"
-        android:checked="false"
-        android:textColor="@color/LogoYellow"
-        android:textSize="15dp" />
-
-    <TextView
-        android:id="@+id/attached_files"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/tag_shroomie"
-        android:layout_marginLeft="5dp"
-        android:layout_marginTop="25dp"
-        android:layout_toRightOf="@+id/my_shroomies_attach_button"
-        android:text="1x file attached"
-        android:visibility="gone" />
-
-    <Button
-        android:id="@+id/my_shroomies_add_button"
+    <LinearLayout
+        android:id="@+id/my_shroomies_linear_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/my_shroomies_attach_button"
+        android:layout_below="@id/newcard_radio_group"
+        android:layout_marginTop="20dp">
 
-        android:layout_marginTop="30dp"
-        android:layout_marginBottom="0dp"
+        <Button
+            android:id="@+id/due_date"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:gravity="center"
+            android:textColor="@color/white"
+            android:background="@color/LogoYellow"
+            android:text="Due date"
+            android:textAllCaps="false"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:textAlignment="center"
+            android:stateListAnimator="@null"
+
+            />
+
+        <Button
+            android:id="@+id/my_shroomies_attach_button"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
+            android:stateListAnimator="@null"
+            android:background="@color/LogoYellow"
+            android:padding="10dp"
+            android:text="Attach File"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:foreground="?android:attr/selectableItemBackground"
+
+
+            />
+
+        <Button
+            android:id="@+id/split_expenses"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:background="@color/LogoYellow"
+            android:padding="10dp"
+            android:text="Expenses"
+            android:button="@android:color/transparent"
+            android:minHeight="0dp"
+            android:gravity="center"
+            android:checked="false"
+            android:textColor="@color/white"
+            android:stateListAnimator="@null"
+            android:textAllCaps="false"
+            android:foreground="?android:attr/selectableItemBackground"
+            />
+
+
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/image_relative_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/my_shroomies_linear_layout"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginEnd="5dp"
+        android:visibility="gone"
+
+        >
+    <ImageView
+        android:id="@+id/attachment_image_view"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:scaleType="fitXY"
+        android:minHeight="100dp"
+        android:maxHeight="150dp"
+        android:layout_margin="10dp"
+        android:layout_marginBottom="10dp"
+
+        />
+    <ImageButton
+        android:id="@+id/delete_attached_image"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/ic_icon_material_remove_circle_outline"
+        android:layout_alignTop="@id/attachment_image_view"
+        android:layout_alignEnd="@id/attachment_image_view"
+        android:layout_marginBottom="10dp"
+        android:background="@drawable/circle_white_button_small"
+        android:elevation="3dp"
+        android:layout_marginTop="-5dp"
+        android:layout_marginEnd="-5dp"
+        />
+    </RelativeLayout>
+    <RelativeLayout
+        android:id="@+id/date_relative_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/my_shroomies_linear_layout"
+        android:layout_toRightOf="@id/image_relative_layout"
+        android:layout_marginTop="15dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:background="@drawable/text_low_alpha_background"
+        android:elevation="3dp"
+        android:padding="3dp"
+        android:visibility="gone">
+
+    <TextView
+        android:id="@+id/date_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableStart="@drawable/ic_calendar_day"
+        android:drawablePadding="5dp"/>
+
+        <ImageButton
+            android:id="@+id/remove_date_image_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/date_text_view"
+            android:src="@drawable/ic_icon_material_remove_circle_outline"
+            android:background="@android:color/transparent"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="5dp"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/expenses_relative_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/date_relative_layout"
+        android:layout_toRightOf="@id/image_relative_layout"
+        android:layout_marginLeft="5dp"
+        android:background="@drawable/text_low_alpha_background"
+        android:elevation="3dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginRight="5dp"
+        android:padding="3dp"
+        android:visibility="gone">
+
+    <TextView
+        android:id="@+id/expenses_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawableStart="@drawable/ic_expense"
+        android:drawablePadding="5dp"
+        />
+
+        <ImageButton
+            android:id="@+id/remove_expense_image_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/expenses_text_view"
+            android:src="@drawable/ic_icon_material_remove_circle_outline"
+            android:background="@android:color/transparent"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="5dp"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/my_shroomies_add_card_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
         android:background="@color/LogoYellow"
-        android:elevation="5dp"
-        android:textColor="@color/white"
+        android:foreground="?android:attr/selectableItemBackground"
 
-        android:textAllCaps="false"
-        android:text="Add card" />
+
+        >
+        <TextView
+            android:id="@+id/my_shroomies_add_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Add card"
+            android:textColor="@color/white"
+            android:layout_centerInParent="true"
+            android:textStyle="bold"
+            android:layout_marginTop="15dp"
+            android:layout_marginBottom="15dp"
+            />
+
+        <com.airbnb.lottie.LottieAnimationView
+
+        android:id="@+id/lottie_loading_animation"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toLeftOf="@id/my_shroomies_add_text_view"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="10dp"
+        android:padding="3dp"
+        android:elevation="3dp"
+        android:layout_margin="5dp"
+        app:lottie_rawRes="@raw/loading_animation_20x20"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true"
+            android:visibility="gone"
+        />
+
+
+
+
+
+    </RelativeLayout>
 
 
 </RelativeLayout>

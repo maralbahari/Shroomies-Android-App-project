@@ -17,12 +17,11 @@
             android:id="@+id/add_member_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-
             android:layout_marginLeft="10dp"
             android:layout_margin="10dp"
             android:text="Add members"
-            android:textColor="@color/Black"
-            android:fontFamily="@font/amiko"
+            android:textColor="@color/jetBlack"
+
             android:textSize="15sp"/>
 
         <ImageButton
@@ -39,12 +38,9 @@
         <androidx.appcompat.widget.SearchView
             android:id="@+id/search_member"
             android:elevation="2dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginRight="5dp"
-            android:layout_marginLeft="5dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/button_round"
+            android:background="@android:color/transparent"
             android:layout_below="@id/text_linear_layout"
             />
 
@@ -52,17 +48,16 @@
         android:id="@+id/recommended_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Recommended users "
+        android:text="Recently contacted users"
         android:layout_marginTop="15dp"
         android:layout_marginLeft="5dp"
-        android:fontFamily="@font/amiko"
         android:textColor="@color/jetBlack"
         android:layout_below="@+id/search_member"
         />
 
 
 
-        <androidx.recyclerview.widget.RecyclerView
+        <com.factor.bouncy.BouncyRecyclerView
             android:id="@+id/add_member_recyclerview"
             android:elevation="5dp"
             android:background="@android:color/transparent"
@@ -71,22 +66,20 @@
             android:layout_below="@+id/recommended_text_view"
             android:layout_marginTop="5dp"
             android:minHeight="300dp"
+            android:layout_above="@id/information_text_view"
 
             />
     <TextView
         android:id="@+id/information_text_view"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@color/lightGrey"
         android:text="Add users to your current group to add cards and manage your unit "
-       android:layout_below="@id/add_member_recyclerview"
+        android:layout_alignParentBottom="true"
 
-        android:layout_marginTop="40dp"
-        android:layout_marginBottom="20dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginRight="20dp"
-        android:fontFamily="@font/amiko"
+        android:layout_marginBottom="10dp"
         android:gravity="center"
+        android:visibility="visible"
 
         />
 

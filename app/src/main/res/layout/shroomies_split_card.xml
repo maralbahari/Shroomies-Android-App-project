@@ -18,17 +18,13 @@
             android:background="@android:color/transparent">
 
             <ImageView
-                android:elevation="5dp"
+                android:elevation="3dp"
                 android:src="@drawable/ic_user_profile_svgrepo_com"
                 android:layout_margin="10dp"
                 android:id="@+id/shroomie_split_pic"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
                 android:adjustViewBounds="true"
-                android:maxHeight="60dp"
-                android:maxWidth="60dp"
-                android:padding="10dp"
-                android:background="@drawable/circle_white_button"
                 />
 
             <TextView
@@ -37,13 +33,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Name"
-                android:fontFamily="@font/amiko"
+                android:gravity="start"
+                android:layout_toLeftOf="@id/split_amount_edit_text"
+                android:lines="1"
+
                 android:layout_marginRight="5dp"
                 android:layout_toRightOf="@+id/shroomie_split_pic"
                 />
             <com.example.shroomies.FloatSeekBar
                 android:layout_width="match_parent"
-                android:layout_height="30dp"
+                android:layout_height="wrap_content"
                 android:layout_toEndOf="@+id/shroomie_split_pic"
                 android:progress="50"
                 android:layout_marginRight="5dp"
@@ -54,15 +53,20 @@
                 android:id="@+id/shroomie_split_seekbar"
                 />
 
-            <TextView
-                android:id="@+id/split_amount_tv"
+            <EditText
+                android:id="@+id/split_amount_edit_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentRight="true"
                 android:layout_alignBottom="@id/shroomie_split_name"
                 android:layout_marginRight="20dp"
-                android:fontFamily="@font/amiko"
-                android:text="0 RM" />
+                android:background="@android:color/transparent"
+                android:inputType="numberSigned"
+                android:digits="1234567890"
+                android:maxLength="5"
+
+
+                android:text="0" />
 
 
         </RelativeLayout>

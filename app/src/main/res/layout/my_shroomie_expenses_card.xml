@@ -4,11 +4,10 @@
     android:id="@+id/my_shroomie_expenses_card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    app:cardCornerRadius="15dp"
+    app:cardCornerRadius="5dp"
     android:layout_margin="4dp"
-  >
-
-
+    android:foreground="?android:attr/selectableItemBackground"
+    >
         <RelativeLayout
             android:id="@+id/r1"
             android:layout_width="wrap_content"
@@ -17,20 +16,18 @@
             <View
                 android:id="@+id/importance_view"
                 android:layout_width="match_parent"
-                android:layout_height="6dp"
+                android:layout_height="3dp"
                 android:layout_alignParentTop="true"
                 android:background="@color/okGreen"
-                android:layout_marginBottom="5dp"
+
                 />
 
             <TextView
                 android:layout_alignParentLeft="true"
                 android:textStyle="bold"
-                android:textColor="@color/Black"
+                android:textColor="@color/jetBlack"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Clean basment "
-                android:fontFamily="@font/amiko"
                 android:layout_toLeftOf="@+id/card_img"
                 android:id="@+id/title_card"
                 android:textSize="20sp"
@@ -38,18 +35,20 @@
                 android:lines="1"
                 android:layout_marginTop="15dp"
                 android:layout_marginLeft="10dp"
-
+                android:ellipsize="end"
+                android:fontFamily="@font/montserrat"
                 />
 
             <CheckBox
                 android:id="@+id/task_done"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/card_description"
-                android:layout_marginTop="5dp"
+                android:layout_below="@+id/task_mention_et"
                android:layout_marginLeft="4dp"
                 android:buttonTint="@color/okGreen"
                 android:text="Mark as done"
+                android:textSize="12sp"
+                android:layout_marginBottom="10dp"
                 android:textColor="@color/lightGrey"
                 />
             <ImageButton
@@ -73,14 +72,15 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/title_card"
                 android:layout_alignParentLeft="true"
-                android:layout_marginTop="5dp"
                 android:layout_marginLeft="10dp"
+                android:layout_marginTop="5dp"
                 android:layout_marginRight="10dp"
                 android:layout_toLeftOf="@id/card_img"
-                android:minHeight="80dp"
-                android:fontFamily="@font/amiko"
-                android:text="the isndmkjefvmndkejfndkefjndmjknkjnljoihjbnkjhiubjnkbjnkbjnkbjknbjknbjknbj knbj knb nobk nob"
-                android:maxLines="6"/>
+                android:ellipsize="end"
+                android:fontFamily="@font/montserrat"
+                android:maxLines="4"
+
+                android:minHeight="80dp" />
 
             <TextView
                 android:id="@+id/no_file_attached"
@@ -91,7 +91,6 @@
                 android:layout_alignRight="@id/card_img"
                 android:layout_marginBottom="30dp"
                 android:text="No file attached"
-                android:fontFamily="@font/amiko"
                 android:textColor="@color/lightGrey"
                 android:textSize="10sp"
                 android:gravity="center"
@@ -103,19 +102,14 @@
                 android:layout_height="wrap_content"
                 android:minWidth="140dp"
                 android:maxWidth="170dp"
-                android:scaleType="fitXY"
-                android:layout_alignBottom="@id/expenses_mention_et"
+                android:scaleType="center"
+                android:layout_alignBottom="@id/task_done"
+                android:layout_marginBottom="10dp"
                 android:layout_marginRight="10dp"
                 android:layout_marginTop="15dp"
                 android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
                 android:elevation="2dp"
-                android:paddingTop="60dp"
-                android:paddingBottom="60dp"
-                android:paddingRight="40dp"
-                android:paddingLeft="40dp"
-
-
                 android:background="@drawable/expense_card_image_background"
                 android:src="@drawable/ic_no_file_added" />
 
@@ -135,48 +129,29 @@
                 android:drawableStart="@drawable/ic_calendar_day"
                 android:drawablePadding="5dp"
                 android:elevation="3dp"
-                android:inputType="date"
                 android:padding="5dp"
-
                 android:text="Due date"
                 android:textColor="@color/jetBlack"
                 android:textSize="12sp"
               />
 
 
-            <TextView
-                android:id="@+id/mention_tv"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/task_done"
-                android:layout_marginLeft="10dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginBottom="10dp"
-                android:paddingLeft="5dp"
-                android:paddingRight="5dp"
-                android:paddingTop="3dp"
-                android:paddingBottom="3dp"
-                android:textSize="10sp"
-                android:background="@drawable/mention_text_box"
-                android:fontFamily="@font/amiko"
-                android:text="mentions"
-                android:textColor="@color/white"
-
-                />
 
             <com.hendraanggrian.widget.SocialTextView
-                android:id="@+id/expenses_mention_et"
+                android:id="@+id/task_mention_et"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_toRightOf="@id/mention_tv"
-                android:layout_alignTop="@id/mention_tv"
+                android:layout_alignParentStart="true"
+                android:visibility="invisible"
                 android:layout_toLeftOf="@id/card_img"
+                android:layout_below="@id/card_description"
+                android:layout_marginTop="10dp"
                 android:elevation="3dp"
-                android:lines="1"
-              android:layout_marginLeft="5dp"
+                android:maxLines="3"
+               android:layout_marginLeft="5dp"
                 android:layout_marginRight="10dp"
-                android:layout_marginBottom="10dp"
-                android:fontFamily="@font/amiko"
+                android:layout_marginBottom="5dp"
+                android:ellipsize="end"
                 android:paddingTop="3dp"
                 android:paddingBottom="3dp"
                 android:textColor="@android:color/holo_blue_dark"

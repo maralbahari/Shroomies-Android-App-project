@@ -250,7 +250,6 @@ public class ChattingActivity extends AppCompatActivity {
                 @Override
                 public void onComplete(@NonNull Task task) {
                     if (task.isSuccessful()) {
-
                         chattingRecycler.smoothScrollToPosition(messagesAdapter.getItemCount() - 1);
                         if (firstChat) {
                             addUserToInbox();
@@ -345,16 +344,13 @@ public class ChattingActivity extends AppCompatActivity {
         rootRef.child("Messages").child(senderID).child(receiverID).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-
                 if(snapshot.exists()) {
                     messageStartPosition = messagesArrayList.size();
                     messagesArrayList.clear();
-
                     for (DataSnapshot dataSnapshot
                             : snapshot.getChildren()) {
                         Messages message = dataSnapshot.getValue(Messages.class);
                         messagesArrayList.add(message);
-
 
                         // decrypt the message and store in place of the encrypted message
 //                        Toast.makeText(getApplicationContext() , eThree.authDecrypt(message.getText() , senderVirgilCard ) , Toast.LENGTH_SHORT).show();

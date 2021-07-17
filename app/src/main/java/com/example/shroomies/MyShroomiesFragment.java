@@ -1,37 +1,25 @@
 package com.example.shroomies;
 
-import android.animation.Animator;
+import android.content.Intent;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.LayoutAnimationController;
-import android.view.animation.TranslateAnimation;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
-import android.widget.Spinner;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.factor.bouncy.BouncyRecyclerView;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.android.material.tabs.TabItem;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -39,112 +27,115 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.skydoves.powerspinner.OnSpinnerItemSelectedListener;
+import com.skydoves.powerspinner.PowerSpinnerView;
+import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 
-public class MyShroomies extends Fragment implements LogAdapter.cardBundles  {
-    View v;
-    private Button  memberButton;
+public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshroomies {
+    //views
+    private View v;
+    private SlidingUpPanelLayout rootlayout;
+    private Button memberButton,logButton;
     private TabLayout myShroomiesTablayout;
     private BouncyRecyclerView myExpensesRecyclerView,myTasksRecyclerView;
-    private Spinner shroomieSpinnerFilter;
-    private DatabaseReference rootRef;
-    private FirebaseAuth mAuth;
+    private PowerSpinnerView shroomieSpinnerFilter;
+    private ImageButton addCardButton , expandButton;
+
+    SlidingUpPanelLayout slidingLayout;
+    //data structures
     private ArrayList<TasksCard> tasksCardsList;
     private ArrayList<ExpensesCard> expensesCardsList;
+    private ArrayList<Log> apartmentLogList;
     private TasksCardAdapter tasksCardAdapter;
-    private  ExpensesCardAdapter expensesCardAdapter;
-    private String tabSelected="expenses";
-    private String apartmentID;
+    private ExpensesCardAdapter expensesCardAdapter;
+    //final static
+    private static final int RESULT_CODE=500;
+    //model
     private ShroomiesApartment apartment;
+    // firebase listeners
     private ValueEventListener expensesCardListener;
     private ValueEventListener tasksCardListener;
     private ValueEventListener apartmentListener;
     private ValueEventListener logListener;
-    private Button logButton;
-    private ImageButton addCardButton , expandButton;
-    private ArrayList<Log> apartmentlogList;
-    private  FragmentTransaction ft;
+    //firebase
+    private DatabaseReference rootRef;
+    private FirebaseAuth mAuth;
+    //fragment
+    private FragmentTransaction ft;
     private FragmentManager fm;
-    private String selectedCardID;
-    private String selectedCardType;
-    private final int RESULT_CODE=500;
+    //values
+    private String selectedCardID , selectedCardType, tabSelected="expenses";
     private boolean cardFound =false;
     private int recyclerPosition=0;
-    private CustomLoadingProgressBar customLoadingProgressBar;
-    private LinearLayout buttonsLinearLayout;
-
-    
+    @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        // Inflate the layout for this fragment
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         v = inflater.inflate(R.layout.fragment_my_shroomies, container, false);
-        rootRef = FirebaseDatabase.getInstance().getReference();
-        mAuth = FirebaseAuth.getInstance();
-        getApartmentDetails();
         return v;
+
     }
-
-
-
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        rootRef = FirebaseDatabase.getInstance().getReference();
+        mAuth = FirebaseAuth.getInstance();
+        getApartmentDetails();
+
         myTasksRecyclerView = v.findViewById(R.id.my_tasks_recycler_view);
         memberButton = v.findViewById(R.id.my_shroomies_member_btn);
         addCardButton = v.findViewById(R.id.my_shroomies_add_card_btn);
-        logButton=v.findViewById(R.id.my_shroomies_log);
+        logButton= v.findViewById(R.id.my_shroomies_log);
         myShroomiesTablayout = v.findViewById(R.id.my_shroomies_tablayout);
         myExpensesRecyclerView = v.findViewById(R.id.my_expenses_recycler_view);
         shroomieSpinnerFilter = v.findViewById(R.id.shroomie_spinner_filter);
         expandButton = v.findViewById(R.id.expand_button);
-        buttonsLinearLayout = v.findViewById(R.id.buttons_linear_layout);
+        rootlayout  = v.findViewById(R.id.sliding_layout);
+        slidingLayout = v.findViewById(R.id.sliding_layout);
 
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+        Toolbar toolbar = getActivity().findViewById(R.id.my_shroomies_toolbar);
+        toolbar.setNavigationIcon(null);
+        toolbar.setTitle(null);
+        toolbar.setElevation(0);
+
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getActivity());
         myExpensesRecyclerView.setHasFixedSize(true);
         myExpensesRecyclerView.setLayoutManager(linearLayoutManager);
 
 
-        LinearLayoutManager linearLayoutManager1 =new LinearLayoutManager(getContext());
+        LinearLayoutManager linearLayoutManager1 =new LinearLayoutManager(getActivity());
         myTasksRecyclerView.setHasFixedSize(true);
         myTasksRecyclerView.setLayoutManager(linearLayoutManager1);
 
         expensesCardsList=new ArrayList<>();
-        expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList,getContext(), false,apartment,getParentFragmentManager(),getView());
+        expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList,getActivity(), false,apartment,getActivity().getSupportFragmentManager(),rootlayout);
         myExpensesRecyclerView.setAdapter(expensesCardAdapter);
 
 
         tasksCardsList=new ArrayList<>();
-        tasksCardAdapter=new TasksCardAdapter(tasksCardsList,getContext(),false,apartment,getParentFragmentManager(),getView());
+        tasksCardAdapter=new TasksCardAdapter(tasksCardsList,getActivity(),false,apartment,getActivity().getSupportFragmentManager(),rootlayout);
         myTasksRecyclerView.setAdapter(tasksCardAdapter);
 
-
-        expandButton.setOnClickListener(new View.OnClickListener() {
+        rootlayout.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
             @Override
-            public void onClick(View v) {
+            public void onPanelSlide(View panel, float slideOffset) {
 
-                if(buttonsLinearLayout.getVisibility()  == View.INVISIBLE){
-                    expandButton.animate().rotation(180).start();
-                    Animation animation = new TranslateAnimation(getView().getWidth(),0 , 0,0);
-                    animation.setDuration(500);
-                    buttonsLinearLayout.setAnimation(animation);
-                    buttonsLinearLayout.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onPanelStateChanged(View panel, SlidingUpPanelLayout.PanelState previousState, SlidingUpPanelLayout.PanelState newState) {
+                if(newState.equals(SlidingUpPanelLayout.PanelState.EXPANDED)){
+                    expandButton.animate().rotation(180).setDuration(100).start();
+
                 }else{
-
-                    expandButton.animate().rotation(0).start();
-                    Animation animation = new TranslateAnimation(0,getView().getWidth() , 0,0);
-                    animation.setDuration(500);
-
-                    buttonsLinearLayout.setAnimation(animation);
-                    buttonsLinearLayout.setVisibility(View.INVISIBLE);
+                    expandButton.animate().rotation(0).setDuration(100).start();
                 }
-
             }
         });
 
@@ -160,15 +151,15 @@ public class MyShroomies extends Fragment implements LogAdapter.cardBundles  {
                     expensesCardsList = new ArrayList<>();
                     retreiveExpensesCards(apartment.getApartmentID());
 
-
                 }
+
                 else if(tab.getPosition()==1){
                     myShroomiesTablayout.setSelectedTabIndicator(R.drawable.tab_indicator_right);
                     myTasksRecyclerView.setVisibility(View.VISIBLE);
                     myExpensesRecyclerView.setVisibility(View.GONE);
                     tabSelected="tasks";
                     tasksCardsList=new ArrayList<>();
-                   retrieveTaskCards(apartment.getApartmentID());
+                    retrieveTaskCards(apartment.getApartmentID());
                 }
             }
 
@@ -182,13 +173,10 @@ public class MyShroomies extends Fragment implements LogAdapter.cardBundles  {
 
             }
         });
-        final ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getContext(),
-                R.array.spinner_options, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        shroomieSpinnerFilter.setAdapter(adapter);
-        shroomieSpinnerFilter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        shroomieSpinnerFilter.setOnSpinnerItemSelectedListener(new OnSpinnerItemSelectedListener<Object>() {
+
             @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+            public void onItemSelected(int i, @org.jetbrains.annotations.Nullable Object o, int i1, Object t1) {
                 switch (i) {
                     case 0:
                         sortAccordingtoImportance(tabSelected);
@@ -204,11 +192,10 @@ public class MyShroomies extends Fragment implements LogAdapter.cardBundles  {
                         break;
                 }
             }
-            @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
-
-            }
         });
+
+
+
 
         addCardButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -225,7 +212,7 @@ public class MyShroomies extends Fragment implements LogAdapter.cardBundles  {
                 }
                 bundle.putParcelable("APARTMENT_DETAILS",apartment);
                 addNewCard.setArguments(bundle);
-                addNewCard.show(getParentFragmentManager(),"add new card");
+                addNewCard.show(getActivity().getSupportFragmentManager(),"add new card");
 
             }
         });
@@ -236,10 +223,11 @@ public class MyShroomies extends Fragment implements LogAdapter.cardBundles  {
                 Bundle bundle1=new Bundle();
                 bundle1.putParcelable("APARTMENT_DETAILS",apartment);
                 members.setArguments(bundle1);
-                fm = getParentFragmentManager();
+                fm = getActivity().getSupportFragmentManager();
                 ft = fm.beginTransaction();
                 ft.addToBackStack(null);
-                ft.replace(R.id.fragmentContainer, members);
+                ft.setTransition( FragmentTransaction.TRANSIT_FRAGMENT_OPEN );
+                ft.replace(R.id.my_shroomies_container, members);
                 ft.commit();
             }
         });
@@ -248,26 +236,24 @@ public class MyShroomies extends Fragment implements LogAdapter.cardBundles  {
             public void onClick(View view) {
                 LogFragment logFragment=new LogFragment();
                 Bundle bundle=new Bundle();
-                bundle.putParcelableArrayList("LOG_LIST",apartmentlogList);
+                bundle.putParcelableArrayList("LOG_LIST",apartmentLogList);
                 logFragment.setArguments(bundle);
-                logFragment.setTargetFragment(MyShroomies.this,RESULT_CODE);
+                logFragment.setTargetFragment(MyShroomiesFragment.this,RESULT_CODE);
                 fm = getParentFragmentManager();
                 ft = fm.beginTransaction();
                 ft.addToBackStack(null);
-                ft.replace(R.id.fragmentContainer, logFragment);
+                ft.setTransition( FragmentTransaction.TRANSIT_FRAGMENT_OPEN );
+                ft.replace(R.id.my_shroomies_container, logFragment);
                 ft.commit();
             }
         });
         scroll();
 
-
     }
 
 
-    private void getApartmentDetails(){
-        customLoadingProgressBar = new CustomLoadingProgressBar(getActivity(),"loading...",R.raw.loading_animation);
-        customLoadingProgressBar.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        customLoadingProgressBar.show();
+
+   private void getApartmentDetails(){
         rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -293,7 +279,6 @@ public class MyShroomies extends Fragment implements LogAdapter.cardBundles  {
                     });
 
 
-
                 }
             }
 
@@ -304,11 +289,10 @@ public class MyShroomies extends Fragment implements LogAdapter.cardBundles  {
         });
 
     }
-private void scroll(){
+
+   private void scroll(){
     if(selectedCardID!=null){
-
         if(selectedCardType.equals("tasks")){
-
             if(cardFound){
                 myShroomiesTablayout.getTabAt(1).select();
                 myShroomiesTablayout.setSelectedTabIndicator(R.drawable.tab_indicator_right);
@@ -317,14 +301,12 @@ private void scroll(){
                 myTasksRecyclerView.scrollToPosition(recyclerPosition);
             }else{
 
-                Snackbar snack=Snackbar.make(v,"this card doesn't exsit anymore", BaseTransientBottomBar.LENGTH_SHORT);
-                snack.setAnchorView(R.id.bottomNavigationView);
+                Snackbar snack=Snackbar.make(slidingLayout,"This card doesn't exist anymore", BaseTransientBottomBar.LENGTH_SHORT);
                 snack.show();
 
             }
         }
         if(selectedCardType.equals("expenses")){
-
             if(cardFound){
                 myShroomiesTablayout.getTabAt(0).select();
                 myShroomiesTablayout.setSelectedTabIndicator(R.drawable.tab_indicator_left);
@@ -332,30 +314,34 @@ private void scroll(){
                 myExpensesRecyclerView.setVisibility(View.VISIBLE);
                 myExpensesRecyclerView.scrollToPosition(recyclerPosition);
             }else{
-                Snackbar snack=Snackbar.make(v,"this card doesn't exsit anymore", BaseTransientBottomBar.LENGTH_SHORT);
-                snack.setAnchorView(R.id.bottomNavigationView);
+                Snackbar snack=Snackbar.make(slidingLayout,"This card doesn't exist anymore", BaseTransientBottomBar.LENGTH_SHORT);
                 snack.show();
             }
         }
     }
+    selectedCardID=null;
+    selectedCardType= null;
+
 }
+
+
    private void getApartmentLog(final String apartmentID){
-       apartmentlogList=new ArrayList<>();
+       apartmentLogList =new ArrayList<>();
        logListener=rootRef.child("logs").child(apartmentID).addValueEventListener(new ValueEventListener() {
            @Override
            public void onDataChange(@NonNull DataSnapshot snapshot) {
-               apartmentlogList.clear();
+               apartmentLogList.clear();
                if(snapshot.exists()){
                    for(DataSnapshot sp:snapshot.getChildren()){
                        Log log=sp.getValue(Log.class);
-                       apartmentlogList.add(log);
+                       apartmentLogList.add(log);
                    }
-                   Collections.reverse(apartmentlogList);
-                   getUserDetailsForLog(apartmentlogList);
+                   Collections.reverse(apartmentLogList);
+                   getUserDetailsForLog(apartmentLogList);
 
 
                }else{
-                   customLoadingProgressBar.dismiss();
+                //TODO add progress bar
                }
            }
 
@@ -366,7 +352,8 @@ private void scroll(){
        });
 
    }
-   private void getUserDetailsForLog(final ArrayList<Log> apartmentlogList){
+
+    private void getUserDetailsForLog(final ArrayList<Log> apartmentlogList){
         for(final Log log:apartmentlogList){
             rootRef.child("Users").child(log.getActor()).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -377,7 +364,6 @@ private void scroll(){
                         log.setActorPic(user.getImage());
 
                     }
-                    customLoadingProgressBar.dismiss();
                 }
 
                 @Override
@@ -388,10 +374,11 @@ private void scroll(){
         }
 
 
-   }
-    private void retrieveTaskCards(String apartmentID) {
+    }
+
+   private void retrieveTaskCards(String apartmentID) {
         tasksCardsList=new ArrayList<>();
-        tasksCardAdapter= new TasksCardAdapter(tasksCardsList,getContext(),false,apartment,getParentFragmentManager(),getView());
+        tasksCardAdapter= new TasksCardAdapter(tasksCardsList,getActivity(),false,apartment,getActivity().getSupportFragmentManager(),rootlayout);
         ItemTouchHelper.Callback callback = new CardsTouchHelper(tasksCardAdapter);
         ItemTouchHelper itemTouchHelperTask = new ItemTouchHelper(callback);
         tasksCardAdapter.setItemTouchHelper(itemTouchHelperTask);
@@ -419,10 +406,9 @@ private void scroll(){
         });
     }
 
-
-    public void retreiveExpensesCards(String apartmentID){
+   public void retreiveExpensesCards(String apartmentID){
         expensesCardsList=new ArrayList<>();
-        expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList,getContext(), false,apartment,getParentFragmentManager(),getView());
+        expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList,getActivity().getApplicationContext(), false,apartment,getActivity().getSupportFragmentManager(),rootlayout);
         ItemTouchHelper.Callback callback = new CardsTouchHelper(expensesCardAdapter);
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
         expensesCardAdapter.setItemTouchHelper(itemTouchHelper);
@@ -444,7 +430,7 @@ private void scroll(){
 
 
                 }else{
-                    customLoadingProgressBar.dismiss();
+                    //TODO add progress bar
                 }
             }
             @Override
@@ -455,6 +441,11 @@ private void scroll(){
 
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+    }
 
 
     private void sortAccordingToOldest(String tab) {
@@ -488,8 +479,7 @@ private void scroll(){
         }
         }
 
-
-    private void sortAccordingToLatest(String tab) {
+   private void sortAccordingToLatest(String tab) {
         if(tab.equals("expenses")){
             expensesCardsList.sort(new Comparator<ExpensesCard>() {
                 @Override
@@ -522,18 +512,16 @@ private void scroll(){
         }
 
     }
-
     @Override
-    public void onDestroy() {
+   public void onDestroy() {
         super.onDestroy();
         if(expensesCardListener!=null)
         rootRef.removeEventListener(expensesCardListener);
-        rootRef.removeEventListener(tasksCardListener);
         rootRef.removeEventListener(apartmentListener);
         rootRef.removeEventListener(logListener);
     }
 
-    private void sortAccordingtoImportance(String tab){
+   private void sortAccordingtoImportance(String tab){
         if(tab.equals("expenses")){
             expensesCardsList.sort(new Comparator<ExpensesCard>() {
                 @Override
@@ -601,10 +589,10 @@ private void scroll(){
 
     }
 
-    @Override
-    public void sendInput(String cardID, String cardType) {
+   public void sendInput(String cardID, String cardType) {
         this.selectedCardID = cardID;
         this.selectedCardType=cardType;
+
 
 
         if(selectedCardType.equals("tasks")){

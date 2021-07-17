@@ -23,9 +23,7 @@
                 android:layout_margin="5dp"
                 android:id="@+id/request_member_photo"
                 android:elevation="3dp"
-                android:padding="10dp"
                 android:src="@drawable/ic_user_profile_svgrepo_com"
-                android:background="@drawable/circle_white_button"
                 />
 
             <TextView
@@ -34,11 +32,11 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:text="Name"
-                android:textStyle="bold"
-                android:elevation="5dp"
-                android:fontFamily="@font/amiko"
+                android:lines="1"
+
                 android:textColor="@color/jetBlack"
-                android:layout_toRightOf="@+id/request_member_photo"
+                android:layout_toEndOf="@+id/request_member_photo"
+                android:layout_toStartOf="@id/msg_member"
                 />
 
             <Button
@@ -56,7 +54,6 @@
                 android:padding="5dp"
                 android:drawablePadding="3dp"
                 android:textAllCaps="false"
-                android:fontFamily="@font/amiko"
                 android:drawableStart="@drawable/ic_request"
                 android:visibility="gone"
                 />
@@ -65,8 +62,9 @@
                 android:id="@+id/msg_member"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-
+                android:layout_centerVertical="true"
+                android:layout_toStartOf="@id/remove_member"
+                android:layout_marginEnd="20dp"
                 android:background="@color/white"
                 android:src="@drawable/ic_message" />
 

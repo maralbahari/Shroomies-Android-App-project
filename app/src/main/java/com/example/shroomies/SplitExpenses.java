@@ -35,24 +35,27 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class SplitExpenses extends DialogFragment implements UserAdapterSplitExpenses.ShroomiesShares {
+  //views
   private View v;
-  private TextView totalText;
-  private ImageButton cancel;
-  private Button ok ;
-  private EditText amount;
-  private RecyclerView splitRecycler;
-  private ShroomiesApartment apartment;
-  private  ArrayList<User> shroomiesList=new ArrayList<>();
-  private DatabaseReference rootRef;
-  private FirebaseAuth mAuth;
-  private UserAdapterSplitExpenses splitAdapter;
-  private static String enteredAmount="0";
-  private HashMap<String, Float> sharedSplit=new HashMap<String, Float>();
-  membersShares myMembersShares;
-  private boolean acceptedInput;
+  private TextView totalAmountTextView;
+  private ImageButton closeImageButton;
+  private Button nextButtonSplitExpenses;
+  private EditText amountEditText;
+  private RecyclerView splitExpensesRecyclerView;
   private Fragment splitExpenses;
-   float total= (float) 0.0;
+  //model
+  private ShroomiesApartment apartment;
+  //data structures
+  private ArrayList<User> memebersList =new ArrayList<>();
+  private HashMap<String, Integer> sharedSplitMap = new HashMap<>();
+  private UserAdapterSplitExpenses splitAdapter;
 
+  //values
+  private boolean acceptedInput;
+  int totalAmount = 0;
+  private String enteredAmount="0";
+  //interface
+  private membersShares myMembersShares;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -69,8 +72,10 @@ public class SplitExpenses extends DialogFragment implements UserAdapterSplitExp
     public void onStart() {
         super.onStart();
         if (getDialog() != null) {
-            getDialog().getWindow().setLayout(ActionBar.LayoutParams.WRAP_CONTENT, Toolbar.LayoutParams.WRAP_CONTENT);
-            getDialog().getWindow().setBackgroundDrawableResource(R.drawable.dialogfragment_add_member);
+            getDialog().getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.WRAP_CONTENT);
+            getDialog().getWindow().setBackgroundDrawableResource(R.drawable.create_group_fragment_background);
+            getDialog().getWindow().setGravity(Gravity.BOTTOM);
+
         }
     }
 
@@ -79,43 +84,42 @@ public class SplitExpenses extends DialogFragment implements UserAdapterSplitExp
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
        v= inflater.inflate(R.layout.fragment_split_expenses, container, false);
-        mAuth = FirebaseAuth.getInstance();
-        rootRef = FirebaseDatabase.getInstance().getReference();
        return v;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        cancel=v.findViewById(R.id.cancle_split);
-        ok=v.findViewById(R.id.ok_split);
-        amount=v.findViewById(R.id.amount_split);
-        splitRecycler=v.findViewById(R.id.shroomie_split_recycler);
-        totalText=v.findViewById(R.id.total_amount_split);
+        closeImageButton =v.findViewById(R.id.cancle_split);
+        nextButtonSplitExpenses =v.findViewById(R.id.next_button_split_expenses);
+        amountEditText =v.findViewById(R.id.amount_split);
+        splitExpensesRecyclerView =v.findViewById(R.id.shroomie_split_recycler);
+        totalAmountTextView =v.findViewById(R.id.total_amount_split);
+
+
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
-        splitRecycler.setHasFixedSize(true);
-        splitRecycler.setLayoutManager(linearLayoutManager);
+        splitExpensesRecyclerView.setHasFixedSize(true);
+        splitExpensesRecyclerView.setLayoutManager(linearLayoutManager);
 
         splitAdapter= new UserAdapterSplitExpenses(this);
-        splitRecycler.setAdapter(splitAdapter);
-        cancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dismiss();
-            }
-        });
+        splitExpensesRecyclerView.setAdapter(splitAdapter);
+
         final Bundle bundle = this.getArguments();
         splitExpenses=this;
 
         if(bundle!=null){
             apartment=bundle.getParcelable("APARTMENT_DETAILS");
-            shroomiesList=bundle.getParcelableArrayList("MEMBERS");
-            setShroomiesToRecycler(shroomiesList,enteredAmount);
+            memebersList =bundle.getParcelableArrayList("MEMBERS");
+            setShroomiesToRecycler(memebersList,enteredAmount);
         }
 
-
-
-        amount.addTextChangedListener(new TextWatcher() {
+        closeImageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dismiss();
+            }
+        });
+        amountEditText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -123,11 +127,9 @@ public class SplitExpenses extends DialogFragment implements UserAdapterSplitExp
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-               enteredAmount=charSequence.toString();
-                splitAdapter= new UserAdapterSplitExpenses(apartment,shroomiesList,getContext(),enteredAmount,totalText,splitExpenses,ok,myMembersShares);
-                splitRecycler.setAdapter(splitAdapter);
-
-
+                enteredAmount=charSequence.toString();
+                splitAdapter= new UserAdapterSplitExpenses(getContext(),memebersList , enteredAmount,SplitExpenses.this);
+                splitExpensesRecyclerView.setAdapter(splitAdapter);
             }
 
             @Override
@@ -135,13 +137,13 @@ public class SplitExpenses extends DialogFragment implements UserAdapterSplitExp
 
             }
         });
-        ok.setOnClickListener(new View.OnClickListener() {
+        nextButtonSplitExpenses.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
                 if(acceptedInput){
-                    if(sharedSplit!=null){
-                        myMembersShares.sendInput(sharedSplit);
+                    if(sharedSplitMap !=null){
+                        myMembersShares.sendInput(sharedSplitMap);
                         dismiss();
                     }
 
@@ -163,34 +165,39 @@ public class SplitExpenses extends DialogFragment implements UserAdapterSplitExp
     }
 
     @Override
-    public void sendInput(HashMap<String, Float> sharesHash) {
-        this.total= (float) 0.0;
-        this.sharedSplit=sharesHash;
-        if (!sharedSplit.isEmpty()) {
-            for (Float amount : sharedSplit.values()) {
-                this.total += amount;
+    public void sendInput(HashMap<String, Integer> sharesHash) {
+        this.totalAmount = 0;
+        this.sharedSplitMap =sharesHash;
+        if (!sharedSplitMap.isEmpty()) {
+            for (Integer amount : sharedSplitMap.values()) {
+                this.totalAmount += amount;
 
             }
-            if (this.total > Float.parseFloat(enteredAmount)) {
+            if (this.totalAmount > Integer.parseInt(enteredAmount)) {
                 acceptedInput=false;
-                totalText.setText( total + ">" + enteredAmount);
-                totalText.setTextColor(Color.RED);
+                totalAmountTextView.setText( totalAmount + ">" + enteredAmount);
+                totalAmountTextView.setTextColor(Color.RED);
+
+            }else if(this.totalAmount<Integer.parseInt(enteredAmount)){
+                acceptedInput=false;
+                totalAmountTextView.setText( totalAmount + " < " + enteredAmount);
+                totalAmountTextView.setTextColor(Color.RED);
 
             } else {
                 acceptedInput=true;
-                totalText.setTextColor(getActivity().getColor(R.color.lightGrey));
-                totalText.setText( total + "RM");
+                totalAmountTextView.setTextColor(getActivity().getColor(R.color.lightGrey));
+                totalAmountTextView.setText( totalAmount + "RM");
             }
         }
     }
 
 
     public interface membersShares{
-        void sendInput(HashMap<String, Float> sharedSplit);
+        void sendInput(HashMap<String, Integer> sharedSplit);
     }
     private void setShroomiesToRecycler(ArrayList<User> shroomies,String amount){
-        splitAdapter= new UserAdapterSplitExpenses(apartment,shroomies,getContext(),amount,totalText,this,ok,myMembersShares);
-        splitRecycler.setAdapter(splitAdapter);
+        splitAdapter= new UserAdapterSplitExpenses(getContext(),shroomies,amount,this);
+        splitExpensesRecyclerView.setAdapter(splitAdapter);
         splitAdapter.notifyDataSetChanged();
     }
     @Override

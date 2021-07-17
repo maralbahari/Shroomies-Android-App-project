@@ -2,25 +2,28 @@ package com.example.shroomies;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.media.Image;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -33,39 +36,41 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 
 public class Members extends Fragment {
-    View v;
-    Button addMember, leaveRoom;
-    FirebaseAuth mAuth;
-    DatabaseReference rootRef;
-    RecyclerView membersRecycler;
-    ArrayList<String> membersId;
-    ArrayList<User> membersList;
-    UserAdapter userAdapter;
-    ArrayList<String> requestUsersIDs;
-    TextView ownerName;
-    ImageView ownerImage;
-    ImageView msgOwner;
-    ArrayList<User> getRequestUsersList;
-    ImageView sadShroomie, stars;  // set visibility to gone if there are members in add members
-    TextView noMemberTv ;           // same visibility to gone
-   ShroomiesApartment apartment;
-   private Collection newMemberLists;
-   private ValueEventListener apartmentListener;
-   private String isPartOfRoomID;
-   private ValueEventListener roomIDListener;
+    //views
+    private View v;
+    private Button addMemberButton, leaveRoomButton;
+    private RecyclerView membersRecyclerView;
+    private TextView ownerName;
+    private ImageView adminImageView , ghostImageView;
+    private ImageButton msgOwnerImageButton;  // set visibility to gone if there are members in add members
+    private RelativeLayout noMembersRelativeLayout;
+    //Alert dialog
+    private AlertDialog alertDialog;
+
+    //firebase
+    private FirebaseAuth mAuth;
+    private DatabaseReference rootRef;
+    //data structures
+    private ArrayList<User> membersList;
+    private UserAdapter userAdapter;
+   //model
+    private ShroomiesApartment apartment;
+    private Collection newMemberLists;
+    //listeners
+    private ValueEventListener apartmentListener, roomIDListener;
+    //variables
+    private String isPartOfRoomID;
+
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        v =inflater.inflate(R.layout.shroomie_members, container, false);
+        v =inflater.inflate(R.layout.fragment_shroomie_members, container, false);
         mAuth = FirebaseAuth.getInstance();
         rootRef = FirebaseDatabase.getInstance().getReference();
         return v;
@@ -76,38 +81,54 @@ public class Members extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        sadShroomie = view.findViewById(R.id.member_sad_shroomie);  // set visibility to gone if there are members
-        stars = view.findViewById(R.id.member_star);                // set visibility to gone if there are members
-        noMemberTv = view.findViewById(R.id.no_members_tv);         // set visibility to gone if there are members
-        addMember=view.findViewById(R.id.add_shroomie_btn);
-        leaveRoom=view.findViewById(R.id.leave_room_btn);
-        ownerImage=view.findViewById(R.id.owner_image);
-        ownerName=view.findViewById(R.id.owner_name);
-        msgOwner=view.findViewById(R.id.msg_owner);
-        membersRecycler = view.findViewById(R.id.members_recyclerView);
+
+        addMemberButton =v.findViewById(R.id.add_shroomie_btn);
+        leaveRoomButton =v.findViewById(R.id.leave_room_btn);
+        adminImageView =v.findViewById(R.id.owner_image);
+        ownerName=v.findViewById(R.id.admin_name);
+        msgOwnerImageButton =v.findViewById(R.id.msg_admin);
+        membersRecyclerView = v.findViewById(R.id.members_recyclerView);
+        ghostImageView = v.findViewById(R.id.ghost_view);
+        noMembersRelativeLayout = v.findViewById(R.id.no_members_relative_layout);
+
+        Toolbar toolbar = getActivity().findViewById(R.id.my_shroomies_toolbar);
+        toolbar.setTitle("Members");
+
+        toolbar.setTitleTextColor(getActivity().getColor(R.color.jetBlack));
+        toolbar.setNavigationIcon(R.drawable.ic_back_button);
+        toolbar.setElevation(5);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                toolbar.setTitle(null);
+                toolbar.setNavigationIcon(null);
+                getActivity().onBackPressed();
+            }
+        });
+
+
         LinearLayoutManager linearLayoutManager=new LinearLayoutManager(getActivity());
-        membersRecycler.setHasFixedSize(true);
-        membersRecycler.setLayoutManager(linearLayoutManager);
+        membersRecyclerView.setHasFixedSize(true);
+        membersRecyclerView.setLayoutManager(linearLayoutManager);
+
         Bundle bundle = this.getArguments();
         if (bundle != null) {
             apartment=bundle.getParcelable("APARTMENT_DETAILS");
             getOwnerDetails(apartment.getOwnerID());
             if(!mAuth.getCurrentUser().getUid().equals(apartment.getOwnerID())){
-                leaveRoom.setVisibility(View.VISIBLE);
-                msgOwner.setVisibility(View.VISIBLE);
+                leaveRoomButton.setVisibility(View.VISIBLE);
+                msgOwnerImageButton.setVisibility(View.VISIBLE);
             }
-            //this check is for if owner removes a member and that user is in member page so it refershes
+            //this check is if the admin removed a member and that user is in member page so it refreshes
             checkIsPartOdRoomID();
-
             checkMemberExistance(apartment);
 
 
         }
 
-        addMember.setOnClickListener(new View.OnClickListener() {
+        addMemberButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 AddShroomieMember add=new AddShroomieMember();
                 Bundle bundle = new Bundle();
                 bundle.putParcelable("APARTMENT_DETAILS",apartment);
@@ -116,14 +137,35 @@ public class Members extends Fragment {
             }
         });
 
-
-        leaveRoom.setOnClickListener(new View.OnClickListener() {
+        leaveRoomButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                leaveApartment(apartment.getApartmentID());
+
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setTitle("Leave group");
+                builder.setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+                builder.setNegativeButton("leave", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        leaveApartment(apartment.getApartmentID());
+                    }
+                });
+                builder.setMessage("Leaving this group will remove all data and place you in an empty group.");
+                builder.setIcon(R.drawable.ic_shroomies_yelllow_black_borders);
+
+
+                builder.setCancelable(true);
+                builder.create().show();
+
             }
         });
-        msgOwner.setOnClickListener(new View.OnClickListener() {
+
+        msgOwnerImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getContext(), ChattingActivity.class);
@@ -131,6 +173,28 @@ public class Members extends Fragment {
                 startActivity(intent);
             }
         });
+
+       Animation animUpDown = AnimationUtils.loadAnimation(getActivity(),
+                R.anim.up_down);
+        animUpDown.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                ghostImageView.startAnimation(animation);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+
+        // start the animation
+        ghostImageView.startAnimation(animUpDown);
 
     }
 
@@ -150,8 +214,9 @@ public class Members extends Fragment {
                                                 .load(owner.getImage())
                                                 .fitCenter()
                                                 .circleCrop()
-                                                .into(ownerImage);
-                                        ownerImage.setPadding(2,2,2,2);
+                                                .transition(DrawableTransitionOptions.withCrossFade()) //Here a fading animation
+                                                .into(adminImageView);
+                                        adminImageView.setPadding(2,2,2,2);
              }
              }
          }
@@ -169,6 +234,7 @@ public class Members extends Fragment {
                 if(snapshot.exists()){
                     ShroomiesApartment newApartment=snapshot.getValue(ShroomiesApartment.class);
                     newMemberLists=newApartment.getApartmentMembers().values();
+
                     //if no changes in member list
                     if(newMemberLists.containsAll(oldApartment.getApartmentMembers().values())){
                         getMemberDetail(oldApartment.getApartmentMembers());
@@ -214,6 +280,7 @@ public class Members extends Fragment {
         final CustomLoadingProgressBar customLoadingProgressBar = new CustomLoadingProgressBar(getActivity(),"Leaving room...",R.raw.loading_animation);
         customLoadingProgressBar.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         customLoadingProgressBar.show();
+
         final DatabaseReference ref= rootRef.child("apartments").push();
         final String newApartmentID =ref.getKey();
         final HashMap<String,Object> apartmentDetails=new HashMap<>();
@@ -264,7 +331,7 @@ public class Members extends Fragment {
         newRecord.put("action","left");
         newRecord.put("when", ServerValue.TIMESTAMP);
         newRecord.put("logID",logID);
-       ref.updateChildren(newRecord).addOnCompleteListener(new OnCompleteListener<Void>() {
+        ref.updateChildren(newRecord).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if(task.isSuccessful()){
@@ -281,7 +348,7 @@ public class Members extends Fragment {
     private void getMemberDetail(final HashMap<String,String> membersId) {
         membersList = new ArrayList<>();
         userAdapter = new UserAdapter(membersList, getContext(),apartment,getView());
-        membersRecycler.setAdapter(userAdapter);
+        membersRecyclerView.setAdapter(userAdapter);
         for (String id: membersId.values()){
             rootRef.child("Users").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override

@@ -5,10 +5,9 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,6 +18,7 @@ import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.factor.bouncy.BouncyRecyclerView;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
@@ -34,30 +34,33 @@ import java.util.HashMap;
 import java.util.List;
 
 public class AddShroomieMember extends DialogFragment {
-    View v;
-    SearchView memberSearchView;
-    RecyclerView addShroomieRecycler;
-    UserAdapter userRecyclerAdapter;
-    DatabaseReference rootRef;
-    FirebaseDatabase firebaseDatabase;
-    FirebaseAuth mAuth;
-    ArrayList<User> suggestedUser;
-    ArrayList<User> selectedUser;
-    ArrayList<String> inboxUser;
-    Collection<String> listMemberId=new ArrayList<>();
-    ShroomiesApartment apartment;
+    //views
+    private View v;
+    private SearchView memberSearchView;
+    private BouncyRecyclerView addShroomieRecycler;
+    private ImageButton closeButton;
+    private TextView infoTextView;
+    private TextView recommendedUsers;
+    //firebase
+    private DatabaseReference rootRef;
+    private FirebaseAuth mAuth;
+    //data
+    private UserAdapter userRecyclerAdapter;
+    private ArrayList<User> suggestedUser;
+    private ArrayList<String> inboxUser;
+    private Collection<String> listMemberId=new ArrayList<>();
+    private ShroomiesApartment apartment;
     private HashMap<String,Boolean> requestAlreadySent=new HashMap<>();
-    ImageButton closeButton;
-    TextView infoTextView;
-    TextView recommendedUsers;
+
 
 
     @Override
     public void onStart() {
         super.onStart();
         if(getDialog()!=null) {
-            getDialog().getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.WRAP_CONTENT);
+            getDialog().getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
             getDialog().getWindow().setBackgroundDrawableResource(R.drawable.create_group_fragment_background);
+            getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
             getDialog().getWindow().setGravity(Gravity.BOTTOM);
         }
     }
@@ -82,12 +85,14 @@ public class AddShroomieMember extends DialogFragment {
         super.onViewCreated(view, savedInstanceState);
         memberSearchView = v.findViewById(R.id.search_member);
         addShroomieRecycler = v.findViewById(R.id.add_member_recyclerview);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
-        addShroomieRecycler.setHasFixedSize(true);
-        addShroomieRecycler.setLayoutManager(linearLayoutManager);
         closeButton = v.findViewById(R.id.close_button_add_shroomie);
         infoTextView = v.findViewById(R.id.information_text_view);
         recommendedUsers = v.findViewById(R.id.recommended_text_view);
+
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+        addShroomieRecycler.setHasFixedSize(true);
+        addShroomieRecycler.setLayoutManager(linearLayoutManager);
+
         closeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -120,10 +125,6 @@ public class AddShroomieMember extends DialogFragment {
         });
 
     }
-
-
-
-
 
     private void retreiveUser(String query) {
 

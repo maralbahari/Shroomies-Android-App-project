@@ -1,12 +1,14 @@
 package com.example.shroomies;
 
 import android.content.Context;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
-import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -15,45 +17,32 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
 public class UserAdapterSplitExpenses extends RecyclerView.Adapter<UserAdapterSplitExpenses.UserViewHolderSplit> {
-   private ShroomiesApartment apartment;
-   private  ArrayList<User> shroomieList;
-   private  Context context;
-   private FirebaseAuth mAuth;
-   private  String amount="";
    private View v;
-   private DatabaseReference rootRef;
-
-   private TextView totalText;
-   private boolean fromViewCard=false;
-   private HashMap<String, Float> sharesHashmap=new HashMap<String, Float>();
-   ShroomiesShares shares;
+   private Context context;
    private Fragment targetedFragment;
-   private Button ok;
-    SplitExpenses.membersShares myMemberShares;
 
+   private boolean fromViewCard=false;
+   private String amount="";
+
+   private ArrayList<User> shroomieList;
+   private HashMap<String, Integer> sharesHashmap=new HashMap<String, Integer>();
+
+   ShroomiesShares shares;
 
 
    public UserAdapterSplitExpenses(ShroomiesShares shroomiesShares){
        this.shares=shroomiesShares;
    }
 
-    public UserAdapterSplitExpenses(ShroomiesApartment apartment, ArrayList<User> shroomieList, Context context, String amount, TextView totalText, Fragment targetedFragment, Button ok, SplitExpenses.membersShares myMemberShares) {
-        this.apartment = apartment;
+    public UserAdapterSplitExpenses(Context context , ArrayList<User> shroomieList , String amount, Fragment targetedFragment) {
         this.shroomieList = shroomieList;
         this.context = context;
         this.amount = amount;
-        this.totalText=totalText;
         this.targetedFragment=targetedFragment;
-        this.ok=ok;
-        this.myMemberShares=myMemberShares;
     }
     public UserAdapterSplitExpenses(ArrayList<User> shroomieList,Context context,boolean fromViewCard){
         this.shroomieList=shroomieList;
@@ -67,8 +56,6 @@ public class UserAdapterSplitExpenses extends RecyclerView.Adapter<UserAdapterSp
     public UserViewHolderSplit onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(context);
         v = layoutInflater.inflate(R.layout.shroomies_split_card,parent,false);
-        rootRef= FirebaseDatabase.getInstance().getReference();
-        mAuth=FirebaseAuth.getInstance();
         return new UserViewHolderSplit(v);
     }
 
@@ -78,24 +65,26 @@ public class UserAdapterSplitExpenses extends RecyclerView.Adapter<UserAdapterSp
     if(!shroomieList.get(position).getImage().isEmpty()){
         GlideApp.with(context)
                 .load(shroomieList.get(position).getImage())
-                .fitCenter()
+                .centerCrop()
                 .circleCrop()
-                .into(holder.profilePic);
-        holder.profilePic.setPadding(2,2,2,2);
+                .error(R.drawable.ic_user_profile_svgrepo_com)
+                .into(holder.profilePicImageView);
     }
 
-    holder.userName.setText(shroomieList.get(position).getName());
+    holder.userNameTextView.setText(shroomieList.get(position).getName());
+
     if(fromViewCard){
         holder.amountSeekBar.setVisibility(View.INVISIBLE);
-        holder.sharedAmount.setText(shroomieList.get(position).getSharedAmount()+" RM");
+        holder.sharedAmountEditText.setText(Integer.toString((int)shroomieList.get(position).getSharedAmount()));
     }else{
             if(!amount.isEmpty()){
-                holder.amountSeekBar.setMaxFloat(Float.parseFloat(amount));
-                holder.amountSeekBar.setValue(Float.parseFloat(amount)/shroomieList.size());
+                holder.amountSeekBar.setMinFloat(0);
+                holder.amountSeekBar.setMaxFloat(Integer.parseInt(amount));
+                holder.amountSeekBar.setValue(Integer.parseInt(amount)/shroomieList.size());
                 holder.amountSeekBar.setKeyProgressIncrement(1);
-                holder.sharedAmount.setText((holder.amountSeekBar.getValue())+" RM");
+                holder.sharedAmountEditText.setText(Integer.toString((int)holder.amountSeekBar.getValue()));
                 shroomieList.get(position).setSharedAmount(holder.amountSeekBar.getProgress());
-                sharesHashmap.put(shroomieList.get(position).getID(),shroomieList.get(position).getSharedAmount());
+                sharesHashmap.put(shroomieList.get(position).getID(),((int)shroomieList.get(position).getSharedAmount()));
                 shares.sendInput(sharesHashmap);
             }
     }
@@ -113,48 +102,78 @@ public class UserAdapterSplitExpenses extends RecyclerView.Adapter<UserAdapterSp
 
 
     public class UserViewHolderSplit extends RecyclerView.ViewHolder {
-        private ImageView profilePic;
-        private TextView userName,sharedAmount;
+        private ImageView profilePicImageView;
+        private EditText sharedAmountEditText;
+        private TextView userNameTextView;
         private FloatSeekBar amountSeekBar;
 
         public UserViewHolderSplit(@NonNull View itemView) {
             super(itemView);
-            profilePic=itemView.findViewById(R.id.shroomie_split_pic);
-            userName=itemView.findViewById(R.id.shroomie_split_name);
-            sharedAmount=itemView.findViewById(R.id.split_amount_tv);
+            profilePicImageView =itemView.findViewById(R.id.shroomie_split_pic);
+            userNameTextView =itemView.findViewById(R.id.shroomie_split_name);
+            sharedAmountEditText =itemView.findViewById(R.id.split_amount_edit_text);
             amountSeekBar=itemView.findViewById(R.id.shroomie_split_seekbar);
-            if(totalText!=null){
-                totalText.setText("Total: "+amount+" RM");
+            if(!fromViewCard) {
+                amountSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                    @Override
+                    public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                        if (Integer.parseInt(sharedAmountEditText.getText().toString()) != seekBar.getProgress()) {
+                            sharedAmountEditText.setText(Integer.toString((int) amountSeekBar.getValue()));
+                            sharedAmountEditText.setSelection(sharedAmountEditText.getText().length());
+                        }
+
+                        shroomieList.get(getAdapterPosition()).setSharedAmount((int) amountSeekBar.getValue());
+                        sharesHashmap.put(shroomieList.get(getAdapterPosition()).getID(), (int) shroomieList.get(getAdapterPosition()).getSharedAmount());
+                        shares.sendInput(sharesHashmap);
+                    }
+
+                    @Override
+                    public void onStartTrackingTouch(SeekBar seekBar) {
+
+                    }
+
+                    @Override
+                    public void onStopTrackingTouch(SeekBar seekBar) {
+
+
+                    }
+                });
+                sharedAmountEditText.addTextChangedListener(new TextWatcher() {
+                    @Override
+                    public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+                    }
+
+                    @Override
+                    public void onTextChanged(CharSequence s, int start, int before, int count) {
+                        if (!s.toString().isEmpty()) {
+                            int amount = Integer.parseInt(s.toString());
+                            if (amount > amountSeekBar.getMax()) {
+                                sharedAmountEditText.setText(Integer.toString(amountSeekBar.getMax()));
+                                sharedAmountEditText.setSelection(sharedAmountEditText.getText().length());
+
+                                amountSeekBar.setValue(amountSeekBar.getMaxFloat());
+                            } else {
+                                amountSeekBar.setProgress(amount);
+                            }
+
+
+                        } else {
+                            sharedAmountEditText.setText("0");
+                            sharedAmountEditText.setSelection(sharedAmountEditText.getText().length());
+
+                            amountSeekBar.setProgress(0);
+
+                        }
+
+                    }
+
+                    @Override
+                    public void afterTextChanged(Editable s) {
+
+                    }
+                });
             }
-
-            amountSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                @Override
-                public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                    sharedAmount.setText(amountSeekBar.getValue()+" RM");
-                    shroomieList.get(getAdapterPosition()).setSharedAmount(amountSeekBar.getValue());
-                    sharesHashmap.put(shroomieList.get(getAdapterPosition()).getID(),shroomieList.get(getAdapterPosition()).getSharedAmount());
-
-
-
-                }
-
-                @Override
-                public void onStartTrackingTouch(SeekBar seekBar) {
-
-
-                }
-
-                @Override
-                public void onStopTrackingTouch(SeekBar seekBar) {
-                    shares.sendInput(sharesHashmap);
-
-
-
-                }
-            });
-
-
-
 
 
         }
@@ -172,9 +191,8 @@ public class UserAdapterSplitExpenses extends RecyclerView.Adapter<UserAdapterSp
     }
 
 
-
     public interface ShroomiesShares {
-        void sendInput(HashMap<String, Float> sharesHash);
+        void sendInput(HashMap<String, Integer> sharesHash);
     }
 
 

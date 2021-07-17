@@ -4,14 +4,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.os.Bundle;
-import android.text.Html;
 import android.text.Spannable;
 import android.text.SpannableString;
-import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
-import android.text.style.CharacterStyle;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
@@ -20,7 +16,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -28,25 +23,14 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 
-import org.w3c.dom.Text;
-
-import java.sql.BatchUpdateException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
@@ -55,17 +39,20 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
     private ArrayList<Log> logList;
     private String requestedUserName="";
     private DatabaseReference rootRef;
-    private  Spannable cardName=new SpannableString("");
+    private Spannable cardName=new SpannableString("");
+    private LogAdapterToMyshroomies logAdapterToMyshroomies;
+    private Fragment targetedFragment;
     private FragmentTransaction ft;
     private FragmentManager fm;
-    cardBundles cardBundle;
-    private Fragment targetedFragment;
 
-    public LogAdapter(Context context, ArrayList<Log> logList,FragmentManager fm,Fragment targetedFragment) {
+
+
+    public LogAdapter(Context context, ArrayList<Log> logList , FragmentManager fm, Fragment targetedFragment) {
         this.context = context;
         this.logList = logList;
-        this.fm=fm;
-        this.targetedFragment=targetedFragment;
+        this.targetedFragment = targetedFragment;
+        this.fm = fm;
+
     }
 
     @NonNull
@@ -81,13 +68,14 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull LogViewHolder holder, int position) {
 
-      if(!logList.get(position).getActorPic().isEmpty()){
-          GlideApp.with(context)
-                  .load(logList.get(position).getActorPic())
-                  .fitCenter()
-                  .circleCrop()
-                  .into(holder.userPic);
-          holder.userPic.setPadding(2,2,2,2);
+      if(logList.get(position).getActorPic()!=null){
+          if(!logList.get(position).getActorPic().isEmpty()) {
+              GlideApp.with(context)
+                      .load(logList.get(position).getActorPic())
+                      .fitCenter()
+                      .circleCrop()
+                      .into(holder.userPic);
+          }
       }
       String actorName=logList.get(position).getActorName();
       String action=logList.get(position).getAction();
@@ -135,9 +123,9 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
             @Override
             public void onClick(View textView) {
 
-                cardBundle.sendInput(cardID,cardType);
+                logAdapterToMyshroomies.sendInput(cardID,cardType);
                 ft = fm.beginTransaction();
-                ft.replace(R.id.fragmentContainer, targetedFragment);
+                ft.replace(R.id.my_shroomies_container, targetedFragment);
                 ft.commit();
 
             }
@@ -152,14 +140,14 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
         };
         if(cardTitle!=null){
             cardName = new SpannableString(cardTitle);
-            cardName.setSpan(new ForegroundColorSpan(Color.BLUE), 0, cardTitle.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            cardName.setSpan(new ForegroundColorSpan(context.getColor(R.color.LogoYellow)), 0, cardTitle.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             cardName.setSpan(new StyleSpan(Typeface.BOLD),0,cardTitle.length(),Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
             if(cardID!=null){
                 holder.logMessage.setClickable(true);
                 holder.logMessage.setMovementMethod(LinkMovementMethod.getInstance());
                 cardName.setSpan(cardClick,0,cardTitle.length(),Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                cardName.setSpan(new ForegroundColorSpan(Color.BLUE), 0, cardTitle.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                cardName.setSpan(new ForegroundColorSpan(context.getColor(R.color.LogoYellow)), 0, cardTitle.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 cardName.setSpan(new StyleSpan(Typeface.BOLD),0,cardTitle.length(),Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
             }
@@ -287,7 +275,7 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
                 if(snapshot.exists()){
                     requestedUserName=snapshot.getValue().toString();
                     SpannableString requestedUser=new SpannableString(requestedUserName);
-                    requestedUser.setSpan(new ForegroundColorSpan(Color.BLUE),0,requestedUserName.length(),Spannable.SPAN_EXCLUSIVE_EXCLUSIVE );
+                    requestedUser.setSpan(new ForegroundColorSpan(context.getColor(R.color.LogoYellow)),0,requestedUserName.length(),Spannable.SPAN_EXCLUSIVE_EXCLUSIVE );
                     requestedUser.setSpan(new StyleSpan(Typeface.BOLD),0,requestedUserName.length(),Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                     message.append(" requested ");
                     message.append(requestedUser);
@@ -300,17 +288,21 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
             }
         });
     }
-    public interface cardBundles{
-        void sendInput(String cardID,String cardType);
-    }
-
     @Override
     public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
         try {
-            cardBundle = (cardBundles) targetedFragment;
+            logAdapterToMyshroomies = (LogAdapterToMyshroomies) targetedFragment;
         }catch(ClassCastException e){
 
         }
     }
+
 }
+
+interface LogAdapterToMyshroomies {
+    void sendInput(String cardID,String cardType);
+
+}
+
+

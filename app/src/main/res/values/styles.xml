@@ -5,8 +5,27 @@
         <item name="colorPrimary">@color/LogoYellow</item>
         <item name="colorPrimaryDark">@color/LogoYellow</item>
         <item name="colorAccent">@color/Timeberwolf</item>
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="alertDialogTheme">@style/AlertDialogTheme</item>
+        <item name="android:fontFamily">@font/montserrat</item>
+        <item name="android:textViewStyle">@font/montserrat</item>
+        <item name="android:buttonStyle">@font/montserrat</item>
 
 
+    </style>
+
+    <style name="AlertDialogTheme" parent="ThemeOverlay.AppCompat.Dialog.Alert">
+        <item name="buttonBarNegativeButtonStyle">@style/NegativeButtonStyle</item>
+        <item name="buttonBarPositiveButtonStyle">@style/PositiveButtonStyle</item>
+    </style>
+
+    <style name="NegativeButtonStyle" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
+        <item name="android:textColor">@color/lightGrey</item>
+    </style>
+
+
+    <style name="PositiveButtonStyle" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
+        <item name="android:textColor">@color/LogoYellow</item>
     </style>
 
     <style name="DialogAnimation"  parent="Theme.AppCompat.Light.NoActionBar">

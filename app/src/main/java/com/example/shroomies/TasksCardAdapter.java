@@ -3,7 +3,6 @@ package com.example.shroomies;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,8 +45,6 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
     private FirebaseAuth mAuth;
     private ItemTouchHelper itemTouchHelper;
     private Boolean fromArchive;
-    private ImageView sadShroomie, stars;
-    private Button cont, no;
     private ShroomiesApartment apartment;
     private FragmentManager fragmentManager;
     private View parentView;
@@ -79,27 +76,23 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
 
     public class TasksCardViewHolder extends RecyclerView.ViewHolder {
 
-        View taskImportanceView;
-        TextView title, description, dueDate;
+        private View taskImportanceView;
+        private TextView titleTextView, descriptionTextView, dueDateTextView;
         private SocialTextView mention;
-        ImageButton delete, archive;
-        ImageView sadShroomie, stars, shroomieArchive;
-        Button cont, no, yesButton, noButton;
-        CheckBox done;
-        GestureDetector gestureDetector;
+        private ImageButton archive;
+        private CheckBox done;
         private CardView taskCardView;
 
         public TasksCardViewHolder(@NonNull  View v) {
             super(v);
             taskImportanceView = v.findViewById(R.id.task_importance_view);
-            title = v.findViewById(R.id.title_card);
-            description = v.findViewById(R.id.card_description);
-            dueDate = v.findViewById(R.id.dueDate_card);
-            delete = v.findViewById(R.id.delete_card_btn);
+            titleTextView = v.findViewById(R.id.title_card);
+            descriptionTextView = v.findViewById(R.id.card_description);
+            dueDateTextView = v.findViewById(R.id.dueDate_card);
             archive = v.findViewById(R.id.archive_card_btn);
             done = v.findViewById(R.id.task_done);
 
-            mention = v.findViewById(R.id.expenses_mention_et);
+            mention = v.findViewById(R.id.task_mention_et);
             mention.setMentionColor(Color.BLUE);
             taskCardView=v.findViewById(R.id.task_card_view);
             taskCardView.setOnClickListener(new View.OnClickListener() {
@@ -113,38 +106,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
                     viewCard.show(fragmentManager,"VIEWCARD");
                 }
             });
-            delete.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                    LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                    View alert = inflater.inflate(R.layout.are_you_sure,null);
-                    builder.setView(alert);
-                    final AlertDialog alertDialog = builder.create();
-                    alertDialog.getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
-                    alertDialog.getWindow().setBackgroundDrawableResource(R.drawable.dialogfragment_add_member);
-                    alertDialog.show();
-                    sadShroomie = ((AlertDialog) alertDialog).findViewById(R.id.sad_shroomie);
-                    stars = ((AlertDialog) alertDialog).findViewById(R.id.stars);
-                    cont = ((AlertDialog) alertDialog).findViewById(R.id.button_continue);
-                    no = ((AlertDialog) alertDialog).findViewById(R.id.button_no);
 
-                    cont.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            deleteCard(tasksCardsList.get(getAdapterPosition()),getAdapterPosition());
-                            alertDialog.cancel();
-                        }
-                    });
-                    no.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            alertDialog.cancel();
-                        }
-                    });
-
-                }
-            });
             done.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -154,31 +116,6 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
                             public void onSuccess(Void aVoid) {
                                 done.setText("Done!");
                                 saveToDoneLog(apartment.getApartmentID(),tasksCardsList.get(getAdapterPosition()));
-                                AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                                LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                View alert = inflater.inflate(R.layout.do_you_want_to_archive,null);
-                                builder.setView(alert);
-                                final AlertDialog alertDialog = builder.create();
-                                alertDialog.getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
-                                alertDialog.getWindow().setBackgroundDrawableResource(R.drawable.dialogfragment_add_member);
-                                alertDialog.show();
-                                yesButton = ((AlertDialog) alertDialog).findViewById(R.id.btn_yes);
-                                noButton = ((AlertDialog) alertDialog).findViewById(R.id.no_btn);
-                                shroomieArchive = ((AlertDialog) alertDialog).findViewById(R.id.shroomie_archive);
-                                yesButton.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        archive(getAdapterPosition(),tasksCardsList.get(getAdapterPosition()));
-                                        alertDialog.cancel();
-                                    }
-                                });
-                                noButton.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        alertDialog.cancel();
-                                    }
-                                });
-
                             }
                         });
                     }else{
@@ -191,9 +128,6 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
                     }
                 }
             });
-
-
-
 
             archive.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -241,17 +175,16 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
     @Override
     public void onBindViewHolder(@NonNull final TasksCardAdapter.TasksCardViewHolder holder, final int position) {
 
-        holder.title.setText(tasksCardsList.get(position).getTitle());
-        holder.description.setText(tasksCardsList.get(position).getDescription());
+        holder.titleTextView.setText(tasksCardsList.get(position).getTitle());
+        holder.descriptionTextView.setText(tasksCardsList.get(position).getDescription());
         if(tasksCardsList.get(position).getDueDate().equals("Due date")){
-            holder.dueDate.setText(" None");
+            holder.dueDateTextView.setText(" None");
         }else{
-            holder.dueDate.setText(tasksCardsList.get(position).getDueDate());
+            holder.dueDateTextView.setText(tasksCardsList.get(position).getDueDate());
         }
         if(!tasksCardsList.get(position).getMention().isEmpty()){
+            holder.mention.setVisibility(View.VISIBLE);
             holder.mention.setText(tasksCardsList.get(position).getMention());
-        }else{
-            holder.mention.setVisibility(View.INVISIBLE);
         }
         String importanceView = tasksCardsList.get(position).getImportance();
         Boolean cardStatus = tasksCardsList.get(position).getDone().equals("true");
@@ -268,42 +201,9 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
             holder.done.setVisibility(View.GONE);
             holder.done.setVisibility(View.GONE);
             holder.mention.setText(tasksCardsList.get(position).getMention());
-            holder.delete.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                    LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                    View alert = inflater.inflate(R.layout.are_you_sure,null);
-                    builder.setView(alert);
-                    final AlertDialog alertDialog = builder.create();
-                    alertDialog.getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
-                    alertDialog.getWindow().setBackgroundDrawableResource(R.drawable.dialogfragment_add_member);
-                    alertDialog.show();
-                    sadShroomie = ((AlertDialog) alertDialog).findViewById(R.id.sad_shroomie);
-                    stars = ((AlertDialog) alertDialog).findViewById(R.id.stars);
-                    cont = ((AlertDialog) alertDialog).findViewById(R.id.button_continue);
-                    no = ((AlertDialog) alertDialog).findViewById(R.id.button_no);
-
-                    no.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            alertDialog.cancel();
-                        }
-                    });
-                    cont.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                           deleteFromArchive(position,tasksCardsList.get(position));
-                            alertDialog.cancel();
-                        }
-                    });
-
-                }
-            });
         }
 
         switch (importanceView) {
-
             case  "2":
                 holder.taskImportanceView.setBackgroundColor(context.getColor(R.color.canceRed));
                 break;

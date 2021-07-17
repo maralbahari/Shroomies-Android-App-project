@@ -149,7 +149,6 @@
                     android:layout_height="wrap_content"
                     android:layout_below="@id/view_pager"
                     android:layout_marginLeft="5dp"
-
                     android:elevation="3dp"
                     android:visibility="gone"
                     android:padding="3dp"

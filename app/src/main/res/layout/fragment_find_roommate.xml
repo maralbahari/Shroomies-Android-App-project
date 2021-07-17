@@ -14,14 +14,15 @@
         android:layout_height="wrap_content"
         android:layout_marginRight="5dp"
         android:layout_marginLeft="5dp"
-        android:background="@color/LogoYellow"
-        app:tabSelectedTextColor="@color/white"
-        android:elevation="5dp"
+
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:tabIndicatorColor="@color/white"
         app:tabIndicatorHeight="2dp"
+        android:background="@color/LogoYellow"
+        app:tabSelectedTextColor="@color/white"
+        android:elevation="5dp"
         app:tabMode="scrollable"
         app:tabMinWidth="120dp"
         >

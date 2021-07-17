@@ -29,7 +29,6 @@ public class RefreshProgressBar extends DialogFragment {
             getDialog().getWindow().setAttributes(layoutParams);
             getDialog().getWindow().setLayout(ActionBar.LayoutParams.WRAP_CONTENT, Toolbar.LayoutParams.WRAP_CONTENT);
             getDialog().getWindow().setGravity(Gravity.BOTTOM);
-
             getDialog().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_DIM_BEHIND);
             getDialog().getWindow().setBackgroundDrawableResource(android.R.color.transparent);
 

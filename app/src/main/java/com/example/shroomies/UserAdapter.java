@@ -21,6 +21,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.example.shroomies.notifications.Data;
 import com.example.shroomies.notifications.Sender;
 import com.example.shroomies.notifications.Token;
@@ -81,8 +82,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     public UserAdapter.UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
 
         LayoutInflater layoutInflater = LayoutInflater.from(context);
-
-       v = layoutInflater.inflate(R.layout.send_request_card,parent,false);
+        v = layoutInflater.inflate(R.layout.send_request_card,parent,false);
         rootRef= FirebaseDatabase.getInstance().getReference();
         mAuth=FirebaseAuth.getInstance();
         requestQueue = Volley.newRequestQueue(context);
@@ -96,6 +96,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                     .load(userList.get(position).getImage())
                     .fitCenter()
                     .circleCrop()
+                    .transition(DrawableTransitionOptions.withCrossFade()) //Here a fading animation
                     .into(holder.userImage);
             holder.userImage.setPadding(2,2,2,2);
         }
@@ -110,7 +111,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                 if(requestAlreadySent.get(userList.get(position).getID())){
                     holder.sendRequest.setVisibility(View.VISIBLE);
                     holder.sendRequest.setClickable(false);
-                    holder.sendRequest.setText("requested");
+                    holder.sendRequest.setText("Sent!");
                 }else{
                     holder.sendRequest.setVisibility(View.VISIBLE);
                 }
