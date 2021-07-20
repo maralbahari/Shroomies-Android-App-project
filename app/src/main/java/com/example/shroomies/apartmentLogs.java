@@ -3,12 +3,10 @@ package com.example.shroomies;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class Log implements Parcelable {
-    String logID,actor,action,cardTitle,cardType,receivedBy,removedUser,cardID;
-    String actorPic,actorName;
-    long when;
+public class apartmentLogs implements Parcelable {
+    String logID,actor, action,cardTitle,cardType,receivedBy,removedUser,cardID , when;
 
-    public Log(String logID, String actor, String action, long when, String cardTitle, String cardType, String receivedBy, String removedUser,String cardID) {
+    public apartmentLogs(String logID, String actor, String action, String when, String cardTitle, String cardType, String receivedBy, String removedUser, String cardID) {
         this.logID = logID;
         this.actor = actor;
         this.action = action;
@@ -19,7 +17,7 @@ public class Log implements Parcelable {
         this.removedUser = removedUser;
         this.cardID=cardID;
     }
-    public Log(){
+    public apartmentLogs(){
 
     }
 
@@ -31,45 +29,28 @@ public class Log implements Parcelable {
         this.cardID = cardID;
     }
 
-    protected Log(Parcel in) {
+    protected apartmentLogs(Parcel in) {
         logID = in.readString();
         actor = in.readString();
         action = in.readString();
-        when=in.readLong();
+        when=in.readString();
         cardTitle = in.readString();
         cardType = in.readString();
         receivedBy = in.readString();
         removedUser = in.readString();
-        actorName=in.readString();
-        actorPic=in.readString();
         cardID=in.readString();
     }
 
-    public String getActorPic() {
-        return actorPic;
-    }
 
-    public void setActorPic(String actorPic) {
-        this.actorPic = actorPic;
-    }
-
-    public String getActorName() {
-        return actorName;
-    }
-
-    public void setActorName(String actorName) {
-        this.actorName = actorName;
-    }
-
-    public static final Creator<Log> CREATOR = new Creator<Log>() {
+    public static final Creator<apartmentLogs> CREATOR = new Creator<apartmentLogs>() {
         @Override
-        public Log createFromParcel(Parcel in) {
-            return new Log(in);
+        public apartmentLogs createFromParcel(Parcel in) {
+            return new apartmentLogs(in);
         }
 
         @Override
-        public Log[] newArray(int size) {
-            return new Log[size];
+        public apartmentLogs[] newArray(int size) {
+            return new apartmentLogs[size];
         }
     };
 
@@ -97,11 +78,11 @@ public class Log implements Parcelable {
         this.action = action;
     }
 
-    public long getWhen() {
+    public String getWhen() {
         return when;
     }
 
-    public void setWhen(long when) {
+    public void setWhen(String when) {
         this.when = when;
     }
 
@@ -147,13 +128,12 @@ public class Log implements Parcelable {
         parcel.writeString(logID);
         parcel.writeString(actor);
         parcel.writeString(action);
-        parcel.writeLong(when);
+        parcel.writeString(when);
         parcel.writeString(cardTitle);
         parcel.writeString(cardType);
         parcel.writeString(receivedBy);
         parcel.writeString(removedUser);
-        parcel.writeString(actorName);
         parcel.writeString(cardID);
-        parcel.writeString(actorPic);
+
     }
 }

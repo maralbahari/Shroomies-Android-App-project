@@ -61,6 +61,7 @@ public class MainActivity extends AppCompatActivity {
         //Creating session in main activity
         rootRef = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
+        mAuth.useEmulator("http://localhost:4000/auth",9099);
 
         Bundle extras = getIntent().getExtras();
         if(extras!=null){

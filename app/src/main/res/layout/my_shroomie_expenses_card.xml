@@ -113,7 +113,15 @@
                 android:background="@drawable/expense_card_image_background"
                 android:src="@drawable/ic_no_file_added" />
 
-
+            <Button
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:background="@drawable/ic_delete"
+                android:id="@+id/delete_button"
+                android:elevation="10dp"
+                android:minHeight="0dp"
+                />
 
 
 

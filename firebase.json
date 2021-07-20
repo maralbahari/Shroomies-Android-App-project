@@ -7,5 +7,8 @@
     "predeploy": [
       "npm --prefix \"$RESOURCE_DIR\" run lint"
     ]
+  },
+  "database": {
+    "rules": "database.rules.json"
   }
 }

@@ -1,9 +1,8 @@
 package com.example.shroomies;
 
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.Typeface;
+import android.icu.lang.UScript;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextPaint;
@@ -11,6 +10,7 @@ import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.StyleSpan;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +23,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -30,13 +31,14 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
+import java.util.HashMap;
+import java.util.Map;
 
 public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
     private View v;
     private Context context;
-    private ArrayList<Log> logList;
+    private ArrayList<apartmentLogs> apartmentLogsList;
+    private HashMap<String , User> usersMap;
     private String requestedUserName="";
     private DatabaseReference rootRef;
     private Spannable cardName=new SpannableString("");
@@ -47,11 +49,14 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
 
 
 
-    public LogAdapter(Context context, ArrayList<Log> logList , FragmentManager fm, Fragment targetedFragment) {
+    public LogAdapter(Context context, ArrayList<apartmentLogs> apartmentLogsList , HashMap<String , User> usersMap, FragmentManager fm, Fragment targetedFragment) {
         this.context = context;
-        this.logList = logList;
+        this.apartmentLogsList = apartmentLogsList;
         this.targetedFragment = targetedFragment;
+        this.usersMap = usersMap;
         this.fm = fm;
+        Log.wtf("userrr" , usersMap.toString());
+
 
     }
 
@@ -67,58 +72,66 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull LogViewHolder holder, int position) {
+        String actorID = apartmentLogsList.get(position).getActor();
+        //get the user's details
+        User user = usersMap.get(actorID);
 
-      if(logList.get(position).getActorPic()!=null){
-          if(!logList.get(position).getActorPic().isEmpty()) {
-              GlideApp.with(context)
-                      .load(logList.get(position).getActorPic())
-                      .fitCenter()
-                      .circleCrop()
-                      .into(holder.userPic);
-          }
-      }
-      String actorName=logList.get(position).getActorName();
-      String action=logList.get(position).getAction();
-      String cardTitle=logList.get(position).getCardTitle();
-      String removedUser=logList.get(position).getRemovedUser();
-      String receiverRequest=logList.get(position).getReceivedBy();
-      long when=logList.get(position).getWhen();
-      final String cardType=logList.get(position).getCardType();
-      final String cardID=logList.get(position).getCardID();
+        if(user !=null){
+            if(user.getImage()!=null){
+                if(!user.getImage().isEmpty()) {
+                    GlideApp.with(context)
+                            .load(user.getImage())
+                            .fitCenter()
+                            .circleCrop()
+                            .error(R.drawable.ic_user_profile_svgrepo_com)
+                            .transition(DrawableTransitionOptions.withCrossFade()) //Here a fading animation
+                            .into(holder.userPic);
+                }
+            }
 
-          Date happend=(new Date(when));
-          Date currentDate=(new Date(System.currentTimeMillis()));
-          long diff=currentDate.getTime()-happend.getTime();
-          long diffInSec = TimeUnit.MILLISECONDS.toSeconds(diff);
-        long seconds = diffInSec % 60;
-         diffInSec /= 60;
-        long minutes = diffInSec % 60;
-        diffInSec /= 60;
-        long hours = diffInSec % 24;
-        diffInSec /= 24;
-        long days = diffInSec;
-         if(days>0){
-             holder.logDate.setText(days+"d");
-         }else{
-             if(hours>0){
-                 holder.logDate.setText(hours+"h");
-             }else{
-                 if(minutes>0){
-                     holder.logDate.setText(minutes+"m");
-                 }else{
-                     if(seconds>0){
-                         holder.logDate.setText(seconds+"s");
-                     }else{
-                         holder.logDate.setText("now");
-                     }
-                 }
-             }
-         }
+        }
+      String action= apartmentLogsList.get(position).getAction();
+      String cardTitle= apartmentLogsList.get(position).getCardTitle();
+      String removedUser= apartmentLogsList.get(position).getRemovedUser();
 
-        Spannable nameOfActor = new SpannableString(actorName);
-        nameOfActor.setSpan(new ForegroundColorSpan(Color.BLACK), 0, nameOfActor.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        nameOfActor.setSpan(new StyleSpan(Typeface.BOLD),0,nameOfActor.length(),Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        holder.logMessage.setText(nameOfActor);
+      final String cardType= apartmentLogsList.get(position).getCardType();
+      final String cardID= apartmentLogsList.get(position).getCardID();
+//      long when= apartmentLogsList.get(position).getWhen();
+//          Date happend=(new Date(when));
+//          Date currentDate=(new Date(System.currentTimeMillis()));
+//          long diff=currentDate.getTime()-happend.getTime();
+//          long diffInSec = TimeUnit.MILLISECONDS.toSeconds(diff);
+//        long seconds = diffInSec % 60;
+//         diffInSec /= 60;
+//        long minutes = diffInSec % 60;
+//        diffInSec /= 60;
+//        long hours = diffInSec % 24;
+//        diffInSec /= 24;
+//        long days = diffInSec;
+//         if(days>0){
+//             holder.logDate.setText(days+"d");
+//         }else{
+//             if(hours>0){
+//                 holder.logDate.setText(hours+"h");
+//             }else{
+//                 if(minutes>0){
+//                     holder.logDate.setText(minutes+"m");
+//                 }else{
+//                     if(seconds>0){
+//                         holder.logDate.setText(seconds+"s");
+//                     }else{
+//                         holder.logDate.setText("now");
+//                     }
+//                 }
+//             }
+//         }
+
+            Spannable nameOfActor = new SpannableString(user.getName());
+            nameOfActor.setSpan(new ForegroundColorSpan(context.getColor(R.color.Black)), 0, nameOfActor.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            nameOfActor.setSpan(new StyleSpan(Typeface.BOLD),0,nameOfActor.length(),Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            holder.logMessage.setText(nameOfActor);
+
+
         ClickableSpan cardClick = new ClickableSpan() {
             @Override
             public void onClick(View textView) {
@@ -174,12 +187,12 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
               break;
           case "addingCard":
               if(cardType.equals("tasks")){
-                  holder.logMessage.append(" added a new task as ");
+                  holder.logMessage.append(" added a new task titled ");
                   holder.logMessage.append(cardName);
 
 
               }if(cardType.equals("expenses")){
-              holder.logMessage.append(" added a new expenses as ");
+              holder.logMessage.append(" added a new expense titled ");
               holder.logMessage.append(cardName);
                      }
 
@@ -230,10 +243,6 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
               holder.logMessage.append(" as done in expenses");
                    }
               break;
-          case "requesting":
-              getRequestedUserName(receiverRequest,holder.logMessage);
-
-              break;
           case "removing":
               holder.logMessage.append(" removed ");
               holder.logMessage.append(removedUser);
@@ -250,9 +259,10 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
       }
     }
 
+
     @Override
     public int getItemCount() {
-        return logList.size();
+        return apartmentLogsList.size();
     }
 
     public class LogViewHolder extends RecyclerView.ViewHolder {
@@ -267,26 +277,6 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
             logMessage=itemView.findViewById(R.id.log_message);
 
         }
-    }
-    private void getRequestedUserName(String userID, final TextView message){
-        rootRef.child("Users").child(userID).child("name").addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.exists()){
-                    requestedUserName=snapshot.getValue().toString();
-                    SpannableString requestedUser=new SpannableString(requestedUserName);
-                    requestedUser.setSpan(new ForegroundColorSpan(context.getColor(R.color.LogoYellow)),0,requestedUserName.length(),Spannable.SPAN_EXCLUSIVE_EXCLUSIVE );
-                    requestedUser.setSpan(new StyleSpan(Typeface.BOLD),0,requestedUserName.length(),Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                    message.append(" requested ");
-                    message.append(requestedUser);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
     }
     @Override
     public void onAttachedToRecyclerView(@NonNull RecyclerView recyclerView) {

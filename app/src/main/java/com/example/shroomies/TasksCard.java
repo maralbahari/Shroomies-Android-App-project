@@ -3,18 +3,19 @@ package com.example.shroomies;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.lang.reflect.ParameterizedType;
-
 public class TasksCard implements Parcelable {
 
-    String description, title,dueDate, importance, members, cardId, done,mention;
+    String actor ,description, title,dueDate,
+            importance, members, cardID,
+            done,mention;
+
     long  date;
 
     public TasksCard() {
     }
 
     public TasksCard(String description, String taskTitle, String taskDueDate, String taskImportance, long date, String taskCardId, String members, String done, String mention) {
-        this.cardId = taskCardId;
+        this.cardID = taskCardId;
         this.date = date;
         this.description = description;
         this.importance = taskImportance;
@@ -32,7 +33,7 @@ public class TasksCard implements Parcelable {
         importance = in.readString();
         members = in.readString();
         date = in.readLong();
-        cardId = in.readString();
+        cardID = in.readString();
         done = in.readString();
         mention = in.readString();
     }
@@ -51,6 +52,13 @@ public class TasksCard implements Parcelable {
 
     public String getMention() {
         return mention;
+    }
+    public String getActor() {
+        return actor;
+    }
+
+    public void setActor(String actor) {
+        this.actor = actor;
     }
 
     public void setMention(String mention) {
@@ -81,8 +89,8 @@ public class TasksCard implements Parcelable {
         this.date = date;
     }
 
-    public void setCardId(String cardId) {
-        this.cardId = cardId;
+    public void setCardID(String cardID) {
+        this.cardID = cardID;
     }
 
     public void setDone(String done) {
@@ -113,8 +121,8 @@ public class TasksCard implements Parcelable {
         return date;
     }
 
-    public String getCardId() {
-        return cardId;
+    public String getCardID() {
+        return cardID;
     }
 
     public String getDone() {
@@ -134,7 +142,7 @@ public class TasksCard implements Parcelable {
         parcel.writeString(importance);
         parcel.writeString(members);
         parcel.writeLong(date);
-        parcel.writeString(cardId);
+        parcel.writeString(cardID);
         parcel.writeString(done);
         parcel.writeString(mention);
     }

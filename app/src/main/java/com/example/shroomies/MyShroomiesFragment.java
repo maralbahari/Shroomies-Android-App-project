@@ -1,7 +1,7 @@
 package com.example.shroomies;
 
-import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,27 +14,32 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.factor.bouncy.BouncyRecyclerView;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.functions.FirebaseFunctions;
+import com.google.firebase.functions.HttpsCallableResult;
 import com.skydoves.powerspinner.OnSpinnerItemSelectedListener;
 import com.skydoves.powerspinner.PowerSpinnerView;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 
 public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshroomies {
     //views
@@ -45,25 +50,21 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
     private BouncyRecyclerView myExpensesRecyclerView,myTasksRecyclerView;
     private PowerSpinnerView shroomieSpinnerFilter;
     private ImageButton addCardButton , expandButton;
-
     SlidingUpPanelLayout slidingLayout;
     //data structures
     private ArrayList<TasksCard> tasksCardsList;
     private ArrayList<ExpensesCard> expensesCardsList;
-    private ArrayList<Log> apartmentLogList;
+    private ArrayList<apartmentLogs> apartmentLogs;
     private TasksCardAdapter tasksCardAdapter;
     private ExpensesCardAdapter expensesCardAdapter;
     //final static
     private static final int RESULT_CODE=500;
     //model
     private ShroomiesApartment apartment;
-    // firebase listeners
-    private ValueEventListener expensesCardListener;
-    private ValueEventListener tasksCardListener;
-    private ValueEventListener apartmentListener;
-    private ValueEventListener logListener;
     //firebase
     private DatabaseReference rootRef;
+    private FirebaseDatabase mDatabase;
+    private FirebaseFunctions mfunc;
     private FirebaseAuth mAuth;
     //fragment
     private FragmentTransaction ft;
@@ -84,9 +85,14 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        rootRef = FirebaseDatabase.getInstance().getReference();
-        mAuth = FirebaseAuth.getInstance();
-        getApartmentDetails();
+         mDatabase= FirebaseDatabase.getInstance();
+//         mDatabase.useEmulator("10.0.2.2",9000);
+         rootRef=mDatabase.getReference();
+         mAuth = FirebaseAuth.getInstance();
+         mAuth.useEmulator("10.0.2.2",9099);
+         mfunc=FirebaseFunctions.getInstance();
+         mfunc.useEmulator("10.0.2.2",5001);
+         getApartmentDetails();
 
         myTasksRecyclerView = v.findViewById(R.id.my_tasks_recycler_view);
         memberButton = v.findViewById(R.id.my_shroomies_member_btn);
@@ -148,8 +154,6 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
                     myExpensesRecyclerView.setVisibility(View.VISIBLE);
                     myTasksRecyclerView.setVisibility(View.GONE);
                     tabSelected="expenses";
-                    expensesCardsList = new ArrayList<>();
-                    retreiveExpensesCards(apartment.getApartmentID());
 
                 }
 
@@ -158,8 +162,6 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
                     myTasksRecyclerView.setVisibility(View.VISIBLE);
                     myExpensesRecyclerView.setVisibility(View.GONE);
                     tabSelected="tasks";
-                    tasksCardsList=new ArrayList<>();
-                    retrieveTaskCards(apartment.getApartmentID());
                 }
             }
 
@@ -174,7 +176,6 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
             }
         });
         shroomieSpinnerFilter.setOnSpinnerItemSelectedListener(new OnSpinnerItemSelectedListener<Object>() {
-
             @Override
             public void onItemSelected(int i, @org.jetbrains.annotations.Nullable Object o, int i1, Object t1) {
                 switch (i) {
@@ -193,9 +194,6 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
                 }
             }
         });
-
-
-
 
         addCardButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -236,7 +234,15 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
             public void onClick(View view) {
                 LogFragment logFragment=new LogFragment();
                 Bundle bundle=new Bundle();
-                bundle.putParcelableArrayList("LOG_LIST",apartmentLogList);
+                bundle.putParcelableArrayList("LOG_LIST", apartmentLogs);
+                if(apartment.getApartmentMembers()!=null){
+                    //put the members and add the admin
+                    ArrayList<String> members = new ArrayList(apartment.getApartmentMembers().values());
+                    members.add(apartment.getAdminID());
+                    bundle.putStringArrayList("MEMBERS" ,members);
+                    Log.d("members" ,  new ArrayList(apartment.getApartmentMembers().values()).toString());
+
+                }
                 logFragment.setArguments(bundle);
                 logFragment.setTargetFragment(MyShroomiesFragment.this,RESULT_CODE);
                 fm = getParentFragmentManager();
@@ -254,40 +260,51 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
 
 
    private void getApartmentDetails(){
-        rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.exists()){
-                   final String  apartmentID=snapshot.getValue().toString();
-                    apartmentListener=rootRef.child("apartments").child(apartmentID).addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            if(snapshot.exists()){
-                                apartment=snapshot.getValue(ShroomiesApartment.class);
-                                if(expensesCardsList.isEmpty()){
-                                    retreiveExpensesCards(apartment.getApartmentID());
+       HashMap data=new HashMap();
+       data.put("ID",mAuth.getCurrentUser().getUid());
+        mfunc.getHttpsCallable(Config.FUNCTION_GET_APARTMENT_DETAILS).call(data)
+                .addOnCompleteListener(new OnCompleteListener<HttpsCallableResult>() {
+                    @Override
+                    public void onComplete(@NonNull @NotNull Task<HttpsCallableResult> task) {
+                        if (task.isSuccessful()){
+                            final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
+                            apartment = mapper.convertValue(((HashMap<Object, Object>) task.getResult().getData()), ShroomiesApartment.class);
+                            if (apartment.getExpensesCard() != null) {
+                                if (!apartment.getExpensesCard().isEmpty()) {
+                                    expensesCardsList = new ArrayList<>(apartment.getExpensesCard().values());
+                                    expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList, getActivity(), false, apartment, getChildFragmentManager(), rootlayout);
+                                    myExpensesRecyclerView.setAdapter(expensesCardAdapter);
+                                    expensesCardAdapter.notifyDataSetChanged();
+                                } else {
+                                    //TODO display empty expenses
                                 }
-                                getApartmentLog(apartment.getApartmentID());
+                            } else {
+                                //TODO display empty expenses
                             }
-
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-
-                        }
-                    });
-
-
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
+                            if (apartment.getTaskCard() != null) {
+                                if (!apartment.getTaskCard().isEmpty()) {
+                                    tasksCardsList = new ArrayList<>(apartment.getTaskCard().values());
+                                    tasksCardAdapter = new TasksCardAdapter(tasksCardsList, getActivity(), false, apartment, getChildFragmentManager(), rootlayout);
+                                    tasksCardAdapter.notifyDataSetChanged();
+                                    myTasksRecyclerView.setAdapter(tasksCardAdapter);
+                                } else {
+                                    //TODO display empty tasks
+                                }
+                            } else {
+                                //TODO display empty tasks
+                            }
+                            if (apartment.getLogs() != null) {
+                                if (!apartment.getLogs().isEmpty()) {
+                                    apartmentLogs = new ArrayList<>(apartment.getLogs().values());
+                                } else {
+                                    //todo display empty log in the log fragment
+                                }
+                            } else {
+                                //todo display empty log in the log fragment
+                            }
+                    }
+                    }
+                });
     }
 
    private void scroll(){
@@ -323,123 +340,6 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
     selectedCardType= null;
 
 }
-
-
-   private void getApartmentLog(final String apartmentID){
-       apartmentLogList =new ArrayList<>();
-       logListener=rootRef.child("logs").child(apartmentID).addValueEventListener(new ValueEventListener() {
-           @Override
-           public void onDataChange(@NonNull DataSnapshot snapshot) {
-               apartmentLogList.clear();
-               if(snapshot.exists()){
-                   for(DataSnapshot sp:snapshot.getChildren()){
-                       Log log=sp.getValue(Log.class);
-                       apartmentLogList.add(log);
-                   }
-                   Collections.reverse(apartmentLogList);
-                   getUserDetailsForLog(apartmentLogList);
-
-
-               }else{
-                //TODO add progress bar
-               }
-           }
-
-           @Override
-           public void onCancelled(@NonNull DatabaseError error) {
-
-           }
-       });
-
-   }
-
-    private void getUserDetailsForLog(final ArrayList<Log> apartmentlogList){
-        for(final Log log:apartmentlogList){
-            rootRef.child("Users").child(log.getActor()).addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    if(snapshot.exists()){
-                        User user=snapshot.getValue(User.class);
-                        log.setActorName(user.getName());
-                        log.setActorPic(user.getImage());
-
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-
-                }
-            });
-        }
-
-
-    }
-
-   private void retrieveTaskCards(String apartmentID) {
-        tasksCardsList=new ArrayList<>();
-        tasksCardAdapter= new TasksCardAdapter(tasksCardsList,getActivity(),false,apartment,getActivity().getSupportFragmentManager(),rootlayout);
-        ItemTouchHelper.Callback callback = new CardsTouchHelper(tasksCardAdapter);
-        ItemTouchHelper itemTouchHelperTask = new ItemTouchHelper(callback);
-        tasksCardAdapter.setItemTouchHelper(itemTouchHelperTask);
-        itemTouchHelperTask.attachToRecyclerView(myTasksRecyclerView);
-        myTasksRecyclerView.setAdapter(tasksCardAdapter);
-
-        tasksCardListener=rootRef.child("apartments").child(apartmentID).child("tasksCards").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                tasksCardsList.clear();
-                if (snapshot.exists()) {
-                    for (DataSnapshot sp : snapshot.getChildren()) {
-                        TasksCard tasksCard = sp.getValue(TasksCard.class);
-                        tasksCardsList.add(tasksCard);
-                    }
-                    Collections.reverse(tasksCardsList);
-                    tasksCardAdapter.notifyDataSetChanged();
-
-                }
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-    }
-
-   public void retreiveExpensesCards(String apartmentID){
-        expensesCardsList=new ArrayList<>();
-        expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList,getActivity().getApplicationContext(), false,apartment,getActivity().getSupportFragmentManager(),rootlayout);
-        ItemTouchHelper.Callback callback = new CardsTouchHelper(expensesCardAdapter);
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(callback);
-        expensesCardAdapter.setItemTouchHelper(itemTouchHelper);
-        itemTouchHelper.attachToRecyclerView(myExpensesRecyclerView);
-        myExpensesRecyclerView.setAdapter(expensesCardAdapter);
-        expensesCardListener=rootRef.child("apartments").child(apartmentID).child("expensesCards").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                expensesCardsList.clear();
-                if (snapshot.exists()) {
-
-                    for (DataSnapshot sp : snapshot.getChildren()) {
-                        ExpensesCard expensesCard = sp.getValue(ExpensesCard.class);
-                        expensesCardsList.add(expensesCard);
-
-                    }
-                    Collections.reverse(expensesCardsList);
-                    expensesCardAdapter.notifyDataSetChanged();
-
-
-                }else{
-                    //TODO add progress bar
-                }
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
-    }
 
     @Override
     public void onResume() {
@@ -486,8 +386,6 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
                 public int compare(ExpensesCard o1, ExpensesCard o2) {
                     Date dateO1 = new Date(o1.getDate());
                     Date dateO2 = new Date(o2.getDate());
-
-
                     return dateO2.compareTo(dateO1);
 
                 }
@@ -512,14 +410,7 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
         }
 
     }
-    @Override
-   public void onDestroy() {
-        super.onDestroy();
-        if(expensesCardListener!=null)
-        rootRef.removeEventListener(expensesCardListener);
-        rootRef.removeEventListener(apartmentListener);
-        rootRef.removeEventListener(logListener);
-    }
+
 
    private void sortAccordingtoImportance(String tab){
         if(tab.equals("expenses")){
@@ -597,7 +488,7 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
 
         if(selectedCardType.equals("tasks")){
             for (TasksCard card:tasksCardsList){
-                if(card.getCardId().equals(selectedCardID)){
+                if(card.getCardID().equals(selectedCardID)){
                     final int position=tasksCardsList.indexOf(card);
                     if(position!=-1){
                         this.recyclerPosition=position;
@@ -612,7 +503,7 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
         }if(selectedCardType.equals("expenses")){
 
             for(ExpensesCard card:expensesCardsList){
-                if(card.getCardId().equals(selectedCardID)){
+                if(card.getCardID().equals(selectedCardID)){
                     final int position=expensesCardsList.indexOf(card);
                     if(position!=-1){
                         this.recyclerPosition=position;
