@@ -120,7 +120,6 @@ public class LoginActivity extends AppCompatActivity {
     }
     private void loginUser(){
         mAuth = FirebaseAuth.getInstance();
-        mAuth.useEmulator("10.0.2.2",9099);
         progressBar = new CustomLoadingProgressBar(LoginActivity.this , "Loading..." ,R.raw.loading_animation);
         progressBar.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         progressBar.show();
@@ -138,13 +137,12 @@ public class LoginActivity extends AppCompatActivity {
 
                     if (task.isSuccessful()){
                         progressBar.dismiss();
-//                        if(mAuth.getCurrentUser().isEmailVerified()){
+                        if(mAuth.getCurrentUser().isEmailVerified()){
                             String userID =mAuth.getCurrentUser().getUid();
                             String userEmail =mAuth.getCurrentUser().getEmail();
                             sessionManager= new SessionManager(LoginActivity.this,userID);
                             sessionManager.createSession(userID,userEmail);
-//                            sessionManager.setVerifiedEmail(mAuth.getCurrentUser().isEmailVerified());
-                            sessionManager.setVerifiedEmail(true);
+                            sessionManager.setVerifiedEmail(mAuth.getCurrentUser().isEmailVerified());
                             getE3Token();
                             Toast.makeText(LoginActivity.this, "Welcome to Shroomies! ", Toast.LENGTH_SHORT).show();
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
@@ -152,30 +150,30 @@ public class LoginActivity extends AppCompatActivity {
                             intent.putExtra("EMAIL",userEmail);
                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                             startActivity(intent);
-//                        }
-//                        if(!(mAuth.getCurrentUser().isEmailVerified())){
-//                            username.setText("");
-//                            password.setText("");
-//                            progressBar.dismiss();
-//                            Toast.makeText(LoginActivity.this, "Please verify your email address", Toast.LENGTH_SHORT).show();
-//                            final FirebaseUser user = mAuth.getCurrentUser();
-//                            user.sendEmailVerification().addOnCompleteListener(LoginActivity.this, new OnCompleteListener<Void>() {
-//                                @Override
-//                                public void onComplete(@NonNull Task<Void> task) {
-//                                    login.setEnabled(true);
-//                                    if(task.isSuccessful()){
-//                                        Toast.makeText(LoginActivity.this, "a new verification email has been sent to"+user.getEmail(), Toast.LENGTH_SHORT).show();
-//                                        progressBar.dismiss();
-//                                    }
-//                                    else{
-//                                        Toast.makeText(LoginActivity.this, "failed to send email verification", Toast.LENGTH_SHORT).show();
-//                                        progressBar.dismiss();
-//                                    }
-//                                }
-//                            });
+                        }
+                        if(!(mAuth.getCurrentUser().isEmailVerified())){
+                            username.setText("");
+                            password.setText("");
+                            progressBar.dismiss();
+                            Toast.makeText(LoginActivity.this, "Please verify your email address", Toast.LENGTH_SHORT).show();
+                            final FirebaseUser user = mAuth.getCurrentUser();
+                            user.sendEmailVerification().addOnCompleteListener(LoginActivity.this, new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    login.setEnabled(true);
+                                    if(task.isSuccessful()){
+                                        Toast.makeText(LoginActivity.this, "a new verification email has been sent to"+user.getEmail(), Toast.LENGTH_SHORT).show();
+                                        progressBar.dismiss();
+                                    }
+                                    else{
+                                        Toast.makeText(LoginActivity.this, "failed to send email verification", Toast.LENGTH_SHORT).show();
+                                        progressBar.dismiss();
+                                    }
+                                }
+                            });
 
 
-//                        }
+                        }
 
                     }
                 }

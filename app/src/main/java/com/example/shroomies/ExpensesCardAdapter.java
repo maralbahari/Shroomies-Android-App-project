@@ -24,8 +24,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -35,20 +33,14 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
-import com.google.firebase.functions.FirebaseFunctions;
-import com.google.firebase.functions.HttpsCallableResult;
 import com.google.firebase.storage.FirebaseStorage;
 import com.hendraanggrian.widget.SocialTextView;
-import com.virgilsecurity.crypto.foundation.Hash;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapter.ExpensesViewHolder> implements ItemTouchHelperAdapter {
@@ -64,7 +56,6 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
 
     private ShroomiesApartment apartment;
     private FirebaseStorage storage;
-    private FirebaseFunctions mfunc;
     private FragmentManager fragmentManager;
     private View parentView;
 
@@ -85,7 +76,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
     @Override
     public void onItemSwiped(int position) {
         if(fromArchive){
-//            deleteFromArchive(position,expensesCardArrayList.get(position));
+            deleteFromArchive(position,expensesCardArrayList.get(position));
         }else{
             deleteExpensesCard(position);
         }
@@ -103,8 +94,6 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
         rootRef= FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
         storage=FirebaseStorage.getInstance();
-        mfunc= FirebaseFunctions.getInstance();
-        mfunc.useEmulator("10.0.2.2",5001);
         return new ExpensesViewHolder(view);
 
     }
@@ -113,7 +102,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
         holder.title.setText(expensesCardArrayList.get(position).getTitle());
         holder.description.setText(expensesCardArrayList.get(position).getDescription());
         if(expensesCardArrayList.get(position).getDueDate().equals("Due date")){
-            holder.dueDate.setText("None");
+            holder.dueDate.setText(" None");
         }else {
             holder.dueDate.setText(" "+expensesCardArrayList.get(position).getDueDate());
             String dueString=expensesCardArrayList.get(position).getDueDate();
@@ -184,6 +173,19 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
         }
 
     }
+    private void deleteFromArchive(final int  position, final ExpensesCard expensesCard){
+        rootRef.child("archive").child(apartment.getApartmentID()).child("expensesCards").child(expensesCardArrayList.get(position).getCardId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+               saveToDeleteArchiveLog(apartment.getApartmentID(),expensesCard);
+                Snackbar snack=Snackbar.make(parentView,"Card deleted", BaseTransientBottomBar.LENGTH_SHORT);
+                snack.setAnchorView(R.id.bottomNavigationView);
+                snack.show();
+                notifyItemRemoved(position);
+
+            }
+        });
+    }
 
 
     @Override
@@ -193,7 +195,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
 
     @Override
     public long getItemId(int position) {
-        return Long.parseLong(expensesCardArrayList.get(position).getCardID());
+        return Long.parseLong(expensesCardArrayList.get(position).getCardId());
     }
 
     public class ExpensesViewHolder extends RecyclerView.ViewHolder {
@@ -202,7 +204,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
         private SocialTextView mention;
         ImageView cardImage,shroomieArch;
         ImageButton archive;
-        Button yesBtn,noBtn , delete;
+        Button yesBtn,noBtn;
         CheckBox done;
         private CardView expensesCardView;
 
@@ -214,7 +216,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
             dueDate = v.findViewById(R.id.dueDate_card);
             cardImage= v.findViewById(R.id.card_img);
             archive = v.findViewById(R.id.archive_card_btn);
-            delete = v.findViewById(R.id.delete_button);
+//            delete = v.findViewById(R.id.delete_card_btn);
             mention = v.findViewById(R.id.task_mention_et);
             mention.setMentionColor(Color.BLUE);
             done = v.findViewById(R.id.task_done);
@@ -222,23 +224,17 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
 
             expensesCardView=v.findViewById(R.id.my_shroomie_expenses_card);
 
-            delete.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    deleteExpensesCard(getAdapterPosition());
-                }
-            });
-
             done.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     final ExpensesCard selectedCard=expensesCardArrayList.get(getLayoutPosition());
                     if (done.isChecked()){
-                        rootRef.child("apartments").child(apartment.getApartmentID()).child("expensesCards").child(expensesCardArrayList.get(getAdapterPosition()).getCardID()).child("done").setValue("true").addOnCompleteListener(new OnCompleteListener<Void>() {
+                        rootRef.child("apartments").child(apartment.getApartmentID()).child("expensesCards").child(expensesCardArrayList.get(getAdapterPosition()).getCardId()).child("done").setValue("true").addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
                                 if(task.isSuccessful()){
                                     done.setText("Done!");
+                                    saveToDoneLog(apartment.getApartmentID(),selectedCard);
                                     AlertDialog.Builder builder = new AlertDialog.Builder(context);
                                     LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
                                     View alert = inflater.inflate(R.layout.do_you_want_to_archive,null);
@@ -268,9 +264,10 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                         });
 
                     }else{
-                        rootRef.child("apartments").child(apartment.getApartmentID()).child("expensesCards").child(expensesCardArrayList.get(getAdapterPosition()).getCardID()).child("done").setValue("false").addOnSuccessListener(new OnSuccessListener<Void>() {
+                        rootRef.child("apartments").child(apartment.getApartmentID()).child("expensesCards").child(expensesCardArrayList.get(getAdapterPosition()).getCardId()).child("done").setValue("false").addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
+                                saveToUnDoneLog(apartment.getApartmentID(),selectedCard);
 
                             }
                         });
@@ -303,52 +300,34 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
 
 
 
-//    public void archive(final int position,final ExpensesCard expensesCard){
-//        DatabaseReference ref = rootRef.child("archive").child(apartment.getApartmentID()).child("expensesCards").push();
-//        HashMap<String ,Object> newCard = new HashMap<>();
-//        String uniqueID = ref.getKey();
-//        newCard.put("description" , expensesCard.getDescription());
-//        newCard.put("title" ,expensesCard.getTitle());
-//        newCard.put("dueDate", expensesCard.getDueDate());
-//        newCard.put("importance", expensesCard.getImportance());
-//        newCard.put("date",ServerValue.TIMESTAMP);
-//        newCard.put("cardId",uniqueID);
-//        newCard.put("attachedFile", expensesCard.getAttachedFile());
-//        newCard.put("done", expensesCard.getDone());
-//        newCard.put("mention",expensesCard.getMention());
-//        ref.updateChildren(newCard).addOnCompleteListener(new OnCompleteListener<Void>() {
-//            @Override
-//            public void onComplete(@NonNull Task<Void> task) {
-//
-//                rootRef.child("apartments").child(apartment.getApartmentID()).child("expensesCards").child(expensesCard.getCardID()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
-//                    @Override
-//                    public void onSuccess(Void aVoid) {
-//                        Snackbar.make(parentView,"Card archived", BaseTransientBottomBar.LENGTH_SHORT)
-//                                .setAnchorView(R.id.bottomNavigationView)
-//                                .show();
-//                        notifyItemRemoved(position);
-//                    }
-//                });
-//
-//            }
-//        });
-//
-//    }
     public void archive(final int position,final ExpensesCard expensesCard){
-        final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
-        Map<String, Object> map =
-        mapper.convertValue(expensesCard, new TypeReference<Map<String, Object>>() {});
-        HashMap data = new HashMap();
-        data.put("apartmentID" , apartment.getApartmentID());
-        data.put("cardDetails" , map);
-        mfunc.getHttpsCallable(Config.FUNCTION_ARCHIVE_EXPENSES_CARD).call(data).addOnCompleteListener(new OnCompleteListener<HttpsCallableResult>() {
+        DatabaseReference ref = rootRef.child("archive").child(apartment.getApartmentID()).child("expensesCards").push();
+        HashMap<String ,Object> newCard = new HashMap<>();
+        String uniqueID = ref.getKey();
+        newCard.put("description" , expensesCard.getDescription());
+        newCard.put("title" ,expensesCard.getTitle());
+        newCard.put("dueDate", expensesCard.getDueDate());
+        newCard.put("importance", expensesCard.getImportance());
+        newCard.put("date",ServerValue.TIMESTAMP);
+        newCard.put("cardId",uniqueID);
+        newCard.put("attachedFile", expensesCard.getAttachedFile());
+        newCard.put("done", expensesCard.getDone());
+        newCard.put("mention",expensesCard.getMention());
+        ref.updateChildren(newCard).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
-            public void onComplete(@NonNull @NotNull Task<HttpsCallableResult> task) {
-             if(task.isSuccessful()){
-                 Snackbar.make(parentView,"Card archived", BaseTransientBottomBar.LENGTH_SHORT)
-                         .show();
-                 notifyItemRemoved(position);
-             }
+            public void onComplete(@NonNull Task<Void> task) {
+
+                rootRef.child("apartments").child(apartment.getApartmentID()).child("expensesCards").child(expensesCard.getCardId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                        saveToArchiveLog(apartment.getApartmentID(),expensesCard);
+                        Snackbar.make(parentView,"Card archived", BaseTransientBottomBar.LENGTH_SHORT)
+                                .setAnchorView(R.id.bottomNavigationView)
+                                .show();
+                        notifyItemRemoved(position);
+                    }
+                });
+
             }
         });
 
@@ -356,25 +335,125 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
 
 
     public void deleteExpensesCard(final int position){
+        final ExpensesCard expensesCard=expensesCardArrayList.get(position);
+            if(!expensesCardArrayList.get(position).getAttachedFile().isEmpty()){
+                storage.getReferenceFromUrl(expensesCardArrayList.get(position).getAttachedFile()).delete().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void aVoid) {
+                    }
+                });}
 
-        HashMap data = new HashMap();
-        data.put("apartmentID" , apartment.getApartmentID());
-        data.put("cardID" , expensesCardArrayList.get(position).getCardID());
-        data.put("file" , expensesCardArrayList.get(position).getAttachedFile());
-
-        mfunc.getHttpsCallable(Config.FUNCTION_DELETE_EXPENSE_CARD).call(data).addOnCompleteListener(new OnCompleteListener<HttpsCallableResult>() {
-            @Override
-            public void onComplete(@NonNull @NotNull Task<HttpsCallableResult> task) {
-                if(task.isSuccessful()){
+            rootRef.child("apartments").child(apartment.getApartmentID()).child("expensesCards").child(expensesCardArrayList.get(position).getCardId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    saveToDeleteLog(apartment.getApartmentID(),expensesCard);
                     Snackbar snack=Snackbar.make(parentView,"Card deleted", BaseTransientBottomBar.LENGTH_SHORT);
+                    snack.setAnchorView(R.id.bottomNavigationView);
                     snack.show();
                     notifyItemRemoved(position);
                 }
+            });
+
+
+
+    }
+    private void saveToDeleteLog(String apartmentID,ExpensesCard card){
+        DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
+        String logID=ref.getKey();
+        final HashMap<String, Object> newRecord=new HashMap<>();
+        newRecord.put("actor",mAuth.getCurrentUser().getUid());
+        newRecord.put("when",ServerValue.TIMESTAMP);
+        newRecord.put("cardTitle",card.getTitle());
+        newRecord.put("action","deletingCard");
+        newRecord.put("logID",logID);
+        newRecord.put("cardType","expenses");
+        ref.updateChildren(newRecord).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+
+            }
+        });
+
+    }
+    private void saveToArchiveLog(String apartmentID,ExpensesCard card){
+        DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
+        String logID=ref.getKey();
+
+        final HashMap<String, Object> newRecord=new HashMap<>();
+        newRecord.put("actor",mAuth.getCurrentUser().getUid());
+        newRecord.put("when",ServerValue.TIMESTAMP);
+        newRecord.put("cardTitle",card.getTitle());
+        newRecord.put("action","archivingCard");
+        newRecord.put("logID",logID);
+        newRecord.put("cardType","expenses");
+        newRecord.put("cardID",card.getCardId());
+        ref.updateChildren(newRecord).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+
+            }
+        });
+
+    }
+    private void saveToDeleteArchiveLog(String apartmentID,ExpensesCard card){
+        DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
+        String logID=ref.getKey();
+
+        final HashMap<String, Object> newRecord=new HashMap<>();
+        newRecord.put("actor",mAuth.getCurrentUser().getUid());
+        newRecord.put("when",ServerValue.TIMESTAMP);
+        newRecord.put("cardTitle",card.getTitle());
+        newRecord.put("action","deletingArchivedCard");
+        newRecord.put("logID",logID);
+        newRecord.put("cardType","expenses");
+        ref.updateChildren(newRecord).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+
+            }
+        });
+
+    }
+    private void saveToDoneLog(String apartmentID,ExpensesCard card){
+        DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
+        String logID=ref.getKey();
+
+        final HashMap<String, Object> newRecord=new HashMap<>();
+        newRecord.put("actor",mAuth.getCurrentUser().getUid());
+        newRecord.put("when",ServerValue.TIMESTAMP);
+        newRecord.put("cardTitle",card.getTitle());
+        newRecord.put("action","markingDone");
+        newRecord.put("logID",logID);
+        newRecord.put("cardType","expenses");
+        newRecord.put("cardID",card.getCardId());
+        ref.updateChildren(newRecord).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+
             }
         });
 
     }
 
+    private void saveToUnDoneLog(String apartmentID,ExpensesCard card){
+        DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
+        String logID=ref.getKey();
+        final HashMap<String, Object> newRecord=new HashMap<>();
+        newRecord.put("actor",mAuth.getCurrentUser().getUid());
+        newRecord.put("when", ServerValue.TIMESTAMP);
+        newRecord.put("cardTitle",card.getTitle());
+        newRecord.put("action","unMarkingDone");
+        newRecord.put("logID",logID);
+        newRecord.put("cardType","expenses");
+        newRecord.put("cardID",card.getCardId());
+        ref.updateChildren(newRecord).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+
+            }
+        });
+
+    }
 
 
 

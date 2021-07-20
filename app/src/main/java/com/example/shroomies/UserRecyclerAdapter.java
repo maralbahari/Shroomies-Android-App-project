@@ -82,7 +82,7 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapte
         // storage referance to load the user's image if the userhas an
         //uploaded image
         if(usersList.get(position).getImage()!=null) {
-            DatabaseReference firebaseDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(usersList.get(position).getUserID());
+            DatabaseReference firebaseDatabase = FirebaseDatabase.getInstance().getReference().child("Users").child(usersList.get(position).getID());
             firebaseDatabase.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -114,7 +114,7 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapte
         // enable the user to delte by setting the visiblity of the icon to visible
         // also the visibilty should be gone for the user himself
      if(fromWhere.equals("EDIT_GROUP_INFO") ){
-         if (!usersList.get(position).getUserID().equals(mAuth.getInstance().getCurrentUser().getUid())){
+         if (!usersList.get(position).getID().equals(mAuth.getInstance().getCurrentUser().getUid())){
              holder.removeUserFromGroupChat.setVisibility(View.VISIBLE);
          }
 
@@ -152,7 +152,7 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapte
                 removeUserFromGroupChat.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        final String userId = usersList.get(getAdapterPosition()).getUserID();
+                        final String userId = usersList.get(getAdapterPosition()).getID();
                         rootRef.child("GroupChats").child(groupID).child("groupMembers").addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(@NonNull DataSnapshot snapshot) {

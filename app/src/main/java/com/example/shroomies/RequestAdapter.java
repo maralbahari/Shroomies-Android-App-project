@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -38,7 +39,9 @@ import com.google.gson.Gson;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -98,10 +101,10 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
            holder.cancel.setOnClickListener(new View.OnClickListener() {
                @Override
                public void onClick(View view) {
-                   rootRef.child("shroomieRequests").child(mAuth.getCurrentUser().getUid()).child(usersList.get(position).getUserID()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                   rootRef.child("shroomieRequests").child(mAuth.getCurrentUser().getUid()).child(usersList.get(position).getID()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                        @Override
                        public void onSuccess(Void aVoid) {
-                           rootRef.child("shroomieRequests").child(usersList.get(position).getUserID()).child(mAuth.getCurrentUser().getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                           rootRef.child("shroomieRequests").child(usersList.get(position).getID()).child(mAuth.getCurrentUser().getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                                @Override
                                public void onSuccess(Void aVoid) {
                                notifyItemRemoved(position);
@@ -142,7 +145,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
                 @Override
                 public void onClick(View v) {
                     if(checkEliglibity()){
-                        acceptRequest(usersList.get(getAdapterPosition()).getUserID(),usersList.get(getAdapterPosition()).getName(),usersList.get(getAdapterPosition()).getApartmentID());
+                        acceptRequest(usersList.get(getAdapterPosition()).getID(),usersList.get(getAdapterPosition()).getName(),usersList.get(getAdapterPosition()).getIsPartOfRoom());
 
                     }
                 }
@@ -150,7 +153,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
             reject.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    rejectRequest(usersList.get(getAdapterPosition()).getUserID());
+                    rejectRequest(usersList.get(getAdapterPosition()).getID());
                 }
             });
         }
@@ -222,11 +225,11 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
 
         }
         private boolean checkEliglibity(){
-            if(apartment.getAdminID().equals(mAuth.getCurrentUser().getUid()) && !(apartment.getApartmentMembers().values().isEmpty())){
+            if(apartment.getOwnerID().equals(mAuth.getCurrentUser().getUid()) && !(apartment.getApartmentMembers().values().isEmpty())){
                Snackbar.make(v,"You have existing Shroomies in your apartment and not allowed to accept request",BaseTransientBottomBar.LENGTH_LONG).show();
 
                 return false;
-            }if(apartment.getAdminID().equals(mAuth.getCurrentUser().getUid()) && apartment.getApartmentMembers().values().isEmpty()){
+            }if(apartment.getOwnerID().equals(mAuth.getCurrentUser().getUid()) && apartment.getApartmentMembers().values().isEmpty()){
                 return true;
             }if(apartment.getApartmentMembers().containsValue(mAuth.getCurrentUser().getUid())){
                 Snackbar.make(v,"You cannot accept requests, you are part of an apartment already",BaseTransientBottomBar.LENGTH_LONG).show();

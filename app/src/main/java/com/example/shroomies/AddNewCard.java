@@ -10,6 +10,7 @@ import android.icu.text.NumberFormat;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.util.Log;
@@ -61,8 +62,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.functions.FirebaseFunctions;
-import com.google.firebase.functions.HttpsCallableResult;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
@@ -73,8 +72,9 @@ import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
+import com.shockwave.pdfium.PdfDocument;
+import com.shockwave.pdfium.PdfiumCore;
 
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -87,6 +87,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.StringTokenizer;
 
 
 public class AddNewCard extends DialogFragment implements SplitExpenses.membersShares {
@@ -108,7 +110,6 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
     //fireBase
     private DatabaseReference rootRef;
     private FirebaseAuth mAuth;
-    FirebaseFunctions mfunc;
     //data structures
     private ArrayList<String> memberUserNameArrayList;
     private ArrayList<User> apartmentMembersArrayList =new ArrayList<>();
@@ -132,8 +133,6 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
         v = inflater.inflate(R.layout.fragment_add_new_card, container, false);
         mAuth = FirebaseAuth.getInstance();
         rootRef = FirebaseDatabase.getInstance().getReference();
-        mfunc = FirebaseFunctions.getInstance();
-        mfunc.useEmulator("10.0.2.2",5001);
         return v;
     }
 
@@ -190,10 +189,8 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
         if (bundle != null) {
             expensesCardSelected = bundle.getBoolean("Expenses");
             apartment=bundle.getParcelable("APARTMENT_DETAILS");
-            if(apartment.apartmentMembers!=null){
-                apartmentMembersHashMap.putAll(apartment.getApartmentMembers());
-                getMemberUserNames(apartmentMembersHashMap);
-            }
+            apartmentMembersHashMap.putAll(apartment.getApartmentMembers());
+            getMemberUserNames(apartmentMembersHashMap);
             if (!expensesCardSelected) {
                 attachFileButton.setVisibility(View.GONE);
                 splitExpensesButton.setVisibility(View.GONE);
@@ -345,7 +342,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
     private void getMemberUserNames(final HashMap<String,String> membersHashMap) {
         memberUserNameArrayList =new ArrayList<>();
         userNamesList=  new ArrayAdapter<String>(getContext(),R.layout.support_simple_spinner_dropdown_item, memberUserNameArrayList);
-        membersHashMap.put(apartment.getAdminID(),apartment.getAdminID());
+        membersHashMap.put(apartment.getOwnerID(),apartment.getOwnerID());
         for (String id : membersHashMap.values()) {
             rootRef.child("Users").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
@@ -354,7 +351,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                         User user = snapshot.getValue(User.class);
                         memberUserNameArrayList.add(user.getName());
                         apartmentMembersArrayList.add(user);
-                        nameAndIdHashMap.put(user.getName(), user.getUserID());
+                        nameAndIdHashMap.put(user.getName(), user.getID());
                     }
                     mentionAutoCompleteTextView.setMentionAdapter(userNamesList);
                 }
@@ -384,104 +381,117 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
         if (!mMention.isEmpty()) {
             notify = true;
         }
-        HashMap<String, Object> cardDetails = new HashMap<>();
-        cardDetails.put("description", mdescription);
-        cardDetails.put("title", mtitle);
-        cardDetails.put("dueDate", mdueDate);
-        cardDetails.put("importance", importance);
-        cardDetails.put("date", ServerValue.TIMESTAMP);
-        cardDetails.put("cardID", "");
-        cardDetails.put("done", "false");
-        cardDetails.put("mention", mMention);
-        cardDetails.put("actor",mAuth.getCurrentUser().getUid());
+        DatabaseReference ref = rootRef.child("apartments").child(apartmentID).child("tasksCards").push();
+        HashMap<String, Object> newCard = new HashMap<>();
+        final HashMap<String,Object> newRecord=new HashMap<>();
+        final String uniqueID = ref.getKey();
+        newCard.put("description", mdescription);
+        newCard.put("title", mtitle);
+        newCard.put("dueDate", mdueDate);
+        newCard.put("importance", importance);
+        newCard.put("date", ServerValue.TIMESTAMP);
+        newCard.put("cardId", uniqueID);
+        newCard.put("done", "false");
+        newCard.put("mention", mMention);
+        newRecord.put("actor",mAuth.getCurrentUser().getUid());
+        newRecord.put("cardTitle",mtitle);
+        newRecord.put("action","addingCard");
+        newRecord.put("cardType","tasks");
+        newRecord.put("cardID",uniqueID);
 
 
-        HashMap data = new HashMap();
-        data.put("cardDetails" , cardDetails);
-        data.put("apartmentID" , apartment.getApartmentID());
-        mfunc.getHttpsCallable(Config.FUNCTION_ADD_TASK_CARDS).call(data).addOnSuccessListener(new OnSuccessListener<HttpsCallableResult>() {
+        ref.updateChildren(newCard).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
-            public void onSuccess(HttpsCallableResult httpsCallableResult) {
-                dismiss();
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    saveToAddLog(apartmentID,newRecord);
+                    dismiss();
+
+                }
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
-            public void onFailure(@NonNull @NotNull Exception e) {
+            public void onFailure(@NonNull Exception e) {
                 //TODO handle error
             }
         });
+        if (notify) {
+            StringTokenizer names=new StringTokenizer(mMention,"@",true);
+            while (names.hasMoreTokens()) {
+                    if(names.nextToken().startsWith("@")){
+                        try {
+                            String tokenName= names.nextToken();
+                            if(nameAndIdHashMap.get(tokenName.trim())!=null){
+                                sendNotification(nameAndIdHashMap.get(tokenName.trim()), " Help! your shroomies need you");
+                            }
 
-//        ref.updateChildren(newCard).addOnCompleteListener(new OnCompleteListener<Void>() {
-//            @Override
-//            public void onComplete(@NonNull Task<Void> task) {
-//                if (task.isSuccessful()) {
-//                    saveToAddLog(apartmentID,newRecord);
-//                    dismiss();
-//
-//                }
-//            }
-//        }).addOnFailureListener(new OnFailureListener() {
-//            @Override
-//            public void onFailure(@NonNull Exception e) {
-//                //TODO handle error
-//            }
-//        });
-//        if (notify) {
-//            StringTokenizer names=new StringTokenizer(mMention,"@",true);
-//            while (names.hasMoreTokens()) {
-//                    if(names.nextToken().startsWith("@")){
-//                        try {
-//                            String tokenName= names.nextToken();
-//                            if(nameAndIdHashMap.get(tokenName.trim())!=null){
-//                                sendNotification(nameAndIdHashMap.get(tokenName.trim()), " Help! your shroomies need you");
-//                            }
-//
-//                        }catch (NoSuchElementException e){
-//
-//                        }
-//                    }
-//            }
-//
-//        }
-//        notify = false;
+                        }catch (NoSuchElementException e){
+
+                        }
+                    }
+            }
+
+        }
+        notify = false;
     }
 
 
-    public void addExpenseCard(String title, String description, String dueDate, String attachUrl , String fileType, String importance, final String mMention, final String apartmentID, final HashMap<String, Integer> shareAmounts) {
+    public void saveToFireBase(String title, String description, String dueDate, String attachUrl , String fileType, String importance, final String mMention, final String apartmentID, final HashMap<String, Integer> shareAmounts) {
         if (!mMention.isEmpty()) {
             notify = true;
         }
-        HashMap cardDetails = new HashMap<>();
-        cardDetails.put("description", description);
-        cardDetails.put("title", title);
-        cardDetails.put("dueDate", dueDate);
-        cardDetails.put("importance", importance);
-        cardDetails.put("attachedFile", attachUrl);
-        cardDetails.put("fileType" ,fileType );
-        cardDetails.put("date", ServerValue.TIMESTAMP);
-        cardDetails.put("cardID", "");
-        cardDetails.put("done", "false");
-        cardDetails.put("mention", mMention);
-        cardDetails.put("actor" , mAuth.getCurrentUser().getUid());
-        if(shareAmounts!=null){
-            cardDetails.put("membersShares",shareAmounts);
-        }
+        DatabaseReference ref = rootRef.child("apartments").child(apartmentID).child("expensesCards").push();
+        HashMap<String, Object> newCard = new HashMap<>();
 
-        HashMap data = new HashMap<>();
-        data.put("cardDetails",cardDetails);
-        data.put("apartmentID" , apartment.getApartmentID());
-        mfunc.getHttpsCallable(Config.FUNCTION_ADD_EXPENSES_CARDS).call(data).addOnSuccessListener(new OnSuccessListener<HttpsCallableResult>() {
+        final HashMap<String,Object> newRecord=new HashMap<>();
+        final String uniqueID = ref.getKey();
+        newCard.put("description", description);
+        newCard.put("title", title);
+        newCard.put("dueDate", dueDate);
+        newCard.put("importance", importance);
+        newCard.put("attachedFile", attachUrl);
+        newCard.put("fileType" ,fileType );
+        newCard.put("date", ServerValue.TIMESTAMP);
+        newCard.put("cardId", uniqueID);
+        newCard.put("done", "false");
+        newCard.put("mention", mMention);
+        if(shareAmounts!=null){
+            newCard.put("membersShares",shareAmounts);
+        }
+        newRecord.put("actor",mAuth.getCurrentUser().getUid());
+        newRecord.put("cardTitle",title);
+        newRecord.put("when",ServerValue.TIMESTAMP);
+        newRecord.put("action","addingCard");
+        newRecord.put("cardType","expenses");
+        newRecord.put("cardID",uniqueID);
+
+        ref.updateChildren(newCard).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
-            public void onSuccess(HttpsCallableResult httpsCallableResult) {
-//                Log.d("addCard" , httpsCallableResult.getData().toString());
-                dismiss();
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull @NotNull Exception e) {
-                Log.d("addCardError" , e.toString());
-                Log.d("addCardErrorApartmentID" , data.toString());
-                //TODO add error handling
+            public void onComplete(@NonNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    //notify mentioned users if the task is successfull
+                    if (notify) {
+                        StringTokenizer names=new StringTokenizer(mMention,"@",true);
+                        while (names.hasMoreTokens()) {
+                            if(names.nextToken().startsWith("@")){
+                                try {
+                                    String tokenName= names.nextToken();
+                                    if(nameAndIdHashMap.get(tokenName.trim())!=null){
+                                        sendNotification(nameAndIdHashMap.get(tokenName.trim()), " Help! your shroomies need you");
+                                    }
+
+                                }catch (NoSuchElementException e){
+
+                                }
+                            }
+                        }
+
+                    }
+                    notify = false;
+                    saveToAddLog(apartmentID,newRecord);
+                    dismiss();
+                }
+
             }
         });
 
@@ -492,7 +502,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
     public void uploadImgToFirebaseStorage(final String title, final String description, final String dueDate, final String importance, Uri imgUri , final String mMention,final HashMap<String, Integer> sharedAmounts) {
 
         if (imgUri == null) {
-            addExpenseCard(title, description, dueDate, "" , "", importance, mMention,apartment.getApartmentID(),sharedAmounts);
+            saveToFireBase(title, description, dueDate, "" , "", importance, mMention,apartment.getApartmentID(),sharedAmounts);
         } else {
             StorageReference storageReference = FirebaseStorage.getInstance().getReference();
             StorageReference filePath = storageReference.child(apartment.getApartmentID()).child("Card post image").child(imgUri.getLastPathSegment() + fileExtension);
@@ -502,15 +512,10 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                     task.getResult().getMetadata().getReference().getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                         @Override
                         public void onSuccess(Uri uri) {
-                            addExpenseCard(title, description, dueDate, uri.toString()  , fileType, importance, mMention,apartment.getApartmentID(),sharedAmounts);
+                            saveToFireBase(title, description, dueDate, uri.toString()  , fileType, importance, mMention,apartment.getApartmentID(),sharedAmounts);
                         }
                     });
 
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull @NotNull Exception e) {
-                    //Todo handle error
                 }
             });
         }

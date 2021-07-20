@@ -84,7 +84,7 @@ public class UserAdapterSplitExpenses extends RecyclerView.Adapter<UserAdapterSp
                 holder.amountSeekBar.setKeyProgressIncrement(1);
                 holder.sharedAmountEditText.setText(Integer.toString((int)holder.amountSeekBar.getValue()));
                 shroomieList.get(position).setSharedAmount(holder.amountSeekBar.getProgress());
-                sharesHashmap.put(shroomieList.get(position).getUserID(),((int)shroomieList.get(position).getSharedAmount()));
+                sharesHashmap.put(shroomieList.get(position).getID(),((int)shroomieList.get(position).getSharedAmount()));
                 shares.sendInput(sharesHashmap);
             }
     }
@@ -123,7 +123,7 @@ public class UserAdapterSplitExpenses extends RecyclerView.Adapter<UserAdapterSp
                         }
 
                         shroomieList.get(getAdapterPosition()).setSharedAmount((int) amountSeekBar.getValue());
-                        sharesHashmap.put(shroomieList.get(getAdapterPosition()).getUserID(), (int) shroomieList.get(getAdapterPosition()).getSharedAmount());
+                        sharesHashmap.put(shroomieList.get(getAdapterPosition()).getID(), (int) shroomieList.get(getAdapterPosition()).getSharedAmount());
                         shares.sendInput(sharesHashmap);
                     }
 

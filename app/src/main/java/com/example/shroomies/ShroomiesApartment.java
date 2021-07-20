@@ -3,54 +3,24 @@ package com.example.shroomies;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class ShroomiesApartment implements Parcelable {
-    String apartmentID, adminID;
-    HashMap<String,String> apartmentMembers;
-    Map<String , ExpensesCard > expensesCard;
-    Map<String , TasksCard> taskCard;
+    String apartmentID,ownerID;
+    HashMap<String,String> apartmentMembers=new HashMap<>();
 
-    public Map<String, apartmentLogs> getLogs() {
-        return logs;
-    }
-
-    public void setLogs(Map<String, apartmentLogs> logs) {
-        this.logs = logs;
-    }
-
-    Map<String , apartmentLogs> logs;
-
-    public Map<String ,ExpensesCard> getExpensesCard() {
-        return expensesCard;
-    }
-
-    public void setExpensesCard(Map<String,ExpensesCard> expensesCard) {
-        this.expensesCard = expensesCard;
-    }
-
-    public Map<String,TasksCard> getTaskCard() {
-        return taskCard;
-    }
-
-    public void setTaskCard(Map<String,TasksCard> taskCard) {
-        this.taskCard = taskCard;
-    }
 
     public ShroomiesApartment() {
 
     }
 
-    public ShroomiesApartment(String apartmentID, String adminID, HashMap<String, String> apartmentMembers, Map<String ,TasksCard> taskCard, Map<String,ExpensesCard> expensesCard) {
+    public ShroomiesApartment(String apartmentID, String ownerID, HashMap<String, String> apartmentMembers) {
         this.apartmentID = apartmentID;
-        this.adminID = adminID;
+        this.ownerID = ownerID;
         this.apartmentMembers = apartmentMembers;
-        this.expensesCard = expensesCard;
-        this.taskCard = taskCard;
     }
-
 
     public String getApartmentID() {
         return apartmentID;
@@ -60,12 +30,12 @@ public class ShroomiesApartment implements Parcelable {
         this.apartmentID = apartmentID;
     }
 
-    public String getAdminID() {
-        return adminID;
+    public String getOwnerID() {
+        return ownerID;
     }
 
-    public void setAdminID(String adminID) {
-        this.adminID = adminID;
+    public void setOwnerID(String ownerID) {
+        this.ownerID = ownerID;
     }
 
     public HashMap<String,String> getApartmentMembers() {
@@ -78,7 +48,7 @@ public class ShroomiesApartment implements Parcelable {
 
     protected ShroomiesApartment(Parcel in) {
         apartmentID = in.readString();
-        adminID = in.readString();
+        ownerID = in.readString();
         apartmentMembers=in.readHashMap(HashMap.class.getClassLoader());
 
 
@@ -106,7 +76,7 @@ public class ShroomiesApartment implements Parcelable {
     @Override
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(apartmentID);
-        parcel.writeString(adminID);
+        parcel.writeString(ownerID);
         parcel.writeMap(apartmentMembers);
 
     }

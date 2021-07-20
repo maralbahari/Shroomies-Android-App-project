@@ -23,7 +23,6 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.functions.FirebaseFunctions;
@@ -71,7 +70,6 @@ public class SignUpActivity extends AppCompatActivity{
         register = findViewById(R.id.registerbt);
         mRootref = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
-        mAuth.useEmulator("10.0.2.2",9099);
         pd = new CustomLoadingProgressBar(SignUpActivity.this , "Creating account... " , R.raw.loading_animation);
 
         Boolean isEnabled;
@@ -102,42 +100,37 @@ public class SignUpActivity extends AppCompatActivity{
 
     private void registerUser(final String name, final String email, String password, String confirmpw) {
         pd.show();
-        mAuth.createUserWithEmailAndPassword(email, password).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
+
+        mAuth.createUserWithEmailAndPassword(email, password). addOnSuccessListener(new OnSuccessListener<AuthResult>() {
             @Override
             public void onSuccess(AuthResult authResult) {
-                  Toast.makeText(getApplicationContext(),"registered",Toast.LENGTH_LONG).show();
-//                final DatabaseReference ref= mRootref.child("apartments").push();
-//                apartmentID =ref.getKey();
-//                HashMap<String, Object> userDetails = new HashMap<>();
-//                userDetails.put("name", name);
-//                userDetails.put("email", email);
-//                userDetails.put("ID", mAuth.getCurrentUser().getUid());
-//                userDetails.put("image",""); //add later in edit profile
-//                userDetails.put("isPartOfRoom",apartmentID); //change later
-//                final HashMap<String,Object> apartmentDetails=new HashMap<>();
-//                apartmentDetails.put("apartmentID",apartmentID);
-//                apartmentDetails.put("ownerID",mAuth.getCurrentUser().getUid());
-//                mRootref.child("Users").child(mAuth.getCurrentUser().getUid()).setValue(userDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
-//                    @Override
-//                    public void onComplete(@NonNull Task<Void> task) {
-//                        if (task.isSuccessful()) {
-//                            ref.updateChildren(apartmentDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
-//                                @Override
-//                                public void onComplete(@NonNull Task<Void> task) {
-//                                    if(task.isSuccessful()){
-//                                        pd.dismiss();
-//                                        sendEmailVerification();
-//                                    }
-//                                }
-//                            });
-//                        }
-//                    }
-//                });
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
-                UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-                        .setDisplayName(name).build();
-                user.updateProfile(profileUpdates);
+                final DatabaseReference ref= mRootref.child("apartments").push();
+                apartmentID =ref.getKey();
+                HashMap<String, Object> userDetails = new HashMap<>();
+                userDetails.put("name", name);
+                userDetails.put("email", email);
+                userDetails.put("ID", mAuth.getCurrentUser().getUid());
+                userDetails.put("image",""); //add later in edit profile
+                userDetails.put("isPartOfRoom",apartmentID); //change later
+                final HashMap<String,Object> apartmentDetails=new HashMap<>();
+                apartmentDetails.put("apartmentID",apartmentID);
+                apartmentDetails.put("ownerID",mAuth.getCurrentUser().getUid());
+                mRootref.child("Users").child(mAuth.getCurrentUser().getUid()).setValue(userDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        if (task.isSuccessful()) {
+                            ref.updateChildren(apartmentDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if(task.isSuccessful()){
+                                        pd.dismiss();
+                                        sendEmailVerification();
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
             }
                 }).addOnFailureListener(new OnFailureListener() {
             @Override

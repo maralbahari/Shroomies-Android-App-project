@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -140,7 +141,7 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 user = new User();
                 user = snapshot.getValue(User.class);
-                if (mAuth.getInstance().getCurrentUser().getUid().equals(user.getUserID())) {
+                if (mAuth.getInstance().getCurrentUser().getUid().equals(user.getID())) {
                     messageButton.setVisibility(View.GONE);
                     username.setText("you");
                 } else {
@@ -202,7 +203,7 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
     private void chatWithThisUser(User user) {
 
         Intent intent = new Intent(getApplication(), ChattingActivity.class);
-        intent.putExtra("USERID", user.getUserID());
+        intent.putExtra("USERID", user.getID());
         startActivity(intent);
 
     }

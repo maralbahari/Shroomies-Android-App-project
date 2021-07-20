@@ -162,7 +162,7 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
                             receiverUser = new User();
                             receiverUser = snapshot.getValue(User.class);
                             Intent intent = new Intent(context, ChattingActivity.class);
-                            intent.putExtra("USERID", receiverUser.getUserID());
+                            intent.putExtra("USERID", receiverUser.getID());
                             context.startActivity(intent);
                         }
 

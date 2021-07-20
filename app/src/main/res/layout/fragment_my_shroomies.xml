@@ -64,6 +64,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/my_shroomies_tablayout"
+
             android:layout_marginLeft="3dp"
             android:layout_marginRight="3dp"
             app:recyclerview_fling_animation_size=".5"
@@ -78,10 +79,17 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/my_shroomies_tablayout"
+
             android:layout_marginLeft="3dp"
             android:layout_marginRight="3dp"
+
             android:visibility="gone"
-            app:allow_item_swipe="true"/>
+            app:recyclerview_fling_animation_size=".5"
+            app:recyclerview_overscroll_animation_size=".5"
+            app:recyclerview_damping_ratio="DAMPING_RATIO_LOW_BOUNCY"
+            app:recyclerview_stiffness="STIFFNESS_MEDIUM"
+            app:allow_drag_reorder="true"
+            app:allow_item_swipe="false"/>
 
 
 
@@ -166,7 +174,7 @@
             android:fontFamily="@font/amiko"
             android:textStyle="bold"
             android:padding="20dp"
-            android:text="Activity apartmentLogs"
+            android:text="Activity log"
             android:layout_below="@id/shroomie_linearlayout_filter"
             android:gravity="start"
             android:textColor="@color/LogoYellow"

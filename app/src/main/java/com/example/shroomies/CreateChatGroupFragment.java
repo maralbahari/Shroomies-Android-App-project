@@ -171,7 +171,7 @@ public class CreateChatGroupFragment extends DialogFragment {
                                 boolean userFound = false;
                                 for(User mUser
                                         :suggestedUser){
-                                    if(mUser.getUserID().equals(user.getUserID())){
+                                    if(mUser.getID().equals(user.getID())){
                                         userFound=true;
                                     }
                                 }

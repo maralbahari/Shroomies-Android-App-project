@@ -42,7 +42,9 @@ import com.google.gson.Gson;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -89,18 +91,16 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull UserAdapter.UserViewHolder holder, final int position) {
-        if(userList.get(position).getImage()!=null) {
-            if (!userList.get(position).getImage().isEmpty()) {
-                GlideApp.with(context)
-                        .load(userList.get(position).getImage())
-                        .fitCenter()
-                        .circleCrop()
-                        .transition(DrawableTransitionOptions.withCrossFade()) //Here a fading animation
-                        .into(holder.userImage);
-                holder.userImage.setPadding(2, 2, 2, 2);
-            }
+        if(!userList.get(position).getImage().isEmpty()){
+            GlideApp.with(context)
+                    .load(userList.get(position).getImage())
+                    .fitCenter()
+                    .circleCrop()
+                    .transition(DrawableTransitionOptions.withCrossFade()) //Here a fading animation
+                    .into(holder.userImage);
+            holder.userImage.setPadding(2,2,2,2);
         }
-        if(!mAuth.getCurrentUser().getUid().equals(apartment.getAdminID())){
+        if(!mAuth.getCurrentUser().getUid().equals(apartment.getOwnerID())){
             holder.removeMember.setVisibility(View.INVISIBLE);
         }
         if(fromSearchMember){
@@ -108,7 +108,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             holder.removeMember.setVisibility(View.GONE);
             holder.userName.setText(userList.get(position).getName());
             if(!requestAlreadySent.isEmpty()){
-                if(requestAlreadySent.get(userList.get(position).getUserID())){
+                if(requestAlreadySent.get(userList.get(position).getID())){
                     holder.sendRequest.setVisibility(View.VISIBLE);
                     holder.sendRequest.setClickable(false);
                     holder.sendRequest.setText("Sent!");
@@ -118,7 +118,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             }
 
         }if(!fromSearchMember){
-            if (userList.get(position).getUserID().equals(mAuth.getInstance().getCurrentUser().getUid())){
+            if (userList.get(position).getID().equals(mAuth.getInstance().getCurrentUser().getUid())){
                 holder.msgMember.setVisibility(View.INVISIBLE);
                 holder.removeMember.setVisibility(View.INVISIBLE);
                 holder.userName.setText("You");
@@ -155,7 +155,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                 @Override
                 public void onClick(View view) {
                     Intent intent = new Intent(context, ChattingActivity.class);
-                    intent.putExtra("USERID",userList.get(getAdapterPosition()).getUserID());
+                    intent.putExtra("USERID",userList.get(getAdapterPosition()).getID());
                     context.startActivity(intent);
                 }
             });
@@ -167,14 +167,14 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                     final String newApartmentID =ref.getKey();
                     final HashMap<String,Object> apartmentDetails=new HashMap<>();
                     apartmentDetails.put("apartmentID",newApartmentID);
-                    apartmentDetails.put("ownerID",userList.get(getAdapterPosition()).getUserID());
+                    apartmentDetails.put("ownerID",userList.get(getAdapterPosition()).getID());
                     ref.updateChildren(apartmentDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
-                            rootRef.child("Users").child(userList.get(getAdapterPosition()).getUserID()).child("isPartOfRoom").setValue(newApartmentID).addOnSuccessListener(new OnSuccessListener<Void>() {
+                            rootRef.child("Users").child(userList.get(getAdapterPosition()).getID()).child("isPartOfRoom").setValue(newApartmentID).addOnSuccessListener(new OnSuccessListener<Void>() {
                                 @Override
                                 public void onSuccess(Void aVoid) {
-                                    rootRef.child("apartments").child(apartment.getApartmentID()).child("apartmentMembers").child(userList.get(getAdapterPosition()).getUserID()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    rootRef.child("apartments").child(apartment.getApartmentID()).child("apartmentMembers").child(userList.get(getAdapterPosition()).getID()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
                                             saveToRemovedLog(apartment.getApartmentID(),userList.get(getAdapterPosition()).getName());
@@ -196,7 +196,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             sendRequest.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    sendRequestToUser(userList.get(getAdapterPosition()).getUserID());
+                    sendRequestToUser(userList.get(getAdapterPosition()).getID());
                 }
             });
 
@@ -298,7 +298,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
         String logID=ref.getKey();
         final HashMap<String,Object> newRecord=new HashMap<>();
-        newRecord.put("actor",apartment.getAdminID());
+        newRecord.put("actor",apartment.getOwnerID());
         newRecord.put("action","removing");
         newRecord.put("when",ServerValue.TIMESTAMP);
         newRecord.put("removedUser",username);

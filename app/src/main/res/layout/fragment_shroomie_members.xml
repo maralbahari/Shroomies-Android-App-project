@@ -28,6 +28,7 @@
         android:textSize="12sp" />
 
 
+
         <RelativeLayout
             android:id="@+id/admin_details"
             android:layout_width="match_parent"
@@ -35,7 +36,6 @@
             android:background="@color/white"
             android:layout_below="@id/add_shroomie_btn"
             android:layout_marginTop="10dp"
-            android:elevation="1dp"
             android:orientation="horizontal">
 
 
@@ -96,14 +96,13 @@
             android:layout_below="@+id/admin_details"
             />
 
+
         <Button
             android:id="@+id/leave_room_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:elevation="5dp"
             android:text="Leave room"
-            android:padding="10dp"
-            android:gravity="center"
             android:layout_marginTop="20dp"
             android:layout_alignParentBottom="true"
             android:textAllCaps="false"
@@ -117,7 +116,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
        android:layout_centerInParent="true"
-        android:visibility="gone"
         android:layout_marginTop="10dp">
 
         <ImageView

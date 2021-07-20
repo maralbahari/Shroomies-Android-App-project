@@ -7,80 +7,29 @@ import android.os.Parcelable;
 public class User implements Parcelable{
     private String name;
     private String email;
-    private String apartmentID;
+    private String isPartOfRoom;
     private String bio;
     private String image;
-    private String userID;
+    private String ID;
+    private Context context;
     private float sharedAmount;
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public String getApartmentID() {
-        return apartmentID;
-    }
-
-    public void setApartmentID(String apartmentID) {
-        this.apartmentID = apartmentID;
-    }
-
-    public String getBio() {
-        return bio;
-    }
-
-    public void setBio(String bio) {
-        this.bio = bio;
-    }
-
-    public String getImage() {
-        return image;
-    }
-
-    public void setImage(String image) {
-        this.image = image;
-    }
-
-    public String getUserID() {
-        return userID;
-    }
-
-    public void setUserID(String userID) {
-        this.userID = userID;
-    }
-
-
-    public float getSharedAmount() {
-        return sharedAmount;
-    }
-
-    public void setSharedAmount(float sharedAmount) {
-        this.sharedAmount = sharedAmount;
-    }
 
     public User() {
 
     }
 
-    public User(String name, String email, String username, String bio, String imageurl, String id, Context context,String apartmentID) {
+    public Context getContext() {
+        return context;
+    }
+
+    public User(String name, String email, String username, String bio, String imageurl, String id, Context context,String isPartOfRoom) {
         this.name = name;
         this.email = email;
         this.bio = bio;
         this.image = imageurl;
-        this.userID = id;
-        this.apartmentID = apartmentID;
+        this.ID = id;
+        this.context = context;
+        this.isPartOfRoom=isPartOfRoom;
     }
 
     protected User(Parcel in) {
@@ -89,7 +38,7 @@ public class User implements Parcelable{
 
         bio = in.readString();
         image = in.readString();
-        userID = in.readString();
+        ID = in.readString();
     }
 
     public static final Creator<User> CREATOR = new Creator<User>() {
@@ -104,6 +53,60 @@ public class User implements Parcelable{
         }
     };
 
+    public float getSharedAmount() {
+        return sharedAmount;
+    }
+
+    public void setSharedAmount(float sharedAmount) {
+        this.sharedAmount = sharedAmount;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+    public  String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getIsPartOfRoom() {
+        return isPartOfRoom;
+    }
+
+    public void setIsPartOfRoom(String isPartOfRoom) {
+        this.isPartOfRoom = isPartOfRoom;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
+
+        public String getImage() {
+            return image;
+        }
+
+        public void setImage(String image) {
+            this.image = image;
+        }
+
+        public String getID() {
+            return ID;
+        }
+
+        public void setID(String ID) {
+            this.ID = ID;
+        }
 
     @Override
     public int describeContents() {
@@ -114,8 +117,9 @@ public class User implements Parcelable{
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(name);
         dest.writeString(email);
+
         dest.writeString(bio);
         dest.writeString(image);
-        dest.writeString(userID);
+        dest.writeString(ID);
     }
 }

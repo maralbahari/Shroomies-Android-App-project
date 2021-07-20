@@ -6,11 +6,16 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -106,7 +111,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
                 @Override
                 public void onClick(View view) {
                     if (done.isChecked()){
-                        rootRef.child("apartments").child(apartment.getApartmentID()).child("tasksCards").child(tasksCardsList.get(getAdapterPosition()).getCardID()).child("done").setValue("true").addOnSuccessListener(new OnSuccessListener<Void>() {
+                        rootRef.child("apartments").child(apartment.getApartmentID()).child("tasksCards").child(tasksCardsList.get(getAdapterPosition()).getCardId()).child("done").setValue("true").addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
                                 done.setText("Done!");
@@ -114,7 +119,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
                             }
                         });
                     }else{
-                        rootRef.child("apartments").child(apartment.getApartmentID()).child("tasksCards").child(tasksCardsList.get(getAdapterPosition()).getCardID()).child("done").setValue("false").addOnSuccessListener(new OnSuccessListener<Void>() {
+                        rootRef.child("apartments").child(apartment.getApartmentID()).child("tasksCards").child(tasksCardsList.get(getAdapterPosition()).getCardId()).child("done").setValue("false").addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
                                 saveToUnDoneLog(apartment.getApartmentID(),tasksCardsList.get(getAdapterPosition()));
@@ -140,7 +145,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
 
     public void deleteCard(final TasksCard taskcard, final int position){
 
-        rootRef.child("apartments").child(apartment.getApartmentID()).child("tasksCards").child(taskcard.getCardID()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+        rootRef.child("apartments").child(apartment.getApartmentID()).child("tasksCards").child(taskcard.getCardId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                 saveToDeleteLog(apartment.getApartmentID(),taskcard);
@@ -211,7 +216,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
     }
 
     private void deleteFromArchive(final int position, final TasksCard tasksCard) {
-        rootRef.child("archive").child(apartment.getApartmentID()).child("tasksCards").child(tasksCardsList.get(position).getCardID()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+        rootRef.child("archive").child(apartment.getApartmentID()).child("tasksCards").child(tasksCardsList.get(position).getCardId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
                saveToDeleteArchiveLog(apartment.getApartmentID(),tasksCard);
@@ -249,7 +254,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()){
-                    rootRef.child("apartments").child(apartment.getApartmentID()).child("tasksCards").child(tasksCard.getCardID()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                    rootRef.child("apartments").child(apartment.getApartmentID()).child("tasksCards").child(tasksCard.getCardId()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
                             saveToArchiveLog(apartment.getApartmentID(),tasksCard);
@@ -292,7 +297,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         newRecord.put("action","archivingCard");
         newRecord.put("logID",logID);
         newRecord.put("cardType","tasks");
-        newRecord.put("cardID",card.getCardID());
+        newRecord.put("cardID",card.getCardId());
         ref.updateChildren(newRecord).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
@@ -329,7 +334,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         newRecord.put("action","markingDone");
         newRecord.put("logID",logID);
         newRecord.put("cardType","tasks");
-        newRecord.put("cardID",card.getCardID());
+        newRecord.put("cardID",card.getCardId());
         ref.updateChildren(newRecord).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
@@ -349,7 +354,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         newRecord.put("action","unMarkingDone");
         newRecord.put("logID",logID);
         newRecord.put("cardType","tasks");
-        newRecord.put("cardID",card.getCardID());
+        newRecord.put("cardID",card.getCardId());
         ref.updateChildren(newRecord).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {

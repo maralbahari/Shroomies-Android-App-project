@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -23,8 +24,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -36,16 +35,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.functions.FirebaseFunctions;
-import com.google.firebase.functions.HttpsCallableResult;
-
-import org.jetbrains.annotations.NotNull;
-import org.json.JSONArray;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Map;
 
 public class Members extends Fragment {
     //views
@@ -56,16 +49,20 @@ public class Members extends Fragment {
     private ImageView adminImageView , ghostImageView;
     private ImageButton msgOwnerImageButton;  // set visibility to gone if there are members in add members
     private RelativeLayout noMembersRelativeLayout;
+    //Alert dialog
+    private AlertDialog alertDialog;
 
     //firebase
     private FirebaseAuth mAuth;
     private DatabaseReference rootRef;
-    private FirebaseFunctions mfunc;
     //data structures
     private ArrayList<User> membersList;
     private UserAdapter userAdapter;
    //model
     private ShroomiesApartment apartment;
+    private Collection newMemberLists;
+    //listeners
+    private ValueEventListener apartmentListener, roomIDListener;
     //variables
     private String isPartOfRoomID;
 
@@ -76,8 +73,6 @@ public class Members extends Fragment {
         v =inflater.inflate(R.layout.fragment_shroomie_members, container, false);
         mAuth = FirebaseAuth.getInstance();
         rootRef = FirebaseDatabase.getInstance().getReference();
-        mfunc=FirebaseFunctions.getInstance();
-        mfunc.useEmulator("10.0.2.2",5001);
         return v;
     }
 
@@ -119,12 +114,16 @@ public class Members extends Fragment {
         Bundle bundle = this.getArguments();
         if (bundle != null) {
             apartment=bundle.getParcelable("APARTMENT_DETAILS");
-            getMemberDetail(apartment);
-            if(mAuth.getCurrentUser().getUid().equals(apartment.getAdminID())){
-                leaveRoomButton.setVisibility(View.GONE);
-                msgOwnerImageButton.setVisibility(View.INVISIBLE);
+            getOwnerDetails(apartment.getOwnerID());
+            if(!mAuth.getCurrentUser().getUid().equals(apartment.getOwnerID())){
+                leaveRoomButton.setVisibility(View.VISIBLE);
+                msgOwnerImageButton.setVisibility(View.VISIBLE);
             }
             //this check is if the admin removed a member and that user is in member page so it refreshes
+            checkIsPartOdRoomID();
+            checkMemberExistance(apartment);
+
+
         }
 
         addMemberButton.setOnClickListener(new View.OnClickListener() {
@@ -153,7 +152,7 @@ public class Members extends Fragment {
                 builder.setNegativeButton("leave", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        leaveApartment();
+                        leaveApartment(apartment.getApartmentID());
                     }
                 });
                 builder.setMessage("Leaving this group will remove all data and place you in an empty group.");
@@ -193,144 +192,196 @@ public class Members extends Fragment {
 
             }
         });
+
         // start the animation
         ghostImageView.startAnimation(animUpDown);
+
     }
 
-    private void leaveApartment(){
-        ObjectMapper mapper = new ObjectMapper();
-        // Converting user to a map that can be read by cloud functions
-        Map<String, String> map = new HashMap<>();
-        map.put("apartmentID" , apartment.getApartmentID());
-        map.put("userID" , mAuth.getCurrentUser().getUid());
-        mfunc.getHttpsCallable(Config.FUNCTION_LEAVE_APARTMENT).call(map).addOnCompleteListener(new OnCompleteListener<HttpsCallableResult>() {
-            @Override
-            public void onComplete(@NonNull @NotNull Task<HttpsCallableResult> task) {
-                if(task.isSuccessful()){
-                    getActivity().finish();
-                    //todo add progress bar and close
-                }
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull @NotNull Exception e) {
-                //todo handle error
-            }
-        });
+    private void getOwnerDetails(String ownerID) {
+     rootRef.child("Users").child(ownerID).addListenerForSingleValueEvent(new ValueEventListener() {
+         @Override
+         public void onDataChange(@NonNull DataSnapshot snapshot) {
+             if(snapshot.exists()) {
+                 User owner = snapshot.getValue(User.class);
+                 if(mAuth.getCurrentUser().getUid().equals(apartment.getOwnerID())){
+                     ownerName.setText("You");
+                 }else{
+                     ownerName.setText(owner.getName());
+                 }
+                                    if(!owner.getImage().isEmpty()){
+                                        GlideApp.with(getContext())
+                                                .load(owner.getImage())
+                                                .fitCenter()
+                                                .circleCrop()
+                                                .transition(DrawableTransitionOptions.withCrossFade()) //Here a fading animation
+                                                .into(adminImageView);
+                                        adminImageView.setPadding(2,2,2,2);
+             }
+             }
+         }
+
+         @Override
+         public void onCancelled(@NonNull DatabaseError error) {
+
+         }
+     });
     }
-
-//    private void leaveApartment(final String apartmentID) {
-//
-//        final CustomLoadingProgressBar customLoadingProgressBar = new CustomLoadingProgressBar(getActivity(),"Leaving room...",R.raw.loading_animation);
-//        customLoadingProgressBar.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-//        customLoadingProgressBar.show();
-//
-//        final DatabaseReference ref= rootRef.child("apartments").push();
-//        final String newApartmentID =ref.getKey();
-//        final HashMap<String,Object> apartmentDetails=new HashMap<>();
-//        apartmentDetails.put("apartmentID",newApartmentID);
-//        apartmentDetails.put("ownerID",mAuth.getCurrentUser().getUid());
-//        ref.updateChildren(apartmentDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
-//            @Override
-//            public void onComplete(@NonNull Task<Void> task) {
-//                if(task.isSuccessful()){
-//                    rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").setValue(newApartmentID).addOnSuccessListener(new OnSuccessListener<Void>() {
-//                        @Override
-//                        public void onSuccess(Void aVoid) {
-//                            rootRef.child("apartments").child(apartmentID).child("apartmentMembers").child(mAuth.getCurrentUser().getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
-//                                @Override
-//                                public void onSuccess(Void aVoid) {
-//                                    customLoadingProgressBar.dismiss();
-//                                    Intent intent = new Intent(getContext(),MainActivity.class);
-//                                    startActivity(intent);
-//                                }
-//                            }).addOnFailureListener(new OnFailureListener() {
-//                                @Override
-//                                public void onFailure(@NonNull Exception e) {
-//                                    customLoadingProgressBar.dismiss();
-//                                }
-//                            });
-//                        }
-//                    }).addOnFailureListener(new OnFailureListener() {
-//                        @Override
-//                        public void onFailure(@NonNull Exception e) {
-//                            customLoadingProgressBar.dismiss();
-//                        }
-//                    });
-//                }
-//            }
-//        });
-
-//
-//
-//    }
-
-
-    private void getMemberDetail(ShroomiesApartment shroomiesApartment) {
-        //add the the admin to the members
-
-        ArrayList<String> members = new ArrayList<>(shroomiesApartment.getApartmentMembers().values());
-        members.add(shroomiesApartment.getAdminID());
-
-        membersList = new ArrayList<>();
-        userAdapter = new UserAdapter(membersList, getContext(),apartment,getView());
-        membersRecyclerView.setAdapter(userAdapter);
-
-        HashMap data=new HashMap();
-        JSONArray jsonArray = new JSONArray(members);
-        data.put("membersID",jsonArray);
-        FirebaseFunctions mfunc = FirebaseFunctions.getInstance();
-        mfunc.useEmulator("10.0.2.2",5001);
-        mfunc.getHttpsCallable("getMembersDetails").call(data).addOnCompleteListener(new OnCompleteListener<HttpsCallableResult>() {
+    private void checkMemberExistance(final ShroomiesApartment oldApartment){
+        apartmentListener=rootRef.child("apartments").child(oldApartment.getApartmentID()).addValueEventListener(new ValueEventListener() {
             @Override
-            public void onComplete(@NonNull @NotNull Task<HttpsCallableResult> task) {
-                if(task.isSuccessful()){
-                    final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
-                    ArrayList<HashMap> users = (ArrayList<HashMap>)task.getResult().getData();
-                    if(users!=null) {
-                        if (!users.isEmpty()) {
-                            for (HashMap userObject :
-                                    users) {
-                                User user = mapper.convertValue(userObject, User.class);
-                                //if the admin id corresponds to this user id then
-                                // set the details of the admin without adding to the recycler view
-                                if (user.getUserID().equals(apartment.getAdminID())) {
-                                    setAdminDetails(user);
-                                } else {
-                                    membersList.add(user);
-                                }
-                            }
-                            userAdapter.notifyDataSetChanged();
-                        }else{
-                            noMembersRelativeLayout.setVisibility(View.VISIBLE);
-                        }
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
+                    ShroomiesApartment newApartment=snapshot.getValue(ShroomiesApartment.class);
+                    newMemberLists=newApartment.getApartmentMembers().values();
+
+                    //if no changes in member list
+                    if(newMemberLists.containsAll(oldApartment.getApartmentMembers().values())){
+                        getMemberDetail(oldApartment.getApartmentMembers());
+                        //if members leave
                     }else{
-                        noMembersRelativeLayout.setVisibility(View.VISIBLE);
+                        getMemberDetail(newApartment.getApartmentMembers());
                     }
 
                 }
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+
+
+
+    }
+    private void checkIsPartOdRoomID(){
+        roomIDListener=rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(snapshot.exists()){
+                    isPartOfRoomID=snapshot.getValue().toString();
+                    if(!isPartOfRoomID.equals(apartment.getApartmentID())){
+                        //TODO go back
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+    }
+
+    private void leaveApartment(final String apartmentID) {
+        final CustomLoadingProgressBar customLoadingProgressBar = new CustomLoadingProgressBar(getActivity(),"Leaving room...",R.raw.loading_animation);
+        customLoadingProgressBar.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        customLoadingProgressBar.show();
+
+        final DatabaseReference ref= rootRef.child("apartments").push();
+        final String newApartmentID =ref.getKey();
+        final HashMap<String,Object> apartmentDetails=new HashMap<>();
+        apartmentDetails.put("apartmentID",newApartmentID);
+        apartmentDetails.put("ownerID",mAuth.getCurrentUser().getUid());
+        ref.updateChildren(apartmentDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                    rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").setValue(newApartmentID).addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            rootRef.child("apartments").child(apartmentID).child("apartmentMembers").child(mAuth.getCurrentUser().getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    saveToLeftLog(apartment.getApartmentID(),mAuth.getCurrentUser().getUid());
+                                    customLoadingProgressBar.dismiss();
+                                    Intent intent = new Intent(getContext(),MainActivity.class);
+                                    startActivity(intent);
+
+
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    customLoadingProgressBar.dismiss();
+                                }
+                            });
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            customLoadingProgressBar.dismiss();
+                        }
+                    });
+                }
+            }
+        });
+
+
+
+    }
+    private void saveToLeftLog(final String apartmentID,final String userID){
+        DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
+        String logID=ref.getKey();
+        final HashMap<String,Object> newRecord=new HashMap<>();
+        newRecord.put("actor",mAuth.getCurrentUser().getUid());
+        newRecord.put("action","left");
+        newRecord.put("when", ServerValue.TIMESTAMP);
+        newRecord.put("logID",logID);
+        ref.updateChildren(newRecord).addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull Task<Void> task) {
+                if(task.isSuccessful()){
+                }
             }
         });
 
     }
 
-    private void setAdminDetails(User user) {
-        if(mAuth.getCurrentUser().getUid().equals(user.getUserID())){
-            ownerName.setText("You");
-        }else{
-            ownerName.setText(user.getName());
+
+
+
+
+    private void getMemberDetail(final HashMap<String,String> membersId) {
+        membersList = new ArrayList<>();
+        userAdapter = new UserAdapter(membersList, getContext(),apartment,getView());
+        membersRecyclerView.setAdapter(userAdapter);
+        for (String id: membersId.values()){
+            rootRef.child("Users").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    if (snapshot.exists()){
+                        User user = snapshot.getValue(User.class);
+                        membersList.add(user);
+
+                    }
+                    userAdapter.notifyDataSetChanged();
+
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            });
         }
-        if(user.getImage()!=null){
-            if(!user.getImage().isEmpty()) {
-                GlideApp.with(getContext())
-                        .load(user.getImage())
-                        .fitCenter()
-                        .circleCrop()
-                        .error(R.drawable.ic_user_profile_svgrepo_com)
-                        .transition(DrawableTransitionOptions.withCrossFade()) //Here a fading animation
-                        .into(adminImageView);
-            }
-        }
+
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        rootRef.removeEventListener(apartmentListener);
+        rootRef.removeEventListener(roomIDListener);
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        rootRef.removeEventListener(apartmentListener);
+        rootRef.removeEventListener(roomIDListener);
+    }
 }

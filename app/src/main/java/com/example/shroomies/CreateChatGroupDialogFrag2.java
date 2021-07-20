@@ -113,7 +113,7 @@ public class CreateChatGroupDialogFrag2 extends DialogFragment {
                 String groupName=groupChatTitle.getText().toString();
                 List<String> listOfMembersID = new ArrayList<>();
                 for(User user: selectedUsers){
-                    listOfMembersID.add(user.getUserID());
+                    listOfMembersID.add(user.getID());
                 }
                 if(TextUtils.isEmpty(groupName) || listOfMembersID.isEmpty()){
                     Toast.makeText(getContext(),"Please Enter Group Name",Toast.LENGTH_LONG).show();
