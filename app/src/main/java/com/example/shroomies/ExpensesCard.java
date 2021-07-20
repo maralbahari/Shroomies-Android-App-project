@@ -7,9 +7,22 @@ import java.util.HashMap;
 
 public class ExpensesCard implements Parcelable {
 
-    String attachedFile, description, title, dueDate, importance,members, cardId, done, mention , fileType;
+    String attachedFile, description, title,
+            dueDate,importance,cardID,
+            done, mention, fileType,actor;
+
     HashMap<String, Float> membersShares=new HashMap<String, Float>();
     long date;
+
+
+    public String getActor() {
+        return actor;
+    }
+
+    public void setActor(String actor) {
+        this.actor = actor;
+    }
+
 
 
     public ExpensesCard() {
@@ -23,8 +36,7 @@ public class ExpensesCard implements Parcelable {
         this.title = title;
         this.dueDate = dueDate;
         this.importance = importance;
-        this.members = members;
-        this.cardId = cardId;
+        this.cardID = cardId;
         this.done = done;
         this.mention = mention;
         this.membersShares=membersShares;
@@ -36,9 +48,8 @@ public class ExpensesCard implements Parcelable {
         title = in.readString();
         dueDate = in.readString();
         importance = in.readString();
-        members = in.readString();
         date = in.readLong();
-        cardId = in.readString();
+        cardID = in.readString();
         done = in.readString();
         mention = in.readString();
         membersShares=in.readHashMap(HashMap.class.getClassLoader());
@@ -94,16 +105,13 @@ public class ExpensesCard implements Parcelable {
         this.importance = importance;
     }
 
-    public void setMembers(String members) {
-        this.members = members;
-    }
 
     public void setDate(long date) {
         this.date = date;
     }
 
-    public void setCardId(String cardId) {
-        this.cardId = cardId;
+    public void setCardID(String cardID) {
+        this.cardID = cardID;
     }
 
     public void setDone(String done) {
@@ -130,16 +138,13 @@ public class ExpensesCard implements Parcelable {
         return importance;
     }
 
-    public String getMembers() {
-        return members;
-    }
 
     public long getDate() {
         return date;
     }
 
-    public String getCardId() {
-        return cardId;
+    public String getCardID() {
+        return cardID;
     }
 
     public String getDone() {
@@ -158,9 +163,8 @@ public class ExpensesCard implements Parcelable {
         parcel.writeString(title);
         parcel.writeString(dueDate);
         parcel.writeString(importance);
-        parcel.writeString(members);
         parcel.writeLong(date);
-        parcel.writeString(cardId);
+        parcel.writeString(cardID);
         parcel.writeString(done);
         parcel.writeString(mention);
         parcel.writeMap(membersShares);

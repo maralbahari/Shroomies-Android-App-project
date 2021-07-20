@@ -25,8 +25,6 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -41,8 +39,6 @@ import java.io.IOException;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -184,7 +180,7 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
                             receiverUser = new User();
                             receiverUser = snapshot.getValue(User.class);
                             Intent intent = new Intent(context, ChattingActivity.class);
-                            intent.putExtra("USERID", receiverUser.getID());
+                            intent.putExtra("USERID", receiverUser.getUserID());
                             context.startActivity(intent);
                         }
 

@@ -16,7 +16,6 @@ import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.factor.bouncy.BouncyRecyclerView;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
@@ -103,7 +102,7 @@ public class AddShroomieMember extends DialogFragment {
             Bundle bundle = getArguments();
             apartment=bundle.getParcelable("APARTMENT_DETAILS");
             listMemberId.addAll(apartment.getApartmentMembers().values());
-            listMemberId.add(apartment.getOwnerID());
+            listMemberId.add(apartment.getAdminID());
 
         }
         getMessageInboxListIntoAdapter();
@@ -143,15 +142,15 @@ public class AddShroomieMember extends DialogFragment {
                         User user = ds.getValue(User.class);
                         Boolean duplicate = false;
                         for (User user1: suggestedUser){
-                            if (user1.getID().equals(user.getID())){
+                            if (user1.getUserID().equals(user.getUserID())){
                                 duplicate = true;
                             }
                         }
-                            if (!duplicate&&!user.getID().equals(mAuth.getInstance().getCurrentUser().getUid())){
+                            if (!duplicate&&!user.getUserID().equals(mAuth.getInstance().getCurrentUser().getUid())){
                                 if(listMemberId!=null){
-                                    if(!listMemberId.contains(user.getID())){
+                                    if(!listMemberId.contains(user.getUserID())){
                                         suggestedUser.add(user);
-                                        checkRequestedUsers(user.getID());
+                                        checkRequestedUsers(user.getUserID());
 
                                     }
 
@@ -193,7 +192,7 @@ public class AddShroomieMember extends DialogFragment {
                     suggestedUser.clear();
                     if(snapshot.exists()){
                         User user = snapshot.getValue(User.class);
-                        if (!listMemberId.contains(user.getID())) {
+                        if (!listMemberId.contains(user.getUserID())) {
                             suggestedUser.add(user);
                             checkRequestedUsers(id);
                             userRecyclerAdapter.notifyDataSetChanged();

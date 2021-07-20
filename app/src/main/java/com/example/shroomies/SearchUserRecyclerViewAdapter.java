@@ -1,7 +1,6 @@
 package com.example.shroomies;
 
 import android.content.Context;
-import android.media.Image;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,7 +10,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.google.firebase.database.DatabaseReference;
@@ -63,7 +61,7 @@ public class SearchUserRecyclerViewAdapter extends RecyclerView.Adapter<SearchUs
     public long getItemId(int position) {
         // Lets return in real stable id from here
         //getting the hash code will make every id unique
-        return (userList.get(position).getID()).hashCode();
+        return (userList.get(position).getUserID()).hashCode();
     }
 
 

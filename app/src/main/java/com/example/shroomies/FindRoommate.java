@@ -5,11 +5,8 @@
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
- import android.widget.ArrayAdapter;
  import android.widget.ImageView;
- import android.widget.RadioGroup;
  import android.widget.SearchView;
- import android.widget.Toast;
 
  import  androidx.appcompat.widget.Toolbar;
 
@@ -557,7 +554,7 @@ import com.google.firebase.database.FirebaseDatabase;
            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                if(snapshot.exists()){
                    User user = snapshot.getValue(User.class);
-                   searchUserId = user.getID();
+                   searchUserId = user.getUserID();
                    getUserApartments(searchUserId);
 
                }else{

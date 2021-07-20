@@ -242,7 +242,7 @@ public class GroupInfoActivity extends AppCompatActivity {
     private void addNewPatricipantToFirebase(ArrayList<User> membersList) {
         final List<String> ids = new ArrayList<>();
         for (User userAdded : membersList) {
-            ids.add(userAdded.getID());
+            ids.add(userAdded.getUserID());
         }
         rootRef.child("GroupChats").child(groupID).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
