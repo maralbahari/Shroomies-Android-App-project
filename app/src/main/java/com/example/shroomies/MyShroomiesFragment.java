@@ -1,5 +1,6 @@
 package com.example.shroomies;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -45,7 +46,7 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
     //views
     private View v;
     private SlidingUpPanelLayout rootlayout;
-    private Button memberButton,logButton;
+    private Button memberButton,logButton , archiveButton;
     private TabLayout myShroomiesTablayout;
     private BouncyRecyclerView myExpensesRecyclerView,myTasksRecyclerView;
     private PowerSpinnerView shroomieSpinnerFilter;
@@ -78,7 +79,6 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         v = inflater.inflate(R.layout.fragment_my_shroomies, container, false);
         return v;
-
     }
 
     @Override
@@ -104,6 +104,7 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
         expandButton = v.findViewById(R.id.expand_button);
         rootlayout  = v.findViewById(R.id.sliding_layout);
         slidingLayout = v.findViewById(R.id.sliding_layout);
+        archiveButton = v.findViewById(R.id.my_shroomies_archive_btn);
 
         Toolbar toolbar = getActivity().findViewById(R.id.my_shroomies_toolbar);
         toolbar.setNavigationIcon(null);
@@ -214,6 +215,25 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
 
             }
         });
+
+        archiveButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                ArchiveFragment archiveFragment = new ArchiveFragment();
+                Bundle bundle=new Bundle();
+
+                bundle.putString("apartmentID",apartment.getApartmentID());
+                archiveFragment.setArguments(bundle);
+                fm = getActivity().getSupportFragmentManager();
+                ft = fm.beginTransaction();
+                ft.addToBackStack(null);
+                ft.setTransition( FragmentTransaction.TRANSIT_FRAGMENT_OPEN );
+                ft.replace(R.id.my_shroomies_container, archiveFragment);
+                ft.commit();
+
+            }
+        });
         memberButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -302,7 +322,9 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
                             } else {
                                 //todo display empty log in the log fragment
                             }
-                    }
+                    }else{
+                            Log.d("apartment error", task.getException().toString());
+                        }
                     }
                 });
     }

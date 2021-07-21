@@ -50,14 +50,13 @@ import java.util.Map;
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
    private ArrayList<User> userList;
    private Context context;
-   View v;
+   private View v;
    private DatabaseReference rootRef;
    private FirebaseAuth mAuth;
-   Boolean fromSearchMember =false;
-   RequestQueue requestQueue;
-   ShroomiesApartment apartment;
+   private boolean fromSearchMember =false;
+   private RequestQueue requestQueue;
+   private ShroomiesApartment apartment;
    private String senderName="";
-   private HashMap<String,Boolean> requestAlreadySent=new HashMap<>();
    private View parentView;
 
 
@@ -67,12 +66,11 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         this.apartment=apartment;
         this.parentView=parentView;
     }
-    public UserAdapter(ArrayList<User> userList, Context context, Boolean fromSearchMember,ShroomiesApartment apartment,HashMap<String,Boolean> requestAlreadySent) {
+    public UserAdapter(ArrayList<User> userList, Context context, Boolean fromSearchMember,ShroomiesApartment apartment) {
         this.userList = userList;
         this.context = context;
         this.fromSearchMember=fromSearchMember;
         this.apartment=apartment;
-        this.requestAlreadySent=requestAlreadySent;
     }
 
     @NonNull
@@ -107,28 +105,28 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             holder.msgMember.setVisibility(View.GONE);
             holder.removeMember.setVisibility(View.GONE);
             holder.userName.setText(userList.get(position).getName());
-            if(!requestAlreadySent.isEmpty()){
-                if(requestAlreadySent.get(userList.get(position).getUserID())){
-                    holder.sendRequest.setVisibility(View.VISIBLE);
-                    holder.sendRequest.setClickable(false);
-                    holder.sendRequest.setText("Sent!");
-                }else{
-                    holder.sendRequest.setVisibility(View.VISIBLE);
-                }
-            }
+            holder.msgMember.setVisibility(View.GONE);
+            holder.sendRequest.setVisibility(View.VISIBLE);
 
-        }if(!fromSearchMember){
+//            if(!requestAlreadySent.isEmpty()){
+//                if(requestAlreadySent.get(userList.get(position).getUserID())){
+//                    holder.sendRequest.setVisibility(View.VISIBLE);
+//                    holder.sendRequest.setClickable(false);
+//                    holder.sendRequest.setText("Sent!");
+//                }else{
+//                    holder.sendRequest.setVisibility(View.VISIBLE);
+//                }
+//            }
+
+        }else{
             if (userList.get(position).getUserID().equals(mAuth.getInstance().getCurrentUser().getUid())){
                 holder.msgMember.setVisibility(View.INVISIBLE);
                 holder.removeMember.setVisibility(View.INVISIBLE);
                 holder.userName.setText("You");
 
-            }else{
-                holder.msgMember.setVisibility(View.VISIBLE);
-                holder.userName.setText(userList.get(position).getName());
+            }
 
-            }
-            }
+        }
 
     }
 
@@ -149,8 +147,6 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             sendRequest=itemView.findViewById(R.id.send_request_btn);
             msgMember = itemView.findViewById(R.id.msg_member);
             removeMember = itemView.findViewById(R.id.remove_member);
-            sendRequest.setClickable(true);
-            getSenderName();
             msgMember.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -177,7 +173,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                                     rootRef.child("apartments").child(apartment.getApartmentID()).child("apartmentMembers").child(userList.get(getAdapterPosition()).getUserID()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
                                         @Override
                                         public void onSuccess(Void aVoid) {
-                                            saveToRemovedLog(apartment.getApartmentID(),userList.get(getAdapterPosition()).getName());
+//                                            saveToRemovedLog(apartment.getApartmentID(),userList.get(getAdapterPosition()).getName());
                                             Snackbar snack=Snackbar.make(parentView,userList.get(getAdapterPosition()).getName()+"removed successfully", BaseTransientBottomBar.LENGTH_SHORT);
                                             snack.setAnchorView(R.id.bottomNavigationView);
                                             snack.show();
@@ -213,8 +209,8 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                                     Toast.makeText(context,"invitation has been sent",Toast.LENGTH_LONG).show();
                                     sendRequest.setText("requested");
                                     sendRequest.setClickable(false);
-                                    saveToRequestsLog(apartment.getApartmentID(),id);
-                                    sendNotification(id,senderName+" wants to be your shroomie");
+//                                    saveToRequestsLog(apartment.getApartmentID(),id);
+//                                    sendNotification(id,senderName+" wants to be your shroomie");
                                 }else{
                                     sendRequest.setClickable(true);
                                 }
@@ -224,114 +220,114 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                 }
             });
     }
-    private void getSenderName(){
-            rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("name").addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    if(snapshot.exists()){
-                        senderName=snapshot.getValue().toString();
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-
-                }
-            });
-    }
-        private void sendNotification(final String receiverID,final String message) {
-            rootRef.child("Token").orderByKey().equalTo(receiverID).addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    if (snapshot.exists()) {
-                        for (DataSnapshot ds : snapshot.getChildren()) {
-                            Token token = (Token) ds.getValue(Token.class);
-                            Data data = new Data( mAuth.getCurrentUser().getUid(),  message, "New request", receiverID, (R.drawable.ic_notification_icon)  ,"false","true" );
-                            Sender sender = new Sender(data, token.getToken());
-                            try {
-                                JSONObject senderJsonObj = new JSONObject(new Gson().toJson(sender));
-                                JsonObjectRequest jsonObjectRequest=new JsonObjectRequest("https://fcm.googleapis.com/fcm/send", senderJsonObj, new Response.Listener<JSONObject>() {
-                                    @Override
-                                    public void onResponse(JSONObject response) {
-
-                                        Log.d("JSON_RESPONSE","onResponse:"+response.toString());
-                                    }
-
-                                }, new Response.ErrorListener() {
-                                    @Override
-                                    public void onErrorResponse(VolleyError error) {
-                                        Log.d("JSON_RESPONSE","onResponse:"+error.toString());
-
-                                    }
-                                })
-                                {
-                                    @Override
-                                    public Map<String,String> getHeaders() throws AuthFailureError {
-                                        Map<String,String> headers= new HashMap<>();
-                                        headers.put("Content-type","application/json");
-                                        headers.put("Authorization","Key=AAAAyn_kPyQ:APA91bGLxMB-HGP-qd_EPD3wz_apYs4ZJIB2vyAvH5JbaTVlyLExgYn7ye-076FJxjfrhQ-1HJBmptN3RWHY4FoBdY08YRgplZSAN0Mnj6sLbS6imKa7w0rqPsLtc-aXMaPOhlxnXqPs");
-                                        return headers;
-                                    }
-
-                                };
-
-                                requestQueue.add(jsonObjectRequest);
-                                requestQueue.start();
-                            }catch (JSONException e){
-                                e.printStackTrace();
-                            }
-                        }
-                    }
-
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-
-                }
-            });
-
-        }
-
-    }
-    private void saveToRemovedLog(final String apartmentID,String username){
-        DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
-        String logID=ref.getKey();
-        final HashMap<String,Object> newRecord=new HashMap<>();
-        newRecord.put("actor",apartment.getAdminID());
-        newRecord.put("action","removing");
-        newRecord.put("when",ServerValue.TIMESTAMP);
-        newRecord.put("removedUser",username);
-        newRecord.put("logID",logID);
-        ref.updateChildren(newRecord).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if(task.isSuccessful()){
-                    Toast.makeText(context,"I am here",Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
-    }
-    private void saveToRequestsLog(final String apartmentID,String userID){
-
-        DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
-        String uniqueID=ref.getKey();
-        final HashMap<String,Object> newRecord=new HashMap<>();
-        newRecord.put("when", ServerValue.TIMESTAMP);
-        newRecord.put("actor",mAuth.getCurrentUser().getUid());
-        newRecord.put("receivedBy",userID);
-        newRecord.put("logID",uniqueID);
-        newRecord.put("action","requesting");
-        ref.updateChildren(newRecord).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if(task.isSuccessful()){
-                    Toast.makeText(context,"I am here",Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
+//    private void getSenderName(){
+//            rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("name").addListenerForSingleValueEvent(new ValueEventListener() {
+//                @Override
+//                public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                    if(snapshot.exists()){
+//                        senderName=snapshot.getValue().toString();
+//                    }
+//                }
+//
+//                @Override
+//                public void onCancelled(@NonNull DatabaseError error) {
+//
+//                }
+//            });
+//    }
+//        private void sendNotification(final String receiverID,final String message) {
+//            rootRef.child("Token").orderByKey().equalTo(receiverID).addValueEventListener(new ValueEventListener() {
+//                @Override
+//                public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                    if (snapshot.exists()) {
+//                        for (DataSnapshot ds : snapshot.getChildren()) {
+//                            Token token = (Token) ds.getValue(Token.class);
+//                            Data data = new Data( mAuth.getCurrentUser().getUid(),  message, "New request", receiverID, (R.drawable.ic_notification_icon)  ,"false","true" );
+//                            Sender sender = new Sender(data, token.getToken());
+//                            try {
+//                                JSONObject senderJsonObj = new JSONObject(new Gson().toJson(sender));
+//                                JsonObjectRequest jsonObjectRequest=new JsonObjectRequest("https://fcm.googleapis.com/fcm/send", senderJsonObj, new Response.Listener<JSONObject>() {
+//                                    @Override
+//                                    public void onResponse(JSONObject response) {
+//
+//                                        Log.d("JSON_RESPONSE","onResponse:"+response.toString());
+//                                    }
+//
+//                                }, new Response.ErrorListener() {
+//                                    @Override
+//                                    public void onErrorResponse(VolleyError error) {
+//                                        Log.d("JSON_RESPONSE","onResponse:"+error.toString());
+//
+//                                    }
+//                                })
+//                                {
+//                                    @Override
+//                                    public Map<String,String> getHeaders() throws AuthFailureError {
+//                                        Map<String,String> headers= new HashMap<>();
+//                                        headers.put("Content-type","application/json");
+//                                        headers.put("Authorization","Key=AAAAyn_kPyQ:APA91bGLxMB-HGP-qd_EPD3wz_apYs4ZJIB2vyAvH5JbaTVlyLExgYn7ye-076FJxjfrhQ-1HJBmptN3RWHY4FoBdY08YRgplZSAN0Mnj6sLbS6imKa7w0rqPsLtc-aXMaPOhlxnXqPs");
+//                                        return headers;
+//                                    }
+//
+//                                };
+//
+//                                requestQueue.add(jsonObjectRequest);
+//                                requestQueue.start();
+//                            }catch (JSONException e){
+//                                e.printStackTrace();
+//                            }
+//                        }
+//                    }
+//
+//                }
+//
+//                @Override
+//                public void onCancelled(@NonNull DatabaseError error) {
+//
+//                }
+//            });
+//
+//        }
+//
+//    }
+//    private void saveToRemovedLog(final String apartmentID,String username){
+//        DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
+//        String logID=ref.getKey();
+//        final HashMap<String,Object> newRecord=new HashMap<>();
+//        newRecord.put("actor",apartment.getAdminID());
+//        newRecord.put("action","removing");
+//        newRecord.put("when",ServerValue.TIMESTAMP);
+//        newRecord.put("removedUser",username);
+//        newRecord.put("logID",logID);
+//        ref.updateChildren(newRecord).addOnCompleteListener(new OnCompleteListener<Void>() {
+//            @Override
+//            public void onComplete(@NonNull Task<Void> task) {
+//                if(task.isSuccessful()){
+//                    Toast.makeText(context,"I am here",Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//        });
+//
+//    }
+//    private void saveToRequestsLog(final String apartmentID,String userID){
+//
+//        DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
+//        String uniqueID=ref.getKey();
+//        final HashMap<String,Object> newRecord=new HashMap<>();
+//        newRecord.put("when", ServerValue.TIMESTAMP);
+//        newRecord.put("actor",mAuth.getCurrentUser().getUid());
+//        newRecord.put("receivedBy",userID);
+//        newRecord.put("logID",uniqueID);
+//        newRecord.put("action","requesting");
+//        ref.updateChildren(newRecord).addOnCompleteListener(new OnCompleteListener<Void>() {
+//            @Override
+//            public void onComplete(@NonNull Task<Void> task) {
+//                if(task.isSuccessful()){
+//                    Toast.makeText(context,"I am here",Toast.LENGTH_SHORT).show();
+//                }
+//            }
+//        });
+//
     }
 
 

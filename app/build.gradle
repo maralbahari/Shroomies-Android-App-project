@@ -105,7 +105,7 @@ dependencies {
     implementation 'com.mxn.soul:flowingdrawer-core:2.1.0'
     implementation 'com.nineoldandroids:library:2.4.0'
     implementation 'com.otaliastudios:zoomlayout:1.8.0'
-    implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.11.3'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.0-rc1'
 
 
 

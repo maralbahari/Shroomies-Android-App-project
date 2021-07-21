@@ -215,6 +215,23 @@
                 android:foreground="?android:attr/selectableItemBackground"
 
                 />
+            <Button
+                android:id="@+id/my_shroomies_archive_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="start"
+                android:padding="20dp"
+                android:text="Archive"
+                android:fontFamily="@font/amiko"
+                android:textStyle="bold"
+                android:textColor="@color/LogoYellow"
+                android:lines="1"
+                android:textSize="12sp"
+                android:textAllCaps="false"
+                android:background="@drawable/rectangle_yellow_border"
+                android:layout_below="@id/my_shroomies_member_btn"
+                android:foreground="?android:attr/selectableItemBackground"
+                />
 
         <LinearLayout
             android:id="@+id/shroomie_linearlayout_filter"

@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:id="@+id/archive"
     android:background="@color/y"
-    tools:context=".Archive">
+    tools:context=".ArchiveFragment">
     <ImageView
         android:layout_marginTop="20dp"
         android:layout_marginLeft="20dp"

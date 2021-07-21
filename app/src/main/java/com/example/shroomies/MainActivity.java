@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
 //                if(menuItem.getItemId()==R.id.shroomies_menu){
 //                    startActivity(new Intent( getApplicationContext(), MyShroomiesFragment.class));
 //                }if(menuItem.getItemId()==R.id.my_archive_menu){
-//                    getFragment(new Archive());
+//                    getFragment(new ArchiveFragment());
 //                }if(menuItem.getItemId()==R.id.my_favorite_menu){
 //                    getFragment(new Favorite());
 //

@@ -232,49 +232,51 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
             done.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    final ExpensesCard selectedCard=expensesCardArrayList.get(getLayoutPosition());
-                    if (done.isChecked()){
-                        rootRef.child("apartments").child(apartment.getApartmentID()).child("expensesCards").child(expensesCardArrayList.get(getAdapterPosition()).getCardID()).child("done").setValue("true").addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if(task.isSuccessful()){
-                                    done.setText("Done!");
-                                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                                    LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-                                    View alert = inflater.inflate(R.layout.do_you_want_to_archive,null);
-                                    builder.setView(alert);
-                                    final AlertDialog alertDialog = builder.create();
-                                    alertDialog.getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
-                                    alertDialog.getWindow().setBackgroundDrawableResource(R.drawable.dialogfragment_add_member);
-                                    alertDialog.show();
-                                    yesBtn = ((AlertDialog) alertDialog).findViewById(R.id.btn_yes);
-                                    noBtn = ((AlertDialog) alertDialog).findViewById(R.id.no_btn);
-                                    shroomieArch = ((AlertDialog) alertDialog).findViewById(R.id.shroomie_archive);
-                                    yesBtn.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View view) {
-                                            archive(getLayoutPosition(),selectedCard);
-                                            alertDialog.cancel();
-                                        }
-                                    });
-                                    noBtn.setOnClickListener(new View.OnClickListener() {
-                                        @Override
-                                        public void onClick(View view) {
-                                            alertDialog.cancel();
-                                        }
-                                    });
-                                }
-                            }
-                        });
+                    ExpensesCard selectedCard=expensesCardArrayList.get(getLayoutPosition());
+//                    if (done.isChecked()){
+//                        rootRef.child("apartments").child(apartment.getApartmentID()).child("expensesCards").child(expensesCardArrayList.get(getAdapterPosition()).getCardID()).child("done").setValue("true").addOnCompleteListener(new OnCompleteListener<Void>() {
+//                            @Override
+//                            public void onComplete(@NonNull Task<Void> task) {
+//                                if(task.isSuccessful()){
+//                                    done.setText("Done!");
+//                                    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+//                                    LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+//                                    View alert = inflater.inflate(R.layout.do_you_want_to_archive,null);
+//                                    builder.setView(alert);
+//                                    final AlertDialog alertDialog = builder.create();
+//                                    alertDialog.getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
+//                                    alertDialog.getWindow().setBackgroundDrawableResource(R.drawable.dialogfragment_add_member);
+//                                    alertDialog.show();
+//                                    yesBtn = ((AlertDialog) alertDialog).findViewById(R.id.btn_yes);
+//                                    noBtn = ((AlertDialog) alertDialog).findViewById(R.id.no_btn);
+//                                    shroomieArch = ((AlertDialog) alertDialog).findViewById(R.id.shroomie_archive);
+//                                    yesBtn.setOnClickListener(new View.OnClickListener() {
+//                                        @Override
+//                                        public void onClick(View view) {
+//                                            archive(getLayoutPosition(),selectedCard);
+//                                            alertDialog.cancel();
+//                                        }
+//                                    });
+//                                    noBtn.setOnClickListener(new View.OnClickListener() {
+//                                        @Override
+//                                        public void onClick(View view) {
+//                                            alertDialog.cancel();
+//                                        }
+//                                    });
+//                                }
+//                            }
+//                        });
+//
+//                    }else{
+//                        rootRef.child("apartments").child(apartment.getApartmentID()).child("expensesCards").child(expensesCardArrayList.get(getAdapterPosition()).getCardID()).child("done").setValue("false").addOnSuccessListener(new OnSuccessListener<Void>() {
+//                            @Override
+//                            public void onSuccess(Void aVoid) {
+//
+//                            }
+//                        });
+//                    }
+                    markExpenseCard(selectedCard.getCardID() ,apartment.getApartmentID() , done.isChecked());
 
-                    }else{
-                        rootRef.child("apartments").child(apartment.getApartmentID()).child("expensesCards").child(expensesCardArrayList.get(getAdapterPosition()).getCardID()).child("done").setValue("false").addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-
-                            }
-                        });
-                    }
                 }
             });
 
@@ -303,7 +305,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
 
 
 
-//    public void archive(final int position,final ExpensesCard expensesCard){
+    //    public void archive(final int position,final ExpensesCard expensesCard){
 //        DatabaseReference ref = rootRef.child("archive").child(apartment.getApartmentID()).child("expensesCards").push();
 //        HashMap<String ,Object> newCard = new HashMap<>();
 //        String uniqueID = ref.getKey();
@@ -334,6 +336,25 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
 //        });
 //
 //    }
+
+     private void markExpenseCard(String cardID, String apartmentID, boolean checked) {
+        HashMap data = new HashMap();
+        data.put("apartmentID" , apartmentID);
+        data.put("cardID" ,cardID);
+        data.put("booleanValue" , checked);
+
+        mfunc.getHttpsCallable(Config.FUNCTION_MARK_EXPENSES_CARD).call(data).addOnCompleteListener(new OnCompleteListener<HttpsCallableResult>() {
+            @Override
+            public void onComplete(@NonNull Task<HttpsCallableResult> task) {
+                String done = "done";
+                if(!checked){ done = " not done"; }
+                Snackbar.make(parentView,"Card marked as"+done, BaseTransientBottomBar.LENGTH_SHORT)
+                        .show();
+            }
+        });
+
+    }
+
     public void archive(final int position,final ExpensesCard expensesCard){
         final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
         Map<String, Object> map =

@@ -198,7 +198,6 @@ public class Members extends Fragment {
     }
 
     private void leaveApartment(){
-        ObjectMapper mapper = new ObjectMapper();
         // Converting user to a map that can be read by cloud functions
         Map<String, String> map = new HashMap<>();
         map.put("apartmentID" , apartment.getApartmentID());
@@ -267,9 +266,11 @@ public class Members extends Fragment {
 
 
     private void getMemberDetail(ShroomiesApartment shroomiesApartment) {
+        ArrayList<String> members = new ArrayList<>();
         //add the the admin to the members
-
-        ArrayList<String> members = new ArrayList<>(shroomiesApartment.getApartmentMembers().values());
+        if(shroomiesApartment.getApartmentMembers()!=null){
+            members.addAll(shroomiesApartment.getApartmentMembers().values());
+        }
         members.add(shroomiesApartment.getAdminID());
 
         membersList = new ArrayList<>();
