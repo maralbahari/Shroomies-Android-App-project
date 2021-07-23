@@ -54,6 +54,7 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -87,6 +88,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.StringTokenizer;
 
 
 public class AddNewCard extends DialogFragment implements SplitExpenses.membersShares {
@@ -132,8 +135,8 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
         v = inflater.inflate(R.layout.fragment_add_new_card, container, false);
         mAuth = FirebaseAuth.getInstance();
         rootRef = FirebaseDatabase.getInstance().getReference();
-        mfunc = FirebaseFunctions.getInstance();
-        mfunc.useEmulator("10.0.2.2",5001);
+        mfunc = FirebaseFunctions.getInstance("us-central1");
+//        mfunc.useEmulator("10.0.2.2",5001);
         return v;
     }
 
@@ -190,10 +193,10 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
         if (bundle != null) {
             expensesCardSelected = bundle.getBoolean("Expenses");
             apartment=bundle.getParcelable("APARTMENT_DETAILS");
-            if(apartment.apartmentMembers!=null){
-                apartmentMembersHashMap.putAll(apartment.getApartmentMembers());
-                getMemberUserNames(apartmentMembersHashMap);
-            }
+//            if(apartment.apartmentMembers!=null){
+//                apartmentMembersHashMap.putAll(apartment.getApartmentMembers());
+//                getMemberUserNames(apartmentMembersHashMap);
+//            }
             if (!expensesCardSelected) {
                 attachFileButton.setVisibility(View.GONE);
                 splitExpensesButton.setVisibility(View.GONE);
@@ -277,7 +280,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                         addCardRelativeLayout.setClickable(true);
                     } else {
                         if (!expensesCardSelected) {
-                            saveTaskCardToFirebase(mtitle, mdescription, mdueDate, cardColor, mMention, apartment.getApartmentID());
+                            saveTaskCardToFirebase(mtitle, mdescription, mdueDate, cardColor, mMention, "-Mf8__5s2axsertDtQSR");
                         } else {
                             uploadImgToFirebaseStorage(mtitle, mdescription, mdueDate, cardColor, chosenImageUri, mMention, sharedAmountsHashMap);
                         }
@@ -319,6 +322,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
 
         requestQueue = Volley.newRequestQueue(getActivity());
     }
+
 
     private boolean checkMentions() {
         //if the user didn't add any mentions return true
@@ -398,16 +402,18 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
 
         HashMap data = new HashMap();
         data.put("cardDetails" , cardDetails);
-        data.put("apartmentID" , apartment.getApartmentID());
+        data.put("apartmentID" , apartmentID);
         mfunc.getHttpsCallable(Config.FUNCTION_ADD_TASK_CARDS).call(data).addOnSuccessListener(new OnSuccessListener<HttpsCallableResult>() {
             @Override
             public void onSuccess(HttpsCallableResult httpsCallableResult) {
+                Log.d("succes  task" , "works");
                 dismiss();
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull @NotNull Exception e) {
                 //TODO handle error
+                Log.d("fail task" , e.toString());
             }
         });
 

@@ -17,30 +17,50 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkResponse;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.RetryPolicy;
+import com.android.volley.VolleyError;
+import com.android.volley.VolleyLog;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.factor.bouncy.BouncyRecyclerView;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
+import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.HttpsCallableResult;
+import com.google.gson.JsonObject;
 import com.skydoves.powerspinner.OnSpinnerItemSelectedListener;
 import com.skydoves.powerspinner.PowerSpinnerView;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshroomies {
     //views
@@ -89,9 +109,10 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
 //         mDatabase.useEmulator("10.0.2.2",9000);
          rootRef=mDatabase.getReference();
          mAuth = FirebaseAuth.getInstance();
-         mAuth.useEmulator("10.0.2.2",9099);
-         mfunc=FirebaseFunctions.getInstance();
-         mfunc.useEmulator("10.0.2.2",5001);
+//         mAuth.useEmulator("10.0.2.2",9099);
+        mfunc=FirebaseFunctions.getInstance();
+//         mfunc.useEmulator("10.0.2.2",5001);
+
          getApartmentDetails();
 
         myTasksRecyclerView = v.findViewById(R.id.my_tasks_recycler_view);
@@ -279,54 +300,238 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
 
 
 
-   private void getApartmentDetails(){
-       HashMap data=new HashMap();
-       data.put("ID",mAuth.getCurrentUser().getUid());
-        mfunc.getHttpsCallable(Config.FUNCTION_GET_APARTMENT_DETAILS).call(data)
-                .addOnCompleteListener(new OnCompleteListener<HttpsCallableResult>() {
-                    @Override
-                    public void onComplete(@NonNull @NotNull Task<HttpsCallableResult> task) {
-                        if (task.isSuccessful()){
-                            final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
-                            apartment = mapper.convertValue(((HashMap<Object, Object>) task.getResult().getData()), ShroomiesApartment.class);
-                            if (apartment.getExpensesCard() != null) {
-                                if (!apartment.getExpensesCard().isEmpty()) {
-                                    expensesCardsList = new ArrayList<>(apartment.getExpensesCard().values());
-                                    expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList, getActivity(), false, apartment, getChildFragmentManager(), rootlayout);
-                                    myExpensesRecyclerView.setAdapter(expensesCardAdapter);
-                                    expensesCardAdapter.notifyDataSetChanged();
-                                } else {
-                                    //TODO display empty expenses
-                                }
-                            } else {
-                                //TODO display empty expenses
-                            }
-                            if (apartment.getTaskCard() != null) {
-                                if (!apartment.getTaskCard().isEmpty()) {
-                                    tasksCardsList = new ArrayList<>(apartment.getTaskCard().values());
-                                    tasksCardAdapter = new TasksCardAdapter(tasksCardsList, getActivity(), false, apartment, getChildFragmentManager(), rootlayout);
-                                    tasksCardAdapter.notifyDataSetChanged();
-                                    myTasksRecyclerView.setAdapter(tasksCardAdapter);
-                                } else {
-                                    //TODO display empty tasks
-                                }
-                            } else {
-                                //TODO display empty tasks
-                            }
-                            if (apartment.getLogs() != null) {
-                                if (!apartment.getLogs().isEmpty()) {
-                                    apartmentLogs = new ArrayList<>(apartment.getLogs().values());
-                                } else {
-                                    //todo display empty log in the log fragment
-                                }
-                            } else {
-                                //todo display empty log in the log fragment
-                            }
-                    }else{
-                            Log.d("apartment error", task.getException().toString());
-                        }
-                    }
-                });
+    private void getApartmentDetails(){
+//       HashMap data=new HashMap();
+//       data.put("ID",mAuth.getCurrentUser().getUid());
+       JSONObject jsonObject = new JSONObject();
+       JSONObject data  = new JSONObject();
+        try {
+            jsonObject.put("ID",mAuth.getCurrentUser().getUid());
+            data.put("data",jsonObject);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+
+//        mfunc.getHttpsCallable("callable-"+Config.FUNCTION_GET_APARTMENT_DETAILS).call(data)
+//                .addOnCompleteListener(new OnCompleteListener<HttpsCallableResult>() {
+//                    @Override
+//                    public void onComplete(@NonNull @NotNull Task<HttpsCallableResult> task) {
+//                        if (task.isSuccessful()){
+//                            final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
+//                            apartment = mapper.convertValue(((HashMap<Object, Object>) task.getResult().getData()), ShroomiesApartment.class);
+//                            if (apartment.getExpensesCard() != null) {
+//                                if (!apartment.getExpensesCard().isEmpty()) {
+//                                    expensesCardsList = new ArrayList<>(apartment.getExpensesCard().values());
+//                                    expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList, getActivity(), false, apartment, getChildFragmentManager(), rootlayout);
+//                                    myExpensesRecyclerView.setAdapter(expensesCardAdapter);
+//                                    expensesCardAdapter.notifyDataSetChanged();
+//                                } else {
+//                                    //TODO display empty expenses
+//                                }
+//                            } else {
+//                                //TODO display empty expenses
+//                            }
+//                            if (apartment.getTaskCard() != null) {
+//                                if (!apartment.getTaskCard().isEmpty()) {
+//                                    tasksCardsList = new ArrayList<>(apartment.getTaskCard().values());
+//                                    tasksCardAdapter = new TasksCardAdapter(tasksCardsList, getActivity(), false, apartment, getChildFragmentManager(), rootlayout);
+//                                    tasksCardAdapter.notifyDataSetChanged();
+//                                    myTasksRecyclerView.setAdapter(tasksCardAdapter);
+//                                } else {
+//                                    //TODO display empty tasks
+//                                }
+//                            } else {
+//                                //TODO display empty tasks
+//
+//                                Log.d("apartment error", "eror");
+//
+//                            }
+//                            if (apartment.getLogs() != null) {
+//                                if (!apartment.getLogs().isEmpty()) {
+//                                    apartmentLogs = new ArrayList<>(apartment.getLogs().values());
+//                                } else {
+//                                    //todo display empty log in the log fragment
+//                                }
+//                            } else {
+//                                //todo display empty log in the log fragment
+//                            }
+//                    }else{
+//                            Log.d("apartment error", task.getException().toString());
+//                        }
+//                    }
+//                });
+
+
+        RequestQueue requestQueue= Volley.newRequestQueue(getActivity());
+        String url = "https://us-central1-shroomies-e34d3.cloudfunctions.net/getApartmentDetails";
+        //TODO add progress dialog
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url, data, new Response.Listener<JSONObject>() {
+            @Override
+            public void onResponse(JSONObject response) {
+                Log.d("apartment works" , "yayyyy");
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.d("apartment no works" , error.networkResponse.data.toString());
+            }
+        }){
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+
+                return super.getHeaders();
+            }
+        };
+        requestQueue.add(jsonObjectRequest);
+
+
+
+
+//        JsonObjectRequest jsonArrayRequest = new JsonObjectRequest(Request.Method.POST, url, new Response.Listener<String>() {
+//            @Override
+//            public void onResponse(String response) {
+//                try {
+//                    response = response.replaceAll("NaN", "-1" /*Or whatever you need*/);
+//
+//                    JSONArray jsonArray = new JSONArray(response);
+//
+//                    for (int i = 0; i < response.length(); i++) {
+//                        JSONObject jsonObject = jsonArray.getJSONObject(i);
+//                        AppModel apps = new AppModel();
+//                        try {
+//                            apps.setName(jsonObject.getString("title"));
+//                            apps.setDescription(jsonObject.getString("summary"));
+//                            apps.setRating(jsonObject.getDouble("score"));
+//                            apps.setIconURL(jsonObject.getString("icon"));
+//                            apps.setAndroidVersion(jsonObject.getString("androidVersion"));
+//                            apps.setVideoImage(jsonObject.getString("videoImage"));
+//                            apps.setVideo(jsonObject.getString("video"));
+//                            apps.setContentRating(jsonObject.getString("contentRating"));
+//                            apps.setInstalls(jsonObject.getString("installs"));
+//                            apps.setDeveloper(jsonObject.getString("developer"));
+//                            apps.setVersion(jsonObject.getString("version"));
+//                            apps.setSize(jsonObject.getString("size"));
+//                            apps.setDescription(jsonObject.getString("description"));
+//                            apps.setUrl(jsonObject.getString("url"));
+//                            apps.setAppID(jsonObject.getString("App Id"));
+//                            apps.setCluster(jsonObject.getString("cluster"));
+//
+////                                    //TODO change this from cloud functions
+//                            String screenShotsString  = jsonObject.getString("screenShots");
+//                            String str[]  =screenShotsString.substring(1, screenShotsString.length() - 1).split(",") ;
+//                            List<String> screenShots = new ArrayList<>();
+//                            int count  = 0;
+//                            for(String x:
+//                                    str){
+//                                if(x.length()>10){
+//                                    if(count==0){
+//                                        screenShots.add(x.substring(1, x.length() - 1));
+//                                    }else{
+//                                        screenShots.add(x.substring(2, x.length() - 1));
+//                                    }
+//                                }
+//                                count++;
+//                            }
+//                            apps.setScreenShots(screenShots);
+//                            if(!appsList.contains(apps)){
+//                                appsList.add(apps);
+//                            }
+//
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                            refreshProgressBar.dismiss();
+//
+//                        }
+//
+//                    }
+//
+//                    recyclerView.setOnOverPullListener(onOverPullListener);
+//                    getActivity().runOnUiThread(new Runnable() {
+//                        public void run() {
+////                            searchAdapter.notifyItemRangeInserted(lastAdapterPosition , searchAdapter.getItemCount());
+//                            searchAdapter.notifyDataSetChanged();
+//                        }
+//                    });
+//                    refreshProgressBar.dismiss();
+//
+//                }catch (JSONException e) {
+//                    e.printStackTrace();
+//                    refreshProgressBar.dismiss();
+//                    recyclerView.setOnOverPullListener(onOverPullListener);
+//
+//
+//                }
+//
+//            }
+//        }, new Response.ErrorListener() {
+//            @Override
+//            public void onErrorResponse(VolleyError error) {
+//                Snackbar.make(rootLayout , "Something went wrong" , Snackbar.LENGTH_LONG).show();
+//            }
+//        }){
+//            @Override
+//            public String getBodyContentType() {
+//                return "application/json; charset=utf-8";
+//            }
+//
+//            @Override
+//            public byte[] getBody() throws AuthFailureError {
+//                JSONObject jsonBody = new JSONObject();
+//                try {
+//                    jsonBody.put(Config.CLUSTER, cluster);
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                }
+//                final String mRequestBody = jsonBody.toString();
+//                try {
+//                    return mRequestBody == null ? null : mRequestBody.getBytes("utf-8");
+//                } catch (UnsupportedEncodingException uee) {
+//                    VolleyLog.wtf("Unsupported Encoding while trying to get the bytes of %s using %s", mRequestBody, "utf-8");
+//                    return null;
+//                }
+//            }
+//
+//            @Override
+//            protected Response<String> parseNetworkResponse(NetworkResponse response) {
+//                String responseString = "";
+//                if (response != null) {
+//                    responseString = String.valueOf(response.statusCode);
+//                    // can get more details such as response.headers
+//                }
+//                return super.parseNetworkResponse(response);
+//            }
+//
+//        };
+//
+//        jsonArrayRequest.setRetryPolicy(new RetryPolicy() {
+//            @Override
+//            public int getCurrentTimeout() {
+//                return 50000;
+//            }
+//
+//            @Override
+//            public int getCurrentRetryCount() {
+//                return 50000;
+//            }
+//
+//            @Override
+//            public void retry(VolleyError error) throws VolleyError {
+//
+//            }
+//        });
+//        // Access the RequestQueue through your singleton class.
+//        mRequestQueue.add(jsonArrayRequest);;
+
+
+
+
+
+
+
+
+
     }
 
    private void scroll(){

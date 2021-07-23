@@ -59,11 +59,18 @@ public class LoginActivity extends AppCompatActivity {
     SessionManager sessionManager;
     public static EThree eThree;
     private String token;
+    private FirebaseAuth.AuthStateListener authStateListener;
 
     @Override
     protected void onStart() {
         super.onStart();
+        mAuth.addAuthStateListener(authStateListener);
+    }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+        mAuth.removeAuthStateListener(authStateListener);
     }
 
     @Override
@@ -78,6 +85,30 @@ public class LoginActivity extends AppCompatActivity {
         google_sign = findViewById(R.id.google_sign_up);
         forgotPassword=findViewById(R.id.forgot_password_login);
 //        progressBar=findViewById(R.id.progressBar_login);
+
+        authStateListener = new FirebaseAuth.AuthStateListener() {
+            @Override
+            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+                FirebaseUser firebaseUser = mAuth.getCurrentUser();
+                if(firebaseUser!=null){
+                    String userID =mAuth.getCurrentUser().getUid();
+                    String userEmail =mAuth.getCurrentUser().getEmail();
+                    sessionManager= new SessionManager(LoginActivity.this,userID);
+                    sessionManager.createSession(userID,userEmail);
+//                            sessionManager.setVerifiedEmail(mAuth.getCurrentUser().isEmailVerified());
+                    sessionManager.setVerifiedEmail(true);
+                    getE3Token();
+                    Toast.makeText(LoginActivity.this, "Welcome to Shroomies! ", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                    intent.putExtra("ID",userID);
+                    intent.putExtra("EMAIL",userEmail);
+//                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                }
+            }
+        };
+
+
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
@@ -120,7 +151,7 @@ public class LoginActivity extends AppCompatActivity {
     }
     private void loginUser(){
         mAuth = FirebaseAuth.getInstance();
-        mAuth.useEmulator("10.0.2.2",9099);
+//        mAuth.useEmulator("10.0.2.2",9099);
         progressBar = new CustomLoadingProgressBar(LoginActivity.this , "Loading..." ,R.raw.loading_animation);
         progressBar.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         progressBar.show();
@@ -139,19 +170,19 @@ public class LoginActivity extends AppCompatActivity {
                     if (task.isSuccessful()){
                         progressBar.dismiss();
 //                        if(mAuth.getCurrentUser().isEmailVerified()){
-                            String userID =mAuth.getCurrentUser().getUid();
-                            String userEmail =mAuth.getCurrentUser().getEmail();
-                            sessionManager= new SessionManager(LoginActivity.this,userID);
-                            sessionManager.createSession(userID,userEmail);
-//                            sessionManager.setVerifiedEmail(mAuth.getCurrentUser().isEmailVerified());
-                            sessionManager.setVerifiedEmail(true);
-                            getE3Token();
-                            Toast.makeText(LoginActivity.this, "Welcome to Shroomies! ", Toast.LENGTH_SHORT).show();
-                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                            intent.putExtra("ID",userID);
-                            intent.putExtra("EMAIL",userEmail);
-                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                            startActivity(intent);
+//                            String userID =mAuth.getCurrentUser().getUid();
+//                            String userEmail =mAuth.getCurrentUser().getEmail();
+//                            sessionManager= new SessionManager(LoginActivity.this,userID);
+//                            sessionManager.createSession(userID,userEmail);
+////                            sessionManager.setVerifiedEmail(mAuth.getCurrentUser().isEmailVerified());
+//                            sessionManager.setVerifiedEmail(true);
+//                            getE3Token();
+//                            Toast.makeText(LoginActivity.this, "Welcome to Shroomies! ", Toast.LENGTH_SHORT).show();
+//                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+//                            intent.putExtra("ID",userID);
+//                            intent.putExtra("EMAIL",userEmail);
+//                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//                            startActivity(intent);
 //                        }
 //                        if(!(mAuth.getCurrentUser().isEmailVerified())){
 //                            username.setText("");
