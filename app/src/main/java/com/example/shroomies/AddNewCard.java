@@ -37,6 +37,7 @@ import androidx.fragment.app.DialogFragment;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -48,14 +49,17 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.example.shroomies.notifications.Data;
 import com.example.shroomies.notifications.Sender;
 import com.example.shroomies.notifications.Token;
+import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.FirebaseApp;
+import com.google.common.net.HttpHeaders;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -68,6 +72,7 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.hendraanggrian.widget.SocialAutoCompleteTextView;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
@@ -88,8 +93,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.StringTokenizer;
 
 
 public class AddNewCard extends DialogFragment implements SplitExpenses.membersShares {
@@ -112,6 +115,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
     private DatabaseReference rootRef;
     private FirebaseAuth mAuth;
     FirebaseFunctions mfunc;
+    private RequestQueue requestQueue;
     //data structures
     private ArrayList<String> memberUserNameArrayList;
     private ArrayList<User> apartmentMembersArrayList =new ArrayList<>();
@@ -119,7 +123,6 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
     public HashMap<String, Integer> sharedAmountsHashMap;
     private ArrayAdapter<String> userNamesList;
     //variables
-    private RequestQueue requestQueue;
     private ShroomiesApartment apartment;
     private boolean notify = false , expensesCardSelected;
     private String fileExtension,captureFileName , fileType;
@@ -131,6 +134,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
+        requestQueue= Volley.newRequestQueue(getActivity());
 
         v = inflater.inflate(R.layout.fragment_add_new_card, container, false);
         mAuth = FirebaseAuth.getInstance();
@@ -346,76 +350,92 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
         return true;
     }
 
-    private void getMemberUserNames(final HashMap<String,String> membersHashMap) {
-        memberUserNameArrayList =new ArrayList<>();
-        userNamesList=  new ArrayAdapter<String>(getContext(),R.layout.support_simple_spinner_dropdown_item, memberUserNameArrayList);
-        membersHashMap.put(apartment.getAdminID(),apartment.getAdminID());
-        for (String id : membersHashMap.values()) {
-            rootRef.child("Users").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    if (snapshot.exists()) {
-                        User user = snapshot.getValue(User.class);
-                        memberUserNameArrayList.add(user.getName());
-                        apartmentMembersArrayList.add(user);
-                        nameAndIdHashMap.put(user.getName(), user.getUserID());
-                    }
-                    mentionAutoCompleteTextView.setMentionAdapter(userNamesList);
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-
-
-                }
-            });
-
-
-        }
-
-    }
-    private void saveToAddLog(String apartmentID,HashMap<String,Object> newRecord){
-
-            DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
-            String logID=ref.getKey();
-            newRecord.put("logID",logID);
-            ref.updateChildren(newRecord);
-
-    }
+//    private void getMemberUserNames(final HashMap<String,String> membersHashMap) {
+//        memberUserNameArrayList =new ArrayList<>();
+//        userNamesList=  new ArrayAdapter<String>(getContext(),R.layout.support_simple_spinner_dropdown_item, memberUserNameArrayList);
+//        membersHashMap.put(apartment.getAdminID(),apartment.getAdminID());
+//        for (String id : membersHashMap.values()) {
+//            rootRef.child("Users").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
+//                @Override
+//                public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                    if (snapshot.exists()) {
+//                        User user = snapshot.getValue(User.class);
+//                        memberUserNameArrayList.add(user.getName());
+//                        apartmentMembersArrayList.add(user);
+//                        nameAndIdHashMap.put(user.getName(), user.getUserID());
+//                    }
+//                    mentionAutoCompleteTextView.setMentionAdapter(userNamesList);
+//                }
+//
+//                @Override
+//                public void onCancelled(@NonNull DatabaseError error) {
+//
+//
+//                }
+//            });
+//
+//
+//        }
+//
+//    }
+//    private void saveToAddLog(String apartmentID,HashMap<String,Object> newRecord){
+//
+//            DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
+//            String logID=ref.getKey();
+//            newRecord.put("logID",logID);
+//            ref.updateChildren(newRecord);
+//
+//    }
 
     private void saveTaskCardToFirebase(String mtitle, String mdescription, String mdueDate, String importance, final String mMention, final String apartmentID) {
-
-        if (!mMention.isEmpty()) {
-            notify = true;
-        }
-        HashMap<String, Object> cardDetails = new HashMap<>();
-        cardDetails.put("description", mdescription);
-        cardDetails.put("title", mtitle);
-        cardDetails.put("dueDate", mdueDate);
-        cardDetails.put("importance", importance);
-        cardDetails.put("date", ServerValue.TIMESTAMP);
-        cardDetails.put("cardID", "");
-        cardDetails.put("done", "false");
-        cardDetails.put("mention", mMention);
-        cardDetails.put("actor",mAuth.getCurrentUser().getUid());
-
-
-        HashMap data = new HashMap();
-        data.put("cardDetails" , cardDetails);
-        data.put("apartmentID" , apartmentID);
-        mfunc.getHttpsCallable(Config.FUNCTION_ADD_TASK_CARDS).call(data).addOnSuccessListener(new OnSuccessListener<HttpsCallableResult>() {
+        FirebaseUser firebaseUser = mAuth.getCurrentUser();
+        firebaseUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
             @Override
-            public void onSuccess(HttpsCallableResult httpsCallableResult) {
-                Log.d("succes  task" , "works");
-                dismiss();
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull @NotNull Exception e) {
-                //TODO handle error
-                Log.d("fail task" , e.toString());
+            public void onComplete(@NonNull @NotNull Task<GetTokenResult> task) {
+                String token = task.getResult().getToken();
+                if (!mMention.isEmpty()) {
+                    notify = true;
+                }
+                JSONObject jsonObject = new JSONObject();
+                JSONObject data = new JSONObject();
+                JSONObject cardDetails = new JSONObject();
+                try {
+                    cardDetails.put("description", mdescription);
+                    cardDetails.put("title", mtitle);
+                    cardDetails.put("dueDate", mdueDate);
+                    cardDetails.put("importance", importance);
+                    cardDetails.put("date", ServerValue.TIMESTAMP);
+                    cardDetails.put("cardID", "");
+                    cardDetails.put("done", "false");
+                    cardDetails.put("mention", mMention);
+                    cardDetails.put("actor",mAuth.getCurrentUser().getUid());
+                    jsonObject.put("cardDetails" , cardDetails);
+                    jsonObject.put("apartmentID" , apartmentID);
+                    data.put("data",jsonObject);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_ADD_EXPENSES_CARDS, data, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        dismiss();
+                    }
+                }, error -> Log.d("add card no works" , error.networkResponse.data.toString()) )
+                {
+                    @Override
+                    public Map<String, String> getHeaders() throws AuthFailureError {
+                        Map<String, String> params = new HashMap<>();
+                        params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
+                        params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
+                        return params;
+                    }
+                };
+                requestQueue.add(jsonObjectRequest);
             }
         });
+
 
 //        ref.updateChildren(newCard).addOnCompleteListener(new OnCompleteListener<Void>() {
 //            @Override
@@ -454,44 +474,56 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
 
 
     public void addExpenseCard(String title, String description, String dueDate, String attachUrl , String fileType, String importance, final String mMention, final String apartmentID, final HashMap<String, Integer> shareAmounts) {
-        if (!mMention.isEmpty()) {
-            notify = true;
-        }
-        HashMap cardDetails = new HashMap<>();
-        cardDetails.put("description", description);
-        cardDetails.put("title", title);
-        cardDetails.put("dueDate", dueDate);
-        cardDetails.put("importance", importance);
-        cardDetails.put("attachedFile", attachUrl);
-        cardDetails.put("fileType" ,fileType );
-        cardDetails.put("date", ServerValue.TIMESTAMP);
-        cardDetails.put("cardID", "");
-        cardDetails.put("done", "false");
-        cardDetails.put("mention", mMention);
-        cardDetails.put("actor" , mAuth.getCurrentUser().getUid());
-        if(shareAmounts!=null){
-            cardDetails.put("membersShares",shareAmounts);
-        }
+       //get the authorization token
+        //if authorization token is recived then proceed
+        FirebaseUser firebaseUser = mAuth.getCurrentUser();
+        firebaseUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+            @Override
+            public void onComplete(@NonNull @NotNull Task<GetTokenResult> task) {
+                String token = task.getResult().getToken();
+                JSONObject jsonObject = new JSONObject();
+                JSONObject data  = new JSONObject();
+                try {
+                    JSONObject cardDetails = new JSONObject();
+                    cardDetails.put("description", description);
+                    cardDetails.put("title", title);
+                    cardDetails.put("dueDate", dueDate);
+                    cardDetails.put("importance", importance);
+                    cardDetails.put("attachedFile", attachUrl);
+                    cardDetails.put("fileType" ,fileType );
+                    cardDetails.put("date", ServerValue.TIMESTAMP);
+                    cardDetails.put("cardID", "");
+                    cardDetails.put("done", "false");
+                    cardDetails.put("mention", mMention);
+                    cardDetails.put("actor" , mAuth.getCurrentUser().getUid());
+                    if(shareAmounts!=null){
+                        cardDetails.put("membersShares",shareAmounts);
+                    }
+                    jsonObject.put("cardDetails",cardDetails);
+                    jsonObject.put("apartmentID" , apartmentID);
+                    data.put("data",jsonObject);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                //TODO add progress dialog
+                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_ADD_EXPENSES_CARDS, data, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
 
-        HashMap data = new HashMap<>();
-        data.put("cardDetails",cardDetails);
-        data.put("apartmentID" , apartment.getApartmentID());
-        mfunc.getHttpsCallable(Config.FUNCTION_ADD_EXPENSES_CARDS).call(data).addOnSuccessListener(new OnSuccessListener<HttpsCallableResult>() {
-            @Override
-            public void onSuccess(HttpsCallableResult httpsCallableResult) {
-//                Log.d("addCard" , httpsCallableResult.getData().toString());
-                dismiss();
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull @NotNull Exception e) {
-                Log.d("addCardError" , e.toString());
-                Log.d("addCardErrorApartmentID" , data.toString());
-                //TODO add error handling
+                    }
+                }, error -> Log.d("apartment no works" , error.networkResponse.data.toString()) )
+                {
+                    @Override
+                    public Map<String, String> getHeaders() throws AuthFailureError {
+                        Map<String, String> params = new HashMap<String, String>();
+                        params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
+                        params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
+                        return params;
+                    }
+                };
+                requestQueue.add(jsonObjectRequest);
             }
         });
-
-
     }
 
 

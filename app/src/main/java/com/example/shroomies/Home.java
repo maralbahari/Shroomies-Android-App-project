@@ -15,22 +15,26 @@ import java.util.HashMap;
 
 public class Home extends Application {
     SessionManager sessionManager;
+    FirebaseAuth mauth;
     @Override
     public void onCreate() {
         super.onCreate();
-        sessionManager= new SessionManager();
-        String currentUserID=sessionManager.checkUsersLoggedIn(Home.this);
-        if(currentUserID!=null){
-            sessionManager=new SessionManager(Home.this,currentUserID);
-            HashMap userDetails=sessionManager.getUserDetail();
-            if(sessionManager.checkUserEmailVerification(currentUserID)){
-                Toast.makeText(Home.this,currentUserID,Toast.LENGTH_SHORT).show();
+        mauth=FirebaseAuth.getInstance();
+        FirebaseUser user=mauth.getCurrentUser();
+//        sessionManager= new SessionManager();
+//        String currentUserID=sessionManager.checkUsersLoggedIn(Home.this);
+        if(user!=null){
+//            sessionManager=new SessionManager(Home.this,currentUserID);
+//            HashMap userDetails=sessionManager.getUserDetail();
+//            if(sessionManager.checkUserEmailVerification(currentUserID)){
+//                Toast.makeText(Home.this,currentUserID,Toast.LENGTH_SHORT).show();
                 Intent intent= new Intent(getApplicationContext(),MainActivity.class);
-                intent.putExtra("ID",currentUserID);
-                intent.putExtra("EMAIL",userDetails.get("EMAIL").toString());
+                intent.putExtra("ID",user.getUid());
+                intent.putExtra("EMAIL",user.getEmail());
+//                intent.putExtra("EMAIL",userDetails.get("EMAIL").toString());
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
-            }
+//            }
         }
     }
 

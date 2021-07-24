@@ -104,7 +104,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
         mAuth = FirebaseAuth.getInstance();
         storage=FirebaseStorage.getInstance();
         mfunc= FirebaseFunctions.getInstance();
-        mfunc.useEmulator("10.0.2.2",5001);
+//        mfunc.useEmulator("10.0.2.2",5001);
         return new ExpensesViewHolder(view);
 
     }

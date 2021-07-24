@@ -105,6 +105,7 @@ public class SignUpActivity extends AppCompatActivity{
         mAuth.createUserWithEmailAndPassword(email, password).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
             @Override
             public void onSuccess(AuthResult authResult) {
+                  pd.dismiss();
                   Toast.makeText(getApplicationContext(),"registered",Toast.LENGTH_LONG).show();
 //                final DatabaseReference ref= mRootref.child("apartments").push();
 //                apartmentID =ref.getKey();

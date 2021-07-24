@@ -9,9 +9,9 @@ public class Config {
     public static final String logs="logs";
 
     //FUNCTIONS NAMES
-    public static final String FUNCTION_ADD_EXPENSES_CARDS = "addExpensesCard";
-    public static final String FUNCTION_ADD_TASK_CARDS = "addTasksCards";
-    public static final String FUNCTION_GET_APARTMENT_DETAILS = "getApartmentDetails";
+    public static final String URL_ADD_EXPENSES_CARDS = "https://us-central1-shroomies-e34d3.cloudfunctions.net/addExpensesCard";
+    public static final String URL_ADD_TASK_CARDS = "https://us-central1-shroomies-e34d3.cloudfunctions.net/addTasksCards";
+    public static final String URL_GET_APARTMENT_DETAILS = "https://us-central1-shroomies-e34d3.cloudfunctions.net/getApartmentDetails";
     public static final String FUNCTION_GET_USER_DETAIL = "getUserDetails";
     public static final String FUNCTION_LEAVE_APARTMENT = "leaveApartment";
     public static final String FUNCTION_DELETE_EXPENSE_CARD = "deleteExpensesCard";

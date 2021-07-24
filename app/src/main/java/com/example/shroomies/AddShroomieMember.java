@@ -35,6 +35,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 public class AddShroomieMember extends DialogFragment {
     //views
@@ -82,7 +83,7 @@ public class AddShroomieMember extends DialogFragment {
         mAuth=FirebaseAuth.getInstance();
         rootRef = FirebaseDatabase.getInstance().getReference();
         mfunc=FirebaseFunctions.getInstance();
-        mfunc.useEmulator("10.0.2.2",5001);
+//        mfunc.useEmulator("10.0.2.2",5001);
         return v;
     }
 
@@ -185,7 +186,7 @@ public class AddShroomieMember extends DialogFragment {
         if(!query.trim().isEmpty()){
             Map<String, String> map = new HashMap<>();
             map.put("name" , query.trim());
-            mfunc.getHttpsCallable(Config.FUNCTION_SEARCH_USERS).call(map).addOnCompleteListener(new OnCompleteListener<HttpsCallableResult>() {
+            mfunc.getHttpsCallable(Config.FUNCTION_SEARCH_USERS).withTimeout(1000, TimeUnit.SECONDS).call(map).addOnCompleteListener(new OnCompleteListener<HttpsCallableResult>() {
                 @Override
                 public void onComplete(@NonNull Task<HttpsCallableResult> task) {
                     if(task.isSuccessful()){
