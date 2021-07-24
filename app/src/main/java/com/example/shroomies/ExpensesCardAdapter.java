@@ -21,6 +21,13 @@ import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
@@ -31,7 +38,10 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.common.net.HttpHeaders;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
@@ -42,6 +52,8 @@ import com.hendraanggrian.widget.SocialTextView;
 import com.virgilsecurity.crypto.foundation.Hash;
 
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
@@ -68,6 +80,8 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
     private FragmentManager fragmentManager;
     private View parentView;
 
+    private RequestQueue requestQueue;
+
     public ExpensesCardAdapter(ArrayList<ExpensesCard> expensesCardArrayList, Context context, Boolean fromArchive,ShroomiesApartment apartment,FragmentManager fragmentManager,View parentView) {
         this.expensesCardArrayList = expensesCardArrayList;
         this.context=context;
@@ -93,12 +107,11 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
 
     }
 
-
-
     @NonNull
     @Override
     public ExpensesCardAdapter.ExpensesViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(context);
+        requestQueue = Volley.newRequestQueue(context);
         view  = layoutInflater.inflate(R.layout.my_shroomie_expenses_card,parent,false);
         rootRef= FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
@@ -338,66 +351,163 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
 //    }
 
      private void markExpenseCard(String cardID, String apartmentID, boolean checked) {
-        HashMap data = new HashMap();
-        data.put("apartmentID" , apartmentID);
-        data.put("cardID" ,cardID);
-        data.put("booleanValue" , checked);
+        JSONObject jsonObject = new JSONObject();
+        JSONObject data = new JSONObject();
+         try {
+             jsonObject.put("apartmentID" , apartmentID);
+             jsonObject.put("cardID" ,cardID);
+             jsonObject.put("booleanValue" , checked);
+             data.put("data" , jsonObject);
+         } catch (JSONException e) {
+             e.printStackTrace();
+         }
+         FirebaseUser firebaseUser = mAuth.getCurrentUser();
+         firebaseUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+             @Override
+             public void onComplete(@NonNull Task<GetTokenResult> task) {
+                 if (task.isSuccessful()){
+                     String token = task.getResult().getToken();
+                     JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_MARK_EXPENSES_CARD, data, new Response.Listener<JSONObject>() {
+                         @Override
+                         public void onResponse(JSONObject response) {
+                             String done = "done";
+                             if(!checked){ done = " not done"; }
+                             Snackbar.make(parentView,"Card marked as"+done, BaseTransientBottomBar.LENGTH_SHORT)
+                                     .show();
 
-        mfunc.getHttpsCallable(Config.FUNCTION_MARK_EXPENSES_CARD).call(data).addOnCompleteListener(new OnCompleteListener<HttpsCallableResult>() {
-            @Override
-            public void onComplete(@NonNull Task<HttpsCallableResult> task) {
-                String done = "done";
-                if(!checked){ done = " not done"; }
-                Snackbar.make(parentView,"Card marked as"+done, BaseTransientBottomBar.LENGTH_SHORT)
-                        .show();
-            }
-        });
+                         }
+                     }, new Response.ErrorListener() {
+                         @Override
+                         public void onErrorResponse(VolleyError error) {
+                             //todo handle error
+                         }
+                     }){
+                         @Override
+                         public Map<String, String> getHeaders() throws AuthFailureError {
+                             Map<String, String> params = new HashMap<String, String>();
+                             params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
+                             params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
+                             return params;
+                         }
+                     };
+                     requestQueue.add(jsonObjectRequest);
+                 }
+             }
+         });
+
 
     }
 
     public void archive(final int position,final ExpensesCard expensesCard){
         final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
-        Map<String, Object> map =
-        mapper.convertValue(expensesCard, new TypeReference<Map<String, Object>>() {});
-        HashMap data = new HashMap();
-        data.put("apartmentID" , apartment.getApartmentID());
-        data.put("cardDetails" , map);
-        mfunc.getHttpsCallable(Config.FUNCTION_ARCHIVE_EXPENSES_CARD).call(data).addOnCompleteListener(new OnCompleteListener<HttpsCallableResult>() {
+//        Map<String, JSONObject> map =  mapper.convertValue(expensesCard, new TypeReference<Map<String, JSONObject>>() {});
+        JSONObject cardDetails = mapper.convertValue(expensesCard , JSONObject.class);
+        JSONObject data = new JSONObject();
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("apartmentID" , apartment.getApartmentID());
+            jsonObject.put("cardDetails" , cardDetails);
+            data.put("data" , jsonObject);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        FirebaseUser firebaseUser = mAuth.getCurrentUser();
+        firebaseUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
             @Override
-            public void onComplete(@NonNull @NotNull Task<HttpsCallableResult> task) {
-             if(task.isSuccessful()){
-                 Snackbar.make(parentView,"Card archived", BaseTransientBottomBar.LENGTH_SHORT)
-                         .show();
-                 notifyItemRemoved(position);
-             }
-            }
-        });
-
-    }
-
-
-    public void deleteExpensesCard(final int position){
-
-        HashMap data = new HashMap();
-        data.put("apartmentID" , apartment.getApartmentID());
-        data.put("cardID" , expensesCardArrayList.get(position).getCardID());
-        data.put("file" , expensesCardArrayList.get(position).getAttachedFile());
-
-        mfunc.getHttpsCallable(Config.FUNCTION_DELETE_EXPENSE_CARD).call(data).addOnCompleteListener(new OnCompleteListener<HttpsCallableResult>() {
-            @Override
-            public void onComplete(@NonNull @NotNull Task<HttpsCallableResult> task) {
+            public void onComplete(@NonNull Task<GetTokenResult> task) {
                 if(task.isSuccessful()){
-                    Snackbar snack=Snackbar.make(parentView,"Card deleted", BaseTransientBottomBar.LENGTH_SHORT);
-                    snack.show();
-                    notifyItemRemoved(position);
+                    String token = task.getResult().getToken();
+                    JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_ARCHIVE_EXPENSES_CARD, data, new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            Snackbar.make(parentView,"Card archived", BaseTransientBottomBar.LENGTH_SHORT)
+                                    .show();
+                            notifyItemRemoved(position);
+                        }
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            //todo handle error
+                        }
+                    })
+                        {
+
+                            @Override
+                            public Map<String, String> getHeaders() throws AuthFailureError {
+                                Map<String, String> params = new HashMap<String, String>();
+                                params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
+                                params.put(HttpHeaders.AUTHORIZATION, "Bearer " + token);
+                                return params;
+
+                        }
+                    };
+                    requestQueue.add(jsonObjectRequest);
+
+
                 }
             }
         });
 
+
+
+//        mfunc.getHttpsCallable(Config.FUNCTION_ARCHIVE_EXPENSES_CARD).call(data).addOnCompleteListener(new OnCompleteListener<HttpsCallableResult>() {
+//            @Override
+//            public void onComplete(@NonNull @NotNull Task<HttpsCallableResult> task) {
+//             if(task.isSuccessful()){
+//
+//             }
+//            }
+//        });
+
     }
 
 
+    public void deleteExpensesCard(final int position) {
 
+        JSONObject jsonObject = new JSONObject();
+        JSONObject data = new JSONObject();
 
+        try {
+            jsonObject.put("apartmentID", apartment.getApartmentID());
+            jsonObject.put("cardID", expensesCardArrayList.get(position).getCardID());
+            jsonObject.put("file", expensesCardArrayList.get(position).getAttachedFile());
+            data.put("data", jsonObject);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        FirebaseUser firebaseUser = mAuth.getCurrentUser();
+        firebaseUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+            @Override
+            public void onComplete(@NonNull Task<GetTokenResult> task) {
+                if (task.isSuccessful()) {
+                    String token = task.getResult().getToken();
+                    JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_DELETE_EXPENSE_CARD, data, new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
 
-}
+                        }
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            //todo handle error
+
+                        }
+                    }) {
+                        @Override
+                        public Map<String, String> getHeaders() throws AuthFailureError {
+                            Map<String, String> params = new HashMap<String, String>();
+                            params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
+                            params.put(HttpHeaders.AUTHORIZATION, "Bearer " + token);
+                            return params;
+                        }
+                    };
+                    requestQueue.add(jsonObjectRequest);
+
+                }
+
+            }
+        });
+    }
+
+    }
+

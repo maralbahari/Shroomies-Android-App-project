@@ -135,12 +135,13 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         requestQueue= Volley.newRequestQueue(getActivity());
-
-        v = inflater.inflate(R.layout.fragment_add_new_card, container, false);
-        mAuth = FirebaseAuth.getInstance();
         rootRef = FirebaseDatabase.getInstance().getReference();
-        mfunc = FirebaseFunctions.getInstance("us-central1");
-//        mfunc.useEmulator("10.0.2.2",5001);
+        mAuth = FirebaseAuth.getInstance();
+        mAuth.useEmulator("10.0.2.2" , 9009);
+        mfunc=FirebaseFunctions.getInstance();
+        mfunc.useEmulator("10.0.2.2",5001);
+        v = inflater.inflate(R.layout.fragment_add_new_card, container, false);
+
         return v;
     }
 
@@ -417,7 +418,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                     e.printStackTrace();
                 }
 
-                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_ADD_EXPENSES_CARDS, data, new Response.Listener<JSONObject>() {
+                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_ADD_TASK_CARDS, data, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         dismiss();

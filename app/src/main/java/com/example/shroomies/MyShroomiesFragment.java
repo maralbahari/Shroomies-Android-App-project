@@ -112,10 +112,11 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
          mDatabase= FirebaseDatabase.getInstance();
 //         mDatabase.useEmulator("10.0.2.2",9000);
          rootRef=mDatabase.getReference();
-         mAuth = FirebaseAuth.getInstance();
-//         mAuth.useEmulator("10.0.2.2",9099);
+
+        mAuth = FirebaseAuth.getInstance();
+        mAuth.useEmulator("10.0.2.2" , 9009);
         mfunc=FirebaseFunctions.getInstance();
-//         mfunc.useEmulator("10.0.2.2",5001);
+        mfunc.useEmulator("10.0.2.2",5001);
 
          getUserToken();
 
@@ -519,19 +520,16 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
             expensesCardAdapter.notifyDataSetChanged();
         }
         else if(tab.equals("tasks")){
-            tasksCardsList.sort(new Comparator<TasksCard>() {
-                @Override
-                public int compare(TasksCard o1, TasksCard o2) {
-                    int colorO1=Integer.parseInt(o1.getImportance());
-                    int colorO2=Integer.parseInt(o2.getImportance());
+            tasksCardsList.sort((o1, o2) -> {
+                int colorO1=Integer.parseInt(o1.getImportance());
+                int colorO2=Integer.parseInt(o2.getImportance());
 
-                    if (colorO1<colorO2){
-                        return 1;
-                    }else {
-                        return -1;
-                    }
-
+                if (colorO1<colorO2){
+                    return 1;
+                }else {
+                    return -1;
                 }
+
             });
             tasksCardAdapter.notifyDataSetChanged();
 

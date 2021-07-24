@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
         drawerLayout.setTouchMode(ElasticDrawer.TOUCH_MODE_FULLSCREEN);
         toolbar =  findViewById(R.id.toolbar);
 
-        getFragment(new FindRoommate());
+//        getFragment(new FindRoommate());
         setSupportActionBar(toolbar);
 //
 //        barDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open, R.string.close);
@@ -168,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent( getApplicationContext(), MyShroomiesActivity.class));
             }
         });
-        setBadgeToNumberOfNotifications(rootRef,mAuth);
+//        setBadgeToNumberOfNotifications(rootRef,mAuth);
 
 
 
@@ -279,20 +279,20 @@ public class MainActivity extends AppCompatActivity {
 //
 //    }
     private void loadUserDetails(){
-        rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.exists()){
-                    user=snapshot.getValue(User.class);
-//                    updateNavHead();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
+//        rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                if(snapshot.exists()){
+//                    user=snapshot.getValue(User.class);
+////                    updateNavHead();
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//
+//            }
+//        });
     }
 
 

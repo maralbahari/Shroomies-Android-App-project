@@ -129,12 +129,12 @@ public class FirebaseMessaging  extends FirebaseMessagingService {
     @Override
     public void onNewToken(@NonNull String s){
         super.onNewToken(s);
-        updateToken(s);
+//        updateToken(s);
     }
     private void updateToken(String tokenReferesh){
-        String userID= FirebaseAuth.getInstance().getCurrentUser().getUid();
-        DatabaseReference ref= FirebaseDatabase.getInstance().getReference("Token");
-        Token token= new Token(tokenReferesh);
-        ref.child(userID).setValue(token);
+//        String userID= FirebaseAuth.getInstance().getCurrentUser().getUid();
+//        DatabaseReference ref= FirebaseDatabase.getInstance().getReference("Token");
+//        Token token= new Token(tokenReferesh);
+//        ref.child(userID).setValue(token);
     }
 }

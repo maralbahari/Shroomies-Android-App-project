@@ -22,6 +22,12 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,6 +36,8 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -38,9 +46,12 @@ import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.HttpsCallableResult;
+import com.google.gson.JsonObject;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -61,6 +72,7 @@ public class Members extends Fragment {
     private FirebaseAuth mAuth;
     private DatabaseReference rootRef;
     private FirebaseFunctions mfunc;
+    private RequestQueue requestQueue;
     //data structures
     private ArrayList<User> membersList;
     private UserAdapter userAdapter;
@@ -74,10 +86,12 @@ public class Members extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         v =inflater.inflate(R.layout.fragment_shroomie_members, container, false);
+        requestQueue = Volley.newRequestQueue(getActivity());
         mAuth = FirebaseAuth.getInstance();
-        rootRef = FirebaseDatabase.getInstance().getReference();
+        mAuth.useEmulator("10.0.2.2" , 9009);
         mfunc=FirebaseFunctions.getInstance();
         mfunc.useEmulator("10.0.2.2",5001);
+        rootRef = FirebaseDatabase.getInstance().getReference();
         return v;
     }
 
@@ -198,24 +212,40 @@ public class Members extends Fragment {
     }
 
     private void leaveApartment(){
-        // Converting user to a map that can be read by cloud functions
-        Map<String, String> map = new HashMap<>();
-        map.put("apartmentID" , apartment.getApartmentID());
-        map.put("userID" , mAuth.getCurrentUser().getUid());
-        mfunc.getHttpsCallable(Config.FUNCTION_LEAVE_APARTMENT).call(map).addOnCompleteListener(new OnCompleteListener<HttpsCallableResult>() {
+        JSONObject jsonObject = new JSONObject();
+        JSONObject data = new JSONObject();
+        try {
+            jsonObject.put("apartmentID" , apartment.getApartmentID());
+            jsonObject.put("userID" , mAuth.getCurrentUser().getUid());
+            data.put("data", jsonObject);
+        } catch (JSONException e) {
+            //todo handle error
+            e.printStackTrace();
+        }
+
+        FirebaseUser firebaseUser = mAuth.getCurrentUser();
+        firebaseUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
             @Override
-            public void onComplete(@NonNull @NotNull Task<HttpsCallableResult> task) {
-                if(task.isSuccessful()){
-                    getActivity().finish();
-                    //todo add progress bar and close
+            public void onComplete(@NonNull Task<GetTokenResult> task) {
+                if (task.isSuccessful()) {
+                    String token = task.getResult().getToken();
+
+                    JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_LEAVE_APARTMENT, data, new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            getActivity().finish();
+                        }
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            //todo  handle error
+                        }
+                    });
+                    requestQueue.add(jsonObjectRequest);
                 }
             }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull @NotNull Exception e) {
-                //todo handle error
-            }
-        });
+        }  );
+
     }
 
 //    private void leaveApartment(final String apartmentID) {
@@ -277,38 +307,69 @@ public class Members extends Fragment {
         userAdapter = new UserAdapter(membersList, getContext(),apartment,getView());
         membersRecyclerView.setAdapter(userAdapter);
 
-        HashMap data=new HashMap();
+        JSONObject jsonObject=new JSONObject();
+        JSONObject data = new JSONObject();
         JSONArray jsonArray = new JSONArray(members);
-        data.put("membersID",jsonArray);
-        FirebaseFunctions mfunc = FirebaseFunctions.getInstance();
-        mfunc.useEmulator("10.0.2.2",5001);
-        mfunc.getHttpsCallable("getMembersDetails").call(data).addOnCompleteListener(new OnCompleteListener<HttpsCallableResult>() {
-            @Override
-            public void onComplete(@NonNull @NotNull Task<HttpsCallableResult> task) {
-                if(task.isSuccessful()){
-                    final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
-                    ArrayList<HashMap> users = (ArrayList<HashMap>)task.getResult().getData();
-                    if(users!=null) {
-                        if (!users.isEmpty()) {
-                            for (HashMap userObject :
-                                    users) {
-                                User user = mapper.convertValue(userObject, User.class);
-                                //if the admin id corresponds to this user id then
-                                // set the details of the admin without adding to the recycler view
-                                if (user.getUserID().equals(apartment.getAdminID())) {
-                                    setAdminDetails(user);
-                                } else {
-                                    membersList.add(user);
-                                }
-                            }
-                            userAdapter.notifyDataSetChanged();
-                        }else{
-                            noMembersRelativeLayout.setVisibility(View.VISIBLE);
-                        }
-                    }else{
-                        noMembersRelativeLayout.setVisibility(View.VISIBLE);
-                    }
 
+        try {
+            jsonObject.put("membersID",jsonArray);
+            data.put("data" , jsonObject);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        FirebaseUser firebaseUser = mAuth.getCurrentUser();
+        firebaseUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+            @Override
+            public void onComplete(@NonNull Task<GetTokenResult> task) {
+                if(task.isSuccessful()){
+                    JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, Config.FUNCTION_GET_USER_DETAIL, data, new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
+                            JSONArray users = null;
+                            try {
+                                users = response.getJSONArray("result");
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            if(users!=null) {
+                                if (users.length()!=0) {
+
+                                    for (int i = 0 ; i<jsonArray.length();i++) {
+
+                                        User user = null;
+                                        try {
+                                            user = mapper.convertValue(jsonArray.get(i), User.class);
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                        //if the admin id corresponds to this user id then
+                                        // set the details of the admin without adding to the recycler view
+                                        if(user!=null) {
+                                            if (user.getUserID().equals(apartment.getAdminID())) {
+                                                setAdminDetails(user);
+                                            } else {
+                                                membersList.add(user);
+                                            }
+                                        }
+                                    }
+                                    userAdapter.notifyDataSetChanged();
+                                }else{
+                                    noMembersRelativeLayout.setVisibility(View.VISIBLE);
+                                }
+                            }else{
+                                noMembersRelativeLayout.setVisibility(View.VISIBLE);
+                            }
+
+
+                        }
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            //todo handle error
+                        }
+                    });
+                    requestQueue.add(jsonObjectRequest);
                 }
             }
         });
