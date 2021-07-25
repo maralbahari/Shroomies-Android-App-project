@@ -114,7 +114,7 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
          rootRef=mDatabase.getReference();
 
         mAuth = FirebaseAuth.getInstance();
-        mAuth.useEmulator("10.0.2.2" , 9009);
+        mAuth.useEmulator("10.0.2.2" , 9099);
         mfunc=FirebaseFunctions.getInstance();
         mfunc.useEmulator("10.0.2.2",5001);
 
@@ -307,14 +307,16 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
 
     private void getUserToken(){
         FirebaseUser firebaseUser = mAuth.getCurrentUser();
-        firebaseUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+        firebaseUser.getIdToken(false).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
             @Override
             public void onComplete(@NonNull Task<GetTokenResult> task) {
                 if(task.isSuccessful()) {
                     String token = task.getResult().getToken();
                     getApartmentDetails(token);
+                    Log.d("user error" , "works");
                 }else{
                     //todo handle error
+                    Log.d("user error" , task.getException().toString());
                 }
             }
         });
@@ -381,7 +383,7 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
                 }
 
             }
-        }, error -> Log.d("apartment no works" , error.networkResponse.data.toString()) )
+        }, error -> Log.d("apartment no works" , error.getMessage()) )
         {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {

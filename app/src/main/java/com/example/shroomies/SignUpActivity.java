@@ -71,7 +71,7 @@ public class SignUpActivity extends AppCompatActivity{
         register = findViewById(R.id.registerbt);
         mRootref = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
-//        mAuth.useEmulator("10.0.2.2",9099);
+        mAuth.useEmulator("10.0.2.2",9099);
         pd = new CustomLoadingProgressBar(SignUpActivity.this , "Creating account... " , R.raw.loading_animation);
 
         Boolean isEnabled;

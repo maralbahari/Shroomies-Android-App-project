@@ -137,7 +137,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
         requestQueue= Volley.newRequestQueue(getActivity());
         rootRef = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
-        mAuth.useEmulator("10.0.2.2" , 9009);
+        mAuth.useEmulator("10.0.2.2" , 9099);
         mfunc=FirebaseFunctions.getInstance();
         mfunc.useEmulator("10.0.2.2",5001);
         v = inflater.inflate(R.layout.fragment_add_new_card, container, false);
@@ -390,10 +390,11 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
 
     private void saveTaskCardToFirebase(String mtitle, String mdescription, String mdueDate, String importance, final String mMention, final String apartmentID) {
         FirebaseUser firebaseUser = mAuth.getCurrentUser();
-        firebaseUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+        firebaseUser.getIdToken(false).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
             @Override
             public void onComplete(@NonNull @NotNull Task<GetTokenResult> task) {
                 String token = task.getResult().getToken();
+                Log.d("task token" ,"recived" );
                 if (!mMention.isEmpty()) {
                     notify = true;
                 }
@@ -423,7 +424,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                     public void onResponse(JSONObject response) {
                         dismiss();
                     }
-                }, error -> Log.d("add card no works" , error.networkResponse.data.toString()) )
+                }, error -> Log.d("add card no works" , error.getMessage()) )
                 {
                     @Override
                     public Map<String, String> getHeaders() throws AuthFailureError {
@@ -478,7 +479,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
        //get the authorization token
         //if authorization token is recived then proceed
         FirebaseUser firebaseUser = mAuth.getCurrentUser();
-        firebaseUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+        firebaseUser.getIdToken(false).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
             @Override
             public void onComplete(@NonNull @NotNull Task<GetTokenResult> task) {
                 String token = task.getResult().getToken();

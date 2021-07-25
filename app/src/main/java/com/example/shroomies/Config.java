@@ -23,19 +23,19 @@ public class Config {
 //    public static final String FUNCTION_GET_ARCHIVE = "markingTaskCard";
 //    public static final String FUNCTION_SEARCH_USERS = "searchUserName";
 
-    public static final String URL_ADD_EXPENSES_CARDS = "http://localhost:5001/shroomies-e34d3/us-central1/addExpensesCard";
-    public static final String URL_ADD_TASK_CARDS = "http://localhost:5001/shroomies-e34d3/us-central1/addTasksCards";
-    public static final String URL_GET_APARTMENT_DETAILS = "http://localhost:5001/shroomies-e34d3/us-central1/getApartmentDetails";
-    public static final String FUNCTION_GET_USER_DETAIL = "http://localhost:5001/shroomies-e34d3/us-central1/getUserDetails";
-    public static final String FUNCTION_LEAVE_APARTMENT = "http://localhost:5001/shroomies-e34d3/us-central1/leaveApartment";
-    public static final String FUNCTION_DELETE_EXPENSE_CARD = "http://localhost:5001/shroomies-e34d3/us-central1/deleteExpensesCard";
-    public static final String FUNCTION_DELETE_TASK_CARD = "http://localhost:5001/shroomies-e34d3/us-central1/deleteTasksCard";
-    public static final String FUNCTION_ARCHIVE_TASKS_CARD = "http://localhost:5001/shroomies-e34d3/us-central1/archiveTasksCard";
-    public static final String FUNCTION_ARCHIVE_EXPENSES_CARD = "http://localhost:5001/shroomies-e34d3/us-central1/archiveExpensesCard";
-    public static final String FUNCTION_MARK_EXPENSES_CARD = "http://localhost:5001/shroomies-e34d3/us-central1/markingExpensesCard";
-    public static final String FUNCTION_MARK_TASK_CARD = "http://localhost:5001/shroomies-e34d3/us-central1/markingTaskCard";
-    public static final String FUNCTION_GET_ARCHIVE = "http://localhost:5001/shroomies-e34d3/us-central1/getArchivedCard";
-    public static final String FUNCTION_SEARCH_USERS = "http://localhost:5001/shroomies-e34d3/us-central1/searchUserName";
+    public static final String URL_ADD_EXPENSES_CARDS = "http://10.0.2.2:5001/shroomies-e34d3/us-central1/addExpensesCard";
+    public static final String URL_ADD_TASK_CARDS = "http://10.0.2.2:5001/shroomies-e34d3/us-central1/addTasksCards";
+    public static final String URL_GET_APARTMENT_DETAILS = "http://10.0.2.2:5001/shroomies-e34d3/us-central1/getApartmentDetails";
+    public static final String FUNCTION_GET_USER_DETAIL = "http://10.0.2.2:5001/shroomies-e34d3/us-central1/getUserDetails";
+    public static final String FUNCTION_LEAVE_APARTMENT = "http://10.0.2.2:5001/shroomies-e34d3/us-central1/leaveApartment";
+    public static final String FUNCTION_DELETE_EXPENSE_CARD = "http://10.0.2.2:5001/shroomies-e34d3/us-central1/deleteExpensesCard";
+    public static final String FUNCTION_DELETE_TASK_CARD = "http://10.0.2.2:5001/shroomies-e34d3/us-central1/deleteTasksCard";
+    public static final String FUNCTION_ARCHIVE_TASKS_CARD = "http://10.0.2.2:5001/shroomies-e34d3/us-central1/archiveTasksCard";
+    public static final String FUNCTION_ARCHIVE_EXPENSES_CARD = "http://10.0.2.2:5001/shroomies-e34d3/us-central1/archiveExpensesCard";
+    public static final String FUNCTION_MARK_EXPENSES_CARD = "http://10.0.2.2:5001/shroomies-e34d3/us-central1/markingExpensesCard";
+    public static final String FUNCTION_MARK_TASK_CARD = "http://10.0.2.2:5001/shroomies-e34d3/us-central1/markingTaskCard";
+    public static final String FUNCTION_GET_ARCHIVE = "http://10.0.2.2:5001/shroomies-e34d3/us-central1/getArchivedCard";
+    public static final String FUNCTION_SEARCH_USERS = "http://10.0.2.2:5001/shroomies-e34d3/us-central1/searchUserName";
 
 
 }

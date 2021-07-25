@@ -71,13 +71,13 @@ public class MainActivity extends AppCompatActivity {
         //Creating session in main activity
         rootRef = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
-        fUser=mAuth.getCurrentUser();
-        fUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
-            @Override
-            public void onComplete(@NonNull @NotNull Task<GetTokenResult> task) {
-                Toast.makeText(getApplicationContext(),"token:"+task.getResult().getToken(),Toast.LENGTH_LONG).show();
-            }
-        });
+//        fUser=mAuth.getCurrentUser();
+//        fUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+//            @Override
+//            public void onComplete(@NonNull @NotNull Task<GetTokenResult> task) {
+//                Toast.makeText(getApplicationContext(),"token:"+task.getResult().getToken(),Toast.LENGTH_LONG).show();
+//            }
+//        });
         logoutButton = findViewById(R.id.logout);
         logoutButton.setOnClickListener(new View.OnClickListener() {
             @Override
