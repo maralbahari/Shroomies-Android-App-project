@@ -11,32 +11,26 @@ import androidx.annotation.NonNull;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.HashMap;
 
 public class Home extends Application {
     SessionManager sessionManager;
-    FirebaseAuth mauth;
+    FirebaseAuth mAuth;
+    private FirebaseAuth.AuthStateListener authStateListener;
     @Override
     public void onCreate() {
         super.onCreate();
-        mauth=FirebaseAuth.getInstance();
-        FirebaseUser user=mauth.getCurrentUser();
-//        sessionManager= new SessionManager();
-//        String currentUserID=sessionManager.checkUsersLoggedIn(Home.this);
-        if(user!=null){
-//            sessionManager=new SessionManager(Home.this,currentUserID);
-//            HashMap userDetails=sessionManager.getUserDetail();
-//            if(sessionManager.checkUserEmailVerification(currentUserID)){
-//                Toast.makeText(Home.this,currentUserID,Toast.LENGTH_SHORT).show();
-                Intent intent= new Intent(getApplicationContext(),MainActivity.class);
-                intent.putExtra("ID",user.getUid());
-                intent.putExtra("EMAIL",user.getEmail());
-//                intent.putExtra("EMAIL",userDetails.get("EMAIL").toString());
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
-//            }
-        }
+        mAuth=FirebaseAuth.getInstance();
+                FirebaseUser user=mAuth.getCurrentUser();
+                if(user!=null && user.isEmailVerified()){
+                    mAuth.removeAuthStateListener(authStateListener);
+                    Intent intent= new Intent(getApplicationContext(),MainActivity.class);
+                    intent.putExtra("ID",user.getUid());
+                    intent.putExtra("EMAIL",user.getEmail());
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                }
     }
-
-
 }

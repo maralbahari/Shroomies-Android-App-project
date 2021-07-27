@@ -71,7 +71,7 @@ public class SignUpActivity extends AppCompatActivity{
         register = findViewById(R.id.registerbt);
         mRootref = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
-        mAuth.useEmulator("10.0.2.2",9099);
+//        mAuth.useEmulator("10.0.2.2",9099);
         pd = new CustomLoadingProgressBar(SignUpActivity.this , "Creating account... " , R.raw.loading_animation);
 
         Boolean isEnabled;
@@ -107,38 +107,47 @@ public class SignUpActivity extends AppCompatActivity{
             public void onSuccess(AuthResult authResult) {
                   pd.dismiss();
                   Toast.makeText(getApplicationContext(),"registered",Toast.LENGTH_LONG).show();
-//                final DatabaseReference ref= mRootref.child("apartments").push();
-//                apartmentID =ref.getKey();
-//                HashMap<String, Object> userDetails = new HashMap<>();
-//                userDetails.put("name", name);
-//                userDetails.put("email", email);
-//                userDetails.put("ID", mAuth.getCurrentUser().getUid());
-//                userDetails.put("image",""); //add later in edit profile
-//                userDetails.put("isPartOfRoom",apartmentID); //change later
-//                final HashMap<String,Object> apartmentDetails=new HashMap<>();
-//                apartmentDetails.put("apartmentID",apartmentID);
-//                apartmentDetails.put("ownerID",mAuth.getCurrentUser().getUid());
-//                mRootref.child("Users").child(mAuth.getCurrentUser().getUid()).setValue(userDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
-//                    @Override
-//                    public void onComplete(@NonNull Task<Void> task) {
-//                        if (task.isSuccessful()) {
-//                            ref.updateChildren(apartmentDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
-//                                @Override
-//                                public void onComplete(@NonNull Task<Void> task) {
-//                                    if(task.isSuccessful()){
-//                                        pd.dismiss();
-//                                        sendEmailVerification();
-//                                    }
-//                                }
-//                            });
-//                        }
-//                    }
-//                });
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
                 UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
                         .setDisplayName(name).build();
-                user.updateProfile(profileUpdates);
+                user.updateProfile(profileUpdates).addOnCompleteListener(new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull @NotNull Task<Void> task) {
+                        if(task.isSuccessful()) {
+                            final DatabaseReference ref = mRootref.child("apartments").push();
+                            apartmentID = ref.getKey();
+                            HashMap<String, Object> userDetails = new HashMap<>();
+                            userDetails.put("name", name);
+                            userDetails.put("email", email);
+                            userDetails.put("userID", mAuth.getCurrentUser().getUid());
+                            userDetails.put("image", ""); //add later in edit profile
+                            userDetails.put("apartmentID", apartmentID); //change later
+                            final HashMap<String, Object> apartmentDetails = new HashMap<>();
+                            apartmentDetails.put("apartmentID", apartmentID);
+                            apartmentDetails.put("adminID", mAuth.getCurrentUser().getUid());
+                            mRootref.child("users").child(mAuth.getCurrentUser().getUid()).setValue(userDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()) {
+                                        ref.updateChildren(apartmentDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                            @Override
+                                            public void onComplete(@NonNull Task<Void> task) {
+                                                if (task.isSuccessful()) {
+                                                    pd.dismiss();
+                                                    sendEmailVerification();
+//                                                    Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
+//                                                    startActivity(intent);
+//                                                    Toast.makeText(SignUpActivity.this, name+", you are a Shroomie now", Toast.LENGTH_SHORT).show();
+                                                }
+                                            }
+                                        });
+                                    }
+                                }
+                            });
+                        }
+                    }
+                });
             }
                 }).addOnFailureListener(new OnFailureListener() {
             @Override
@@ -158,9 +167,9 @@ public class SignUpActivity extends AppCompatActivity{
 
                     Toast.makeText(getApplicationContext(), "Registered Successfully. Verification email sent to " + user.getEmail(), Toast.LENGTH_SHORT).show();
                     getE3Token();
-//                    Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
-//                    startActivity(intent);
-                    //Toast.makeText(SignUpActivity.this, name+", you are a Shroomie now", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
+                    startActivity(intent);
+                    Toast.makeText(SignUpActivity.this, name+", you are a Shroomie now", Toast.LENGTH_SHORT).show();
                     //get public and private keys for Virgil e3 kit
                 }
                 else {
