@@ -123,14 +123,13 @@ import com.google.firebase.database.FirebaseDatabase;
         customLoadingProgressBar= new CustomLoadingProgressBar(getActivity(), "Searching..." , R.raw.search_anim);
         customLoadingProgressBar.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         apartmentList = new ArrayList<>();
+
         recyclerView = v.findViewById(R.id.apartment_recycler_view);
-
-
         toolbar  = getActivity().findViewById(R.id.toolbar);
         searchView = toolbar.findViewById(R.id.SVsearch_disc);
         optionsButton = toolbar.findViewById(R.id.search_settings);
-
         tabLayout = v.findViewById(R.id.tabLayout);
+
         staggeredGridLayoutManager =  new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         staggeredGridLayoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_NONE);
         staggeredGridLayoutManager.invalidateSpanAssignments();
@@ -425,8 +424,6 @@ import com.google.firebase.database.FirebaseDatabase;
                 closeProgressBarsSetOverPullListener();
             }
         });
-
-
     }
 
      private Query buildQuery() {

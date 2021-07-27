@@ -12,6 +12,15 @@ public class User implements Parcelable{
     private String image;
     private String userID;
     private float sharedAmount;
+    private boolean requestSent;
+
+    public boolean requestSent() {
+        return requestSent;
+    }
+
+    public void setRequestSent(boolean requestSent) {
+        this.requestSent = requestSent;
+    }
 
     public String getName() {
         return name;

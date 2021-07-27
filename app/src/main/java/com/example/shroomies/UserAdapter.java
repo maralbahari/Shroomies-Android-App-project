@@ -16,6 +16,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -31,6 +32,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -108,16 +111,10 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             holder.msgMember.setVisibility(View.GONE);
             holder.sendRequest.setVisibility(View.VISIBLE);
 
-//            if(!requestAlreadySent.isEmpty()){
-//                if(requestAlreadySent.get(userList.get(position).getUserID())){
-//                    holder.sendRequest.setVisibility(View.VISIBLE);
-//                    holder.sendRequest.setClickable(false);
-//                    holder.sendRequest.setText("Sent!");
-//                }else{
-//                    holder.sendRequest.setVisibility(View.VISIBLE);
-//                }
-//            }
-
+            if(userList.get(position).requestSent()){
+                holder.sendRequest.setClickable(false);
+                holder.sendRequest.setText("Sent!");
+            }
         }else{
             if (userList.get(position).getUserID().equals(mAuth.getInstance().getCurrentUser().getUid())){
                 holder.msgMember.setVisibility(View.INVISIBLE);
@@ -134,6 +131,16 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     public int getItemCount() {
         return userList.size();
     }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+    @Override
+    public int getItemViewType(int position) {
+        return position;
+    }
+
     public class UserViewHolder extends RecyclerView.ViewHolder {
         ImageView userImage;
         TextView userName;
@@ -192,34 +199,59 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             sendRequest.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    sendRequestToUser(userList.get(getAdapterPosition()).getUserID());
+                    sendRequestToUser(userList.get(getAdapterPosition()).getUserID() , apartment.getApartmentID());
                 }
             });
 
         }
-        private void sendRequestToUser(final String id) {
-            rootRef.child("shroomieRequests").child(mAuth.getCurrentUser().getUid()).child(id).child("requestType").setValue("sent").addOnCompleteListener(new OnCompleteListener<Void>() {
-                @Override
-                public void onComplete(@NonNull Task<Void> task) {
-                    if(task.isSuccessful()){
-                        rootRef.child("shroomieRequests").child(id).child(mAuth.getCurrentUser().getUid()).child("requestType").setValue("received").addOnCompleteListener(new OnCompleteListener<Void>() {
+        private void sendRequestToUser( String id , String  apartmentID) {
+            JSONObject  data = new JSONObject();
+            JSONObject jsonObject = new JSONObject();
+            try {
+                jsonObject.put("senderID" , mAuth.getCurrentUser().getUid());
+                jsonObject.put ("receiverID" , id);
+                jsonObject.put("apartmentID" , apartmentID);
+                data.put("data" , jsonObject);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+//            FirebaseUser firebaseUser = mAuth.getCurrentUser();
+//            firebaseUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+//                @Override
+//                public void onComplete(@NonNull Task<GetTokenResult> task) {
+////                    if (task.isSuccessful()) {
+//                        String token = task.getResult().getToken();
+                        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_SEND_REQUEST, data, new Response.Listener<JSONObject>() {
                             @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if(task.isSuccessful()){
-                                    Toast.makeText(context,"invitation has been sent",Toast.LENGTH_LONG).show();
-                                    sendRequest.setText("requested");
-                                    sendRequest.setClickable(false);
-//                                    saveToRequestsLog(apartment.getApartmentID(),id);
-//                                    sendNotification(id,senderName+" wants to be your shroomie");
-                                }else{
-                                    sendRequest.setClickable(true);
-                                }
+                            public void onResponse(JSONObject response) {
+                                sendRequest.setText("Sent!");
+                                sendRequest.setClickable(false);
+
+                            }
+                        }, new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+
                             }
                         });
+                        requestQueue.add(jsonObjectRequest);
+//                    }
+//                }
+//            })
+                        //        {
+//            @Override
+//            public Map<String, String> getHeaders() throws AuthFailureError {
+//                Map<String, String> params = new HashMap<String, String>();
+//                params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
+//                params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
+//                return params;
+//            }
+//        }
+                        ;
+
                     }
-                }
-            });
-    }
+
 //    private void getSenderName(){
 //            rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("name").addListenerForSingleValueEvent(new ValueEventListener() {
 //                @Override
@@ -328,8 +360,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
 //            }
 //        });
 //
-    }
+                }
 
 
-
-}
+            }

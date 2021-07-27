@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Request"
+    tools:context=".RequestFragment"
     android:background="@color/y">
 
         <com.google.android.material.tabs.TabLayout

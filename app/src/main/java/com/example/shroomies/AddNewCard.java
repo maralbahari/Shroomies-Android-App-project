@@ -6,12 +6,18 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.icu.text.NumberFormat;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Settings;
+import android.text.Editable;
+import android.text.Spanned;
+import android.text.style.StyleSpan;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -49,14 +55,16 @@ import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.example.shroomies.notifications.Data;
 import com.example.shroomies.notifications.Sender;
 import com.example.shroomies.notifications.Token;
-import com.google.android.gms.tasks.Continuation;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.common.net.HttpHeaders;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GetTokenResult;
@@ -67,20 +75,27 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ServerValue;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.functions.FirebaseFunctions;
-import com.google.firebase.functions.HttpsCallableResult;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.google.gson.Gson;
+
 import com.google.gson.JsonObject;
-import com.hendraanggrian.widget.SocialAutoCompleteTextView;
+import com.hendraanggrian.appcompat.socialview.Mention;
+import com.hendraanggrian.appcompat.widget.MentionArrayAdapter;
+import com.hendraanggrian.appcompat.widget.SocialAutoCompleteTextView;
+import com.hendraanggrian.appcompat.widget.SocialEditText;
+import com.hendraanggrian.appcompat.widget.SocialTextView;
+import com.hendraanggrian.appcompat.widget.SocialView;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
 
+
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -114,14 +129,13 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
     //fireBase
     private DatabaseReference rootRef;
     private FirebaseAuth mAuth;
-    FirebaseFunctions mfunc;
+    private FirebaseFunctions mfunc;
     private RequestQueue requestQueue;
+    private FirebaseStorage mStorage;
     //data structures
-    private ArrayList<String> memberUserNameArrayList;
     private ArrayList<User> apartmentMembersArrayList =new ArrayList<>();
     private HashMap<String, String> nameAndIdHashMap =new HashMap<>(), apartmentMembersHashMap =new HashMap<>();
     public HashMap<String, Integer> sharedAmountsHashMap;
-    private ArrayAdapter<String> userNamesList;
     //variables
     private ShroomiesApartment apartment;
     private boolean notify = false , expensesCardSelected;
@@ -140,6 +154,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
         mAuth.useEmulator("10.0.2.2" , 9099);
         mfunc=FirebaseFunctions.getInstance();
         mfunc.useEmulator("10.0.2.2",5001);
+        mStorage = FirebaseStorage.getInstance();
         v = inflater.inflate(R.layout.fragment_add_new_card, container, false);
 
         return v;
@@ -189,8 +204,12 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
 
         mentionAutoCompleteTextView.setMentionEnabled(true);
         mentionAutoCompleteTextView.setMentionColor(Color.BLUE);
+
         mentionAutoCompleteTextView.setHint("@mention");
         mentionAutoCompleteTextView.setTag("@");
+
+
+
 
         closeImageButton.setOnClickListener(view1 -> dismiss());
 
@@ -198,16 +217,16 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
         if (bundle != null) {
             expensesCardSelected = bundle.getBoolean("Expenses");
             apartment=bundle.getParcelable("APARTMENT_DETAILS");
-//            if(apartment.apartmentMembers!=null){
-//                apartmentMembersHashMap.putAll(apartment.getApartmentMembers());
-//                getMemberUserNames(apartmentMembersHashMap);
-//            }
+            if(apartment.apartmentMembers!=null){
+                apartmentMembersHashMap.putAll(apartment.getApartmentMembers());
+                getMemberUserNames(apartmentMembersHashMap);
+            }
+            Log.d("apartment add card" , apartment.getApartmentID());
             if (!expensesCardSelected) {
                 attachFileButton.setVisibility(View.GONE);
                 splitExpensesButton.setVisibility(View.GONE);
             }
         }
-
         deleteDueDateImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -261,7 +280,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                     addCardTextView.setText("Uploading");
                     //disable click on layout to prevent uploading before the current task is done;
                     addCardRelativeLayout.setClickable(false);
-                    String cardColor, mdescription, mtitle, mdueDate, mMention;
+                    String cardColor, mdescription, mtitle, mdueDate;
                     mdueDate = dueDateButton.getText().toString();
 
                     switch (cardColorRadioGroup.getCheckedRadioButtonId()) {
@@ -277,7 +296,10 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
 
                     mdescription = descriptionEditText.getText().toString();
                     mtitle = titleEditText.getText().toString();
-                    mMention = mentionAutoCompleteTextView.getText().toString().toLowerCase();
+
+                    //get the mentions as a map with keys and values of the user
+                    JSONObject mMention = getMentionsJSONObject(mentionAutoCompleteTextView.getMentions());
+
                     if (mtitle.isEmpty() || mdescription.isEmpty()) {
                         Snackbar.make(getView(), "Please insert Title and Description", BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.my_shroomies_add_text_view).show();
                         loadingLottieAnimationView.setVisibility(View.GONE);
@@ -285,7 +307,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                         addCardRelativeLayout.setClickable(true);
                     } else {
                         if (!expensesCardSelected) {
-                            saveTaskCardToFirebase(mtitle, mdescription, mdueDate, cardColor, mMention, "-Mf8__5s2axsertDtQSR");
+                            saveTaskCardToFirebase(mtitle, mdescription, mdueDate, cardColor, mMention, apartment.getApartmentID());
                         } else {
                             uploadImgToFirebaseStorage(mtitle, mdescription, mdueDate, cardColor, chosenImageUri, mMention, sharedAmountsHashMap);
                         }
@@ -328,16 +350,36 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
         requestQueue = Volley.newRequestQueue(getActivity());
     }
 
+    private JSONObject getMentionsJSONObject(List<String> userNames) {
+        JSONObject mentionedUsers = new JSONObject();
+        for(String username
+        :userNames){
+            String id = nameAndIdHashMap.get(username);
+            if(id!=null){
+                try {
+                    mentionedUsers.put(nameAndIdHashMap.get(username) , nameAndIdHashMap.get(username));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return mentionedUsers;
+    }
+
 
     private boolean checkMentions() {
-        //if the user didn't add any mentions return true
+//        if the user didn't add any mentions return true
         if(mentionAutoCompleteTextView.getText().toString().isEmpty()){
             return true;
         }
-        //check if the mention edit text contains escaped named (names the are not mentioned
-        if(!mentionAutoCompleteTextView.getText().equals(mentionAutoCompleteTextView.getMentions())){
-            Snackbar.make(getView(), "Please ensure the mentioned members belong to this group", BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.my_shroomies_add_text_view).show();
-            return false;
+        //check if the mention edit text contains escaped named (names the are not mentioned)
+        String[] mentions = mentionAutoCompleteTextView.getText().toString().split(" ");
+        for(String mention
+        :mentions){
+            if(!mention.startsWith("@")){
+                Snackbar.make(getView(), "Please ensure the mentioned members start with @", BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.my_shroomies_add_text_view).show();
+                return false;
+            }
         }
         //check if the mentioned users are in the member list
         for (Iterator<String>  iterator=
@@ -351,34 +393,81 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
         return true;
     }
 
-//    private void getMemberUserNames(final HashMap<String,String> membersHashMap) {
-//        memberUserNameArrayList =new ArrayList<>();
-//        userNamesList=  new ArrayAdapter<String>(getContext(),R.layout.support_simple_spinner_dropdown_item, memberUserNameArrayList);
-//        membersHashMap.put(apartment.getAdminID(),apartment.getAdminID());
-//        for (String id : membersHashMap.values()) {
-//            rootRef.child("Users").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
-//                @Override
-//                public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                    if (snapshot.exists()) {
-//                        User user = snapshot.getValue(User.class);
-//                        memberUserNameArrayList.add(user.getName());
-//                        apartmentMembersArrayList.add(user);
-//                        nameAndIdHashMap.put(user.getName(), user.getUserID());
-//                    }
-//                    mentionAutoCompleteTextView.setMentionAdapter(userNamesList);
+
+
+    private void getMemberUserNames(final HashMap<String,String> membersHashMap) {
+        ArrayList<String> members = new ArrayList<>();
+        //add the the admin to the members
+        if(apartment.getApartmentMembers()!=null){
+            members.addAll(apartment.getApartmentMembers().values());
+        }
+        members.add(apartment.getAdminID());
+        apartmentMembersArrayList = new ArrayList<>();
+        JSONObject jsonObject=new JSONObject();
+        JSONObject data = new JSONObject();
+        JSONArray jsonArray = new JSONArray(members);
+
+        try {
+            jsonObject.put("membersID",jsonArray);
+            data.put("data" , jsonObject);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+//        FirebaseUser firebaseUser = mAuth.getCurrentUser();
+//        firebaseUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+//            @Override
+//            public void onComplete(@NonNull Task<GetTokenResult> task) {
+//                if(task.isSuccessful()){
+//                    String token = task.getResult().getToken();
+
+                    JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_GET_MEMBER_DETAIL, data, new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
+                            JSONArray users = null;
+                            try {
+                                users = response.getJSONArray("result");
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            if(users!=null) {
+                                if (users.length()!=0) {
+                                    ArrayAdapter mentionAdapter = new MentionArrayAdapter(getActivity() , R.drawable.ic_user_profile_svgrepo_com);
+
+                                    for (int i = 0 ; i<jsonArray.length();i++) {
+                                        User user = null;
+                                        try {
+                                            user = mapper.readValue(users.get(i).toString(), User.class);
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        } catch (JsonMappingException e) {
+                                            e.printStackTrace();
+                                        } catch (JsonProcessingException e) {
+                                            e.printStackTrace();
+                                        }
+                                        if(user!=null) {
+                                            apartmentMembersArrayList.add(user);
+                                            nameAndIdHashMap.put(user.getName() , user.getUserID());
+                                            mentionAdapter.add(new Mention(user.getName(),null,user.getImage()));
+                                            mentionAutoCompleteTextView.setMentionAdapter(mentionAdapter);
+                                        }
+
+                                    }
+                                }
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            //todo handle error
+                        }
+                    });
+                    requestQueue.add(jsonObjectRequest);
 //                }
-//
-//                @Override
-//                public void onCancelled(@NonNull DatabaseError error) {
-//
-//
-//                }
-//            });
-//
-//
-//        }
-//
-//    }
+//            }
+//        });
+
+    }
 //    private void saveToAddLog(String apartmentID,HashMap<String,Object> newRecord){
 //
 //            DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
@@ -388,16 +477,16 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
 //
 //    }
 
-    private void saveTaskCardToFirebase(String mtitle, String mdescription, String mdueDate, String importance, final String mMention, final String apartmentID) {
-        FirebaseUser firebaseUser = mAuth.getCurrentUser();
-        firebaseUser.getIdToken(false).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
-            @Override
-            public void onComplete(@NonNull @NotNull Task<GetTokenResult> task) {
-                String token = task.getResult().getToken();
-                Log.d("task token" ,"recived" );
-                if (!mMention.isEmpty()) {
-                    notify = true;
-                }
+    private void saveTaskCardToFirebase(String mtitle, String mdescription, String mdueDate, String importance, JSONObject mMention, String apartmentID) {
+//        FirebaseUser firebaseUser = mAuth.getCurrentUser();
+//        firebaseUser.getIdToken(false).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+//            @Override
+//            public void onComplete(@NonNull @NotNull Task<GetTokenResult> task) {
+//                String token = task.getResult().getToken();
+//                Log.d("task token" ,"recived" );
+//                if (!mMention.isEmpty()) {
+//                    notify = true;
+//                }
                 JSONObject jsonObject = new JSONObject();
                 JSONObject data = new JSONObject();
                 JSONObject cardDetails = new JSONObject();
@@ -411,7 +500,8 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                     cardDetails.put("done", "false");
                     cardDetails.put("mention", mMention);
                     cardDetails.put("actor",mAuth.getCurrentUser().getUid());
-                    jsonObject.put("cardDetails" , cardDetails);
+
+                    jsonObject.put("cardDetails",cardDetails);
                     jsonObject.put("apartmentID" , apartmentID);
                     data.put("data",jsonObject);
 
@@ -425,18 +515,19 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                         dismiss();
                     }
                 }, error -> Log.d("add card no works" , error.getMessage()) )
-                {
-                    @Override
-                    public Map<String, String> getHeaders() throws AuthFailureError {
-                        Map<String, String> params = new HashMap<>();
-                        params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
-                        params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
-                        return params;
-                    }
-                };
+//                {
+//                    @Override
+//                    public Map<String, String> getHeaders() throws AuthFailureError {
+//                        Map<String, String> params = new HashMap<>();
+//                        params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
+//                        params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
+//                        return params;
+//                    }
+//                }
+                ;
                 requestQueue.add(jsonObjectRequest);
             }
-        });
+//        });
 
 
 //        ref.updateChildren(newCard).addOnCompleteListener(new OnCompleteListener<Void>() {
@@ -472,21 +563,22 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
 //
 //        }
 //        notify = false;
-    }
+//    }
 
 
-    public void addExpenseCard(String title, String description, String dueDate, String attachUrl , String fileType, String importance, final String mMention, final String apartmentID, final HashMap<String, Integer> shareAmounts) {
+    public void addExpenseCard(String title, String description, String dueDate, String attachUrl , String fileType, String importance, JSONObject mMention, String apartmentID, HashMap<String, Integer> shareAmounts) {
        //get the authorization token
         //if authorization token is recived then proceed
-        FirebaseUser firebaseUser = mAuth.getCurrentUser();
-        firebaseUser.getIdToken(false).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
-            @Override
-            public void onComplete(@NonNull @NotNull Task<GetTokenResult> task) {
-                String token = task.getResult().getToken();
+//        FirebaseUser firebaseUser = mAuth.getCurrentUser();
+//        firebaseUser.getIdToken(false).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+//            @Override
+//            public void onComplete(@NonNull @NotNull Task<GetTokenResult> task) {
+//                String token = task.getResult().getToken();
                 JSONObject jsonObject = new JSONObject();
                 JSONObject data  = new JSONObject();
+                JSONObject cardDetails = new JSONObject();
+
                 try {
-                    JSONObject cardDetails = new JSONObject();
                     cardDetails.put("description", description);
                     cardDetails.put("title", title);
                     cardDetails.put("dueDate", dueDate);
@@ -511,31 +603,32 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                 JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_ADD_EXPENSES_CARDS, data, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
-
+                        dismiss();
                     }
                 }, error -> Log.d("apartment no works" , error.networkResponse.data.toString()) )
-                {
-                    @Override
-                    public Map<String, String> getHeaders() throws AuthFailureError {
-                        Map<String, String> params = new HashMap<String, String>();
-                        params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
-                        params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
-                        return params;
-                    }
-                };
+//                {
+//                    @Override
+//                    public Map<String, String> getHeaders() throws AuthFailureError {
+//                        Map<String, String> params = new HashMap<String, String>();
+//                        params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
+//                        params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
+//                        return params;
+//                    }
+//                }
+                ;
                 requestQueue.add(jsonObjectRequest);
-            }
-        });
+//            }
+//        });
     }
 
 
-    public void uploadImgToFirebaseStorage(final String title, final String description, final String dueDate, final String importance, Uri imgUri , final String mMention,final HashMap<String, Integer> sharedAmounts) {
+    public void uploadImgToFirebaseStorage( String title,  String description,  String dueDate,  String importance, Uri imgUri , JSONObject mMention, HashMap<String, Integer> sharedAmounts) {
 
         if (imgUri == null) {
             addExpenseCard(title, description, dueDate, "" , "", importance, mMention,apartment.getApartmentID(),sharedAmounts);
         } else {
-            StorageReference storageReference = FirebaseStorage.getInstance().getReference();
-            StorageReference filePath = storageReference.child(apartment.getApartmentID()).child("Card post image").child(imgUri.getLastPathSegment() + fileExtension);
+
+            StorageReference filePath = mStorage.getReference().child(apartment.getApartmentID()).child("Card post image").child(imgUri.getLastPathSegment() + fileExtension);
             filePath.putFile(imgUri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {

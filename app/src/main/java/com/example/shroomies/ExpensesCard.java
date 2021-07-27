@@ -3,17 +3,66 @@ package com.example.shroomies;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import androidx.loader.content.Loader;
+
+import com.virgilsecurity.crypto.foundation.Hash;
+
 import java.util.HashMap;
 
 public class ExpensesCard implements Parcelable {
 
     String attachedFile, description, title,
             dueDate,importance,cardID,
-            done, mention, fileType,actor;
+            done, fileType,actor;
+    HashMap<String, String> mention;
 
     HashMap<String, Float> membersShares=new HashMap<String, Float>();
-    long date;
+    String date;
 
+
+    protected ExpensesCard(Parcel in) {
+        attachedFile = in.readString();
+        description = in.readString();
+        title = in.readString();
+        dueDate = in.readString();
+        importance = in.readString();
+        cardID = in.readString();
+        done = in.readString();
+        fileType = in.readString();
+        actor = in.readString();
+        date = in.readString();
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(attachedFile);
+        dest.writeString(description);
+        dest.writeString(title);
+        dest.writeString(dueDate);
+        dest.writeString(importance);
+        dest.writeString(cardID);
+        dest.writeString(done);
+        dest.writeString(fileType);
+        dest.writeString(actor);
+        dest.writeString(date);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<ExpensesCard> CREATOR = new Creator<ExpensesCard>() {
+        @Override
+        public ExpensesCard createFromParcel(Parcel in) {
+            return new ExpensesCard(in);
+        }
+
+        @Override
+        public ExpensesCard[] newArray(int size) {
+            return new ExpensesCard[size];
+        }
+    };
 
     public String getActor() {
         return actor;
@@ -30,7 +79,7 @@ public class ExpensesCard implements Parcelable {
     }
 
 
-    public ExpensesCard(String attachedFile, String description, String title, String dueDate, String importance, String members, String cardId, String done, String mention, HashMap<String, Float> membersShares) {
+    public ExpensesCard(String attachedFile, String description, String title, String dueDate, String importance, String members, String cardId, String done, HashMap<String,String> mention, HashMap<String, Float> membersShares) {
         this.attachedFile = attachedFile;
         this.description = description;
         this.title = title;
@@ -42,30 +91,8 @@ public class ExpensesCard implements Parcelable {
         this.membersShares=membersShares;
     }
 
-    protected ExpensesCard(Parcel in) {
-        attachedFile = in.readString();
-        description = in.readString();
-        title = in.readString();
-        dueDate = in.readString();
-        importance = in.readString();
-        date = in.readLong();
-        cardID = in.readString();
-        done = in.readString();
-        mention = in.readString();
-        membersShares=in.readHashMap(HashMap.class.getClassLoader());
-    }
 
-    public static final Creator<ExpensesCard> CREATOR = new Creator<ExpensesCard>() {
-        @Override
-        public ExpensesCard createFromParcel(Parcel in) {
-            return new ExpensesCard(in);
-        }
 
-        @Override
-        public ExpensesCard[] newArray(int size) {
-            return new ExpensesCard[size];
-        }
-    };
 
     public HashMap<String, Float> getMembersShares() {
         return membersShares;
@@ -75,11 +102,11 @@ public class ExpensesCard implements Parcelable {
         this.membersShares = membersShares;
     }
 
-    public String getMention() {
+    public HashMap<String,String> getMention() {
         return mention;
     }
 
-    public void setMention(String mention) {
+    public void setMention(HashMap<String , String > mention) {
         this.mention = mention;
     }
 
@@ -106,7 +133,7 @@ public class ExpensesCard implements Parcelable {
     }
 
 
-    public void setDate(long date) {
+    public void setDate(String date) {
         this.date = date;
     }
 
@@ -139,7 +166,7 @@ public class ExpensesCard implements Parcelable {
     }
 
 
-    public long getDate() {
+    public String getDate() {
         return date;
     }
 
@@ -151,22 +178,6 @@ public class ExpensesCard implements Parcelable {
         return done;
     }
 
-    @Override
-    public int describeContents() {
-        return 0;
-    }
 
-    @Override
-    public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeString(attachedFile);
-        parcel.writeString(description);
-        parcel.writeString(title);
-        parcel.writeString(dueDate);
-        parcel.writeString(importance);
-        parcel.writeLong(date);
-        parcel.writeString(cardID);
-        parcel.writeString(done);
-        parcel.writeString(mention);
-        parcel.writeMap(membersShares);
-    }
+
 }

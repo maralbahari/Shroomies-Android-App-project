@@ -112,7 +112,7 @@
 
 
 
-    <com.hendraanggrian.widget.SocialAutoCompleteTextView
+    <com.hendraanggrian.appcompat.widget.SocialAutoCompleteTextView
         android:gravity="center"
         android:id="@+id/tag_shroomie"
         android:layout_width="match_parent"
@@ -124,6 +124,7 @@
         android:hint=" @Tag a shroomie"
         android:elevation="3dp"
         />
+
 
     <LinearLayout
         android:id="@+id/my_shroomies_linear_layout"

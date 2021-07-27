@@ -39,7 +39,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.hendraanggrian.widget.SocialTextView;
+import com.hendraanggrian.appcompat.widget.SocialTextView;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
@@ -131,15 +131,16 @@ public class ViewCards extends DialogFragment {
                 title.setText(tasksCard.getTitle());
                 String due= tasksCard.getDueDate();
                 String descriptionCard=tasksCard.getDescription();
-                String mentions=tasksCard.getMention();
+//                String mentions=tasksCard.getMention();
                 String importance=tasksCard.getImportance();
                 if(!due.isEmpty() ){
                     dueDate.setText(due);
                 }if(!descriptionCard.isEmpty()){
                     description.setText(descriptionCard);
-                }if(!mentions.isEmpty()){
-                    mention.setText(mentions);
                 }
+//                if(!mentions.isEmpty()){
+//                    mention.setText(mentions);
+//                }
                 if(!importance.isEmpty() ){
                     switch (importance) {
                         case  "2":
@@ -158,7 +159,7 @@ public class ViewCards extends DialogFragment {
                 title.setText(expensesCard.getTitle());
                 String due= expensesCard.getDueDate();
                 String descriptionCard=expensesCard.getDescription();
-                String mentions=expensesCard.getMention();
+//                String mentions=expensesCard.getMention();
                 String importance=expensesCard.getImportance();
                 String fileType = expensesCard.getFileType();
                 imagePath=expensesCard.getAttachedFile();
@@ -172,10 +173,11 @@ public class ViewCards extends DialogFragment {
                     dueDate.setText(due);
                 }if(!descriptionCard.isEmpty()){
                     description.setText(descriptionCard);
-                }if(!mentions.isEmpty()){
-                    mention.setMentionColor(Color.BLUE);
-                    mention.setText(mentions);
                 }
+//                if(!mentions.isEmpty()){
+//                    mention.setMentionColor(Color.BLUE);
+//                    mention.setText(mentions);
+//                }
 
                         if(!importance.isEmpty() ){
                             switch (importance) {

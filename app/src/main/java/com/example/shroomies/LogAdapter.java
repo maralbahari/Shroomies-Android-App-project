@@ -39,8 +39,6 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
     private Context context;
     private ArrayList<apartmentLogs> apartmentLogsList;
     private HashMap<String , User> usersMap;
-    private String requestedUserName="";
-    private DatabaseReference rootRef;
     private Spannable cardName=new SpannableString("");
     private LogAdapterToMyshroomies logAdapterToMyshroomies;
     private Fragment targetedFragment;
@@ -55,7 +53,6 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
         this.targetedFragment = targetedFragment;
         this.usersMap = usersMap;
         this.fm = fm;
-        Log.wtf("userrr" , usersMap.toString());
 
 
     }
@@ -64,9 +61,7 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
     @Override
     public LogViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(context);
-
         v = layoutInflater.inflate(R.layout.log_card,parent,false);
-        rootRef=FirebaseDatabase.getInstance().getReference();
         return new LogViewHolder(v);
     }
 

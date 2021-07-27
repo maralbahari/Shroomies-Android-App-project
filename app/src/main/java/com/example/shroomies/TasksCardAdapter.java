@@ -16,25 +16,31 @@ import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ServerValue;
 import com.google.firebase.functions.FirebaseFunctions;
-import com.google.firebase.functions.HttpsCallableResult;
-import com.hendraanggrian.widget.SocialTextView;
+import com.hendraanggrian.appcompat.widget.SocialTextView;
 
-import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Map;
 
 
@@ -47,21 +53,23 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
     private FirebaseAuth mAuth;
     private ItemTouchHelper itemTouchHelper;
     private Boolean fromArchive;
-    private ShroomiesApartment apartment;
+    private String apartmentID;
     private FragmentManager fragmentManager;
     private View parentView;
     private FirebaseFunctions mfunc;
+    private RequestQueue requestQueue;
 
 
-    public TasksCardAdapter(ArrayList<TasksCard> tasksCardsList, Context context, boolean fromArchive, ShroomiesApartment apartment, FragmentManager fragmentManager, View parentView) {
+    public TasksCardAdapter(ArrayList<TasksCard> tasksCardsList, Context context, boolean fromArchive, String apartmentID, FragmentManager fragmentManager, View parentView) {
         this.tasksCardsList = tasksCardsList;
         this.context = context;
         this.fromArchive = fromArchive;
-        this.apartment = apartment;
+        this.apartmentID = apartmentID;
         this.fragmentManager = fragmentManager;
         this.parentView = parentView;
         mfunc = FirebaseFunctions.getInstance();
         mfunc.useEmulator("10.0.2.2", 5001);
+        requestQueue = Volley.newRequestQueue(context);
     }
 
 
@@ -130,7 +138,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
 //                            }
 //                        });
 //                    }
-                    markTaskCard(tasksCard.getCardID() , apartment.getApartmentID() , done.isChecked());
+                    markTaskCard(tasksCard.getCardID(), apartmentID, done.isChecked());
                 }
             });
 
@@ -186,9 +194,9 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         } else {
             holder.dueDateTextView.setText(tasksCardsList.get(position).getDueDate());
         }
-        if (!tasksCardsList.get(position).getMention().isEmpty()) {
+        if (tasksCardsList.get(position).getMention()!=null) {
             holder.mention.setVisibility(View.VISIBLE);
-            holder.mention.setText(tasksCardsList.get(position).getMention());
+//            holder.mention.setText(tasksCardsList.get(position).getMention());
         }
         String importanceView = tasksCardsList.get(position).getImportance();
         Boolean cardStatus = tasksCardsList.get(position).getDone().equals("true");
@@ -204,7 +212,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
             holder.archive.setVisibility(view.GONE);
             holder.done.setVisibility(View.GONE);
             holder.done.setVisibility(View.GONE);
-            holder.mention.setText(tasksCardsList.get(position).getMention());
+//            holder.mention.setText(tasksCardsList.get(position).getMention());
         }
 
         switch (importanceView) {
@@ -370,57 +378,132 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
 
     public void archive(final int position, final TasksCard tasksCard) {
         final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
-        Map<String, Object> map =
-                mapper.convertValue(tasksCard, new TypeReference<Map<String, Object>>() {
-                });
-        HashMap data = new HashMap();
-        data.put("apartmentID", apartment.getApartmentID());
-        data.put("cardDetails", map);
-        mfunc.getHttpsCallable(Config.FUNCTION_ARCHIVE_TASKS_CARD).call(data).addOnCompleteListener(new OnCompleteListener<HttpsCallableResult>() {
+        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+
+        JSONObject cardDetails = new JSONObject(mapper.convertValue(tasksCard, new TypeReference<Map<String, Object>>() {
+        }));
+        JSONObject data = new JSONObject();
+        JSONObject jsonObject = new JSONObject();
+        //        firebaseUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+//            @Override
+//            public void onComplete(@NonNull Task<GetTokenResult> task) {
+//                if(task.isSuccessful()){
+//                    String token = task.getResult().getToken();
+
+        try {
+            jsonObject.put("cardDetails", cardDetails);
+            jsonObject.put("apartmentID", apartmentID);
+            data.put("data", jsonObject);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_ARCHIVE_TASKS_CARD, data, new Response.Listener<JSONObject>() {
             @Override
-            public void onComplete(@NonNull @NotNull Task<HttpsCallableResult> task) {
-                if (task.isSuccessful()) {
-                    Snackbar.make(parentView, "Card archived", BaseTransientBottomBar.LENGTH_SHORT)
-                            .show();
-                    notifyItemRemoved(position);
-                }
+            public void onResponse(JSONObject response) {
+                Snackbar.make(parentView, "Card archived", BaseTransientBottomBar.LENGTH_SHORT)
+                        .show();
+                tasksCardsList.remove(position);
+                notifyItemRemoved(position);
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
             }
         });
+        requestQueue.add(jsonObjectRequest);
+//    }
+//}
+//}):
+
 
     }
-    public void deleteTasksCard(final int position){
 
-        HashMap data = new HashMap();
-        data.put("apartmentID" , apartment.getApartmentID());
-        data.put("cardID" , tasksCardsList.get(position).getCardID());
+    public void deleteTasksCard(final int position) {
 
-        mfunc.getHttpsCallable(Config.FUNCTION_DELETE_TASK_CARD).call(data).addOnCompleteListener(new OnCompleteListener<HttpsCallableResult>() {
-            @Override
-            public void onComplete(@NonNull @NotNull Task<HttpsCallableResult> task) {
-                if(task.isSuccessful()){
+        if(!fromArchive) {
+            JSONObject jsonObject = new JSONObject();
+            JSONObject data = new JSONObject();
+
+//        firebaseUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+//            @Override
+//            public void onComplete(@NonNull Task<GetTokenResult> task) {
+//                if(task.isSuccessful()){
+//                    String token = task.getResult().getToken();
+            try {
+                jsonObject.put("apartmentID", apartmentID);
+                jsonObject.put("cardID", tasksCardsList.get(position).getCardID());
+                data.put("data", jsonObject);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            String url = fromArchive ? Config.FUNCTION_DELETE_TASK_CARD_ARCHIVE:Config.FUNCTION_DELETE_TASK_CARD;
+
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url , data, new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
                     Snackbar snack = Snackbar.make(parentView, "Card deleted", BaseTransientBottomBar.LENGTH_SHORT);
                     snack.show();
+                    tasksCardsList.remove(position);
                     notifyItemRemoved(position);
                 }
-            }
-        });
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+
+                }
+            });
+            requestQueue.add(jsonObjectRequest);
+//    }
+//}
+//});
+        }else{
+
+        }
 
     }
-    private void markTaskCard(String cardID, String apartmentID, boolean checked) {
-        HashMap data = new HashMap();
-        data.put("apartmentID" , apartmentID);
-        data.put("cardID" ,cardID);
-        data.put("booleanValue" , checked);
 
-        mfunc.getHttpsCallable(Config.FUNCTION_MARK_TASK_CARD).call(data).addOnCompleteListener(new OnCompleteListener<HttpsCallableResult>() {
+
+
+    private void markTaskCard(String cardID, String apartmentID, boolean checked) {
+        JSONObject jsonObject = new JSONObject();
+        JSONObject data = new JSONObject();
+        FirebaseUser firebaseUser = mAuth.getCurrentUser();
+//        firebaseUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+//            @Override
+//            public void onComplete(@NonNull Task<GetTokenResult> task) {
+//                if(task.isSuccessful()){
+//                    String token = task.getResult().getToken();
+
+        try {
+            jsonObject.put("booleanValue" , checked);
+            jsonObject.put("apartmentID" , apartmentID);
+            jsonObject.put("cardID" ,cardID);
+            data.put("data" , jsonObject);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_MARK_TASK_CARD, data, new Response.Listener<JSONObject>() {
             @Override
-            public void onComplete(@NonNull Task<HttpsCallableResult> task) {
+            public void onResponse(JSONObject response) {
                 String done = "done";
                 if(!checked){ done = " not done"; }
                 Snackbar.make(parentView,"Card marked as"+done, BaseTransientBottomBar.LENGTH_SHORT)
                         .show();
             }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
         });
+        requestQueue.add(jsonObjectRequest);
+//                }
+//            }
+//        });
 
     }
 

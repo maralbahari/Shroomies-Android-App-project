@@ -29,34 +29,23 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GetTokenResult;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ServerValue;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.functions.FirebaseFunctions;
-import com.google.firebase.functions.HttpsCallableResult;
-import com.google.gson.JsonObject;
 
-import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 public class Members extends Fragment {
     //views
@@ -317,12 +306,14 @@ public class Members extends Fragment {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        FirebaseUser firebaseUser = mAuth.getCurrentUser();
-        firebaseUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
-            @Override
-            public void onComplete(@NonNull Task<GetTokenResult> task) {
-                if(task.isSuccessful()){
-                    JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.GET, Config.FUNCTION_GET_USER_DETAIL, data, new Response.Listener<JSONObject>() {
+
+//        FirebaseUser firebaseUser = mAuth.getCurrentUser();
+//        firebaseUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+//            @Override
+//            public void onComplete(@NonNull Task<GetTokenResult> task) {
+//                if(task.isSuccessful()){
+//                    String token = task.getResult().getToken();
+                    JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_GET_MEMBER_DETAIL, data, new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
                             final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
@@ -334,13 +325,15 @@ public class Members extends Fragment {
                             }
                             if(users!=null) {
                                 if (users.length()!=0) {
-
                                     for (int i = 0 ; i<jsonArray.length();i++) {
-
                                         User user = null;
                                         try {
-                                            user = mapper.convertValue(jsonArray.get(i), User.class);
+                                            user = mapper.readValue((users.get(i)).toString(), User.class);
                                         } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        } catch (JsonMappingException e) {
+                                            e.printStackTrace();
+                                        } catch (JsonProcessingException e) {
                                             e.printStackTrace();
                                         }
                                         //if the admin id corresponds to this user id then
@@ -370,9 +363,9 @@ public class Members extends Fragment {
                         }
                     });
                     requestQueue.add(jsonObjectRequest);
-                }
-            }
-        });
+//                }
+//            }
+//        });
 
     }
 

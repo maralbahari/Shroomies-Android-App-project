@@ -42,7 +42,7 @@ dependencies {
     implementation 'com.google.firebase:firebase-database:19.5.1'
     implementation 'androidx.wear:wear:1.0.0'
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
-    implementation 'com.google.firebase:firebase-storage:19.2.0'
+    implementation 'com.google.firebase:firebase-storage:20.0.0'
     implementation 'com.google.firebase:firebase-messaging:20.1.0'
     implementation 'androidx.preference:preference:1.1.1'
     compileOnly 'com.google.android.wearable:wearable:2.6.0'
@@ -89,8 +89,8 @@ dependencies {
     implementation platform('com.google.firebase:firebase-bom:26.5.0')
     implementation 'com.google.firebase:firebase-firestore'
     implementation 'com.firebase:geofire-android-common:3.1.0'
-    implementation 'com.hendraanggrian:socialview-commons:0.11.1'
-    implementation'com.hendraanggrian:socialview-core:0.11.1'
+    implementation "com.hendraanggrian.appcompat:socialview:0.2" // base library
+    implementation "com.hendraanggrian.appcompat:socialview-commons:0.2"
     implementation 'it.xabaras.android:recyclerview-swipedecorator:1.2.3'
     implementation 'com.nfx.android:range-bar-preference:0.0.6'
     implementation 'com.xw.repo:bubbleseekbar:3.20'

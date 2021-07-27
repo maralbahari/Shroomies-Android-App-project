@@ -29,6 +29,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.factor.bouncy.BouncyRecyclerView;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -118,7 +119,11 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
         mfunc=FirebaseFunctions.getInstance();
         mfunc.useEmulator("10.0.2.2",5001);
 
-         getUserToken();
+        //todo call get user token when function  is deployed
+
+//         getUserToken();
+        //todo comment this line
+        getApartmentDetails(null);
 
         myTasksRecyclerView = v.findViewById(R.id.my_tasks_recycler_view);
         memberButton = v.findViewById(R.id.my_shroomies_member_btn);
@@ -146,14 +151,7 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
         myTasksRecyclerView.setHasFixedSize(true);
         myTasksRecyclerView.setLayoutManager(linearLayoutManager1);
 
-        expensesCardsList=new ArrayList<>();
-        expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList,getActivity(), false,apartment,getActivity().getSupportFragmentManager(),rootlayout);
-        myExpensesRecyclerView.setAdapter(expensesCardAdapter);
 
-
-        tasksCardsList=new ArrayList<>();
-        tasksCardAdapter=new TasksCardAdapter(tasksCardsList,getActivity(),false,apartment,getActivity().getSupportFragmentManager(),rootlayout);
-        myTasksRecyclerView.setAdapter(tasksCardAdapter);
 
         rootlayout.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
             @Override
@@ -248,7 +246,6 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
 
                 ArchiveFragment archiveFragment = new ArchiveFragment();
                 Bundle bundle=new Bundle();
-
                 bundle.putString("apartmentID",apartment.getApartmentID());
                 archiveFragment.setArguments(bundle);
                 fm = getActivity().getSupportFragmentManager();
@@ -286,8 +283,11 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
                     ArrayList<String> members = new ArrayList(apartment.getApartmentMembers().values());
                     members.add(apartment.getAdminID());
                     bundle.putStringArrayList("MEMBERS" ,members);
-                    Log.d("members" ,  new ArrayList(apartment.getApartmentMembers().values()).toString());
 
+                }else{
+                    ArrayList<String> members = new ArrayList();
+                    members.add(apartment.getAdminID());
+                    bundle.putStringArrayList("MEMBERS" ,members);
                 }
                 logFragment.setArguments(bundle);
                 logFragment.setTargetFragment(MyShroomiesFragment.this,RESULT_CODE);
@@ -304,23 +304,25 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
     }
 
 
+//todo uncomment when function is deployed
 
-    private void getUserToken(){
-        FirebaseUser firebaseUser = mAuth.getCurrentUser();
-        firebaseUser.getIdToken(false).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
-            @Override
-            public void onComplete(@NonNull Task<GetTokenResult> task) {
-                if(task.isSuccessful()) {
-                    String token = task.getResult().getToken();
-                    getApartmentDetails(token);
-                    Log.d("user error" , "works");
-                }else{
-                    //todo handle error
-                    Log.d("user error" , task.getException().toString());
-                }
-            }
-        });
-    }
+//    private void getUserToken(){
+//        FirebaseUser firebaseUser = mAuth.getCurrentUser();
+//        firebaseUser.getIdToken(false).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+//            @Override
+//            public void onComplete(@NonNull Task<GetTokenResult> task) {
+//                if(task.isSuccessful()) {
+//                    String token = task.getResult().getToken();
+//                    getApartmentDetails(token);
+//                    Log.d("user error" , "works");
+//                }else{
+//                    //todo handle error
+//                    Log.d("user error" , task.getException().toString());
+//                }
+//            }
+//        });
+//    }
+
     private void getApartmentDetails(String  token){
         JSONObject jsonObject = new JSONObject();
         JSONObject data  = new JSONObject();
@@ -335,22 +337,29 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_GET_APARTMENT_DETAILS, data, new Response.Listener<JSONObject>() {
             @Override
             public void onResponse(JSONObject response) {
-                Log.d("apartment works" , response.toString());
-
                 final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
                 mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+                JSONObject result= null;
                 try {
-                    apartment = mapper.convertValue(response.get("result"), ShroomiesApartment.class);
+                    result = (JSONObject) response.get("result");
                 } catch (JSONException e) {
                     e.printStackTrace();
-                    //handle error
                 }
+                try {
+                    apartment = mapper.readValue(result.toString(), ShroomiesApartment.class);
+                } catch (JsonProcessingException e) {
+                    e.printStackTrace();
+                }
+//                    Log.d("apartment works" , apartment.getApartmentID().toString());
+
                 if (apartment.getExpensesCard() != null) {
                     if (!apartment.getExpensesCard().isEmpty()) {
-                        expensesCardsList = new ArrayList<>(apartment.getExpensesCard().values());
-                        expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList, getActivity(), false, apartment, getChildFragmentManager(), rootlayout);
-                        myExpensesRecyclerView.setAdapter(expensesCardAdapter);
-                        expensesCardAdapter.notifyDataSetChanged();
+                        if(isAdded()) {
+                            expensesCardsList = new ArrayList<>(apartment.getExpensesCard().values());
+                            expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList, getActivity(), false, apartment.getApartmentID(), getChildFragmentManager(), rootlayout);
+                            myExpensesRecyclerView.setAdapter(expensesCardAdapter);
+                            expensesCardAdapter.notifyDataSetChanged();
+                        }
                     } else {
                         //TODO display empty expenses
                     }
@@ -360,9 +369,11 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
                 if (apartment.getTaskCard() != null) {
                     if (!apartment.getTaskCard().isEmpty()) {
                         tasksCardsList = new ArrayList<>(apartment.getTaskCard().values());
-                        tasksCardAdapter = new TasksCardAdapter(tasksCardsList, getActivity(), false, apartment, getChildFragmentManager(), rootlayout);
-                        tasksCardAdapter.notifyDataSetChanged();
-                        myTasksRecyclerView.setAdapter(tasksCardAdapter);
+                        if(isAdded()) {
+                            tasksCardAdapter = new TasksCardAdapter(tasksCardsList, getActivity(), false, apartment.getApartmentID(), getChildFragmentManager(), rootlayout);
+                            tasksCardAdapter.notifyDataSetChanged();
+                            myTasksRecyclerView.setAdapter(tasksCardAdapter);
+                        }
                     } else {
                         //TODO display empty tasks
                     }
@@ -384,15 +395,17 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
 
             }
         }, error -> Log.d("apartment no works" , error.getMessage()) )
-        {
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> params = new HashMap<String, String>();
-                params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
-                params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
-                return params;
-            }
-        };
+                //todo uncomment when function  is deployed
+//        {
+//            @Override
+//            public Map<String, String> getHeaders() throws AuthFailureError {
+//                Map<String, String> params = new HashMap<String, String>();
+//                params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
+//                params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
+//                return params;
+//            }
+//        }
+        ;
         requestQueue.add(jsonObjectRequest);
 
     }
@@ -407,10 +420,8 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
                 myExpensesRecyclerView.setVisibility(View.GONE);
                 myTasksRecyclerView.scrollToPosition(recyclerPosition);
             }else{
-
                 Snackbar snack=Snackbar.make(slidingLayout,"This card doesn't exist anymore", BaseTransientBottomBar.LENGTH_SHORT);
                 snack.show();
-
             }
         }
         if(selectedCardType.equals("expenses")){
@@ -445,10 +456,7 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
                 public int compare(ExpensesCard o1, ExpensesCard o2) {
                     Date dateO1 = new Date(o1.getDate());
                     Date dateO2 = new Date(o2.getDate());
-
-
                     return dateO1.compareTo(dateO2);
-
                 }
             });
             expensesCardAdapter.notifyDataSetChanged();

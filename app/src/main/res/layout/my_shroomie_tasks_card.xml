@@ -102,7 +102,7 @@
                 />
 
 
-            <com.hendraanggrian.widget.SocialTextView
+            <com.hendraanggrian.appcompat.widget.SocialTextView
                 android:id="@+id/task_mention_et"
                 android:elevation="5dp"
                 android:layout_width="wrap_content"

@@ -19,8 +19,17 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.factor.bouncy.BouncyRecyclerView;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
@@ -30,6 +39,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.google.firebase.functions.HttpsCallableResult;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -49,6 +62,7 @@ public class AddShroomieMember extends DialogFragment {
     private DatabaseReference rootRef;
     private FirebaseAuth mAuth;
     private FirebaseFunctions mfunc;
+    private RequestQueue requestQueue;
     //data
     private UserAdapter userRecyclerAdapter;
     private ArrayList<User> suggestedUser;
@@ -83,6 +97,7 @@ public class AddShroomieMember extends DialogFragment {
         mAuth=FirebaseAuth.getInstance();
         rootRef = FirebaseDatabase.getInstance().getReference();
         mfunc=FirebaseFunctions.getInstance();
+        requestQueue = Volley.newRequestQueue(getActivity());
 //        mfunc.useEmulator("10.0.2.2",5001);
         return v;
     }
@@ -120,6 +135,7 @@ public class AddShroomieMember extends DialogFragment {
                 if(suggestedUser!=null){
                     suggestedUser.clear();
                 }
+                memberSearchView.clearFocus();
                 searchUsers(s);
                 return true;
             }
@@ -180,49 +196,86 @@ public class AddShroomieMember extends DialogFragment {
 //        });
 //    }
     void searchUsers(String query){
-        suggestedUser = new ArrayList<>();
-        userRecyclerAdapter= new UserAdapter(suggestedUser,getContext(),true,apartment);
-        addShroomieRecycler.setAdapter(userRecyclerAdapter);
-        if(!query.trim().isEmpty()){
-            Map<String, String> map = new HashMap<>();
-            map.put("name" , query.trim());
-            mfunc.getHttpsCallable(Config.FUNCTION_SEARCH_USERS).withTimeout(1000, TimeUnit.SECONDS).call(map).addOnCompleteListener(new OnCompleteListener<HttpsCallableResult>() {
-                @Override
-                public void onComplete(@NonNull Task<HttpsCallableResult> task) {
-                    if(task.isSuccessful()){
-                        final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
-                        ArrayList<HashMap> users = (ArrayList<HashMap>)task.getResult().getData();
-                        if(users!=null) {
-                            if (!users.isEmpty()) {
-                                for (HashMap userObject :
-                                        users) {
-                                    User user = mapper.convertValue(userObject, User.class);
-                                    //check if the user is already in this apartment
-                                    if(apartment.getApartmentMembers()!=null){
-                                        if(!apartment.getApartmentMembers().containsKey(user.getUserID())){
-                                            suggestedUser.add(user);
-                                        }
 
-                                    }else{
+        if(!query.trim().isEmpty()){
+
+            suggestedUser = new ArrayList<>();
+            userRecyclerAdapter= new UserAdapter(suggestedUser,getContext(),true,apartment);
+            userRecyclerAdapter.setHasStableIds(true);
+            addShroomieRecycler.setAdapter(userRecyclerAdapter);
+
+            JSONObject jsonObject = new JSONObject();
+            JSONObject data =  new JSONObject();
+
+            try {
+                jsonObject.put("name" , query.trim());
+                jsonObject.put("currentUser" , mAuth.getCurrentUser().getUid());
+                data.put("data" , jsonObject);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_SEARCH_USERS, data, new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+
+
+                    JSONArray result = null;
+                    try {
+                         result = (JSONArray) response.get("result");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    if(result!=null){
+                        //the result is a jsonn array of json arrays
+                        //the nested json array contains 2 indeces
+                        // first index is the user object
+                        // and the second  index is a boolean value
+                        //indacting wether the current user has already
+                        // sent a request to the searched user
+                        final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
+                        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+
+                        for(int i= 0 ;i< result.length();i++){
+                            try {
+                                JSONArray jsonArray =((JSONArray)(result.get(i)));
+                                //cast the first index as a json object and the second as a boolean value
+                                JSONObject userJsonObject = (JSONObject) jsonArray.get(0);
+                                boolean requestSent = (boolean)jsonArray.get(1);
+                                User user =mapper.readValue(userJsonObject.toString() , User.class);
+                                user.setRequestSent(requestSent);
+
+                                if(apartment.getApartmentMembers()!=null){
+                                    if(!apartment.getApartmentMembers().containsKey(user.getUserID())){
                                         suggestedUser.add(user);
                                     }
+                                }else{
+                                    suggestedUser.add(user);
                                 }
-                                Log.d("users" , suggestedUser.toString());
-                                userRecyclerAdapter.notifyDataSetChanged();
-                                recommendedUsers.setVisibility(View.GONE);
 
-                            }else{
-                                Snackbar snack=Snackbar.make(getView(),"We couldn't find any matching user ", BaseTransientBottomBar.LENGTH_SHORT);
-                                snack.show();
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            } catch (JsonMappingException e) {
+                                e.printStackTrace();
+                            } catch (JsonProcessingException e) {
+                                e.printStackTrace();
                             }
-                        }else{
-                            Snackbar snack=Snackbar.make(getView(),"We couldn't find any matching user", BaseTransientBottomBar.LENGTH_SHORT);
-                            snack.show();
                         }
+                        userRecyclerAdapter.notifyDataSetChanged();
+                        recommendedUsers.setVisibility(View.GONE);
 
+                    }else{
+                        Snackbar snack=Snackbar.make(getView(),"We couldn't find any matching user", BaseTransientBottomBar.LENGTH_SHORT);
+                        snack.show();
                     }
                 }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+
+                }
             });
+            requestQueue.add(jsonObjectRequest);
+
         }
     }
 

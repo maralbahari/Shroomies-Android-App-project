@@ -3,18 +3,22 @@ package com.example.shroomies;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.virgilsecurity.crypto.foundation.Hash;
+
+import java.util.HashMap;
+
 public class TasksCard implements Parcelable {
 
     String actor ,description, title,dueDate,
             importance, members, cardID,
-            done,mention;
-
-    long  date;
+            done;
+    HashMap<String , String> mention;
+    String  date;
 
     public TasksCard() {
     }
 
-    public TasksCard(String description, String taskTitle, String taskDueDate, String taskImportance, long date, String taskCardId, String members, String done, String mention) {
+    public TasksCard(String description, String taskTitle, String taskDueDate, String taskImportance, String date, String taskCardId, String members, String done, HashMap<String, String> mention) {
         this.cardID = taskCardId;
         this.date = date;
         this.description = description;
@@ -26,16 +30,34 @@ public class TasksCard implements Parcelable {
         this.mention = mention;
     }
 
+
     protected TasksCard(Parcel in) {
+        actor = in.readString();
         description = in.readString();
         title = in.readString();
         dueDate = in.readString();
         importance = in.readString();
         members = in.readString();
-        date = in.readLong();
         cardID = in.readString();
         done = in.readString();
-        mention = in.readString();
+        date = in.readString();
+    }
+
+    public HashMap<String, String> getMention() {
+        return mention;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(actor);
+        dest.writeString(description);
+        dest.writeString(title);
+        dest.writeString(dueDate);
+        dest.writeString(importance);
+        dest.writeString(members);
+        dest.writeString(cardID);
+        dest.writeString(done);
+        dest.writeString(date);
     }
 
     public static final Creator<TasksCard> CREATOR = new Creator<TasksCard>() {
@@ -50,9 +72,6 @@ public class TasksCard implements Parcelable {
         }
     };
 
-    public String getMention() {
-        return mention;
-    }
     public String getActor() {
         return actor;
     }
@@ -61,9 +80,6 @@ public class TasksCard implements Parcelable {
         this.actor = actor;
     }
 
-    public void setMention(String mention) {
-        this.mention = mention;
-    }
 
     public void setDescription(String description) {
         this.description = description;
@@ -85,7 +101,7 @@ public class TasksCard implements Parcelable {
         this.members = members;
     }
 
-    public void setDate(long date) {
+    public void setDate(String date) {
         this.date = date;
     }
 
@@ -117,7 +133,7 @@ public class TasksCard implements Parcelable {
         return members;
     }
 
-    public long getDate() {
+    public String getDate() {
         return date;
     }
 
@@ -134,16 +150,5 @@ public class TasksCard implements Parcelable {
         return 0;
     }
 
-    @Override
-    public void writeToParcel(Parcel parcel, int i) {
-        parcel.writeString(description);
-        parcel.writeString(title);
-        parcel.writeString(dueDate);
-        parcel.writeString(importance);
-        parcel.writeString(members);
-        parcel.writeLong(date);
-        parcel.writeString(cardID);
-        parcel.writeString(done);
-        parcel.writeString(mention);
-    }
+
 }
