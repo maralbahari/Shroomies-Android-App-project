@@ -69,24 +69,29 @@
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-
-        <activity android:name=".GroupChattingActivity"
-            android:parentActivityName=".MessageInbox"
-            android:screenOrientation="portrait"
-            />
-        <activity android:name=".ChattingActivity"
+        <intent-filter>
+            <action android:name=".GroupChattingActivity"
+                android:parentActivityName=".MessageInbox"
+                android:screenOrientation="portrait"
+                />
+        </intent-filter>
+        <intent-filter>
+        <action android:name=".ChattingActivity"
             android:parentActivityName=".MessageInbox"
             android:screenOrientation="portrait"/>
+        </intent-filter>
         <activity android:name=".ResetPassword"
             android:screenOrientation="portrait"/>
-        <activity android:name=".MainActivity"
+        <intent-filter>
+        <action android:name=".MainActivity"
             android:screenOrientation="portrait"/>
+        </intent-filter>
         <activity android:name=".SignUpActivity"
             android:screenOrientation="portrait"/>
         <activity android:name=".ApartmentViewPage"
             android:parentActivityName=".MainActivity"
-            android:screenOrientation="portrait"/>
-
+            android:screenOrientation="portrait">
+        </activity>
         <activity android:name=".MessageInbox"
             android:parentActivityName=".MainActivity"
             android:screenOrientation="portrait"/>
@@ -95,7 +100,6 @@
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

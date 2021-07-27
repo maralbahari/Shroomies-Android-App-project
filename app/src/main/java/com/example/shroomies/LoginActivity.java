@@ -31,6 +31,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseAuthInvalidUserException;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -59,19 +60,20 @@ public class LoginActivity extends AppCompatActivity {
     SessionManager sessionManager;
     public static EThree eThree;
     private String token;
-    private FirebaseAuth.AuthStateListener authStateListener;
+    private DatabaseReference rootRef;
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        mAuth.addAuthStateListener(authStateListener);
-    }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        mAuth.removeAuthStateListener(authStateListener);
-    }
+//    @Override
+//    protected void onStart() {
+//        super.onStart();
+//        mAuth.addAuthStateListener(authStateListener);
+//    }
+//
+//    @Override
+//    protected void onStop() {
+//        super.onStop();
+//        mAuth.removeAuthStateListener(authStateListener);
+//    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,8 +81,9 @@ public class LoginActivity extends AppCompatActivity {
 
         FirebaseApp.initializeApp(getApplicationContext());
         mAuth = FirebaseAuth.getInstance();
+        rootRef=FirebaseDatabase.getInstance().getReference();
 
-        mAuth.useEmulator("10.0.2.2" , 9009);
+//        mAuth.useEmulator("10.0.2.2" , 9009);
 
         setContentView(R.layout.activity_login);
         username=findViewById(R.id.email_login);
@@ -91,41 +94,35 @@ public class LoginActivity extends AppCompatActivity {
         forgotPassword=findViewById(R.id.forgot_password_login);
 //        progressBar=findViewById(R.id.progressBar_login);
 
-        authStateListener = new FirebaseAuth.AuthStateListener() {
-            @Override
-            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-                FirebaseUser firebaseUser = mAuth.getCurrentUser();
-                if(firebaseUser!=null){
-                    String userID =mAuth.getCurrentUser().getUid();
-                    String userEmail =mAuth.getCurrentUser().getEmail();
-                    sessionManager= new SessionManager(LoginActivity.this,userID);
-                    sessionManager.createSession(userID,userEmail);
-                    sessionManager.setVerifiedEmail(mAuth.getCurrentUser().isEmailVerified());
-                    sessionManager.setVerifiedEmail(true);
-                    getE3Token();
-                    Toast.makeText(LoginActivity.this, "Welcome to Shroomies! ", Toast.LENGTH_SHORT).show();
-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                    intent.putExtra("ID",userID);
-                    intent.putExtra("EMAIL",userEmail);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(intent);
-                }
-            }
-        };
+//        authStateListener = new FirebaseAuth.AuthStateListener() {
+//            @Override
+//            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
+//                FirebaseUser firebaseUser = mAuth.getCurrentUser();
+//                if(firebaseUser!=null && firebaseUser.isEmailVerified()){
+//                    String userID =mAuth.getCurrentUser().getUid();
+//                    String userEmail =mAuth.getCurrentUser().getEmail();
+//                    Toast.makeText(LoginActivity.this, "Welcome to Shroomies! ", Toast.LENGTH_SHORT).show();
+//                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+//                    intent.putExtra("ID",userID);
+//                    intent.putExtra("EMAIL",userEmail);
+//                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+//                    startActivity(intent);
+//                }
+//            }
+//        };
 
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.default_web_client_id))
-                .requestEmail()
-                .build();
 
-        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
         google_sign.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                        .requestIdToken(getString(R.string.default_web_client_id))
+                        .requestEmail()
+                        .build();
+                mGoogleSignInClient = GoogleSignIn.getClient(LoginActivity.this,gso);
                 signIn();
             }
         });
-
         forgotPassword.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -146,6 +143,7 @@ public class LoginActivity extends AppCompatActivity {
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
                 loginUser();
 
             }
@@ -169,45 +167,44 @@ public class LoginActivity extends AppCompatActivity {
                 public void onComplete(@NonNull Task<AuthResult> task) {
 
                     if (task.isSuccessful()){
-//                        progressBar.dismiss();
-//                        if(mAuth.getCurrentUser().isEmailVerified()){
-//                            String userID =mAuth.getCurrentUser().getUid();
-//                            String userEmail =mAuth.getCurrentUser().getEmail();
+                        progressBar.dismiss();
+                        if(mAuth.getCurrentUser().isEmailVerified()){
+                            FirebaseUser user =mAuth.getCurrentUser();
+                            String userID =user.getUid();
+                            String userEmail =user.getEmail();
 //                            sessionManager= new SessionManager(LoginActivity.this,userID);
 //                            sessionManager.createSession(userID,userEmail);
 //                            sessionManager.setVerifiedEmail(mAuth.getCurrentUser().isEmailVerified());
 //                            sessionManager.setVerifiedEmail(true);
-//                            getE3Token();
-//                            Toast.makeText(LoginActivity.this, "Welcome to Shroomies! ", Toast.LENGTH_SHORT).show();
-//                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-//                            intent.putExtra("ID",userID);
-//                            intent.putExtra("EMAIL",userEmail);
-//                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//                            startActivity(intent);
-//                        }
-//                        if(!(mAuth.getCurrentUser().isEmailVerified())){
-//                            username.setText("");
-//                            password.setText("");
-//                            progressBar.dismiss();
-//                            Toast.makeText(LoginActivity.this, "Please verify your email address", Toast.LENGTH_SHORT).show();
-//                            final FirebaseUser user = mAuth.getCurrentUser();
-//                            user.sendEmailVerification().addOnCompleteListener(LoginActivity.this, new OnCompleteListener<Void>() {
-//                                @Override
-//                                public void onComplete(@NonNull Task<Void> task) {
-//                                    login.setEnabled(true);
-//                                    if(task.isSuccessful()){
-//                                        Toast.makeText(LoginActivity.this, "a new verification email has been sent to"+user.getEmail(), Toast.LENGTH_SHORT).show();
-//                                        progressBar.dismiss();
-//                                    }
-//                                    else{
-//                                        Toast.makeText(LoginActivity.this, "failed to send email verification", Toast.LENGTH_SHORT).show();
-//                                        progressBar.dismiss();
-//                                    }
-//                                }
-//                            });
-//
-//
-//                        }
+                            getE3Token();
+                            Toast.makeText(LoginActivity.this, "Welcome to Shroomies! ", Toast.LENGTH_SHORT).show();
+                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                            intent.putExtra("ID",userID);
+                            intent.putExtra("EMAIL",userEmail);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            startActivity(intent);
+                        }
+                        if(!(mAuth.getCurrentUser().isEmailVerified())){
+                            username.setText("");
+                            password.setText("");
+                            progressBar.dismiss();
+                            Toast.makeText(LoginActivity.this, "Please verify your email address", Toast.LENGTH_SHORT).show();
+                            final FirebaseUser user = mAuth.getCurrentUser();
+                            user.sendEmailVerification().addOnCompleteListener(LoginActivity.this, new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    login.setEnabled(true);
+                                    if(task.isSuccessful()){
+                                        Toast.makeText(LoginActivity.this, "a new verification email has been sent to"+user.getEmail(), Toast.LENGTH_SHORT).show();
+                                        progressBar.dismiss();
+                                    }
+                                    else{
+                                        Toast.makeText(LoginActivity.this, "failed to send email verification", Toast.LENGTH_SHORT).show();
+                                        progressBar.dismiss();
+                                    }
+                                }
+                            });
+                        }
 
                     }else{
                         Toast.makeText(LoginActivity.this, task.getException().toString(), Toast.LENGTH_SHORT).show();
@@ -240,9 +237,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
             });
         }
-
     }
-
     private void signIn() {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
@@ -252,70 +247,75 @@ public class LoginActivity extends AppCompatActivity {
 
         if (requestCode == RC_SIGN_IN) {
             Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-            if(task.isSuccessful()){
+//            if (task.isSuccessful()) {
+                try {
+                    GoogleSignInAccount account = task.getResult(ApiException.class);
+                    firebaseAuthWithGoogle(account.getIdToken());
 
-            }
-            try {
+                } catch (ApiException e) {
+                    Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+//            } else {
+//                Toast.makeText(LoginActivity.this, "authentication failed, try again later", Toast.LENGTH_SHORT).show();
+//            }
 
-                GoogleSignInAccount account = task.getResult(ApiException.class);
-
-                firebaseAuthWithGoogle(account);
-            } catch (ApiException e) {
-                Toast.makeText(LoginActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-            }
+        }else {
+            Toast.makeText(LoginActivity.this, "authentication failed, try again later"+requestCode, Toast.LENGTH_SHORT).show();
         }
     }
-    private void firebaseAuthWithGoogle(GoogleSignInAccount acct) {
-        AuthCredential credential = GoogleAuthProvider.getCredential(acct.getIdToken(), null);
+    private void firebaseAuthWithGoogle(String tokenID) {
+        AuthCredential credential = GoogleAuthProvider.getCredential(tokenID, null);
         mAuth.signInWithCredential(credential).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()){
                     FirebaseUser user = mAuth.getCurrentUser();
                     if(task.getResult().getAdditionalUserInfo().isNewUser()){
-                        DatabaseReference mRootref = FirebaseDatabase.getInstance().getReference("Users");
-                        HashMap<String, Object> userDetails = new HashMap<>();
-                        userDetails.put("name","" );
-                        userDetails.put("email", user.getEmail());
-                        userDetails.put("ID", mAuth.getCurrentUser().getUid());
-                        userDetails.put("image",""); //add later in edit profile
-                        userDetails.put("isPartOfRoom", mAuth.getCurrentUser().getUid());// change later
-                        mRootref.child("Users").child(mAuth.getCurrentUser().getUid()).setValue(userDetails).addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                String userID =mAuth.getCurrentUser().getUid();
-                                String userEmail =mAuth.getCurrentUser().getEmail();
-                                sessionManager= new SessionManager(LoginActivity.this,userID);
-                                sessionManager.createSession(userID,userEmail);
-                                sessionManager.setVerifiedEmail(true);
-
-                                Toast.makeText(LoginActivity.this, "signed in successfully", Toast.LENGTH_SHORT).show();
-
-                            }
-
-
-                        });
+                        addNewUserTodatabase(user,task);
                     }else{
-                        String userID =mAuth.getCurrentUser().getUid();
-                        String userEmail =mAuth.getCurrentUser().getEmail();
-                        sessionManager= new SessionManager(LoginActivity.this,userID);
-                        sessionManager.createSession(userID,userEmail);
-                        sessionManager.setVerifiedEmail(true);
                         Intent intent= new Intent(getApplicationContext(),MainActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        intent.putExtra("ID",user.getUid());
+                        intent.putExtra("EMAIL",user.getEmail());
                         startActivity(intent);
                         Toast.makeText(LoginActivity.this, "signed in successfully", Toast.LENGTH_SHORT).show();
                     }
                 }
                 else{
-
                     Toast.makeText(LoginActivity.this, "Authentication Failed", Toast.LENGTH_SHORT).show();
                 }
             }
         });
     }
-
-
+    private void addNewUserTodatabase(FirebaseUser user, Task<AuthResult> task){
+        final DatabaseReference apartmentRef = rootRef.child("apartments").push();
+        String apartmentID = apartmentRef.getKey();
+        HashMap<String, Object> userDetails = new HashMap<>();
+        userDetails.put("name",task.getResult().getAdditionalUserInfo().getUsername());
+        userDetails.put("email", user.getEmail());
+        userDetails.put("userID", user.getUid());
+        userDetails.put("image",""); //add later in edit profile
+        userDetails.put("apartmentID", user.getUid());// change later
+        HashMap<String, Object> apartmentDetails = new HashMap<>();
+        apartmentDetails.put("apartmentID", apartmentID);
+        apartmentDetails.put("adminID", user.getUid());
+        rootRef.child("users").child(user.getUid()).setValue(userDetails).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                apartmentRef.updateChildren(apartmentDetails).addOnSuccessListener(new OnSuccessListener<Void>() {
+                    @Override
+                    public void onSuccess(Void unused) {
+                        Toast.makeText(LoginActivity.this, "signed in successfully", Toast.LENGTH_SHORT).show();
+                        Intent intent= new Intent(getApplicationContext(),MainActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        intent.putExtra("ID",user.getUid());
+                        intent.putExtra("EMAIL",user.getEmail());
+                        startActivity(intent);
+                    }
+                });
+            }
+        });
+    }
     private void getE3Token() {
         com.virgilsecurity.common.callback.OnCompleteListener registerListener = new com.virgilsecurity.common.callback.OnCompleteListener() {
             @Override
