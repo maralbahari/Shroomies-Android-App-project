@@ -81,9 +81,9 @@ public class LoginActivity extends AppCompatActivity {
 
         FirebaseApp.initializeApp(getApplicationContext());
         mAuth = FirebaseAuth.getInstance();
+        FirebaseDatabase.getInstance().useEmulator("10.0.2.2",9000);
         rootRef=FirebaseDatabase.getInstance().getReference();
-
-//        mAuth.useEmulator("10.0.2.2" , 9009);
+        mAuth.useEmulator("10.0.2.2" , 9099);
 
         setContentView(R.layout.activity_login);
         username=findViewById(R.id.email_login);

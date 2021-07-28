@@ -15,6 +15,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.airbnb.lottie.L;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -37,6 +43,8 @@ import com.virgilsecurity.common.model.Data;
 import com.virgilsecurity.sdk.crypto.KeyPairType;
 
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -58,6 +66,7 @@ public class SignUpActivity extends AppCompatActivity{
     public static EThree eThree;
     private  String token ="";
    private String apartmentID;
+   private RequestQueue requestQueue;
 
 
     @Override
@@ -69,8 +78,11 @@ public class SignUpActivity extends AppCompatActivity{
         password = findViewById(R.id.password);
         confirmpw = findViewById(R.id.confirmpw);
         register = findViewById(R.id.registerbt);
+        FirebaseDatabase.getInstance().useEmulator("10.0.2.2",9000);
         mRootref = FirebaseDatabase.getInstance().getReference();
+
         mAuth = FirebaseAuth.getInstance();
+        requestQueue = Volley.newRequestQueue(getApplicationContext());
 //        mAuth.useEmulator("10.0.2.2",9099);
         pd = new CustomLoadingProgressBar(SignUpActivity.this , "Creating account... " , R.raw.loading_animation);
 
@@ -102,60 +114,89 @@ public class SignUpActivity extends AppCompatActivity{
 
     private void registerUser(final String name, final String email, String password, String confirmpw) {
         pd.show();
-        mAuth.createUserWithEmailAndPassword(email, password).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
-            @Override
-            public void onSuccess(AuthResult authResult) {
-                  pd.dismiss();
-                  Toast.makeText(getApplicationContext(),"registered",Toast.LENGTH_LONG).show();
-                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+//        mAuth.createUserWithEmailAndPassword(email, password).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
+//            @Override
+//            public void onSuccess(AuthResult authResult) {
+//                  pd.dismiss();
+//                  Toast.makeText(getApplicationContext(),"registered",Toast.LENGTH_LONG).show();
+//                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+//
+//                UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+//                        .setDisplayName(name).build();
+//                user.updateProfile(profileUpdates).addOnCompleteListener(new OnCompleteListener<Void>() {
+//                    @Override
+//                    public void onComplete(@NonNull @NotNull Task<Void> task) {
+//                        if(task.isSuccessful()) {
+//                            final DatabaseReference ref = mRootref.child("apartments").push();
+//                            apartmentID = ref.getKey();
+//                            HashMap<String, Object> userDetails = new HashMap<>();
+//                            userDetails.put("name", name);
+//                            userDetails.put("email", email);
+//                            userDetails.put("userID", mAuth.getCurrentUser().getUid());
+//                            userDetails.put("image", ""); //add later in edit profile
+//                            userDetails.put("apartmentID", apartmentID); //change later
+//                            final HashMap<String, Object> apartmentDetails = new HashMap<>();
+//                            apartmentDetails.put("apartmentID", apartmentID);
+//                            apartmentDetails.put("adminID", mAuth.getCurrentUser().getUid());
+//                            mRootref.child("users").child(mAuth.getCurrentUser().getUid()).setValue(userDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
+//                                @Override
+//                                public void onComplete(@NonNull Task<Void> task) {
+//                                    if (task.isSuccessful()) {
+//                                        ref.updateChildren(apartmentDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
+//                                            @Override
+//                                            public void onComplete(@NonNull Task<Void> task) {
+//                                                if (task.isSuccessful()) {
+//                                                    pd.dismiss();
+//                                                    sendEmailVerification();
+////                                                    Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
+////                                                    startActivity(intent);
+////                                                    Toast.makeText(SignUpActivity.this, name+", you are a Shroomie now", Toast.LENGTH_SHORT).show();
+//                                                }
+//                                            }
+//                                        });
+//                                    }
+//                                }
+//                            });
+//                        }
+//                    }
+//                });
+//            }
+//                }).addOnFailureListener(new OnFailureListener() {
+//            @Override
+//            public void onFailure(@NonNull Exception e) {
+//                pd.dismiss();
+//                Toast.makeText(SignUpActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+//            }
+//            });
 
-                UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-                        .setDisplayName(name).build();
-                user.updateProfile(profileUpdates).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull @NotNull Task<Void> task) {
-                        if(task.isSuccessful()) {
-                            final DatabaseReference ref = mRootref.child("apartments").push();
-                            apartmentID = ref.getKey();
-                            HashMap<String, Object> userDetails = new HashMap<>();
-                            userDetails.put("name", name);
-                            userDetails.put("email", email);
-                            userDetails.put("userID", mAuth.getCurrentUser().getUid());
-                            userDetails.put("image", ""); //add later in edit profile
-                            userDetails.put("apartmentID", apartmentID); //change later
-                            final HashMap<String, Object> apartmentDetails = new HashMap<>();
-                            apartmentDetails.put("apartmentID", apartmentID);
-                            apartmentDetails.put("adminID", mAuth.getCurrentUser().getUid());
-                            mRootref.child("users").child(mAuth.getCurrentUser().getUid()).setValue(userDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull Task<Void> task) {
-                                    if (task.isSuccessful()) {
-                                        ref.updateChildren(apartmentDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
-                                            @Override
-                                            public void onComplete(@NonNull Task<Void> task) {
-                                                if (task.isSuccessful()) {
-                                                    pd.dismiss();
-                                                    sendEmailVerification();
-//                                                    Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
-//                                                    startActivity(intent);
-//                                                    Toast.makeText(SignUpActivity.this, name+", you are a Shroomie now", Toast.LENGTH_SHORT).show();
-                                                }
-                                            }
-                                        });
-                                    }
-                                }
-                            });
-                        }
-                    }
-                });
-            }
-                }).addOnFailureListener(new OnFailureListener() {
+        JSONObject jsonObject = new JSONObject();
+        JSONObject data = new JSONObject();
+
+        try {
+            jsonObject.put("email" , email);
+            jsonObject.put("name", name);
+            jsonObject.put("password" , password);
+            data.put("data", jsonObject);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_REGISTER_USER, data, new Response.Listener<JSONObject>() {
             @Override
-            public void onFailure(@NonNull Exception e) {
-                pd.dismiss();
-                Toast.makeText(SignUpActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+            public void onResponse(JSONObject response) {
+            pd.dismiss();
+//            sendEmailVerification();
+            Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
+            startActivity(intent);
+            Toast.makeText(SignUpActivity.this, name+", you are a Shroomie now", Toast.LENGTH_SHORT).show();
+
             }
-            });
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+
+            }
+        });
+        requestQueue.add(jsonObjectRequest);
     }
     private void sendEmailVerification(){
         final FirebaseUser user = mAuth.getCurrentUser();

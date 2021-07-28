@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Build;
+import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
@@ -15,6 +17,7 @@ import com.example.shroomies.ChattingActivity;
 import com.example.shroomies.GroupChattingActivity;
 import com.example.shroomies.MainActivity;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.messaging.FirebaseMessagingService;
@@ -23,6 +26,8 @@ import com.google.firebase.messaging.RemoteMessage;
 public class FirebaseMessaging  extends FirebaseMessagingService {
 
     PendingIntent pendingIntent;
+    FirebaseAuth mAuth;
+    FirebaseDatabase database;
 
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
@@ -129,12 +134,18 @@ public class FirebaseMessaging  extends FirebaseMessagingService {
     @Override
     public void onNewToken(@NonNull String s){
         super.onNewToken(s);
-//        updateToken(s);
+        Log.d("firebase token" , s);
+        updateToken(s);
     }
     private void updateToken(String tokenReferesh){
-//        String userID= FirebaseAuth.getInstance().getCurrentUser().getUid();
-//        DatabaseReference ref= FirebaseDatabase.getInstance().getReference("Token");
-//        Token token= new Token(tokenReferesh);
-//        ref.child(userID).setValue(token);
+        mAuth=FirebaseAuth.getInstance();
+        mAuth.useEmulator("10.0.2.2",9099);
+        database=FirebaseDatabase.getInstance();
+        database.useEmulator("10.0.2.2",9000);
+        FirebaseUser user=mAuth.getCurrentUser();
+        String userID= user.getUid();
+        DatabaseReference ref= database.getReference("tokens");
+        Token token= new Token(tokenReferesh);
+        ref.child(userID).setValue(token);
     }
 }

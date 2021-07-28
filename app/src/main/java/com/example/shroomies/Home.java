@@ -23,6 +23,7 @@ public class Home extends Application {
     public void onCreate() {
         super.onCreate();
         mAuth=FirebaseAuth.getInstance();
+        mAuth.useEmulator("10.0.2.2",9099);
                 FirebaseUser user=mAuth.getCurrentUser();
                 if(user!=null && user.isEmailVerified()){
                     mAuth.removeAuthStateListener(authStateListener);

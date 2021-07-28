@@ -87,6 +87,7 @@ import com.hendraanggrian.appcompat.widget.SocialAutoCompleteTextView;
 import com.hendraanggrian.appcompat.widget.SocialEditText;
 import com.hendraanggrian.appcompat.widget.SocialTextView;
 import com.hendraanggrian.appcompat.widget.SocialView;
+
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
@@ -384,7 +385,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
         //check if the mentioned users are in the member list
         for (Iterator<String>  iterator=
             mentionAutoCompleteTextView.getMentions().iterator(); iterator.hasNext();){
-            String name = iterator.next().toLowerCase();
+            String name = iterator.next();
             if(!nameAndIdHashMap.containsKey(name)){
                 Snackbar.make(getView(), "Member "+ name +" doesn't exist", BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.my_shroomies_add_text_view).show();
                 return false;
@@ -448,7 +449,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                                         if(user!=null) {
                                             apartmentMembersArrayList.add(user);
                                             nameAndIdHashMap.put(user.getName() , user.getUserID());
-                                            mentionAdapter.add(new Mention(user.getName(),null,user.getImage()));
+                                            mentionAdapter.add(new Mention(user.getName()));
                                             mentionAutoCompleteTextView.setMentionAdapter(mentionAdapter);
                                         }
 

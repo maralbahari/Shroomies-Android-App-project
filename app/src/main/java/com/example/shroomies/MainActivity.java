@@ -16,7 +16,9 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.example.shroomies.notifications.FirebaseMessaging;
+import com.example.shroomies.notifications.Token;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -27,9 +29,13 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.FirebaseInstanceIdReceiver;
+import com.google.firebase.messaging.FirebaseMessaging;
 import com.mxn.soul.flowingdrawer_core.ElasticDrawer;
 import com.mxn.soul.flowingdrawer_core.FlowingDrawer;
 import com.mxn.soul.flowingdrawer_core.FlowingMenuLayout;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -47,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
     FirebaseAuth mAuth;
     FirebaseAuth.AuthStateListener authStateListener;
     SessionManager sessionManager;
-    FirebaseMessaging firebaseMessaging;
+    com.example.shroomies.notifications.FirebaseMessaging firebaseMessaging;
     BadgeDrawable inboxNotificationBadge;
     DatabaseReference rootRef;
     ImageView profilePic;
@@ -63,18 +69,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         //Creating session in main activity
-        rootRef = FirebaseDatabase.getInstance().getReference();
+//        rootRef = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
         mAuth.useEmulator("10.0.2.2" , 9099);
 
 
-//        fUser=mAuth.getCurrentUser();
-//        fUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
-//            @Override
-//            public void onComplete(@NonNull @NotNull Task<GetTokenResult> task) {
-//                Toast.makeText(getApplicationContext(),"token:"+task.getResult().getToken(),Toast.LENGTH_LONG).show();
-//            }
-//        });
+        FirebaseUser fUser=mAuth.getCurrentUser();
+
         logoutButton = findViewById(R.id.logout);
         requestsButton = findViewById(R.id.my_requests_menu);
         btm_view = findViewById(R.id.bottomNavigationView);
@@ -108,14 +109,22 @@ public class MainActivity extends AppCompatActivity {
             String userEmail=extras.getString("EMAIL");
 //            sessionManager=new SessionManager(getApplicationContext(),userID);
 //            sessionManager.createSession(userID,userEmail);
+
             loadUserDetails();
-
         }
-        firebaseMessaging = new FirebaseMessaging();
-//        firebaseMessaging.onNewToken();
-
-
-
+       com.google.firebase.messaging.FirebaseMessaging.getInstance().getToken()
+       .addOnCompleteListener(new OnCompleteListener<String>() {
+           @Override
+           public void onComplete(@NonNull @NotNull Task<String> task) {
+               FirebaseDatabase database=FirebaseDatabase.getInstance();
+               database.useEmulator("10.0.2.2",9000);
+               FirebaseUser user=mAuth.getCurrentUser();
+               String userID= user.getUid();
+               DatabaseReference ref= database.getReference("tokens");
+//               Token token= new Token(task.getResult().toString());
+               ref.child(userID).setValue(task.getResult());
+           }
+       });
 //        getFragment(new FindRoommate());
         setSupportActionBar(toolbar);
 //

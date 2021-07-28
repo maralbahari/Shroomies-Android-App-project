@@ -105,6 +105,8 @@ dependencies {
     implementation 'com.nineoldandroids:library:2.4.0'
     implementation 'com.otaliastudios:zoomlayout:1.8.0'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.0-rc1'
+    implementation 'com.firebaseui:firebase-ui-auth:4.3.1'
+    implementation 'com.google.android.gms:play-services-auth:19.2.0'
 
 
 

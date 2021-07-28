@@ -43,4 +43,5 @@ public class Config {
     public static final String URL_CANCEL_OR_REJECT_REQUEST= "http://10.0.2.2:5001/shroomies-e34d3/us-central1/cancelOrRejectRequest";
     public static final String URL_ACCEPT_REQUEST = "http://10.0.2.2:5001/shroomies-e34d3/us-central1/acceptRequest";
     public static final String URL_GET_USER_DETAILS= "http://10.0.2.2:5001/shroomies-e34d3/us-central1/getUserDetails";
+    public static final String URL_REGISTER_USER = "http://10.0.2.2:5001/shroomies-e34d3/us-central1/registerUser";
 }
