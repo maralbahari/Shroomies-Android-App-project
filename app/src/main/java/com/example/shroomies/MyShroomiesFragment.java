@@ -1,13 +1,13 @@
 package com.example.shroomies;
 
-import android.content.Intent;
+import android.app.AlertDialog;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,65 +18,43 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.android.volley.AuthFailureError;
-import com.android.volley.NetworkResponse;
+import com.android.volley.NetworkError;
+import com.android.volley.NoConnectionError;
+import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.RetryPolicy;
-import com.android.volley.VolleyError;
-import com.android.volley.VolleyLog;
+import com.android.volley.ServerError;
+import com.android.volley.TimeoutError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.factor.bouncy.BouncyRecyclerView;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
-import com.google.common.net.HttpHeaders;
-import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GetTokenResult;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.functions.FirebaseFunctions;
-import com.google.firebase.functions.HttpsCallableResult;
-import com.google.gson.JsonObject;
-import com.skydoves.powerspinner.OnSpinnerItemSelectedListener;
 import com.skydoves.powerspinner.PowerSpinnerView;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
-
-import org.jetbrains.annotations.NotNull;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+
 
 public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshroomies {
     //views
     private View v;
-    private SlidingUpPanelLayout rootlayout;
-    private Button memberButton,logButton , archiveButton;
     private TabLayout myShroomiesTablayout;
     private BouncyRecyclerView myExpensesRecyclerView,myTasksRecyclerView;
-    private PowerSpinnerView shroomieSpinnerFilter;
-    private ImageButton addCardButton , expandButton;
-    SlidingUpPanelLayout slidingLayout;
+    private ImageButton expandButton;
+    private SlidingUpPanelLayout slidingLayout;
     //data structures
     private ArrayList<TasksCard> tasksCardsList;
     private ArrayList<ExpensesCard> expensesCardsList;
@@ -88,10 +66,8 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
     //model
     private ShroomiesApartment apartment;
     //firebase
-    private DatabaseReference rootRef;
-    private FirebaseDatabase mDatabase;
-    private FirebaseFunctions mfunc;
     private FirebaseAuth mAuth;
+    private RequestQueue requestQueue;
     //fragment
     private FragmentTransaction ft;
     private FragmentManager fm;
@@ -99,9 +75,18 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
     private String selectedCardID , selectedCardType, tabSelected="expenses";
     private boolean cardFound =false;
     private int recyclerPosition=0;
+
+    @Override
+    public void onStart() {
+        super.onStart();
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        mAuth = FirebaseAuth.getInstance();
+        mAuth.useEmulator("10.0.2.2" , 9099);
+        requestQueue = Volley.newRequestQueue(getActivity());
         v = inflater.inflate(R.layout.fragment_my_shroomies, container, false);
         return v;
     }
@@ -110,15 +95,6 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-         mDatabase= FirebaseDatabase.getInstance();
-//         mDatabase.useEmulator("10.0.2.2",9000);
-         rootRef=mDatabase.getReference();
-
-        mAuth = FirebaseAuth.getInstance();
-        mAuth.useEmulator("10.0.2.2" , 9099);
-        mfunc=FirebaseFunctions.getInstance();
-        mfunc.useEmulator("10.0.2.2",5001);
-
         //todo call get user token when function  is deployed
 
 //         getUserToken();
@@ -126,16 +102,15 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
         getApartmentDetails(null);
 
         myTasksRecyclerView = v.findViewById(R.id.my_tasks_recycler_view);
-        memberButton = v.findViewById(R.id.my_shroomies_member_btn);
-        addCardButton = v.findViewById(R.id.my_shroomies_add_card_btn);
-        logButton= v.findViewById(R.id.my_shroomies_log);
+        Button memberButton = v.findViewById(R.id.my_shroomies_member_btn);
+        ImageButton addCardButton = v.findViewById(R.id.my_shroomies_add_card_btn);
+        Button logButton = v.findViewById(R.id.my_shroomies_log);
         myShroomiesTablayout = v.findViewById(R.id.my_shroomies_tablayout);
         myExpensesRecyclerView = v.findViewById(R.id.my_expenses_recycler_view);
-        shroomieSpinnerFilter = v.findViewById(R.id.shroomie_spinner_filter);
+        PowerSpinnerView shroomieSpinnerFilter = v.findViewById(R.id.shroomie_spinner_filter);
         expandButton = v.findViewById(R.id.expand_button);
-        rootlayout  = v.findViewById(R.id.sliding_layout);
         slidingLayout = v.findViewById(R.id.sliding_layout);
-        archiveButton = v.findViewById(R.id.my_shroomies_archive_btn);
+        Button archiveButton = v.findViewById(R.id.my_shroomies_archive_btn);
 
         Toolbar toolbar = getActivity().findViewById(R.id.my_shroomies_toolbar);
         toolbar.setNavigationIcon(null);
@@ -153,7 +128,7 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
 
 
 
-        rootlayout.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
+        slidingLayout.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
             @Override
             public void onPanelSlide(View panel, float slideOffset) {
 
@@ -200,104 +175,83 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
 
             }
         });
-        shroomieSpinnerFilter.setOnSpinnerItemSelectedListener(new OnSpinnerItemSelectedListener<Object>() {
-            @Override
-            public void onItemSelected(int i, @org.jetbrains.annotations.Nullable Object o, int i1, Object t1) {
-                switch (i) {
-                    case 0:
-                        sortAccordingtoImportance(tabSelected);
-                        break;
-                    case 1:
-                        sortAccordingToLatest(tabSelected);
-                        break;
-                    case 2:
-                        sortAccordingToOldest(tabSelected);
-                        break;
-                    case 3:
-                        sortAccordingToTitle(tabSelected);
-                        break;
-                }
+        shroomieSpinnerFilter.setOnSpinnerItemSelectedListener((i, o, i1, t1) -> {
+            switch (i) {
+                case 0:
+                    sortAccordingtoImportance(tabSelected);
+                    break;
+                case 1:
+                    sortAccordingToLatest(tabSelected);
+                    break;
+                case 2:
+                    sortAccordingToOldest(tabSelected);
+                    break;
+                case 3:
+                    sortAccordingToTitle(tabSelected);
+                    break;
             }
         });
 
-        addCardButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        addCardButton.setOnClickListener(view1 -> {
 
-                AddNewCard addNewCard = new AddNewCard();
-                Bundle bundle=new Bundle();
+            AddNewCard addNewCard = new AddNewCard();
+            Bundle bundle=new Bundle();
 
-                if(myShroomiesTablayout.getSelectedTabPosition()==0){
+            bundle.putBoolean("Expenses", myShroomiesTablayout.getSelectedTabPosition() == 0);
+            bundle.putParcelable("APARTMENT_DETAILS",apartment);
+            addNewCard.setArguments(bundle);
 
-                    bundle.putBoolean("Expenses",true);
-                }else {
-                    bundle.putBoolean("Expenses",false);
-                }
-                bundle.putParcelable("APARTMENT_DETAILS",apartment);
-                addNewCard.setArguments(bundle);
-                addNewCard.show(getActivity().getSupportFragmentManager(),"add new card");
+            addNewCard.show(getActivity().getSupportFragmentManager(),"add new card");
 
-            }
         });
 
-        archiveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        archiveButton.setOnClickListener(v -> {
 
-                ArchiveFragment archiveFragment = new ArchiveFragment();
-                Bundle bundle=new Bundle();
-                bundle.putString("apartmentID",apartment.getApartmentID());
-                archiveFragment.setArguments(bundle);
-                fm = getActivity().getSupportFragmentManager();
-                ft = fm.beginTransaction();
-                ft.addToBackStack(null);
-                ft.setTransition( FragmentTransaction.TRANSIT_FRAGMENT_OPEN );
-                ft.replace(R.id.my_shroomies_container, archiveFragment);
-                ft.commit();
+            ArchiveFragment archiveFragment = new ArchiveFragment();
+            Bundle bundle=new Bundle();
+            bundle.putString("apartmentID",apartment.getApartmentID());
+            archiveFragment.setArguments(bundle);
+            fm = getActivity().getSupportFragmentManager();
+            ft = fm.beginTransaction();
+            ft.addToBackStack(null);
+            ft.setTransition( FragmentTransaction.TRANSIT_FRAGMENT_OPEN );
+            ft.replace(R.id.my_shroomies_container, archiveFragment);
+            ft.commit();
 
-            }
         });
-        memberButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Members members=new Members();
-                Bundle bundle1=new Bundle();
-                bundle1.putParcelable("APARTMENT_DETAILS",apartment);
-                members.setArguments(bundle1);
-                fm = getActivity().getSupportFragmentManager();
-                ft = fm.beginTransaction();
-                ft.addToBackStack(null);
-                ft.setTransition( FragmentTransaction.TRANSIT_FRAGMENT_OPEN );
-                ft.replace(R.id.my_shroomies_container, members);
-                ft.commit();
-            }
+        memberButton.setOnClickListener(v -> {
+            Members members=new Members();
+            Bundle bundle1=new Bundle();
+            bundle1.putParcelable("APARTMENT_DETAILS",apartment);
+            members.setArguments(bundle1);
+            fm = getActivity().getSupportFragmentManager();
+            ft = fm.beginTransaction();
+            ft.addToBackStack(null);
+            ft.setTransition( FragmentTransaction.TRANSIT_FRAGMENT_OPEN );
+            ft.replace(R.id.my_shroomies_container, members);
+            ft.commit();
         });
-        logButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                LogFragment logFragment=new LogFragment();
-                Bundle bundle=new Bundle();
-                bundle.putParcelableArrayList("LOG_LIST", apartmentLogs);
-                if(apartment.getApartmentMembers()!=null){
-                    //put the members and add the admin
-                    ArrayList<String> members = new ArrayList(apartment.getApartmentMembers().values());
-                    members.add(apartment.getAdminID());
-                    bundle.putStringArrayList("MEMBERS" ,members);
-
-                }else{
-                    ArrayList<String> members = new ArrayList();
-                    members.add(apartment.getAdminID());
-                    bundle.putStringArrayList("MEMBERS" ,members);
-                }
-                logFragment.setArguments(bundle);
-                logFragment.setTargetFragment(MyShroomiesFragment.this,RESULT_CODE);
-                fm = getParentFragmentManager();
-                ft = fm.beginTransaction();
-                ft.addToBackStack(null);
-                ft.setTransition( FragmentTransaction.TRANSIT_FRAGMENT_OPEN );
-                ft.replace(R.id.my_shroomies_container, logFragment);
-                ft.commit();
+        logButton.setOnClickListener(view12 -> {
+            LogFragment logFragment=new LogFragment();
+            Bundle bundle=new Bundle();
+            bundle.putParcelableArrayList("LOG_LIST", apartmentLogs);
+            ArrayList<String> members;
+            if(apartment.getApartmentMembers()!=null){
+                //put the members and add the admin
+                members = new ArrayList(apartment.getApartmentMembers().values());
+            }else{
+                members = new ArrayList();
             }
+            members.add(apartment.getAdminID());
+            bundle.putStringArrayList("MEMBERS" ,members);
+            logFragment.setArguments(bundle);
+            logFragment.setTargetFragment(MyShroomiesFragment.this,RESULT_CODE);
+            fm = getParentFragmentManager();
+            ft = fm.beginTransaction();
+            ft.addToBackStack(null);
+            ft.setTransition( FragmentTransaction.TRANSIT_FRAGMENT_OPEN );
+            ft.replace(R.id.my_shroomies_container, logFragment);
+            ft.commit();
         });
         scroll();
 
@@ -317,7 +271,9 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
 //                    Log.d("user error" , "works");
 //                }else{
 //                    //todo handle error
-//                    Log.d("user error" , task.getException().toString());
+//                    String title = "Authentication error";
+//                    String message = "We encountered a problem while authenticating your account";
+//                    displayErrorAlert(title, message, true);
 //                }
 //            }
 //        });
@@ -327,24 +283,22 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
         JSONObject jsonObject = new JSONObject();
         JSONObject data  = new JSONObject();
         try {
-            jsonObject.put("ID",mAuth.getCurrentUser().getUid());
-            data.put("data",jsonObject);
+            jsonObject.put(Config.id,mAuth.getCurrentUser().getUid());
+            data.put(Config.data,jsonObject);
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        RequestQueue requestQueue= Volley.newRequestQueue(getActivity());
         //TODO add progress dialog
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_GET_APARTMENT_DETAILS, data, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
-                mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-                JSONObject result= null;
-                try {
-                    result = (JSONObject) response.get("result");
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_GET_APARTMENT_DETAILS, data, response -> {
+            final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
+            mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+            JSONObject result = null;
+            try {
+                result = (JSONObject) response.get(Config.result);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            if (!result.isNull(Config.apartmentID)) {
                 try {
                     apartment = mapper.readValue(result.toString(), ShroomiesApartment.class);
                 } catch (JsonProcessingException e) {
@@ -354,47 +308,46 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
 
                 if (apartment.getExpensesCard() != null) {
                     if (!apartment.getExpensesCard().isEmpty()) {
-                        if(isAdded()) {
+                        if (isAdded()) {
                             expensesCardsList = new ArrayList<>(apartment.getExpensesCard().values());
-                            expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList, getActivity(), false, apartment.getApartmentID(), getChildFragmentManager(), rootlayout);
+                            expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList, getActivity(), false, apartment.getApartmentID(), getChildFragmentManager(), slidingLayout);
                             myExpensesRecyclerView.setAdapter(expensesCardAdapter);
                             expensesCardAdapter.notifyDataSetChanged();
                         }
-                    } else {
-                        //TODO display empty expenses
                     }
-                } else {
-                    //TODO display empty expenses
                 }
                 if (apartment.getTaskCard() != null) {
                     if (!apartment.getTaskCard().isEmpty()) {
                         tasksCardsList = new ArrayList<>(apartment.getTaskCard().values());
-                        if(isAdded()) {
-                            tasksCardAdapter = new TasksCardAdapter(tasksCardsList, getActivity(), false, apartment.getApartmentID(), getChildFragmentManager(), rootlayout);
+                        if (isAdded()) {
+                            tasksCardAdapter = new TasksCardAdapter(tasksCardsList, getActivity(), false, apartment.getApartmentID(), getChildFragmentManager(), slidingLayout);
                             tasksCardAdapter.notifyDataSetChanged();
                             myTasksRecyclerView.setAdapter(tasksCardAdapter);
                         }
-                    } else {
-                        //TODO display empty tasks
                     }
-                } else {
-                    //TODO display empty tasks
-
-                    Log.d("apartment error", "eror");
-
                 }
                 if (apartment.getLogs() != null) {
                     if (!apartment.getLogs().isEmpty()) {
                         apartmentLogs = new ArrayList<>(apartment.getLogs().values());
-                    } else {
-                        //todo display empty log in the log fragment
                     }
-                } else {
-                    //todo display empty log in the log fragment
                 }
-
+            } else {
+                String title = "Unexpected error";
+                String message = "We have encountered an unexpected error ,try to check your internet connection and log in again.";
+                displayErrorAlert(title, message);
             }
-        }, error -> Log.d("apartment no works" , error.getMessage()) )
+
+        }, error -> {
+            String message = null; // error message, show it in toast or dialog, whatever you want
+            if (error instanceof NetworkError || error instanceof AuthFailureError || error instanceof NoConnectionError || error instanceof TimeoutError) {
+                message = "Cannot connect to Internet";
+            } else if (error instanceof ServerError) {
+                message = "Server error. Please try again later";
+            }  else if (error instanceof ParseError) {
+                message = "Parsing error! Please try again later";
+            }
+            displayErrorAlert("Error" ,message);
+        })
                 //todo uncomment when function  is deployed
 //        {
 //            @Override
@@ -405,10 +358,11 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
 //                return params;
 //            }
 //        }
-        ;
+                ;
         requestQueue.add(jsonObjectRequest);
 
     }
+
 
    private void scroll(){
     if(selectedCardID!=null){
@@ -451,26 +405,19 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
 
     private void sortAccordingToOldest(String tab) {
         if(tab.equals("expenses")){
-            expensesCardsList.sort(new Comparator<ExpensesCard>() {
-                @Override
-                public int compare(ExpensesCard o1, ExpensesCard o2) {
-                    Date dateO1 = new Date(o1.getDate());
-                    Date dateO2 = new Date(o2.getDate());
-                    return dateO1.compareTo(dateO2);
-                }
+            expensesCardsList.sort((o1, o2) -> {
+                Date dateO1 = new Date(o1.getDate());
+                Date dateO2 = new Date(o2.getDate());
+                return dateO1.compareTo(dateO2);
             });
             expensesCardAdapter.notifyDataSetChanged();
         }else if(tab.equals("tasks")){
-            tasksCardsList.sort(new Comparator<TasksCard>() {
-                @Override
-                public int compare(TasksCard o1, TasksCard o2) {
-                    Date dateO1 = new Date(o1.getDate());
-                    Date dateO2 = new Date(o2.getDate());
+            tasksCardsList.sort((o1, o2) -> {
+                Date dateO1 = new Date(o1.getDate());
+                Date dateO2 = new Date(o2.getDate());
 
 
-                    return dateO2.compareTo(dateO1);
-                }
-
+                return dateO2.compareTo(dateO1);
             });
             tasksCardAdapter.notifyDataSetChanged();
 
@@ -479,30 +426,23 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
 
    private void sortAccordingToLatest(String tab) {
         if(tab.equals("expenses")){
-            expensesCardsList.sort(new Comparator<ExpensesCard>() {
-                @Override
-                public int compare(ExpensesCard o1, ExpensesCard o2) {
-                    Date dateO1 = new Date(o1.getDate());
-                    Date dateO2 = new Date(o2.getDate());
-                    return dateO2.compareTo(dateO1);
+            expensesCardsList.sort((o1, o2) -> {
+                Date dateO1 = new Date(o1.getDate());
+                Date dateO2 = new Date(o2.getDate());
+                return dateO2.compareTo(dateO1);
 
-                }
             });
             expensesCardAdapter.notifyDataSetChanged();
         }
         else if(tab.equals("tasks")){
 
-            tasksCardsList.sort(new Comparator<TasksCard>() {
-                @Override
-                public int compare(TasksCard o1, TasksCard o2) {
-                    Date dateO1 =new Date(o1.getDate());
-                    Date dateO2 =new Date(o2.getDate());
+            tasksCardsList.sort((o1, o2) -> {
+                Date dateO1 =new Date(o1.getDate());
+                Date dateO2 =new Date(o2.getDate());
 
 
 
-                    return dateO2.compareTo(dateO1);
-                }
-
+                return dateO2.compareTo(dateO1);
             });
             tasksCardAdapter.notifyDataSetChanged();
         }
@@ -512,25 +452,7 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
 
    private void sortAccordingtoImportance(String tab){
         if(tab.equals("expenses")){
-            expensesCardsList.sort(new Comparator<ExpensesCard>() {
-                @Override
-                public int compare(ExpensesCard o1, ExpensesCard o2) {
-                    int colorO1=Integer.parseInt(o1.getImportance());
-                    int colorO2=Integer.parseInt(o2.getImportance());
-
-                    if (colorO1<colorO2){
-                        return 1;
-                    }else {
-                        return -1;
-                    }
-
-                }
-
-            });
-            expensesCardAdapter.notifyDataSetChanged();
-        }
-        else if(tab.equals("tasks")){
-            tasksCardsList.sort((o1, o2) -> {
+            expensesCardsList.sort((o1, o2) -> {
                 int colorO1=Integer.parseInt(o1.getImportance());
                 int colorO2=Integer.parseInt(o2.getImportance());
 
@@ -541,36 +463,33 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
                 }
 
             });
+            expensesCardAdapter.notifyDataSetChanged();
+        }
+        else if(tab.equals("tasks")){
+            tasksCardsList.sort((o1, o2) -> {
+                int colorO1=Integer.parseInt(o1.getImportance());
+                int colorO2=Integer.parseInt(o2.getImportance());
+                if (colorO1<colorO2){
+                    return 1;
+                }else {
+                    return -1;
+                }
+
+            });
             tasksCardAdapter.notifyDataSetChanged();
 
-        }else {
-
         }
-
 
     }
 
    private void sortAccordingToTitle(String tab){
         if(tab.equals("expenses")){
-            expensesCardsList.sort(new Comparator<ExpensesCard>() {
-                @Override
-                public int compare(ExpensesCard o1, ExpensesCard o2) {
-
-                    return o1.getTitle().compareToIgnoreCase(o2.getTitle());
-                }
-            });
+            expensesCardsList.sort((o1, o2) -> o1.getTitle().compareToIgnoreCase(o2.getTitle()));
             expensesCardAdapter.notifyDataSetChanged();
 
         }else if(tab.equals("tasks")){
-            tasksCardsList.sort(new Comparator<TasksCard>() {
-                @Override
-                public int compare(TasksCard o1, TasksCard o2) {
-                    return o1.getTitle().compareToIgnoreCase(o2.getTitle());
-                }
-            });
+            tasksCardsList.sort((o1, o2) -> o1.getTitle().compareToIgnoreCase(o2.getTitle()));
             tasksCardAdapter.notifyDataSetChanged();
-        }else{
-
         }
 
     }
@@ -578,8 +497,6 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
    public void sendInput(String cardID, String cardType) {
         this.selectedCardID = cardID;
         this.selectedCardType=cardType;
-
-
 
         if(selectedCardType.equals("tasks")){
             for (TasksCard card:tasksCardsList){
@@ -613,6 +530,23 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
             }
 
         }
+    }
+    void displayErrorAlert(String title, String message){
+         new AlertDialog.Builder(getActivity())
+                .setIcon(R.drawable.ic_alert)
+                .setTitle(title)
+                .setMessage(message)
+                 .setCancelable(false)
+                 .setNeutralButton("return", (dialog, which) -> {
+                     getActivity().finish();
+                     dialog.dismiss();
+                 })
+                 .setPositiveButton("refresh", (dialog, which) -> {
+                     //todo change to get token!!
+                     getApartmentDetails(null);
+                 })
+                .create()
+                .show();
     }
 
 }

@@ -10,7 +10,7 @@ import java.util.HashMap;
 public class TasksCard implements Parcelable {
 
     String actor ,description, title,dueDate,
-            importance, members, cardID,
+            importance, cardID,
             done;
     HashMap<String , String> mention;
     String  date;
@@ -18,12 +18,11 @@ public class TasksCard implements Parcelable {
     public TasksCard() {
     }
 
-    public TasksCard(String description, String taskTitle, String taskDueDate, String taskImportance, String date, String taskCardId, String members, String done, HashMap<String, String> mention) {
+    public TasksCard(String description, String taskTitle, String taskDueDate, String taskImportance, String date, String taskCardId,  String done, HashMap<String, String> mention) {
         this.cardID = taskCardId;
         this.date = date;
         this.description = description;
         this.importance = taskImportance;
-        this.members = members;
         this.title = taskTitle;
         this.dueDate = taskDueDate;
         this.done = done;
@@ -37,7 +36,7 @@ public class TasksCard implements Parcelable {
         title = in.readString();
         dueDate = in.readString();
         importance = in.readString();
-        members = in.readString();
+
         cardID = in.readString();
         done = in.readString();
         date = in.readString();
@@ -54,7 +53,6 @@ public class TasksCard implements Parcelable {
         dest.writeString(title);
         dest.writeString(dueDate);
         dest.writeString(importance);
-        dest.writeString(members);
         dest.writeString(cardID);
         dest.writeString(done);
         dest.writeString(date);
@@ -97,10 +95,6 @@ public class TasksCard implements Parcelable {
         this.importance = importance;
     }
 
-    public void setMembers(String members) {
-        this.members = members;
-    }
-
     public void setDate(String date) {
         this.date = date;
     }
@@ -127,10 +121,6 @@ public class TasksCard implements Parcelable {
 
     public String getImportance() {
         return importance;
-    }
-
-    public String getMembers() {
-        return members;
     }
 
     public String getDate() {

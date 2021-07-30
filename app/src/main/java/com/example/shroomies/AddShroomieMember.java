@@ -1,5 +1,7 @@
 package com.example.shroomies;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Gravity;
@@ -19,9 +21,15 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkError;
+import com.android.volley.NoConnectionError;
+import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.ServerError;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
@@ -35,6 +43,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.functions.FirebaseFunctions;
@@ -59,18 +69,16 @@ public class AddShroomieMember extends DialogFragment {
     private TextView infoTextView;
     private TextView recommendedUsers;
     //firebase
-    private DatabaseReference rootRef;
     private FirebaseAuth mAuth;
-    private FirebaseFunctions mfunc;
     private RequestQueue requestQueue;
     //data
     private UserAdapter userRecyclerAdapter;
     private ArrayList<User> suggestedUser;
     private ArrayList<String> inboxUser;
-    private Collection<String> listMemberId=new ArrayList<>();
     private ShroomiesApartment apartment;
 
 
+    //TODO add users from the  inbox
 
 
     @Override
@@ -95,10 +103,7 @@ public class AddShroomieMember extends DialogFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         v =inflater.inflate(R.layout.add_shroomies, container, false);
         mAuth=FirebaseAuth.getInstance();
-        rootRef = FirebaseDatabase.getInstance().getReference();
-        mfunc=FirebaseFunctions.getInstance();
         requestQueue = Volley.newRequestQueue(getActivity());
-//        mfunc.useEmulator("10.0.2.2",5001);
         return v;
     }
 
@@ -124,8 +129,7 @@ public class AddShroomieMember extends DialogFragment {
         if (getArguments()!=null){
             Bundle bundle = getArguments();
             apartment=bundle.getParcelable("APARTMENT_DETAILS");
-//            listMemberId.addAll(apartment.getApartmentMembers().values());
-//            listMemberId.add(apartment.getAdminID());
+
         }
 //        getMessageInboxListIntoAdapter();
 
@@ -147,215 +151,120 @@ public class AddShroomieMember extends DialogFragment {
         });
 
     }
-
-//    private void retreiveUser(String query) {
-//
-//        suggestedUser = new ArrayList<>();
-//        userRecyclerAdapter= new UserAdapter(suggestedUser,getContext(),true,apartment,requestAlreadySent);
-//        addShroomieRecycler.setAdapter(userRecyclerAdapter);
-//
-//        rootRef.child("Users").orderByChild("name").startAt(query)
-//                .endAt(query+"\uf8ff").addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                if (snapshot.exists()) {
-//                    infoTextView.setVisibility(View.GONE);
-//                    recommendedUsers.setVisibility(View.GONE);
-//                    for (DataSnapshot ds : snapshot.getChildren()) {
-//                        User user = ds.getValue(User.class);
-//                        Boolean duplicate = false;
-//                        for (User user1: suggestedUser){
-//                            if (user1.getUserID().equals(user.getUserID())){
-//                                duplicate = true;
-//                            }
-//                        }
-//                        if (!duplicate&&!user.getUserID().equals(mAuth.getInstance().getCurrentUser().getUid())){
-//                            if(listMemberId!=null){
-//                                if(!listMemberId.contains(user.getUserID())){
-//                                    suggestedUser.add(user);
-////                                        checkRequestedUsers(user.getUserID());
-//
-//                                }
-//
-//                            }
-//
-//                        }
-//                    }
-//
-//                }else{
-//                    Snackbar snack=Snackbar.make(getView(),"This shroomie doesn't exist", BaseTransientBottomBar.LENGTH_SHORT);
-//                    snack.show();
-//                }
-//
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//
-//            }
-//        });
-//    }
     void searchUsers(String query){
-
         if(!query.trim().isEmpty()){
-
-            suggestedUser = new ArrayList<>();
-            userRecyclerAdapter= new UserAdapter(suggestedUser,getContext(),true,apartment);
-            userRecyclerAdapter.setHasStableIds(true);
-            addShroomieRecycler.setAdapter(userRecyclerAdapter);
-
-            JSONObject jsonObject = new JSONObject();
-            JSONObject data =  new JSONObject();
-
-            try {
-                jsonObject.put("name" , query.trim());
-                jsonObject.put("currentUser" , mAuth.getCurrentUser().getUid());
-                data.put("data" , jsonObject);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_SEARCH_USERS, data, new Response.Listener<JSONObject>() {
+            FirebaseUser firebaseUser = mAuth
+                    .getCurrentUser();
+            firebaseUser.getIdToken(false)
+                    .addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
                 @Override
-                public void onResponse(JSONObject response) {
+                public void onComplete(@NonNull Task<GetTokenResult> task) {
+                    if (task.isSuccessful()){
+                        String token = task.getResult().getToken();
+                        suggestedUser = new ArrayList<>();
+                        userRecyclerAdapter= new UserAdapter(suggestedUser,getContext(),true,apartment);
+                        userRecyclerAdapter.setHasStableIds(true);
+                        addShroomieRecycler.setAdapter(userRecyclerAdapter);
 
-
-                    JSONArray result = null;
-                    try {
-                         result = (JSONArray) response.get("result");
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    if(result!=null){
-                        //the result is a jsonn array of json arrays
-                        //the nested json array contains 2 indeces
-                        // first index is the user object
-                        // and the second  index is a boolean value
-                        //indacting wether the current user has already
-                        // sent a request to the searched user
-                        final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
-                        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-
-                        for(int i= 0 ;i< result.length();i++){
-                            try {
-                                JSONArray jsonArray =((JSONArray)(result.get(i)));
-                                //cast the first index as a json object and the second as a boolean value
-                                JSONObject userJsonObject = (JSONObject) jsonArray.get(0);
-                                boolean requestSent = (boolean)jsonArray.get(1);
-                                User user =mapper.readValue(userJsonObject.toString() , User.class);
-                                user.setRequestSent(requestSent);
-
-                                if(apartment.getApartmentMembers()!=null){
-                                    if(!apartment.getApartmentMembers().containsKey(user.getUserID())){
-                                        suggestedUser.add(user);
-                                    }
-                                }else{
-                                    suggestedUser.add(user);
-                                }
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            } catch (JsonMappingException e) {
-                                e.printStackTrace();
-                            } catch (JsonProcessingException e) {
-                                e.printStackTrace();
-                            }
+                        JSONObject jsonObject = new JSONObject();
+                        JSONObject data =  new JSONObject();
+                        try {
+                            jsonObject.put(Config.name, query.trim());
+                            jsonObject.put(Config.currentUser, mAuth.getCurrentUser().getUid());
+                            data.put(Config.data , jsonObject);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
-                        userRecyclerAdapter.notifyDataSetChanged();
-                        recommendedUsers.setVisibility(View.GONE);
+                        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_SEARCH_USERS, data, new Response.Listener<JSONObject>() {
+                            @Override
+                            public void onResponse(JSONObject response) {
+                                JSONArray result = null;
+                                try {
+                                    result = (JSONArray) response.get(Config.result);
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                                if(result!=null){
+                                    //the result is a jsonn array of json arrays
+                                    //the nested json array contains 2 indeces
+                                    // first index is the user object
+                                    // and the second  index is a boolean value
+                                    //indacting wether the current user has already
+                                    // sent a request to the searched user
+                                    final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
+                                    mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
 
+                                    for(int i= 0 ;i< result.length();i++){
+                                        try {
+                                            JSONArray jsonArray =((JSONArray)(result.get(i)));
+                                            //cast the first index as a json object and the second as a boolean value
+                                            JSONObject userJsonObject = (JSONObject) jsonArray.get(0);
+                                            boolean requestSent = (boolean)jsonArray.get(1);
+                                            User user =mapper.readValue(userJsonObject.toString() , User.class);
+                                            user.setRequestSent(requestSent);
+
+                                            if(apartment.getApartmentMembers()!=null){
+                                                if(!apartment.getApartmentMembers().containsKey(user.getUserID())){
+                                                    suggestedUser.add(user);
+                                                }
+                                            }else{
+                                                suggestedUser.add(user);
+                                            }
+
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        } catch (JsonMappingException e) {
+                                            e.printStackTrace();
+                                        } catch (JsonProcessingException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                    userRecyclerAdapter.notifyDataSetChanged();
+                                    recommendedUsers.setVisibility(View.GONE);
+
+                                }
+                            }
+                        }, new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+                                String message = null; // error message, show it in toast or dialog, whatever you want
+                                if (error instanceof NetworkError || error instanceof AuthFailureError || error instanceof NoConnectionError || error instanceof TimeoutError) {
+                                    message = "Cannot connect to Internet";
+                                } else if (error instanceof ServerError) {
+                                    message = "The server could not be found. Please try again later";
+                                }  else if (error instanceof ParseError) {
+                                    message = "Parsing error! Please try again later";
+                                }
+                                displayErrorAlert("Error" ,message);
+                            }
+                        });
+                        requestQueue.add(jsonObjectRequest);
                     }else{
-                        Snackbar snack=Snackbar.make(getView(),"We couldn't find any matching user", BaseTransientBottomBar.LENGTH_SHORT);
-                        snack.show();
+                        String title = "Authentication error";
+                        String message = "We encountered a problem while authenticating your account";
+                        displayErrorAlert(title, message);
                     }
-                }
-            }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-
                 }
             });
-            requestQueue.add(jsonObjectRequest);
 
         }
     }
-
-
-
-
-//    private void addInboxUsersToRecycler(final List<String> inboxListUsers) {
-//        suggestedUser = new ArrayList<>();
-//        userRecyclerAdapter=new UserAdapter(suggestedUser,getContext(),true,apartment,requestAlreadySent);
-//        addShroomieRecycler.setAdapter(userRecyclerAdapter);
-//        for(final String id
-//                :inboxListUsers){
-//            rootRef.child("Users").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
-//                @Override
-//                public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                    suggestedUser.clear();
-//                    if(snapshot.exists()){
-//                        User user = snapshot.getValue(User.class);
-//                        if (!listMemberId.contains(user.getUserID())) {
-//                            suggestedUser.add(user);
-//                            checkRequestedUsers(id);
-//                            userRecyclerAdapter.notifyDataSetChanged();
-//                        }
-//
-//                    }
-//
-//                }
-//
-//                @Override
-//                public void onCancelled(@NonNull DatabaseError error) {
-//
-//                }
-//            });
-//        }
-//    }
-
-        //TODO add users from the  inbox
-//    private void getMessageInboxListIntoAdapter() {
-//        inboxUser = new ArrayList<>();
-//        rootRef.child("PrivateChatList").child(mAuth.getInstance().getCurrentUser().getUid()).orderByChild("receiverID").addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                if(snapshot.exists()){
-//                    for(DataSnapshot dataSnapshot
-//                            :snapshot.getChildren()){
-//                        HashMap<String,String> recievers= (HashMap) dataSnapshot.getValue();
-//                        inboxUser.add(recievers.get("receiverID"));
-//
-//                    }
-//                    addInboxUsersToRecycler(inboxUser);
-//
-//                }
-//
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//
-//            }
-//        });
-//    }
-//    private void checkRequestedUsers(final String id){
-//
-//        rootRef.child("shroomieRequests").child(mAuth.getCurrentUser().getUid()).child(id).addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                if(snapshot.exists()){
-//                    requestAlreadySent.put(id,true);
-//                }else{
-//                    requestAlreadySent.put(id,false);
-//                }
-//                userRecyclerAdapter.notifyDataSetChanged();
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//
-//            }
-//        });
-//    }
+    void displayErrorAlert(String title ,  String message ){
+        new AlertDialog.Builder(getActivity())
+                .setIcon(R.drawable.ic_alert)
+                .setTitle(title)
+                .setMessage(message)
+                .setCancelable(false)
+                .setNeutralButton("return", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        AddShroomieMember.this.getActivity().onBackPressed();
+                        dialog.dismiss();
+                    }
+                })
+                .create()
+                .show();
+    }
 
 
 }

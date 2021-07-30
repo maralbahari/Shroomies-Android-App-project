@@ -145,7 +145,7 @@
 
 
 
-            <com.hendraanggrian.appcompat.widget.SocialTextView
+            <com.hendraanggrian.appcompat.widget.SocialAutoCompleteTextView
                 android:id="@+id/task_mention_et"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

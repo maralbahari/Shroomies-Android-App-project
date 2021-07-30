@@ -3,6 +3,7 @@ package com.example.shroomies;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,9 +17,15 @@ import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkError;
+import com.android.volley.NoConnectionError;
+import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.ServerError;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
@@ -40,24 +47,34 @@ import com.hendraanggrian.appcompat.widget.SocialTextView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.time.LocalDate;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.TimeZone;
 
 
 public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.TasksCardViewHolder> implements ItemTouchHelperAdapter {
-
-    private ArrayList<TasksCard> tasksCardsList;
+    private View parentView;
     private Context context;
     private View view;
+    private ItemTouchHelper itemTouchHelper;
+
+    private ArrayList<TasksCard> tasksCardsList;
+    private FragmentManager fragmentManager;
+
+    private RequestQueue requestQueue;
     private DatabaseReference rootRef;
     private FirebaseAuth mAuth;
-    private ItemTouchHelper itemTouchHelper;
+
     private Boolean fromArchive;
+    private static final String DELETE = "delete";
+    private static final String ARCHIVE = "archive";
+    private static final String MARK = "mark";
     private String apartmentID;
-    private FragmentManager fragmentManager;
-    private View parentView;
-    private FirebaseFunctions mfunc;
-    private RequestQueue requestQueue;
+
 
 
     public TasksCardAdapter(ArrayList<TasksCard> tasksCardsList, Context context, boolean fromArchive, String apartmentID, FragmentManager fragmentManager, View parentView) {
@@ -67,19 +84,15 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         this.apartmentID = apartmentID;
         this.fragmentManager = fragmentManager;
         this.parentView = parentView;
-        mfunc = FirebaseFunctions.getInstance();
-        mfunc.useEmulator("10.0.2.2", 5001);
+        mAuth = FirebaseAuth.getInstance();
+        mAuth.useEmulator("10.0.2.2", 9099);
         requestQueue = Volley.newRequestQueue(context);
     }
 
 
     @Override
     public void onItemSwiped(int position) {
-        if (fromArchive) {
-//            deleteFromArchive(position, tasksCardsList.get(position));
-        } else {
-            deleteTasksCard(position);
-        }
+        getUserToken(DELETE ,position , null ,false );
 
     }
 
@@ -124,21 +137,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
                 @Override
                 public void onClick(View view) {
                     TasksCard tasksCard = tasksCardsList.get(getAdapterPosition());
-//                    if (done.isChecked()){
-//                        rootRef.child("apartments").child(apartment.getApartmentID()).child("tasksCards").child(tasksCardsList.get(getAdapterPosition()).getCardID()).child("done").setValue("true").addOnSuccessListener(new OnSuccessListener<Void>() {
-//                            @Override
-//                            public void onSuccess(Void aVoid) {
-//                                done.setText("Done!");
-//                            }
-//                        });
-//                    }else{
-//                        rootRef.child("apartments").child(apartment.getApartmentID()).child("tasksCards").child(tasksCardsList.get(getAdapterPosition()).getCardID()).child("done").setValue("false").addOnSuccessListener(new OnSuccessListener<Void>() {
-//                            @Override
-//                            public void onSuccess(Void aVoid) {
-//                            }
-//                        });
-//                    }
-                    markTaskCard(tasksCard.getCardID(), apartmentID, done.isChecked());
+                    getUserToken(MARK , getAdapterPosition() , tasksCard , done.isChecked());
                 }
             });
 
@@ -146,6 +145,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
                 @Override
                 public void onClick(View view) {
                     archive(getAdapterPosition(), tasksCardsList.get(getAdapterPosition()));
+                    getUserToken(ARCHIVE , getAdapterPosition() , tasksCardsList.get(getAdapterPosition()) , false);
                 }
             });
 
@@ -154,22 +154,41 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
 
 
     }
+    private void setDate(String dueString, TextView dueDateTextView) {
+        DateTimeFormatter dateformat =  DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss Z")
+                .withZone(TimeZone.getDefault().toZoneId());
+        ZonedDateTime now = ZonedDateTime.now();
 
-//    public void deleteCard(final TasksCard taskcard, final int position) {
-//
-//        rootRef.child("apartments").child(apartment.getApartmentID()).child("tasksCards").child(taskcard.getCardID()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
-//            @Override
-//            public void onSuccess(Void aVoid) {
-//                saveToDeleteLog(apartment.getApartmentID(), taskcard);
-//                Snackbar snack = Snackbar.make(parentView, "Card deleted", BaseTransientBottomBar.LENGTH_SHORT);
-//                snack.setAnchorView(R.id.bottomNavigationView);
-//                snack.show();
-//                notifyItemRemoved(position);
-//            }
-//        });
-//
-//
-//    }
+        String dueDateFromatted  =  DateTimeFormatter.ofPattern("EEE, MMM d")
+                .withZone(TimeZone.getDefault().toZoneId()).format(dateformat.parse(dueString));
+
+        //check if the amount of days left  for  the due  date  is less than 1 day
+        //and  set the text to red
+        String currentDateString = dateformat.format(now);
+        final LocalDate firstDate = LocalDate.parse(dueString, dateformat);
+        final LocalDate secondDate = LocalDate.parse(currentDateString, dateformat);
+        Log.d("current time" , secondDate.getDayOfWeek().toString());
+        Log.d("due date" ,  firstDate.getDayOfWeek().toString());
+        final long days = ChronoUnit.DAYS.between(secondDate.atStartOfDay(), firstDate.atStartOfDay());
+
+        if(days<0){
+            dueDateTextView.setTextColor(context.getColor(R.color.red));
+            dueDateTextView.setText("Due");
+        }else  if(days==0){
+            dueDateTextView.setTextColor(context.getColor(R.color.red));
+            dueDateTextView.setText("Due today");
+        }
+        else if(days==1){
+            dueDateTextView.setTextColor(context.getColor(R.color.red));
+            dueDateTextView.setText(days +" day left");
+        }else if(days<3){
+            dueDateTextView.setTextColor(context.getColor(R.color.red));
+            dueDateTextView.setText(days +" day left");
+        }else{
+            dueDateTextView.setText(dueDateFromatted);
+        }
+    }
+
 
     @NonNull
     @Override
@@ -177,11 +196,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         LayoutInflater layoutInflater = LayoutInflater.from(context);
         view = layoutInflater.inflate(R.layout.my_shroomie_tasks_card, parent, false);
         rootRef = FirebaseDatabase.getInstance().getReference();
-        mAuth = FirebaseAuth.getInstance();
-
         return new TasksCardViewHolder(view);
-
-
     }
 
     @Override
@@ -189,10 +204,10 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
 
         holder.titleTextView.setText(tasksCardsList.get(position).getTitle());
         holder.descriptionTextView.setText(tasksCardsList.get(position).getDescription());
-        if (tasksCardsList.get(position).getDueDate().equals("Due date")) {
-            holder.dueDateTextView.setText(" None");
+        if (tasksCardsList.get(position).getDueDate()==null) {
+            holder.dueDateTextView.setText("None");
         } else {
-            holder.dueDateTextView.setText(tasksCardsList.get(position).getDueDate());
+            setDate(tasksCardsList.get(position).getDueDate() , holder.dueDateTextView);
         }
         if (tasksCardsList.get(position).getMention()!=null) {
             holder.mention.setVisibility(View.VISIBLE);
@@ -227,21 +242,6 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         }
     }
 
-//    private void deleteFromArchive(final int position, final TasksCard tasksCard) {
-//        rootRef.child("archive").child(apartment.getApartmentID()).child("tasksCards").child(tasksCardsList.get(position).getCardID()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
-//            @Override
-//            public void onSuccess(Void aVoid) {
-//                saveToDeleteArchiveLog(apartment.getApartmentID(), tasksCard);
-//                Snackbar snack = Snackbar.make(parentView, "Card deleted", BaseTransientBottomBar.LENGTH_SHORT);
-//                snack.setAnchorView(R.id.bottomNavigationView);
-//                snack.show();
-//                notifyItemRemoved(position);
-//
-//
-//            }
-//
-//        });
-//    }
 
 
     @Override
@@ -249,132 +249,29 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         return tasksCardsList.size();
     }
 
+    private void getUserToken(String method , int position , TasksCard tasksCard , boolean checked){
+        FirebaseUser firebaseUser = mAuth.getCurrentUser();
+        firebaseUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+            @Override
+            public void onComplete(@NonNull Task<GetTokenResult> task) {
+                if (task.isSuccessful()) {
+                    String token = task.getResult().getToken();
+                    switch (method) {
+                        case DELETE:
+                            deleteTasksCard(position);
+                            break;
+                        case MARK:
+                            markTaskCard(tasksCard.getCardID(), apartmentID  , checked);
+                        case ARCHIVE:
+                            archive(position , tasksCard);
+                    }
+                }else{
+                    Snackbar.make(parentView,"We encountered an error while authenticating your account", BaseTransientBottomBar.LENGTH_LONG);
+                }
+            }
+        });
+    }
 
-//    public void archive(final int position,final TasksCard tasksCard){
-//        DatabaseReference ref = rootRef.child("archive").child(apartment.getApartmentID()).child("tasksCards").push();
-//        HashMap<String ,Object> newCard = new HashMap<>();
-//        String uniqueID = ref.getKey();
-//        newCard.put("description" , tasksCard.getDescription());
-//        newCard.put("title" ,tasksCard.getTitle());
-//        newCard.put("dueDate", tasksCard.getDueDate());
-//        newCard.put("importance", tasksCard.getImportance());
-//        newCard.put("date",ServerValue.TIMESTAMP);
-//        newCard.put("cardId",uniqueID);
-//        newCard.put("done", tasksCard.getDone());
-//        newCard.put("mention",tasksCard.getMention());
-//        ref.updateChildren(newCard).addOnCompleteListener(new OnCompleteListener<Void>() {
-//            @Override
-//            public void onComplete(@NonNull Task<Void> task) {
-//                if (task.isSuccessful()){
-//                    rootRef.child("apartments").child(apartment.getApartmentID()).child("tasksCards").child(tasksCard.getCardID()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
-//                        @Override
-//                        public void onSuccess(Void aVoid) {
-//                            saveToArchiveLog(apartment.getApartmentID(),tasksCard);
-//                            Snackbar.make(parentView,"Card archived", BaseTransientBottomBar.LENGTH_SHORT)
-//                                    .setAnchorView(R.id.bottomNavigationView)
-//                                    .show();
-//                            notifyItemRemoved(position);
-//                        }
-//                    });
-//                }
-//            }
-//        });
-//    }
-//    private void saveToDeleteLog(String apartmentID,TasksCard card){
-//        DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
-//        String logID=ref.getKey();
-//        final HashMap<String, Object> newRecord=new HashMap<>();
-//        newRecord.put("actor",mAuth.getCurrentUser().getUid());
-//        newRecord.put("when",ServerValue.TIMESTAMP);
-//        newRecord.put("cardTitle",card.getTitle());
-//        newRecord.put("action","deletingCard");
-//        newRecord.put("logID",logID);
-//        newRecord.put("cardType","tasks");
-//        ref.updateChildren(newRecord).addOnCompleteListener(new OnCompleteListener<Void>() {
-//            @Override
-//            public void onComplete(@NonNull Task<Void> task) {
-//
-//            }
-//        });
-//
-//    }
-//    private void saveToArchiveLog(String apartmentID,TasksCard card){
-//        DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
-//        String logID=ref.getKey();
-//
-//        final HashMap<String, Object> newRecord=new HashMap<>();
-//        newRecord.put("actor",mAuth.getCurrentUser().getUid());
-//        newRecord.put("when",ServerValue.TIMESTAMP);
-//        newRecord.put("cardTitle",card.getTitle());
-//        newRecord.put("action","archivingCard");
-//        newRecord.put("logID",logID);
-//        newRecord.put("cardType","tasks");
-//        newRecord.put("cardID",card.getCardID());
-//        ref.updateChildren(newRecord).addOnCompleteListener(new OnCompleteListener<Void>() {
-//            @Override
-//            public void onComplete(@NonNull Task<Void> task) {
-//
-//            }
-//        });
-//
-//    }
-//    private void saveToDeleteArchiveLog(String apartmentID,TasksCard card){
-//        DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
-//        String logID=ref.getKey();
-//        final HashMap<String, Object> newRecord=new HashMap<>();
-//        newRecord.put("actor",mAuth.getCurrentUser().getUid());
-//        newRecord.put("when",ServerValue.TIMESTAMP);
-//        newRecord.put("cardTitle",card.getTitle());
-//        newRecord.put("action","deletingArchivedCard");
-//        newRecord.put("logID",logID);
-//        newRecord.put("cardType","tasks");
-//        ref.updateChildren(newRecord).addOnCompleteListener(new OnCompleteListener<Void>() {
-//            @Override
-//            public void onComplete(@NonNull Task<Void> task) {
-//
-//            }
-//        });
-//
-//    }
-//    private void saveToDoneLog(String apartmentID,TasksCard card){
-//        DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
-//        String logID=ref.getKey();
-//        final HashMap<String, Object> newRecord=new HashMap<>();
-//        newRecord.put("actor",mAuth.getCurrentUser().getUid());
-//        newRecord.put("when",ServerValue.TIMESTAMP);
-//        newRecord.put("cardTitle",card.getTitle());
-//        newRecord.put("action","markingDone");
-//        newRecord.put("logID",logID);
-//        newRecord.put("cardType","tasks");
-//        newRecord.put("cardID",card.getCardID());
-//        ref.updateChildren(newRecord).addOnCompleteListener(new OnCompleteListener<Void>() {
-//            @Override
-//            public void onComplete(@NonNull Task<Void> task) {
-//
-//            }
-//        });
-//
-//    }
-//    private void saveToUnDoneLog(String apartmentID,TasksCard card){
-//        DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
-//        String logID=ref.getKey();
-//
-//        final HashMap<String, Object> newRecord=new HashMap<>();
-//        newRecord.put("actor",mAuth.getCurrentUser().getUid());
-//        newRecord.put("when", ServerValue.TIMESTAMP);
-//        newRecord.put("cardTitle",card.getTitle());
-//        newRecord.put("action","unMarkingDone");
-//        newRecord.put("logID",logID);
-//        newRecord.put("cardType","tasks");
-//        newRecord.put("cardID",card.getCardID());
-//        ref.updateChildren(newRecord).addOnCompleteListener(new OnCompleteListener<Void>() {
-//            @Override
-//            public void onComplete(@NonNull Task<Void> task) {
-//
-//            }
-//        });
-//
-//    }
 
     public void archive(final int position, final TasksCard tasksCard) {
         final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
@@ -384,12 +281,6 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         }));
         JSONObject data = new JSONObject();
         JSONObject jsonObject = new JSONObject();
-        //        firebaseUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
-//            @Override
-//            public void onComplete(@NonNull Task<GetTokenResult> task) {
-//                if(task.isSuccessful()){
-//                    String token = task.getResult().getToken();
-
         try {
             jsonObject.put("cardDetails", cardDetails);
             jsonObject.put("apartmentID", apartmentID);
@@ -410,28 +301,17 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-
+                displayError(error);
             }
         });
         requestQueue.add(jsonObjectRequest);
-//    }
-//}
-//}):
-
 
     }
 
     public void deleteTasksCard(final int position) {
 
-        if(!fromArchive) {
             JSONObject jsonObject = new JSONObject();
             JSONObject data = new JSONObject();
-
-//        firebaseUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
-//            @Override
-//            public void onComplete(@NonNull Task<GetTokenResult> task) {
-//                if(task.isSuccessful()){
-//                    String token = task.getResult().getToken();
             try {
                 jsonObject.put("apartmentID", apartmentID);
                 jsonObject.put("cardID", tasksCardsList.get(position).getCardID());
@@ -452,16 +332,11 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
             }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-
+                    displayError(error);
                 }
             });
             requestQueue.add(jsonObjectRequest);
-//    }
-//}
-//});
-        }else{
 
-        }
 
     }
 
@@ -470,13 +345,6 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
     private void markTaskCard(String cardID, String apartmentID, boolean checked) {
         JSONObject jsonObject = new JSONObject();
         JSONObject data = new JSONObject();
-        FirebaseUser firebaseUser = mAuth.getCurrentUser();
-//        firebaseUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
-//            @Override
-//            public void onComplete(@NonNull Task<GetTokenResult> task) {
-//                if(task.isSuccessful()){
-//                    String token = task.getResult().getToken();
-
         try {
             jsonObject.put("booleanValue" , checked);
             jsonObject.put("apartmentID" , apartmentID);
@@ -497,14 +365,25 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-
+                displayError(error);
             }
         });
         requestQueue.add(jsonObjectRequest);
-//                }
-//            }
-//        });
 
+
+    }
+
+    void displayError(VolleyError error){
+        String message = null; // error message, show it in toast or dialog, whatever you want
+        if (error instanceof NetworkError || error instanceof AuthFailureError || error instanceof NoConnectionError || error instanceof TimeoutError) {
+            message = "Cannot connect to Internet";
+        } else if (error instanceof ServerError) {
+            message = "Server error. Please try again later";
+        }  else if (error instanceof ParseError) {
+            message = "Parsing error! Please try again later";
+        }
+        Snackbar.make(parentView,message, BaseTransientBottomBar.LENGTH_SHORT)
+                .show();
     }
 
 

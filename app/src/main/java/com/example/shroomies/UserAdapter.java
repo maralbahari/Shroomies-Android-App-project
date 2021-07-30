@@ -2,7 +2,6 @@ package com.example.shroomies;
 
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,56 +9,44 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
+
 import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkError;
+import com.android.volley.NoConnectionError;
+import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
+import com.android.volley.ServerError;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
-import com.example.shroomies.notifications.Data;
-import com.example.shroomies.notifications.Sender;
-import com.example.shroomies.notifications.Token;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
+
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
+
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GetTokenResult;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ServerValue;
-import com.google.firebase.database.ValueEventListener;
-import com.google.gson.Gson;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
-   private ArrayList<User> userList;
-   private Context context;
-   private View v;
-   private DatabaseReference rootRef;
-   private FirebaseAuth mAuth;
+   private final ArrayList<User> userList;
+   private final Context context;
+    private FirebaseAuth mAuth;
    private boolean fromSearchMember =false;
    private RequestQueue requestQueue;
-   private ShroomiesApartment apartment;
-   private String senderName="";
+   private final ShroomiesApartment apartment;
    private View parentView;
 
 
@@ -79,11 +66,10 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
     @NonNull
     @Override
     public UserAdapter.UserViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-
         LayoutInflater layoutInflater = LayoutInflater.from(context);
-        v = layoutInflater.inflate(R.layout.send_request_card,parent,false);
-        rootRef= FirebaseDatabase.getInstance().getReference();
+        View v = layoutInflater.inflate(R.layout.send_request_card, parent, false);
         mAuth=FirebaseAuth.getInstance();
+        mAuth.useEmulator("10.0.2.2" , 9099);
         requestQueue = Volley.newRequestQueue(context);
         return new UserViewHolder(v);
     }
@@ -154,56 +140,47 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             sendRequest=itemView.findViewById(R.id.send_request_btn);
             msgMember = itemView.findViewById(R.id.msg_member);
             removeMember = itemView.findViewById(R.id.remove_member);
-            msgMember.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent intent = new Intent(context, ChattingActivity.class);
-                    intent.putExtra("USERID",userList.get(getAdapterPosition()).getUserID());
-                    context.startActivity(intent);
-                }
+            msgMember.setOnClickListener(view -> {
+                Intent intent = new Intent(context, ChattingActivity.class);
+                intent.putExtra("USERID",userList.get(getAdapterPosition()).getUserID());
+                context.startActivity(intent);
             });
 
-            removeMember.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    final DatabaseReference ref= rootRef.child("apartments").push();
-                    final String newApartmentID =ref.getKey();
-                    final HashMap<String,Object> apartmentDetails=new HashMap<>();
-                    apartmentDetails.put("apartmentID",newApartmentID);
-                    apartmentDetails.put("ownerID",userList.get(getAdapterPosition()).getUserID());
-                    ref.updateChildren(apartmentDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
-                        @Override
-                        public void onComplete(@NonNull Task<Void> task) {
-                            rootRef.child("Users").child(userList.get(getAdapterPosition()).getUserID()).child("isPartOfRoom").setValue(newApartmentID).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    rootRef.child("apartments").child(apartment.getApartmentID()).child("apartmentMembers").child(userList.get(getAdapterPosition()).getUserID()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-//                                            saveToRemovedLog(apartment.getApartmentID(),userList.get(getAdapterPosition()).getName());
-                                            Snackbar snack=Snackbar.make(parentView,userList.get(getAdapterPosition()).getName()+"removed successfully", BaseTransientBottomBar.LENGTH_SHORT);
-                                            snack.setAnchorView(R.id.bottomNavigationView);
-                                            snack.show();
-                                            notifyItemRemoved(getAdapterPosition());
+            removeMember.setOnClickListener(view -> removeMember(apartment.getApartmentID() , getAdapterPosition()));
 
-                                        }
-                                    });
-                                }
-                            });
-                        }
-                    });
-
-                }
-            });
-
-            sendRequest.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    sendRequestToUser(userList.get(getAdapterPosition()).getUserID() , apartment.getApartmentID());
-                }
-            });
+            sendRequest.setOnClickListener(v -> sendRequestToUser(userList.get(getAdapterPosition()).getUserID() , apartment.getApartmentID()));
 
         }
+
+        private void removeMember(String apartmentID, int position) {
+            FirebaseUser firebaseUser = mAuth.getCurrentUser();
+            firebaseUser.getIdToken(false).addOnCompleteListener(task -> {
+                if(task.isSuccessful()){
+                    String token = task.getResult().getToken();
+                    JSONObject jsonObject = new JSONObject();
+                    JSONObject data = new JSONObject();
+                    try {
+                        jsonObject.put("apartmentID" , apartmentID);
+                        jsonObject.put("userID" , userList.get(position).getUserID());
+                        data.put("data" , jsonObject);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_REMOVE_MEMBER, data, response -> {
+                        Snackbar snack=Snackbar.make(parentView,userList.get(getAdapterPosition()).getName()+" has been removed", BaseTransientBottomBar.LENGTH_SHORT);
+                        snack.show();
+                        userList.remove(position);
+                        notifyItemRemoved(position);
+                    }, error -> displayErrorAlert( error , null));
+                    requestQueue.add(jsonObjectRequest);
+
+                }else{
+                    String message = "We encountered a problem while authenticating your account";
+                    displayErrorAlert(null, message);
+                }
+            });
+        }
+
         private void sendRequestToUser( String id , String  apartmentID) {
             JSONObject  data = new JSONObject();
             JSONObject jsonObject = new JSONObject();
@@ -216,30 +193,20 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                 e.printStackTrace();
             }
 
-//            FirebaseUser firebaseUser = mAuth.getCurrentUser();
-//            firebaseUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
-//                @Override
-//                public void onComplete(@NonNull Task<GetTokenResult> task) {
-////                    if (task.isSuccessful()) {
-//                        String token = task.getResult().getToken();
-                        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_SEND_REQUEST, data, new Response.Listener<JSONObject>() {
-                            @Override
-                            public void onResponse(JSONObject response) {
-                                sendRequest.setText("Sent!");
-                                sendRequest.setClickable(false);
+            FirebaseUser firebaseUser = mAuth.getCurrentUser();
+            firebaseUser.getIdToken(false).addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    String token = task.getResult().getToken();
+                    JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_SEND_REQUEST, data, response -> {
+                        sendRequest.setText("Sent!");
+                        sendRequest.setClickable(false);
 
-                            }
-                        }, new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-
-                            }
-                        });
-                        requestQueue.add(jsonObjectRequest);
+                    }, error -> displayErrorAlert(error , null));
+                    requestQueue.add(jsonObjectRequest);
 //                    }
 //                }
 //            })
-                        //        {
+                    //        {
 //            @Override
 //            public Map<String, String> getHeaders() throws AuthFailureError {
 //                Map<String, String> params = new HashMap<String, String>();
@@ -247,120 +214,32 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
 //                params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
 //                return params;
 //            }
-//        }
-                        ;
-
-                    }
-
-//    private void getSenderName(){
-//            rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("name").addListenerForSingleValueEvent(new ValueEventListener() {
-//                @Override
-//                public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                    if(snapshot.exists()){
-//                        senderName=snapshot.getValue().toString();
-//                    }
-//                }
-//
-//                @Override
-//                public void onCancelled(@NonNull DatabaseError error) {
-//
-//                }
-//            });
-//    }
-//        private void sendNotification(final String receiverID,final String message) {
-//            rootRef.child("Token").orderByKey().equalTo(receiverID).addValueEventListener(new ValueEventListener() {
-//                @Override
-//                public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                    if (snapshot.exists()) {
-//                        for (DataSnapshot ds : snapshot.getChildren()) {
-//                            Token token = (Token) ds.getValue(Token.class);
-//                            Data data = new Data( mAuth.getCurrentUser().getUid(),  message, "New request", receiverID, (R.drawable.ic_notification_icon)  ,"false","true" );
-//                            Sender sender = new Sender(data, token.getToken());
-//                            try {
-//                                JSONObject senderJsonObj = new JSONObject(new Gson().toJson(sender));
-//                                JsonObjectRequest jsonObjectRequest=new JsonObjectRequest("https://fcm.googleapis.com/fcm/send", senderJsonObj, new Response.Listener<JSONObject>() {
-//                                    @Override
-//                                    public void onResponse(JSONObject response) {
-//
-//                                        Log.d("JSON_RESPONSE","onResponse:"+response.toString());
-//                                    }
-//
-//                                }, new Response.ErrorListener() {
-//                                    @Override
-//                                    public void onErrorResponse(VolleyError error) {
-//                                        Log.d("JSON_RESPONSE","onResponse:"+error.toString());
-//
-//                                    }
-//                                })
-//                                {
-//                                    @Override
-//                                    public Map<String,String> getHeaders() throws AuthFailureError {
-//                                        Map<String,String> headers= new HashMap<>();
-//                                        headers.put("Content-type","application/json");
-//                                        headers.put("Authorization","Key=AAAAyn_kPyQ:APA91bGLxMB-HGP-qd_EPD3wz_apYs4ZJIB2vyAvH5JbaTVlyLExgYn7ye-076FJxjfrhQ-1HJBmptN3RWHY4FoBdY08YRgplZSAN0Mnj6sLbS6imKa7w0rqPsLtc-aXMaPOhlxnXqPs");
-//                                        return headers;
-//                                    }
-//
-//                                };
-//
-//                                requestQueue.add(jsonObjectRequest);
-//                                requestQueue.start();
-//                            }catch (JSONException e){
-//                                e.printStackTrace();
-//                            }
-//                        }
-//                    }
-//
-//                }
-//
-//                @Override
-//                public void onCancelled(@NonNull DatabaseError error) {
-//
-//                }
-//            });
-//
-//        }
-//
-//    }
-//    private void saveToRemovedLog(final String apartmentID,String username){
-//        DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
-//        String logID=ref.getKey();
-//        final HashMap<String,Object> newRecord=new HashMap<>();
-//        newRecord.put("actor",apartment.getAdminID());
-//        newRecord.put("action","removing");
-//        newRecord.put("when",ServerValue.TIMESTAMP);
-//        newRecord.put("removedUser",username);
-//        newRecord.put("logID",logID);
-//        ref.updateChildren(newRecord).addOnCompleteListener(new OnCompleteListener<Void>() {
-//            @Override
-//            public void onComplete(@NonNull Task<Void> task) {
-//                if(task.isSuccessful()){
-//                    Toast.makeText(context,"I am here",Toast.LENGTH_SHORT).show();
-//                }
-//            }
-//        });
-//
-//    }
-//    private void saveToRequestsLog(final String apartmentID,String userID){
-//
-//        DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
-//        String uniqueID=ref.getKey();
-//        final HashMap<String,Object> newRecord=new HashMap<>();
-//        newRecord.put("when", ServerValue.TIMESTAMP);
-//        newRecord.put("actor",mAuth.getCurrentUser().getUid());
-//        newRecord.put("receivedBy",userID);
-//        newRecord.put("logID",uniqueID);
-//        newRecord.put("action","requesting");
-//        ref.updateChildren(newRecord).addOnCompleteListener(new OnCompleteListener<Void>() {
-//            @Override
-//            public void onComplete(@NonNull Task<Void> task) {
-//                if(task.isSuccessful()){
-//                    Toast.makeText(context,"I am here",Toast.LENGTH_SHORT).show();
-//                }
-//            }
-//        });
-//
+                }else{
+                    String message = "We encountered a problem while authenticating your account";
+                    displayErrorAlert(null, message);
                 }
+            });
 
 
+    }
+        }
+    void displayErrorAlert(@Nullable VolleyError error , @Nullable String errorMessage){
+        String message = null; // error message, show it in toast or dialog, whatever you want
+        if(error!=null) {
+            if (error instanceof NetworkError || error instanceof AuthFailureError || error instanceof NoConnectionError || error instanceof TimeoutError) {
+                message = "Cannot connect to Internet";
+            } else if (error instanceof ServerError) {
+                message = "The server could not be found. Please try again later";
+            } else if (error instanceof ParseError) {
+                message = "Parsing error! Please try again later";
             }
+        }else{
+            message = errorMessage;
+        }
+        Snackbar snack=Snackbar.make(parentView,message, BaseTransientBottomBar.LENGTH_SHORT);
+        snack.show();
+
+    }
+
+
+}

@@ -1,5 +1,4 @@
 package com.example.shroomies;
-
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -22,24 +21,29 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkError;
+import com.android.volley.NoConnectionError;
+import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
+
+import com.android.volley.ServerError;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GetTokenResult;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.functions.FirebaseFunctions;
+
+
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -50,25 +54,19 @@ import java.util.ArrayList;
 public class Members extends Fragment {
     //views
     private View v;
-    private Button addMemberButton, leaveRoomButton;
     private RecyclerView membersRecyclerView;
     private TextView ownerName;
     private ImageView adminImageView , ghostImageView;
-    private ImageButton msgOwnerImageButton;  // set visibility to gone if there are members in add members
     private RelativeLayout noMembersRelativeLayout;
 
     //firebase
     private FirebaseAuth mAuth;
-    private DatabaseReference rootRef;
-    private FirebaseFunctions mfunc;
     private RequestQueue requestQueue;
     //data structures
     private ArrayList<User> membersList;
     private UserAdapter userAdapter;
    //model
     private ShroomiesApartment apartment;
-    //variables
-    private String isPartOfRoomID;
 
 
     @Nullable
@@ -78,9 +76,6 @@ public class Members extends Fragment {
         requestQueue = Volley.newRequestQueue(getActivity());
         mAuth = FirebaseAuth.getInstance();
         mAuth.useEmulator("10.0.2.2" , 9009);
-        mfunc=FirebaseFunctions.getInstance();
-        mfunc.useEmulator("10.0.2.2",5001);
-        rootRef = FirebaseDatabase.getInstance().getReference();
         return v;
     }
 
@@ -90,11 +85,12 @@ public class Members extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        addMemberButton =v.findViewById(R.id.add_shroomie_btn);
-        leaveRoomButton =v.findViewById(R.id.leave_room_btn);
+        Button addMemberButton = v.findViewById(R.id.add_shroomie_btn);
+        Button leaveRoomButton = v.findViewById(R.id.leave_room_btn);
         adminImageView =v.findViewById(R.id.owner_image);
         ownerName=v.findViewById(R.id.admin_name);
-        msgOwnerImageButton =v.findViewById(R.id.msg_admin);
+        // set visibility to gone if there are members in add members
+        ImageButton msgOwnerImageButton = v.findViewById(R.id.msg_admin);
         membersRecyclerView = v.findViewById(R.id.members_recyclerView);
         ghostImageView = v.findViewById(R.id.ghost_view);
         noMembersRelativeLayout = v.findViewById(R.id.no_members_relative_layout);
@@ -105,13 +101,10 @@ public class Members extends Fragment {
         toolbar.setTitleTextColor(getActivity().getColor(R.color.jetBlack));
         toolbar.setNavigationIcon(R.drawable.ic_back_button);
         toolbar.setElevation(5);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                toolbar.setTitle(null);
-                toolbar.setNavigationIcon(null);
-                getActivity().onBackPressed();
-            }
+        toolbar.setNavigationOnClickListener(view1 -> {
+            toolbar.setTitle(null);
+            toolbar.setNavigationIcon(null);
+            getActivity().onBackPressed();
         });
 
 
@@ -130,52 +123,31 @@ public class Members extends Fragment {
             //this check is if the admin removed a member and that user is in member page so it refreshes
         }
 
-        addMemberButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AddShroomieMember add=new AddShroomieMember();
-                Bundle bundle = new Bundle();
-                bundle.putParcelable("APARTMENT_DETAILS",apartment);
-                add.setArguments(bundle);
-                add.show(getParentFragmentManager(),"add member to apartment");
-            }
+        addMemberButton.setOnClickListener(v -> {
+            AddShroomieMember add=new AddShroomieMember();
+            Bundle bundle1 = new Bundle();
+            bundle1.putParcelable("APARTMENT_DETAILS",apartment);
+            add.setArguments(bundle1);
+            add.show(getParentFragmentManager(),"add member to apartment");
         });
 
-        leaveRoomButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        leaveRoomButton.setOnClickListener(v -> {
 
-                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                builder.setTitle("Leave group");
-                builder.setPositiveButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
-                builder.setNegativeButton("leave", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        leaveApartment();
-                    }
-                });
-                builder.setMessage("Leaving this group will remove all data and place you in an empty group.");
-                builder.setIcon(R.drawable.ic_shroomies_yelllow_black_borders);
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+            builder.setTitle("Leave group");
+            builder.setPositiveButton("Cancel", (dialog, which) -> dialog.dismiss());
+            builder.setNegativeButton("leave", (dialog, which) -> leaveApartment());
+            builder.setMessage("Leaving this group will remove all data and place you in an empty group.");
+            builder.setIcon(R.drawable.ic_shroomies_yelllow_black_borders);
+            builder.setCancelable(true);
+            builder.create().show();
 
-
-                builder.setCancelable(true);
-                builder.create().show();
-
-            }
         });
 
-        msgOwnerImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getContext(), ChattingActivity.class);
-                intent.putExtra("USERID",mAuth.getCurrentUser().getUid());
-                startActivity(intent);
-            }
+        msgOwnerImageButton.setOnClickListener(view12 -> {
+            Intent intent = new Intent(getContext(), ChattingActivity.class);
+            intent.putExtra("USERID",mAuth.getCurrentUser().getUid());
+            startActivity(intent);
         });
 
        Animation animUpDown = AnimationUtils.loadAnimation(getActivity(),
@@ -204,84 +176,30 @@ public class Members extends Fragment {
         JSONObject jsonObject = new JSONObject();
         JSONObject data = new JSONObject();
         try {
-            jsonObject.put("apartmentID" , apartment.getApartmentID());
-            jsonObject.put("userID" , mAuth.getCurrentUser().getUid());
-            data.put("data", jsonObject);
+            jsonObject.put(Config.apartmentID , apartment.getApartmentID());
+            jsonObject.put(Config.userID , mAuth.getCurrentUser().getUid());
+            data.put(Config.data, jsonObject);
         } catch (JSONException e) {
-            //todo handle error
             e.printStackTrace();
         }
 
         FirebaseUser firebaseUser = mAuth.getCurrentUser();
-        firebaseUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
-            @Override
-            public void onComplete(@NonNull Task<GetTokenResult> task) {
-                if (task.isSuccessful()) {
-                    String token = task.getResult().getToken();
+        firebaseUser.getIdToken(false).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                String token = task.getResult().getToken();
 
-                    JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_LEAVE_APARTMENT, data, new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            getActivity().finish();
-                        }
-                    }, new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            //todo  handle error
-                        }
-                    });
-                    requestQueue.add(jsonObjectRequest);
-                }
+                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_LEAVE_APARTMENT, data, response -> getActivity().finish(), error -> {
+                    displayErrorAlert("Error" ,null , error );
+                });
+                requestQueue.add(jsonObjectRequest);
+            }else{
+                String title = "Authentication error";
+                String message = "We encountered a problem while authenticating your account";
+                displayErrorAlert(title, message , null);
             }
-        }  );
+        });
 
     }
-
-//    private void leaveApartment(final String apartmentID) {
-//
-//        final CustomLoadingProgressBar customLoadingProgressBar = new CustomLoadingProgressBar(getActivity(),"Leaving room...",R.raw.loading_animation);
-//        customLoadingProgressBar.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-//        customLoadingProgressBar.show();
-//
-//        final DatabaseReference ref= rootRef.child("apartments").push();
-//        final String newApartmentID =ref.getKey();
-//        final HashMap<String,Object> apartmentDetails=new HashMap<>();
-//        apartmentDetails.put("apartmentID",newApartmentID);
-//        apartmentDetails.put("ownerID",mAuth.getCurrentUser().getUid());
-//        ref.updateChildren(apartmentDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
-//            @Override
-//            public void onComplete(@NonNull Task<Void> task) {
-//                if(task.isSuccessful()){
-//                    rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").setValue(newApartmentID).addOnSuccessListener(new OnSuccessListener<Void>() {
-//                        @Override
-//                        public void onSuccess(Void aVoid) {
-//                            rootRef.child("apartments").child(apartmentID).child("apartmentMembers").child(mAuth.getCurrentUser().getUid()).removeValue().addOnSuccessListener(new OnSuccessListener<Void>() {
-//                                @Override
-//                                public void onSuccess(Void aVoid) {
-//                                    customLoadingProgressBar.dismiss();
-//                                    Intent intent = new Intent(getContext(),MainActivity.class);
-//                                    startActivity(intent);
-//                                }
-//                            }).addOnFailureListener(new OnFailureListener() {
-//                                @Override
-//                                public void onFailure(@NonNull Exception e) {
-//                                    customLoadingProgressBar.dismiss();
-//                                }
-//                            });
-//                        }
-//                    }).addOnFailureListener(new OnFailureListener() {
-//                        @Override
-//                        public void onFailure(@NonNull Exception e) {
-//                            customLoadingProgressBar.dismiss();
-//                        }
-//                    });
-//                }
-//            }
-//        });
-
-//
-//
-//    }
 
 
     private void getMemberDetail(ShroomiesApartment shroomiesApartment) {
@@ -301,71 +219,62 @@ public class Members extends Fragment {
         JSONArray jsonArray = new JSONArray(members);
 
         try {
-            jsonObject.put("membersID",jsonArray);
-            data.put("data" , jsonObject);
+            jsonObject.put(Config.membersID,jsonArray);
+            data.put(Config.data , jsonObject);
         } catch (JSONException e) {
             e.printStackTrace();
         }
 
-//        FirebaseUser firebaseUser = mAuth.getCurrentUser();
-//        firebaseUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
-//            @Override
-//            public void onComplete(@NonNull Task<GetTokenResult> task) {
-//                if(task.isSuccessful()){
-//                    String token = task.getResult().getToken();
-                    JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_GET_MEMBER_DETAIL, data, new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-                            final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
-                            JSONArray users = null;
-                            try {
-                                users = response.getJSONArray("result");
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                            if(users!=null) {
-                                if (users.length()!=0) {
-                                    for (int i = 0 ; i<jsonArray.length();i++) {
-                                        User user = null;
-                                        try {
-                                            user = mapper.readValue((users.get(i)).toString(), User.class);
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                        } catch (JsonMappingException e) {
-                                            e.printStackTrace();
-                                        } catch (JsonProcessingException e) {
-                                            e.printStackTrace();
-                                        }
-                                        //if the admin id corresponds to this user id then
-                                        // set the details of the admin without adding to the recycler view
-                                        if(user!=null) {
-                                            if (user.getUserID().equals(apartment.getAdminID())) {
-                                                setAdminDetails(user);
-                                            } else {
-                                                membersList.add(user);
-                                            }
-                                        }
-                                    }
-                                    userAdapter.notifyDataSetChanged();
-                                }else{
-                                    noMembersRelativeLayout.setVisibility(View.VISIBLE);
+        FirebaseUser firebaseUser = mAuth.getCurrentUser();
+        firebaseUser.getIdToken(true).addOnCompleteListener(task -> {
+            if(task.isSuccessful()){
+                String token = task.getResult().getToken();
+                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_GET_MEMBER_DETAIL, data, response -> {
+                    final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
+                    JSONArray users = null;
+                    try {
+                        users = response.getJSONArray(Config.result);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    if(users!=null) {
+                        if (users.length()!=0) {
+                            for (int i = 0 ; i<jsonArray.length();i++) {
+                                User user = null;
+                                try {
+                                    user = mapper.readValue((users.get(i)).toString(), User.class);
+                                } catch (JSONException | JsonProcessingException e) {
+                                    e.printStackTrace();
                                 }
-                            }else{
-                                noMembersRelativeLayout.setVisibility(View.VISIBLE);
+                                //if the admin id corresponds to this user id then
+                                // set the details of the admin without adding to the recycler view
+                                if(user!=null) {
+                                    if (user.getUserID().equals(apartment.getAdminID())) {
+                                        setAdminDetails(user);
+                                    } else {
+                                        membersList.add(user);
+                                    }
+                                }
                             }
+                            userAdapter.notifyDataSetChanged();
+                        }else{
+                            noMembersRelativeLayout.setVisibility(View.VISIBLE);
+                        }
+                    }else{
+                        noMembersRelativeLayout.setVisibility(View.VISIBLE);
+                    }
 
 
-                        }
-                    }, new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            //todo handle error
-                        }
-                    });
-                    requestQueue.add(jsonObjectRequest);
-//                }
-//            }
-//        });
+                }, error -> {
+                    displayErrorAlert("Error" ,null , error );
+                });
+                requestQueue.add(jsonObjectRequest);
+            }else{
+                    String title = "Authentication error";
+                    String message = "We encountered a problem while authenticating your account";
+                    displayErrorAlert(title, message , null);
+                    }
+        });
 
     }
 
@@ -386,6 +295,32 @@ public class Members extends Fragment {
                         .into(adminImageView);
             }
         }
+    }
+
+    void displayErrorAlert(String title ,  String errorMessage  , VolleyError error){
+        String message = null; // error message, show it in toast or dialog, whatever you want
+        if(error!=null) {
+            if (error instanceof NetworkError || error instanceof AuthFailureError || error instanceof NoConnectionError || error instanceof TimeoutError) {
+                message = "Cannot connect to Internet";
+            } else if (error instanceof ServerError) {
+                message = "The server could not be found. Please try again later";
+            } else if (error instanceof ParseError) {
+                message = "Parsing error! Please try again later";
+            }
+        }else{
+            message = errorMessage;
+        }
+        new android.app.AlertDialog.Builder(getActivity())
+                .setIcon(R.drawable.ic_alert)
+                .setTitle(title)
+                .setMessage(message)
+                .setCancelable(false)
+                .setNeutralButton("return", (dialog, which) -> {
+                    Members.this.getActivity().onBackPressed();
+                    dialog.dismiss();
+                })
+                .create()
+                .show();
     }
 
 }

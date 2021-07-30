@@ -2,10 +2,20 @@ package com.example.shroomies;
 
 public class Config {
     public static final String apartmentID="apartmentID";
-    public static final String adminID="admin";
+    public static final String adminID="adminID";
+    public static final String userID="userID";
+    public static final String membersID="membersID";
     public static final String taskCards="taskCard";
     public static final String expensesCards="expensesCards";
     public static final String apartmentMembers="apartmentMembers";
+    public static final String data="data";
+    public static final String name="name";
+    public static final String currentUser="currentUser";
+    public static final String id="ID";
+
+
+
+    public static final String result="result";
     public static final String logs="logs";
 
     //FUNCTIONS NAMES
@@ -44,4 +54,5 @@ public class Config {
     public static final String URL_ACCEPT_REQUEST = "http://10.0.2.2:5001/shroomies-e34d3/us-central1/acceptRequest";
     public static final String URL_GET_USER_DETAILS= "http://10.0.2.2:5001/shroomies-e34d3/us-central1/getUserDetails";
     public static final String URL_REGISTER_USER = "http://10.0.2.2:5001/shroomies-e34d3/us-central1/registerUser";
+    public static final String URL_REMOVE_MEMBER= "http://10.0.2.2:5001/shroomies-e34d3/us-central1/removeMember";
 }

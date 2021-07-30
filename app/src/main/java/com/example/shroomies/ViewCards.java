@@ -39,6 +39,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.hendraanggrian.appcompat.widget.SocialAutoCompleteTextView;
 import com.hendraanggrian.appcompat.widget.SocialTextView;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
@@ -59,7 +60,7 @@ public class ViewCards extends DialogFragment {
     private ImageButton close , expandImageButton;
     private TextView title,dueDate,description, expensesTextView;
     private ImageView attachedFile;
-    private SocialTextView mention;
+    private SocialAutoCompleteTextView mention;
     private View importanceView;
     private RecyclerView viewCardRecycler;
     private NestedScrollView nestedScrollView;
@@ -159,7 +160,8 @@ public class ViewCards extends DialogFragment {
                 title.setText(expensesCard.getTitle());
                 String due= expensesCard.getDueDate();
                 String descriptionCard=expensesCard.getDescription();
-//                String mentions=expensesCard.getMention();
+                HashMap<String , String> mentions=expensesCard.getMention();
+                Toast.makeText(getActivity() , mentions.toString() , Toast.LENGTH_SHORT).show();
                 String importance=expensesCard.getImportance();
                 String fileType = expensesCard.getFileType();
                 imagePath=expensesCard.getAttachedFile();

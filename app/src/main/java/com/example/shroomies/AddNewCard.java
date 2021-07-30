@@ -33,6 +33,7 @@ import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
@@ -43,9 +44,14 @@ import androidx.fragment.app.DialogFragment;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkError;
+import com.android.volley.NoConnectionError;
+import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.ServerError;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
@@ -56,6 +62,7 @@ import com.example.shroomies.notifications.Data;
 import com.example.shroomies.notifications.Sender;
 import com.example.shroomies.notifications.Token;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -100,8 +107,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.DataInput;
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -109,13 +121,14 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.TimeZone;
 
 
 public class AddNewCard extends DialogFragment implements SplitExpenses.membersShares {
     //static
     private static final long MAX_FILES_SIZE_IN_BYTES =20 ;
     private static final int CAMERA_REQUEST_CODE = 100, IMAGE_PICK_GALLERY_CODE = 400,
-            PICK_IMAGE_MULTIPLE = 1, PDF_PICK_CODE =500 ,DIALOG_RESULT=100;
+                     PDF_PICK_CODE =500 ,DIALOG_RESULT=100;
     //views
     private View v;
     private Button attachFileButton, splitExpensesButton, dueDateButton;
@@ -128,33 +141,26 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
     private RadioGroup cardColorRadioGroup;
     private LottieAnimationView loadingLottieAnimationView;
     //fireBase
-    private DatabaseReference rootRef;
     private FirebaseAuth mAuth;
-    private FirebaseFunctions mfunc;
     private RequestQueue requestQueue;
     private FirebaseStorage mStorage;
     //data structures
     private ArrayList<User> apartmentMembersArrayList =new ArrayList<>();
     private HashMap<String, String> nameAndIdHashMap =new HashMap<>(), apartmentMembersHashMap =new HashMap<>();
-    public HashMap<String, Integer> sharedAmountsHashMap;
+    private HashMap<String, Integer> sharedAmountsHashMap;
     //variables
     private ShroomiesApartment apartment;
-    private boolean notify = false , expensesCardSelected;
-    private String fileExtension,captureFileName , fileType;
+    private boolean  expensesCardSelected;
+    private String fileExtension,captureFileName , fileType , dueDate;
     private Uri chosenImageUri = null;
-
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         requestQueue= Volley.newRequestQueue(getActivity());
-        rootRef = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
         mAuth.useEmulator("10.0.2.2" , 9099);
-        mfunc=FirebaseFunctions.getInstance();
-        mfunc.useEmulator("10.0.2.2",5001);
         mStorage = FirebaseStorage.getInstance();
         v = inflater.inflate(R.layout.fragment_add_new_card, container, false);
 
@@ -177,7 +183,6 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
 
         }
     }
-
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable final Bundle savedInstanceState) {
@@ -209,19 +214,17 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
         mentionAutoCompleteTextView.setHint("@mention");
         mentionAutoCompleteTextView.setTag("@");
 
-
-
-
         closeImageButton.setOnClickListener(view1 -> dismiss());
 
         final Bundle bundle = this.getArguments();
         if (bundle != null) {
             expensesCardSelected = bundle.getBoolean("Expenses");
             apartment=bundle.getParcelable("APARTMENT_DETAILS");
-            if(apartment.apartmentMembers!=null){
+            if(apartment.apartmentMembers!=null) {
                 apartmentMembersHashMap.putAll(apartment.getApartmentMembers());
-                getMemberUserNames(apartmentMembersHashMap);
             }
+            getMemberUserNames(apartmentMembersHashMap);
+
             Log.d("apartment add card" , apartment.getApartmentID());
             if (!expensesCardSelected) {
                 attachFileButton.setVisibility(View.GONE);
@@ -282,7 +285,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                     //disable click on layout to prevent uploading before the current task is done;
                     addCardRelativeLayout.setClickable(false);
                     String cardColor, mdescription, mtitle, mdueDate;
-                    mdueDate = dueDateButton.getText().toString();
+                    mdueDate = dueDate;
 
                     switch (cardColorRadioGroup.getCheckedRadioButtonId()) {
                         case R.id.newcard_red_radio_button:
@@ -330,14 +333,17 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                 DatePickerDialog dialog = new DatePickerDialog(getContext(), new DatePickerDialog.OnDateSetListener() {
                     @Override
                     public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-
-                        SimpleDateFormat patternFormat=new SimpleDateFormat("EEE, MMM d,yyyy");
+                        DateTimeFormatter dateformat =  DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss Z")
+                                .withZone(TimeZone.getDefault().toZoneId());
                         Calendar c= Calendar.getInstance();
                         c.set(year,month,dayOfMonth);
-                        String sDate=patternFormat.format(c.getTime());
+                        
+//                        ZonedDateTime zonedDateTime  = new ZonedDateTime(new LocalDateTime());
+                        String sDate=dateformat.format(c.toInstant());
                         //set the visibility of the due date to visible
                         dueDateRelativeLayout.setVisibility(View.VISIBLE);
                         dueDatePlaceholder.setText(sDate);
+                        dueDate = dateformat.format(c.toInstant());
 
                     }
                 }, year, month, day);
@@ -378,7 +384,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
         for(String mention
         :mentions){
             if(!mention.startsWith("@")){
-                Snackbar.make(getView(), "Please ensure the mentioned members start with @", BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.my_shroomies_add_text_view).show();
+                Snackbar.make(getView(), "Please ensure mentioned members start with @", BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.my_shroomies_add_text_view).show();
                 return false;
             }
         }
@@ -394,13 +400,11 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
         return true;
     }
 
-
-
     private void getMemberUserNames(final HashMap<String,String> membersHashMap) {
         ArrayList<String> members = new ArrayList<>();
         //add the the admin to the members
-        if(apartment.getApartmentMembers()!=null){
-            members.addAll(apartment.getApartmentMembers().values());
+        if(membersHashMap!=null){
+            members.addAll(membersHashMap.values());
         }
         members.add(apartment.getAdminID());
         apartmentMembersArrayList = new ArrayList<>();
@@ -414,13 +418,12 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
         } catch (JSONException e) {
             e.printStackTrace();
         }
-//        FirebaseUser firebaseUser = mAuth.getCurrentUser();
-//        firebaseUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
-//            @Override
-//            public void onComplete(@NonNull Task<GetTokenResult> task) {
-//                if(task.isSuccessful()){
-//                    String token = task.getResult().getToken();
-
+        FirebaseUser firebaseUser = mAuth.getCurrentUser();
+        firebaseUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+            @Override
+            public void onComplete(@NonNull Task<GetTokenResult> task) {
+                if(task.isSuccessful()){
+                    String token = task.getResult().getToken();
                     JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_GET_MEMBER_DETAIL, data, new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
@@ -460,62 +463,85 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                     }, new Response.ErrorListener() {
                         @Override
                         public void onErrorResponse(VolleyError error) {
-                            //todo handle error
+                            displayErrorAlert("Error" ,  error , null);
                         }
                     });
                     requestQueue.add(jsonObjectRequest);
-//                }
-//            }
-//        });
+                }else{
+                    String title = "Authentication error";
+                    String message = "We encountered a problem while authenticating your account";
+                    displayErrorAlert(title , null ,message );
+                }
+            }
+        });
 
     }
-//    private void saveToAddLog(String apartmentID,HashMap<String,Object> newRecord){
-//
-//            DatabaseReference ref=rootRef.child("logs").child(apartmentID).push();
-//            String logID=ref.getKey();
-//            newRecord.put("logID",logID);
-//            ref.updateChildren(newRecord);
-//
-//    }
 
     private void saveTaskCardToFirebase(String mtitle, String mdescription, String mdueDate, String importance, JSONObject mMention, String apartmentID) {
-//        FirebaseUser firebaseUser = mAuth.getCurrentUser();
-//        firebaseUser.getIdToken(false).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
-//            @Override
-//            public void onComplete(@NonNull @NotNull Task<GetTokenResult> task) {
-//                String token = task.getResult().getToken();
-//                Log.d("task token" ,"recived" );
-//                if (!mMention.isEmpty()) {
-//                    notify = true;
-//                }
-                JSONObject jsonObject = new JSONObject();
-                JSONObject data = new JSONObject();
-                JSONObject cardDetails = new JSONObject();
-                try {
-                    cardDetails.put("description", mdescription);
-                    cardDetails.put("title", mtitle);
-                    cardDetails.put("dueDate", mdueDate);
-                    cardDetails.put("importance", importance);
-                    cardDetails.put("date", ServerValue.TIMESTAMP);
-                    cardDetails.put("cardID", "");
-                    cardDetails.put("done", "false");
-                    cardDetails.put("mention", mMention);
-                    cardDetails.put("actor",mAuth.getCurrentUser().getUid());
+        FirebaseUser firebaseUser = mAuth.getCurrentUser();
+        firebaseUser.getIdToken(false).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+            @Override
+            public void onComplete(@NonNull @NotNull Task<GetTokenResult> task) {
+                if (task.isSuccessful()) {
+                    String token = task.getResult().getToken();
+                    Log.d("task token", "recived");
+                    JSONObject jsonObject = new JSONObject();
+                    JSONObject data = new JSONObject();
+                    JSONObject cardDetails = new JSONObject();
+                    //get the  date with timezone
+                    DateTimeFormatter dateformat = DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss Z")
+                            .withZone(TimeZone.getDefault().toZoneId());
+                    String currentDate = dateformat.format(ZonedDateTime.now());
+                    try {
+                        cardDetails.put("description", mdescription);
+                        cardDetails.put("title", mtitle);
+                        cardDetails.put("dueDate", mdueDate);
+                        cardDetails.put("importance", importance);
+                        cardDetails.put("date", currentDate);
+                        cardDetails.put("cardID", "");
+                        cardDetails.put("done", "false");
+                        cardDetails.put("mention", mMention);
+                        cardDetails.put("actor", mAuth.getCurrentUser().getUid());
+                        jsonObject.put("cardDetails", cardDetails);
+                        jsonObject.put("apartmentID", apartmentID);
+                        data.put("data", jsonObject);
 
-                    jsonObject.put("cardDetails",cardDetails);
-                    jsonObject.put("apartmentID" , apartmentID);
-                    data.put("data",jsonObject);
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_ADD_TASK_CARDS, data, new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        dismiss();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                }, error -> Log.d("add card no works" , error.getMessage()) )
+
+                    JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_ADD_TASK_CARDS, data, new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            //send the card back to the list in my shroomies fragment
+                            //create a task card and add the card id from the response
+                            String cardID = null;
+                            TasksCard taskCard;
+                            try {
+                                 cardID = (String) response.get("result");
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            if(cardID!=null) {
+                                try {
+                                    taskCard = new TasksCard(mdescription, mtitle, mdueDate, importance, currentDate, cardID , "false", new ObjectMapper().readValue(mMention.toString(), HashMap.class));
+                                    dismiss();
+                                } catch (JsonProcessingException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+
+                        }
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            Snackbar.make(getView(), "Couldn't add card , connection error", BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.my_shroomies_add_text_view).show();
+                            loadingLottieAnimationView.setVisibility(View.GONE);
+                            addCardTextView.setText("Add card");
+                            addCardRelativeLayout.setClickable(true);
+
+                        }
+                    })
 //                {
 //                    @Override
 //                    public Map<String, String> getHeaders() throws AuthFailureError {
@@ -525,88 +551,75 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
 //                        return params;
 //                    }
 //                }
-                ;
-                requestQueue.add(jsonObjectRequest);
+                            ;
+                    requestQueue.add(jsonObjectRequest);
+                }else{
+                    loadingLottieAnimationView.setVisibility(View.GONE);
+                    addCardTextView.setText("Add card");
+                    addCardRelativeLayout.setClickable(true);
+                    String title = "Authentication error";
+                    String message = "We encountered a problem while authenticating your account";
+                    displayErrorAlert(title , null ,message );
+
+                }
             }
-//        });
-
-
-//        ref.updateChildren(newCard).addOnCompleteListener(new OnCompleteListener<Void>() {
-//            @Override
-//            public void onComplete(@NonNull Task<Void> task) {
-//                if (task.isSuccessful()) {
-//                    saveToAddLog(apartmentID,newRecord);
-//                    dismiss();
-//
-//                }
-//            }
-//        }).addOnFailureListener(new OnFailureListener() {
-//            @Override
-//            public void onFailure(@NonNull Exception e) {
-//                //TODO handle error
-//            }
-//        });
-//        if (notify) {
-//            StringTokenizer names=new StringTokenizer(mMention,"@",true);
-//            while (names.hasMoreTokens()) {
-//                    if(names.nextToken().startsWith("@")){
-//                        try {
-//                            String tokenName= names.nextToken();
-//                            if(nameAndIdHashMap.get(tokenName.trim())!=null){
-//                                sendNotification(nameAndIdHashMap.get(tokenName.trim()), " Help! your shroomies need you");
-//                            }
-//
-//                        }catch (NoSuchElementException e){
-//
-//                        }
-//                    }
-//            }
-//
-//        }
-//        notify = false;
-//    }
-
+        });
+    };
 
     public void addExpenseCard(String title, String description, String dueDate, String attachUrl , String fileType, String importance, JSONObject mMention, String apartmentID, HashMap<String, Integer> shareAmounts) {
        //get the authorization token
         //if authorization token is recived then proceed
-//        FirebaseUser firebaseUser = mAuth.getCurrentUser();
-//        firebaseUser.getIdToken(false).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
-//            @Override
-//            public void onComplete(@NonNull @NotNull Task<GetTokenResult> task) {
-//                String token = task.getResult().getToken();
-                JSONObject jsonObject = new JSONObject();
-                JSONObject data  = new JSONObject();
-                JSONObject cardDetails = new JSONObject();
+        FirebaseUser firebaseUser = mAuth.getCurrentUser();
+        firebaseUser.getIdToken(false).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+            @Override
+            public void onComplete(@NonNull @NotNull Task<GetTokenResult> task) {
+                if(task.isSuccessful()) {
 
-                try {
-                    cardDetails.put("description", description);
-                    cardDetails.put("title", title);
-                    cardDetails.put("dueDate", dueDate);
-                    cardDetails.put("importance", importance);
-                    cardDetails.put("attachedFile", attachUrl);
-                    cardDetails.put("fileType" ,fileType );
-                    cardDetails.put("date", ServerValue.TIMESTAMP);
-                    cardDetails.put("cardID", "");
-                    cardDetails.put("done", "false");
-                    cardDetails.put("mention", mMention);
-                    cardDetails.put("actor" , mAuth.getCurrentUser().getUid());
-                    if(shareAmounts!=null){
-                        cardDetails.put("membersShares",shareAmounts);
+                    String token = task.getResult().getToken();
+                    JSONObject jsonObject = new JSONObject();
+                    JSONObject data = new JSONObject();
+                    JSONObject cardDetails = new JSONObject();
+                    //get the  date with timezone
+                    DateTimeFormatter dateformat = DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss Z")
+                            .withZone(TimeZone.getDefault().toZoneId());
+
+                    try {
+                        cardDetails.put("description", description);
+                        cardDetails.put("title", title);
+                        cardDetails.put("dueDate", dueDate);
+                        cardDetails.put("importance", importance);
+                        cardDetails.put("attachedFile", attachUrl);
+                        cardDetails.put("fileType", fileType);
+                        cardDetails.put("date", dateformat.format(ZonedDateTime.now()));
+                        cardDetails.put("cardID", "");
+                        cardDetails.put("done", "false");
+                        cardDetails.put("mention", mMention);
+                        cardDetails.put("actor", mAuth.getCurrentUser().getUid());
+                        if (shareAmounts != null) {
+                            cardDetails.put("membersShares", shareAmounts);
+                        }
+                        jsonObject.put("cardDetails", cardDetails);
+                        jsonObject.put("apartmentID", apartmentID);
+                        data.put("data", jsonObject);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
-                    jsonObject.put("cardDetails",cardDetails);
-                    jsonObject.put("apartmentID" , apartmentID);
-                    data.put("data",jsonObject);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                //TODO add progress dialog
-                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_ADD_EXPENSES_CARDS, data, new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        dismiss();
-                    }
-                }, error -> Log.d("apartment no works" , error.networkResponse.data.toString()) )
+                    //TODO add progress dialog
+                    JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_ADD_EXPENSES_CARDS, data, new Response.Listener<JSONObject>() {
+                        @Override
+                        public void onResponse(JSONObject response) {
+                            dismiss();
+                        }
+                    }, new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            loadingLottieAnimationView.setVisibility(View.GONE);
+                            addCardTextView.setText("Add card");
+                            addCardRelativeLayout.setClickable(true);
+                            Snackbar.make(getView(), "Couldn't add card , connection error", BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.my_shroomies_add_text_view).show();
+
+                        }
+                    })
 //                {
 //                    @Override
 //                    public Map<String, String> getHeaders() throws AuthFailureError {
@@ -616,10 +629,19 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
 //                        return params;
 //                    }
 //                }
-                ;
-                requestQueue.add(jsonObjectRequest);
-//            }
-//        });
+                            ;
+                    requestQueue.add(jsonObjectRequest);
+                }else{
+                    loadingLottieAnimationView.setVisibility(View.GONE);
+                    addCardTextView.setText("Add card");
+                    addCardRelativeLayout.setClickable(true);
+                    String title = "Authentication error";
+                    String message = "We encountered a problem while authenticating your account";
+                    displayErrorAlert(title , null ,message );
+
+                }
+            }
+        });
     }
 
 
@@ -644,7 +666,10 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull @NotNull Exception e) {
-                    //Todo handle error
+                    loadingLottieAnimationView.setVisibility(View.GONE);
+                    addCardTextView.setText("Add card");
+                    addCardRelativeLayout.setClickable(true);
+                    Snackbar.make(getView(), "Couldn't upload the image", BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.my_shroomies_add_text_view).show();
                 }
             });
         }
@@ -825,63 +850,6 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
             return false;
     }
 
-
-    private void sendNotification(final String receiverID,final String message) {
-        rootRef.child("Token").orderByKey().equalTo(receiverID).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    for (DataSnapshot ds : snapshot.getChildren()) {
-                        Token token = (Token) ds.getValue(Token.class);
-                        Data data = new Data( mAuth.getCurrentUser().getUid(),  message, "Card Added", receiverID, (R.drawable.ic_notification_icon)  ,"true" );
-                        Sender sender = new Sender(data, token.getToken());
-                        try {
-                            JSONObject senderJsonObj = new JSONObject(new Gson().toJson(sender));
-                            JsonObjectRequest jsonObjectRequest=new JsonObjectRequest("https://fcm.googleapis.com/fcm/send", senderJsonObj, new Response.Listener<JSONObject>() {
-                                @Override
-                                public void onResponse(JSONObject response) {
-
-                                    Log.d("JSON_RESPONSE","onResponse:"+response.toString());
-                                }
-
-                            }, new Response.ErrorListener() {
-                                @Override
-                                public void onErrorResponse(VolleyError error) {
-                                    Log.d("JSON_RESPONSE","onResponse:"+error.toString());
-
-                                }
-                            })
-                            {
-                                @Override
-                                public Map<String,String> getHeaders() throws AuthFailureError {
-                                    Map<String,String> headers= new HashMap<>();
-                                    headers.put("Content-type","application/json");
-                                    headers.put("Authorization","Key=AAAAyn_kPyQ:APA91bGLxMB-HGP-qd_EPD3wz_apYs4ZJIB2vyAvH5JbaTVlyLExgYn7ye-076FJxjfrhQ-1HJBmptN3RWHY4FoBdY08YRgplZSAN0Mnj6sLbS6imKa7w0rqPsLtc-aXMaPOhlxnXqPs");
-                                    return headers;
-                                }
-
-                            };
-
-                            requestQueue.add(jsonObjectRequest);
-                            requestQueue.start();
-
-                        }catch (JSONException e){
-                            e.printStackTrace();
-                        }
-                    }
-                }
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                //TODO handle error
-
-            }
-        });
-
-    }
-
     @Override
     public void sendInput(HashMap<String, Integer> sharedSplit) {
         this.sharedAmountsHashMap =sharedSplit;
@@ -931,6 +899,42 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                         .into(selectedImageView);
             }
         }
+
+    void displayErrorAlert(String title  , @Nullable VolleyError error ,@Nullable String errorMessage){
+        String message = null; // error message, show it in toast or dialog, whatever you want
+        if(error!=null) {
+            if (error instanceof NetworkError || error instanceof AuthFailureError || error instanceof NoConnectionError || error instanceof TimeoutError) {
+                message = "Cannot connect to Internet";
+            } else if (error instanceof ServerError) {
+                message = "The server could not be found. Please try again later";
+            } else if (error instanceof ParseError) {
+                message = "Parsing error! Please try again later";
+            }
+        }else{
+            message = errorMessage;
+        }
+        new android.app.AlertDialog.Builder(getActivity())
+                .setIcon(R.drawable.ic_alert)
+                .setTitle(title)
+                .setMessage(message)
+                .setCancelable(false)
+                .setNeutralButton("return", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        AddNewCard.this.dismiss();
+                        dialog.dismiss();
+                    }
+                })
+                .setPositiveButton("refresh", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                })
+                .create()
+                .show();
+    }
+
 
 
 }

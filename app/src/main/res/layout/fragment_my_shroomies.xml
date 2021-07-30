@@ -73,6 +73,7 @@
             app:allow_drag_reorder="true"
             app:allow_item_swipe="false"/>
 
+
         <com.factor.bouncy.BouncyRecyclerView
             android:id="@+id/my_tasks_recycler_view"
             android:layout_width="match_parent"
@@ -82,6 +83,32 @@
             android:layout_marginRight="3dp"
             android:visibility="gone"
             app:allow_item_swipe="true"/>
+        <LinearLayout
+            android:id="@+id/drag_down_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_below="@id/my_shroomies_tablayout"
+            android:layout_centerHorizontal="true"
+            android:elevation="10dp">
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:lottie_rawRes="@raw/drag_down"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true"
+        android:layout_gravity="center"
+        android:layout_marginTop="-20dp"
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="drag for updates"
+        android:layout_marginTop="-30dp"
+        />
+
+</LinearLayout>
 
 
 
