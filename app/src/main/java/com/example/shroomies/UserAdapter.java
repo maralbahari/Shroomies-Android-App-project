@@ -30,6 +30,7 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.common.net.HttpHeaders;
 import com.google.firebase.auth.FirebaseAuth;
 
 import com.google.firebase.auth.FirebaseUser;
@@ -38,6 +39,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
@@ -167,11 +170,30 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                         e.printStackTrace();
                     }
                     JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_REMOVE_MEMBER, data, response -> {
-                        Snackbar snack=Snackbar.make(parentView,userList.get(getAdapterPosition()).getName()+" has been removed", BaseTransientBottomBar.LENGTH_SHORT);
-                        snack.show();
-                        userList.remove(position);
-                        notifyItemRemoved(position);
-                    }, error -> displayErrorAlert( error , null));
+                        try {
+                            boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
+                            if(success){
+                                Snackbar snack=Snackbar.make(parentView,userList.get(getAdapterPosition()).getName()+" has been removed", BaseTransientBottomBar.LENGTH_SHORT);
+                                snack.show();
+                                userList.remove(position);
+                                notifyItemRemoved(position);
+                            }else{
+                                Snackbar snack=Snackbar.make(parentView,"We encountered an error while deleting the user", BaseTransientBottomBar.LENGTH_SHORT);
+                                snack.show();
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }, error -> displayErrorAlert( error , null))
+                    {
+                        @Override
+                        public Map<String, String> getHeaders() {
+                            Map<String, String> params = new HashMap<>();
+                            params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
+                            params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
+                            return params;
+                        }
+                    };
                     requestQueue.add(jsonObjectRequest);
 
                 }else{
@@ -198,22 +220,32 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                 if (task.isSuccessful()) {
                     String token = task.getResult().getToken();
                     JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_SEND_REQUEST, data, response -> {
-                        sendRequest.setText("Sent!");
-                        sendRequest.setClickable(false);
 
-                    }, error -> displayErrorAlert(error , null));
+                        try {
+                            boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
+                            if(success){
+                                sendRequest.setText("Sent!");
+                                sendRequest.setClickable(false);
+                            }else{
+                                Snackbar snack=Snackbar.make(parentView,"We encountered an error while sending the request", BaseTransientBottomBar.LENGTH_SHORT);
+                                snack.show();
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }, error -> displayErrorAlert(error , null))
+                    {
+                        @Override
+                        public Map<String, String> getHeaders()  {
+                            Map<String, String> params = new HashMap<>();
+                            params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
+                            params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
+                            return params;
+                        }
+                    };
                     requestQueue.add(jsonObjectRequest);
-//                    }
-//                }
-//            })
-                    //        {
-//            @Override
-//            public Map<String, String> getHeaders() throws AuthFailureError {
-//                Map<String, String> params = new HashMap<String, String>();
-//                params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
-//                params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
-//                return params;
-//            }
+
                 }else{
                     String message = "We encountered a problem while authenticating your account";
                     displayErrorAlert(null, message);
@@ -223,7 +255,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
 
     }
         }
-    void displayErrorAlert(@Nullable VolleyError error , @Nullable String errorMessage){
+    void displayErrorAlert(@Nullable VolleyError error , String errorMessage){
         String message = null; // error message, show it in toast or dialog, whatever you want
         if(error!=null) {
             if (error instanceof NetworkError || error instanceof AuthFailureError || error instanceof NoConnectionError || error instanceof TimeoutError) {

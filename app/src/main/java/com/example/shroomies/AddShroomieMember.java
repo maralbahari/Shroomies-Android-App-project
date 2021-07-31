@@ -3,15 +3,14 @@ package com.example.shroomies;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageButton;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,38 +26,30 @@ import com.android.volley.NoConnectionError;
 import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
 import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
-import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.factor.bouncy.BouncyRecyclerView;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.common.net.HttpHeaders;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GetTokenResult;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.functions.FirebaseFunctions;
-import com.google.firebase.functions.HttpsCallableResult;
+
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Collection;
+
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 public class AddShroomieMember extends DialogFragment {
     //views
@@ -68,6 +59,7 @@ public class AddShroomieMember extends DialogFragment {
     private ImageButton closeButton;
     private TextView infoTextView;
     private TextView recommendedUsers;
+    private RelativeLayout rootlayout;
     //firebase
     private FirebaseAuth mAuth;
     private RequestQueue requestQueue;
@@ -115,6 +107,7 @@ public class AddShroomieMember extends DialogFragment {
         closeButton = v.findViewById(R.id.close_button_add_shroomie);
         infoTextView = v.findViewById(R.id.information_text_view);
         recommendedUsers = v.findViewById(R.id.recommended_text_view);
+        rootlayout = v.findViewById(R.id.add_member_root_layout);
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         addShroomieRecycler.setHasFixedSize(true);
@@ -156,47 +149,42 @@ public class AddShroomieMember extends DialogFragment {
             FirebaseUser firebaseUser = mAuth
                     .getCurrentUser();
             firebaseUser.getIdToken(false)
-                    .addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
-                @Override
-                public void onComplete(@NonNull Task<GetTokenResult> task) {
-                    if (task.isSuccessful()){
-                        String token = task.getResult().getToken();
-                        suggestedUser = new ArrayList<>();
-                        userRecyclerAdapter= new UserAdapter(suggestedUser,getContext(),true,apartment);
-                        userRecyclerAdapter.setHasStableIds(true);
-                        addShroomieRecycler.setAdapter(userRecyclerAdapter);
-
-                        JSONObject jsonObject = new JSONObject();
-                        JSONObject data =  new JSONObject();
-                        try {
-                            jsonObject.put(Config.name, query.trim());
-                            jsonObject.put(Config.currentUser, mAuth.getCurrentUser().getUid());
-                            data.put(Config.data , jsonObject);
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_SEARCH_USERS, data, new Response.Listener<JSONObject>() {
-                            @Override
-                            public void onResponse(JSONObject response) {
-                                JSONArray result = null;
+                    .addOnCompleteListener(task -> {
+                        if (task.isSuccessful()){
+                            String token = task.getResult().getToken();
+                            suggestedUser = new ArrayList<>();
+                            userRecyclerAdapter= new UserAdapter(suggestedUser,getContext(),true,apartment);
+                            userRecyclerAdapter.setHasStableIds(true);
+                            addShroomieRecycler.setAdapter(userRecyclerAdapter);
+                            JSONObject jsonObject = new JSONObject();
+                            JSONObject data =  new JSONObject();
+                            try {
+                                jsonObject.put(Config.name, query.trim());
+                                jsonObject.put(Config.currentUser, mAuth.getCurrentUser().getUid());
+                                data.put(Config.data , jsonObject);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_SEARCH_USERS, data, response -> {
                                 try {
-                                    result = (JSONArray) response.get(Config.result);
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                                if(result!=null){
-                                    //the result is a jsonn array of json arrays
-                                    //the nested json array contains 2 indeces
+                                    JSONObject result = response.getJSONObject(Config.result);
+                                    boolean success = result.getBoolean(Config.success);
+                                if(success){
+                                    JSONArray userArray = result.getJSONArray(Config.message);
+                                    //the result is a json object containing
+                                    //json array of json arrays
+                                    //the nested json array contains 2 indices
                                     // first index is the user object
                                     // and the second  index is a boolean value
-                                    //indacting wether the current user has already
+                                    //indicating whether the current user has already
                                     // sent a request to the searched user
                                     final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
                                     mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
 
-                                    for(int i= 0 ;i< result.length();i++){
+                                    for(int i= 0 ;i< userArray.length();i++){
                                         try {
-                                            JSONArray jsonArray =((JSONArray)(result.get(i)));
+
+                                            JSONArray jsonArray =((JSONArray)(userArray.get(i)));
                                             //cast the first index as a json object and the second as a boolean value
                                             JSONObject userJsonObject = (JSONObject) jsonArray.get(0);
                                             boolean requestSent = (boolean)jsonArray.get(1);
@@ -211,22 +199,21 @@ public class AddShroomieMember extends DialogFragment {
                                                 suggestedUser.add(user);
                                             }
 
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                        } catch (JsonMappingException e) {
-                                            e.printStackTrace();
-                                        } catch (JsonProcessingException e) {
+                                        } catch (JSONException | JsonProcessingException e) {
                                             e.printStackTrace();
                                         }
                                     }
                                     userRecyclerAdapter.notifyDataSetChanged();
                                     recommendedUsers.setVisibility(View.GONE);
 
+                                }else{
+                                    String message = result.getString(Config.message);
+                                    Snackbar.make(rootlayout ,message , Snackbar.LENGTH_SHORT).show();
                                 }
-                            }
-                        }, new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }, error -> {
                                 String message = null; // error message, show it in toast or dialog, whatever you want
                                 if (error instanceof NetworkError || error instanceof AuthFailureError || error instanceof NoConnectionError || error instanceof TimeoutError) {
                                     message = "Cannot connect to Internet";
@@ -236,16 +223,23 @@ public class AddShroomieMember extends DialogFragment {
                                     message = "Parsing error! Please try again later";
                                 }
                                 displayErrorAlert("Error" ,message);
-                            }
-                        });
-                        requestQueue.add(jsonObjectRequest);
-                    }else{
-                        String title = "Authentication error";
-                        String message = "We encountered a problem while authenticating your account";
-                        displayErrorAlert(title, message);
-                    }
-                }
-            });
+                            })
+                            {
+                                @Override
+                                public Map<String, String> getHeaders() {
+                                    Map<String, String> params = new HashMap<String, String>();
+                                    params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
+                                    params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
+                                    return params;
+                                }
+                            };
+                            requestQueue.add(jsonObjectRequest);
+                        }else{
+                            String title = "Authentication error";
+                            String message = "We encountered a problem while authenticating your account";
+                            displayErrorAlert(title, message);
+                        }
+                    });
 
         }
     }

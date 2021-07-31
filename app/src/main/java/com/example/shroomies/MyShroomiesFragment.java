@@ -2,12 +2,12 @@ package com.example.shroomies;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,26 +29,33 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.factor.bouncy.BouncyRecyclerView;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
+import com.google.common.net.HttpHeaders;
 import com.google.firebase.auth.FirebaseAuth;
+
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GetTokenResult;
 import com.skydoves.powerspinner.PowerSpinnerView;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
+
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 
-public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshroomies {
+public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshroomies , CardUploaded {
     //views
     private View v;
     private TabLayout myShroomiesTablayout;
@@ -77,10 +84,25 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
     private int recyclerPosition=0;
 
     @Override
-    public void onStart() {
-        super.onStart();
-    }
+    public void sendData(TasksCard tasksCard , ExpensesCard expensesCard) {
+        if(tasksCard!=null){
+            if(tasksCardsList!=null && tasksCardAdapter!=null){
+                tasksCardsList.add(tasksCard);
+                tasksCardAdapter.notifyDataSetChanged();
+            }
+        }else if(expensesCard!=null){
+            if(expensesCardsList!=null && expensesCardAdapter!=null){
+                expensesCardsList.add(expensesCard);
+                expensesCardAdapter.notifyDataSetChanged();
+            }else{
+                if(expensesCardsList.isEmpty());
+                expensesCardsList = new ArrayList<>();
+                expensesCardsList.add(expensesCard);
+            }
+        }
 
+
+    }
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -91,15 +113,15 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
         return v;
     }
 
+
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        //todo call get user token when function  is deployed
 
-//         getUserToken();
-        //todo comment this line
-        getApartmentDetails(null);
+         getUserToken();
+
 
         myTasksRecyclerView = v.findViewById(R.id.my_tasks_recycler_view);
         Button memberButton = v.findViewById(R.id.my_shroomies_member_btn);
@@ -195,6 +217,7 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
         addCardButton.setOnClickListener(view1 -> {
 
             AddNewCard addNewCard = new AddNewCard();
+            addNewCard.setTargetFragment(this , 0);
             Bundle bundle=new Bundle();
 
             bundle.putBoolean("Expenses", myShroomiesTablayout.getSelectedTabPosition() == 0);
@@ -258,80 +281,84 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
     }
 
 
-//todo uncomment when function is deployed
 
-//    private void getUserToken(){
-//        FirebaseUser firebaseUser = mAuth.getCurrentUser();
-//        firebaseUser.getIdToken(false).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
-//            @Override
-//            public void onComplete(@NonNull Task<GetTokenResult> task) {
-//                if(task.isSuccessful()) {
-//                    String token = task.getResult().getToken();
-//                    getApartmentDetails(token);
-//                    Log.d("user error" , "works");
-//                }else{
-//                    //todo handle error
-//                    String title = "Authentication error";
-//                    String message = "We encountered a problem while authenticating your account";
-//                    displayErrorAlert(title, message, true);
-//                }
-//            }
-//        });
-//    }
+    private void getUserToken(){
+        FirebaseUser firebaseUser = mAuth.getCurrentUser();
+        firebaseUser.getIdToken(false).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+            @Override
+            public void onComplete(@NonNull Task<GetTokenResult> task) {
+                if(task.isSuccessful()) {
+                    String token = task.getResult().getToken();
+                    getApartmentDetails(token);
+                    Log.d("user error" , "works");
+                }else{
+                    //todo handle error
+                    String title = "Authentication error";
+                    String message = "We encountered a problem while authenticating your account";
+                    displayErrorAlert(title, message);
+                }
+            }
+        });
+    }
 
-    private void getApartmentDetails(String  token){
+    private void getApartmentDetails(String  token) {
         JSONObject jsonObject = new JSONObject();
         JSONObject data  = new JSONObject();
         try {
-            jsonObject.put(Config.id,mAuth.getCurrentUser().getUid());
-            data.put(Config.data,jsonObject);
+            jsonObject.put(Config.id, mAuth.getCurrentUser().getUid());
+            data.put(Config.data, jsonObject);
         } catch (JSONException e) {
             e.printStackTrace();
+            return;
         }
         //TODO add progress dialog
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_GET_APARTMENT_DETAILS, data, response -> {
+
             final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
             mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-            JSONObject result = null;
             try {
-                result = (JSONObject) response.get(Config.result);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            if (!result.isNull(Config.apartmentID)) {
-                try {
-                    apartment = mapper.readValue(result.toString(), ShroomiesApartment.class);
-                } catch (JsonProcessingException e) {
-                    e.printStackTrace();
-                }
-//                    Log.d("apartment works" , apartment.getApartmentID().toString());
+                JSONObject result = response.getJSONObject(Config.result);
+                boolean success = result.getBoolean(Config.success);
 
+            if (success) {
+                result = (JSONObject) result.get(Config.apartment);
+                apartment = mapper.readValue(result.toString(), ShroomiesApartment.class);
+
+                //initialize an empty list and
+                //if the user add a new card the new card will be sent to this fragment
+                // im checking if the list is not null to add the card
+                //this will ensure that the list is not null
+                expensesCardsList = new ArrayList<>();
                 if (apartment.getExpensesCard() != null) {
-                    if (!apartment.getExpensesCard().isEmpty()) {
-                        if (isAdded()) {
-                            expensesCardsList = new ArrayList<>(apartment.getExpensesCard().values());
-                            expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList, getActivity(), false, apartment.getApartmentID(), getChildFragmentManager(), slidingLayout);
-                            myExpensesRecyclerView.setAdapter(expensesCardAdapter);
-                            expensesCardAdapter.notifyDataSetChanged();
-                        }
+                    if (isAdded()) {
+                        expensesCardsList = new ArrayList<>(apartment.getExpensesCard().values());
                     }
                 }
+                expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList, getActivity(), false, apartment.getApartmentID(), getChildFragmentManager(), slidingLayout);
+                myExpensesRecyclerView.setAdapter(expensesCardAdapter);
+
+                tasksCardsList = new ArrayList<>();
                 if (apartment.getTaskCard() != null) {
-                    if (!apartment.getTaskCard().isEmpty()) {
+                    if (isAdded()) {
                         tasksCardsList = new ArrayList<>(apartment.getTaskCard().values());
-                        if (isAdded()) {
-                            tasksCardAdapter = new TasksCardAdapter(tasksCardsList, getActivity(), false, apartment.getApartmentID(), getChildFragmentManager(), slidingLayout);
-                            tasksCardAdapter.notifyDataSetChanged();
-                            myTasksRecyclerView.setAdapter(tasksCardAdapter);
-                        }
                     }
                 }
+                tasksCardAdapter = new TasksCardAdapter(tasksCardsList, getActivity(), false, apartment.getApartmentID(), getChildFragmentManager(), slidingLayout);
+                myTasksRecyclerView.setAdapter(tasksCardAdapter);
+
                 if (apartment.getLogs() != null) {
                     if (!apartment.getLogs().isEmpty()) {
                         apartmentLogs = new ArrayList<>(apartment.getLogs().values());
                     }
                 }
             } else {
+                String title = "Unexpected error";
+                String message = "We have encountered an unexpected error ,try to check your internet connection and log in again.";
+                displayErrorAlert(title, message);
+            }
+
+            } catch (JSONException | JsonProcessingException e) {
+                e.printStackTrace();
                 String title = "Unexpected error";
                 String message = "We have encountered an unexpected error ,try to check your internet connection and log in again.";
                 displayErrorAlert(title, message);
@@ -349,16 +376,15 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
             displayErrorAlert("Error" ,message);
         })
                 //todo uncomment when function  is deployed
-//        {
-//            @Override
-//            public Map<String, String> getHeaders() throws AuthFailureError {
-//                Map<String, String> params = new HashMap<String, String>();
-//                params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
-//                params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
-//                return params;
-//            }
-//        }
-                ;
+        {
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
+                params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
+                return params;
+            }
+        };
         requestQueue.add(jsonObjectRequest);
 
     }
@@ -542,11 +568,11 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
                      dialog.dismiss();
                  })
                  .setPositiveButton("refresh", (dialog, which) -> {
-                     //todo change to get token!!
-                     getApartmentDetails(null);
+                     getUserToken();
                  })
                 .create()
                 .show();
     }
+
 
 }

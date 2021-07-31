@@ -1,6 +1,7 @@
 package com.example.shroomies;
 
 public class Config {
+    //myShroomies Activity and its fragments
     public static final String apartmentID="apartmentID";
     public static final String adminID="adminID";
     public static final String userID="userID";
@@ -12,6 +13,12 @@ public class Config {
     public static final String name="name";
     public static final String currentUser="currentUser";
     public static final String id="ID";
+    public static final String success="success";
+    public static final String apartment="apartment";
+    public static final String members="members";
+    public static final String message = "message";
+    public static final String cards = "cards";
+    public static final String requests = "requests";
 
 
 

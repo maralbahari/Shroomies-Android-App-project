@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".RequestFragment"
+    android:id="@+id/request_fragment_root_layout"
     android:background="@color/y">
 
         <com.google.android.material.tabs.TabLayout

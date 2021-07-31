@@ -161,19 +161,18 @@ public class ViewCards extends DialogFragment {
                 String due= expensesCard.getDueDate();
                 String descriptionCard=expensesCard.getDescription();
                 HashMap<String , String> mentions=expensesCard.getMention();
-                Toast.makeText(getActivity() , mentions.toString() , Toast.LENGTH_SHORT).show();
                 String importance=expensesCard.getImportance();
                 String fileType = expensesCard.getFileType();
                 imagePath=expensesCard.getAttachedFile();
-                HashMap<String, Float> membersShares=expensesCard.getMembersShares();
-                if(!membersShares.isEmpty()){
+                HashMap<String, Integer> membersShares=expensesCard.getMembersShares();
+                if(membersShares!=null){
                     getMembersShares(membersShares);
                 }else {
                     expensesTextView.setVisibility(View.GONE);
                 }
-                if(!due.isEmpty() ){
+                if(due!=null ){
                     dueDate.setText(due);
-                }if(!descriptionCard.isEmpty()){
+                }if(descriptionCard!=null){
                     description.setText(descriptionCard);
                 }
 //                if(!mentions.isEmpty()){
@@ -181,7 +180,7 @@ public class ViewCards extends DialogFragment {
 //                    mention.setText(mentions);
 //                }
 
-                        if(!importance.isEmpty() ){
+                        if(importance!=null ){
                             switch (importance) {
                                 case "0":
                                     importanceView.setBackgroundColor(getActivity().getColor(R.color.okGreen));
@@ -197,7 +196,7 @@ public class ViewCards extends DialogFragment {
                             }
                     }
 
-                if(!imagePath.isEmpty()){
+                if(imagePath!=null){
                     if(!fileType.equals("pdf")) {
                         GlideApp.with(getContext())
                                 .load(imagePath)
@@ -266,7 +265,7 @@ public class ViewCards extends DialogFragment {
 
     }
 
-    private void getMembersShares(final HashMap<String, Float> membersShares) {
+    private void getMembersShares(final HashMap<String, Integer> membersShares) {
         shroomiesList=new ArrayList<>();
         splitAdapter= new UserAdapterSplitExpenses(shroomiesList,getContext(),true);
         viewCardRecycler.setAdapter(splitAdapter);
@@ -278,7 +277,7 @@ public class ViewCards extends DialogFragment {
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     if (snapshot.exists()){
                         User user = snapshot.getValue(User.class);
-                        user.setSharedAmount(Float.valueOf(membersShares.get(id).toString()));
+                        user.setSharedAmount(Integer.valueOf(membersShares.get(id).toString()));
                         shroomiesList.add(user);
                         splitAdapter.notifyItemInserted(shroomiesList.indexOf(user));
                     }

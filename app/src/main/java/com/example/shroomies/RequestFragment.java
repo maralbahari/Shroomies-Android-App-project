@@ -1,10 +1,12 @@
 package com.example.shroomies;
 
+import android.app.AlertDialog;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
+import android.widget.RelativeLayout;
+
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -12,53 +14,47 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.NetworkError;
+import com.android.volley.NoConnectionError;
+import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
+
+import com.android.volley.ServerError;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+
 import com.google.android.material.tabs.TabLayout;
+import com.google.common.net.HttpHeaders;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GetTokenResult;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.google.rpc.context.AttributeContext;
+
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class RequestFragment extends Fragment {
    private View v;
    private RecyclerView requestRecyclerView;
+   private RelativeLayout rootLayout;
    private FirebaseAuth mAuth;
-   private DatabaseReference rootRef;
    private TabLayout requestTab;
-
    private ArrayList<User> senderUsers;
-   private ArrayList<String> senderIDs;
-   private ArrayList<String> receiverIDs;
    private ArrayList<User> receiverUsers;
-
    private String apartmentID;
 
-   private ValueEventListener invitationsListener;
-   private ValueEventListener requestsListener;
-   private ValueEventListener apartmentListener;
    private RequestQueue requestQueue;
 
    private RecyclerView invitationRecyclerView;
@@ -70,11 +66,8 @@ public class RequestFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         v= inflater.inflate(R.layout.fragment_my_requests, container, false);
-        rootRef= FirebaseDatabase.getInstance().getReference();
         mAuth=FirebaseAuth.getInstance();
         requestQueue = Volley.newRequestQueue(getActivity());
-
-//        getApartmentDetailsOfCurrentUser();
     return v;
     }
 
@@ -84,6 +77,7 @@ public class RequestFragment extends Fragment {
         requestRecyclerView = v.findViewById(R.id.request_recyclerview);
         requestTab = v.findViewById(R.id.request_tablayout);
         invitationRecyclerView=v.findViewById(R.id.invitation_recyclerview);
+        rootLayout = v.findViewById(R.id.request_fragment_root_layout);
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         requestRecyclerView.setHasFixedSize(true);
@@ -101,13 +95,11 @@ public class RequestFragment extends Fragment {
                     requestTab.setSelectedTabIndicator(R.drawable.tab_indicator_left);
                     invitationRecyclerView.setVisibility(View.VISIBLE);
                     requestRecyclerView.setVisibility(View.GONE);
-//                    getSenderId();
                 }
                 else if(tab.getPosition()==1){
                     requestTab.setSelectedTabIndicator(R.drawable.tab_indicator_right);
                     invitationRecyclerView.setVisibility(View.GONE);
                     requestRecyclerView.setVisibility(View.VISIBLE);
-//                    getReceiverID();
                 }
             }
 
@@ -121,12 +113,12 @@ public class RequestFragment extends Fragment {
 
             }
         });
-        getCurrentUserDetails();
+        getToken();
 
 
     }
 
-    private void getRequests() {
+    private void getRequests(String token) {
         senderUsers = new ArrayList<>();
         receiverUsers = new ArrayList<>();
 
@@ -138,204 +130,68 @@ public class RequestFragment extends Fragment {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_GET_REQUESTS, data, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                // response is a json array containing  two json arrays
-                // the first array contains the user objects of the
-                // requests sent to this user
-                // the second contains user objects of that the current
-                // user has sent requests to
-                final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
-                mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-                JSONArray sentJsonArray = null;
-                JSONArray recievedJsonArray = null;
-                try {
-                    JSONArray result = (JSONArray) response.get("result");
-                    sentJsonArray = (JSONArray) result.get(0);
-                    recievedJsonArray = (JSONArray) result.get(1);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-                if(sentJsonArray!=null){
-                    for(int i=0; i<sentJsonArray.length() ; i++){
-                        try {
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_GET_REQUESTS, data, response -> {
+            // response is a json array containing  two json arrays
+            // the first array contains the user objects of the
+            // requests sent to this user
+            // the second contains user objects of that the current
+            // user has sent requests to
+            final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
+            mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+
+            try {
+                boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
+                if(success){
+                    JSONArray requests =response.getJSONObject(Config.result).getJSONArray(Config.requests);
+                    JSONArray sentJsonArray = (JSONArray) requests.get(0);
+                    JSONArray recievedJsonArray = (JSONArray) requests.get(1);
+                    if(sentJsonArray!=null){
+                        for(int i=0; i<sentJsonArray.length() ; i++){
                             User user = mapper.readValue(sentJsonArray.get(i).toString() , User.class);
                             senderUsers.add(user);
-                        } catch (JsonProcessingException e) {
-                            e.printStackTrace();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
                         }
-                    }
-                    invitationAdapter= new RequestAdapter(getContext(),senderUsers,false,apartmentID);
-                    invitationAdapter.notifyDataSetChanged();
-                    invitationRecyclerView.setAdapter(invitationAdapter);
+                        invitationAdapter= new RequestAdapter(getContext(),rootLayout, senderUsers,false,apartmentID);
+                        invitationAdapter.notifyDataSetChanged();
+                        invitationRecyclerView.setAdapter(invitationAdapter);
 
-                }else{
-                    //todo display something for the user
-                }
-                if(recievedJsonArray!=null){
-                    for(int i=0; i<recievedJsonArray.length() ; i++){
-                        try {
+                    }else{
+                        //todo display something for the user
+                    }
+                    if(recievedJsonArray!=null){
+                        for(int i=0; i<recievedJsonArray.length() ; i++){
                             User user = mapper.readValue(recievedJsonArray.get(i).toString() , User.class);
                             receiverUsers.add(user);
-                        } catch (JsonProcessingException e) {
-                            e.printStackTrace();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    requestAdapter= new RequestAdapter(getContext(),receiverUsers,true,apartmentID);
-                    requestAdapter.notifyDataSetChanged();
-                    requestRecyclerView.setAdapter(requestAdapter);
 
+                        }
+                        requestAdapter= new RequestAdapter(getContext(),rootLayout , receiverUsers,true,apartmentID);
+                        requestAdapter.notifyDataSetChanged();
+                        requestRecyclerView.setAdapter(requestAdapter);
+
+                    }else{
+                        //todo display something for the user
+                    }
                 }else{
                     //todo display something for the user
                 }
 
-
+            } catch (JSONException | JsonProcessingException e) {
+                e.printStackTrace();
             }
-        }, new Response.ErrorListener() {
+
+        }, this::displayErrorAlert){
             @Override
-            public void onErrorResponse(VolleyError error) {
-
+            public Map<String, String> getHeaders()  {
+                Map<String, String> params = new HashMap<>();
+                params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
+                params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
+                return params;
             }
-        });
+        };
         requestQueue.add(jsonObjectRequest);
 
     }
 
-//    private void getApartmentDetailsOfCurrentUser() {
-//        rootRef.child("Users").child(mAuth.getCurrentUser().getUid()).child("isPartOfRoom").addListenerForSingleValueEvent(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                if(snapshot.exists()){
-//                    final String apartmentID=snapshot.getValue().toString();
-//                    apartmentListener=rootRef.child("apartments").child(apartmentID).addValueEventListener(new ValueEventListener() {
-//                        @Override
-//                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                            if(snapshot.exists()){
-//                                apartment=snapshot.getValue(ShroomiesApartment.class);
-//                                getSenderId();
-//
-//                            }
-//                        }
-//
-//                        @Override
-//                        public void onCancelled(@NonNull DatabaseError error) {
-//
-//                        }
-//                    });
-//
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//
-//            }
-//        });
-//    }
-
-
-//    private void getSenderId(){
-//        senderIDs=new ArrayList<>();
-//        invitationsListener=rootRef.child("shroomieRequests").child(mAuth.getCurrentUser().getUid()).orderByChild("requestType").equalTo("received").addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                if(snapshot.exists()){
-//                    for(DataSnapshot ds:snapshot.getChildren()){
-//                        senderIDs.add(ds.getKey());
-//                    }
-//                    getSenderDetails(senderIDs);
-//                }else{
-//                    senderUsers=new ArrayList<>();
-//                    invitationAdapter= new RequestAdapter(getContext(),senderUsers,false,apartment);
-//                    invitationRecyclerView.setAdapter(invitationAdapter);
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//
-//            }
-//        });
-//    }
-//    private void getSenderDetails(final ArrayList<String> senderIDs){
-//        senderUsers=new ArrayList<>();
-//        invitationAdapter= new RequestAdapter(getContext(),senderUsers,false,apartment);
-//       invitationRecyclerView.setAdapter(invitationAdapter);
-//     for(String id: senderIDs){
-//         rootRef.child("Users").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
-//             @Override
-//             public void onDataChange(@NonNull DataSnapshot snapshot) {
-//             if(snapshot.exists()){
-//                 User user= snapshot.getValue(User.class);
-//                 senderUsers.add(user);
-//             }
-//             invitationAdapter.notifyDataSetChanged();
-//             }
-//
-//             @Override
-//             public void onCancelled(@NonNull DatabaseError error) {
-//
-//             }
-//         });
-//     }
-//    }
-//    private void getReceiverID(){
-//        receiverIDs= new ArrayList<>();
-//        rootRef.child("shroomieRequests").child(mAuth.getCurrentUser().getUid()).orderByChild("requestType").equalTo("sent").addValueEventListener(new ValueEventListener() {
-//            @Override
-//            public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                if(snapshot.exists()){
-//                    for(DataSnapshot ds:snapshot.getChildren()){
-//                        receiverIDs.add(ds.getKey());
-//                    }
-//                    getReceiverDetails(receiverIDs);
-////                    Toast.makeText(getContext(),"req ids:"+receiverIDs.size(),Toast.LENGTH_SHORT).show();
-//
-//                }else{
-//                    receiverUsers=new ArrayList<>();
-//                    requestAdapter= new RequestAdapter(getContext(),receiverUsers,true,apartment);
-//                    requestRecyclerView.setAdapter(requestAdapter);
-//                }
-//            }
-//
-//            @Override
-//            public void onCancelled(@NonNull DatabaseError error) {
-//
-//            }
-//        });
-//    }
-//    private void getReceiverDetails(final ArrayList<String> receiverIDs){
-//        receiverUsers=new ArrayList<>();
-//        requestAdapter = new RequestAdapter(getActivity() , receiverUsers ,true ,apartment);
-//        requestRecyclerView.setAdapter(requestAdapter);
-//        for(String id: receiverIDs){
-//            rootRef.child("Users").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
-//                @Override
-//                public void onDataChange(@NonNull DataSnapshot snapshot) {
-//
-//                    if(snapshot.exists()){
-//                        User user= snapshot.getValue(User.class);
-//                        receiverUsers.add(user);
-//
-//                    }
-//                    requestAdapter.notifyDataSetChanged();
-//                }
-//
-//                @Override
-//                public void onCancelled(@NonNull DatabaseError error) {
-//
-//                }
-//            });
-//
-//        }
-//
-//    }
- void getCurrentUserDetails(){
+ void getToken(){
         JSONObject jsonObject = new JSONObject();
         JSONObject data = new JSONObject();
      try {
@@ -344,38 +200,49 @@ public class RequestFragment extends Fragment {
      } catch (JSONException e) {
          e.printStackTrace();
      }
-//     FirebaseUser firebaseUser = mAuth.getCurrentUser();
-//     firebaseUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
-//         @Override
-//         public void onComplete(@NonNull Task<GetTokenResult> task) {
-//             if (task.isSuccessful()) {
-//                 String token = task.getResult().getToken();
+     FirebaseUser firebaseUser = mAuth.getCurrentUser();
+     firebaseUser.getIdToken(false).addOnCompleteListener(task -> {
+         if (task.isSuccessful()) {
+             String token = task.getResult().getToken();
+             apartmentID = (String) task.getResult().getClaims().get(Config.apartmentID);
+             getRequests(token);
 
-                 JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_GET_USER_DETAILS, data, new Response.Listener<JSONObject>() {
-                     @Override
-                     public void onResponse(JSONObject response) {
-                         try {
-                             apartmentID = (String) ((JSONObject)response.get("result")).get("apartmentID");
-                             getRequests();
+         }else{
+             // todo display error
+         }
+     });
 
-                         } catch (JSONException e) {
-                             e.printStackTrace();
-                         }
-                     }
-                 }, new Response.ErrorListener() {
-                     @Override
-                     public void onErrorResponse(VolleyError error) {
-
-                     }
-                 });
-             requestQueue.add(jsonObjectRequest);
-
-//             }
-//         }
-//     });
-//
 
  }
+    void displayErrorAlert(@Nullable VolleyError error){
+        String message = null; // error message, show it in toast or dialog, whatever you want
+        if(error!=null) {
+            if (error instanceof NetworkError || error instanceof AuthFailureError || error instanceof NoConnectionError || error instanceof TimeoutError) {
+                message = "Cannot connect to Internet";
+            } else if (error instanceof ServerError) {
+                message = "Server error. Please try again later";
+            } else if (error instanceof ParseError) {
+                message = "Parsing error! Please try again later";
+            }
+        }else{
+            message = null;
+        }
+        new AlertDialog.Builder(getActivity())
+                .setIcon(R.drawable.ic_alert)
+                .setTitle("Error")
+                .setMessage(message)
+                .setCancelable(false)
+                .setNeutralButton("return", (dialog, which) -> {
+                    getActivity().finish();
+                    dialog.dismiss();
+                })
+                .setPositiveButton("refresh", (dialog, which) -> {
+                    getToken();
+                })
+                .create()
+                .show();
+
+    }
 
 
 }

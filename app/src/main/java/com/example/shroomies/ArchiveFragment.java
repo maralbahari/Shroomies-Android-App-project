@@ -24,10 +24,12 @@ import com.android.volley.TimeoutError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.fasterxml.jackson.core.JsonProcessingException;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 import com.google.android.material.tabs.TabLayout;
+import com.google.common.net.HttpHeaders;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -35,7 +37,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 public class ArchiveFragment extends Fragment {
     private TabLayout archiveTablayout;
@@ -134,58 +138,52 @@ public class ArchiveFragment extends Fragment {
                     JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_GET_ARCHIVE, data, response -> {
                         final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
                         mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-
                         //get the task card
-                        JSONObject taskCardObject = new JSONObject();
-                        JSONObject expensesCardObject = new JSONObject();
-                        JSONObject result;
                         try {
-                            result = (JSONObject)response.get(Config.result);
-                            taskCardObject = (JSONObject) result.get(Config.taskCards);
-                            expensesCardObject = (JSONObject)result.get(Config.expensesCards);
+                            boolean success =  response.getJSONObject(Config.result).getBoolean(Config.success);
+                            if(success) {
+                                JSONObject cards =response.getJSONObject(Config.result).getJSONObject(Config.cards);
+                                JSONObject taskCardObject = (JSONObject) cards.get(Config.taskCards);
+                                JSONObject expensesCardObject = (JSONObject)cards.get(Config.expensesCards);
+                                if(expensesCardObject!=null){
+                                    Iterator<String> keys = expensesCardObject.keys();
+                                    while (keys.hasNext()){
+                                        String key = keys.next();
+                                        JSONObject expensesCard = (JSONObject) expensesCardObject.get(key);
+                                        ExpensesCard expensesCardPOJO = mapper.readValue(expensesCard.toString(), ExpensesCard.class);
+                                        expensesCardsArrayList.add(expensesCardPOJO);
 
-                        } catch (JSONException e) {
+                                    }
+                                }
+                                expensesCardAdapter= new ExpensesCardAdapter(expensesCardsArrayList , getActivity() , true , apartmentID , getChildFragmentManager()  , rootLayout);
+                                expensesCardAdapter.notifyDataSetChanged();
+                                expensesRecyclerview.setAdapter(expensesCardAdapter);
+
+                                if(taskCardObject!=null){
+                                    Iterator<String> keys = taskCardObject.keys();
+                                    while (keys.hasNext()){
+                                        String key = keys.next();
+                                        try {
+                                            JSONObject taskCard = (JSONObject) taskCardObject.get(key);
+
+                                            TasksCard tasksCardPOJO = mapper.readValue(taskCard.toString(), TasksCard.class);
+
+                                            tasksCardsArrayList.add(tasksCardPOJO);
+                                        } catch (JSONException | JsonProcessingException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                }
+                                tasksCardAdapter = new TasksCardAdapter(tasksCardsArrayList , getActivity() , true , apartmentID , getChildFragmentManager() , rootLayout);
+                                tasksRecyclerView.setAdapter(tasksCardAdapter);
+                                tasksCardAdapter.notifyDataSetChanged();
+                            }else{
+                                String message = "We encountered an error while retrieving the archive cards.";
+                                displayErrorAlert(message);
+                            }
+                        } catch (JSONException | JsonProcessingException e) {
                             e.printStackTrace();
                         }
-                        if(expensesCardObject!=null){
-                            Iterator<String> keys = expensesCardObject.keys();
-                            while (keys.hasNext()){
-                                String key = keys.next();
-                                try {
-                                    JSONObject expensesCard = (JSONObject) expensesCardObject.get(key);
-                                    ExpensesCard expensesCardPOJO = mapper.readValue(expensesCard.toString(), ExpensesCard.class);
-                                    expensesCardsArrayList.add(expensesCardPOJO);
-                                } catch (JSONException | JsonProcessingException e) {
-                                    e.printStackTrace();
-                                }
-
-                            }
-                        }
-                        expensesCardAdapter= new ExpensesCardAdapter(expensesCardsArrayList , getActivity() , true , apartmentID , getChildFragmentManager()  , rootLayout);
-                        expensesCardAdapter.notifyDataSetChanged();
-                        expensesRecyclerview.setAdapter(expensesCardAdapter);
-
-                        if(taskCardObject!=null){
-                            Iterator<String> keys = taskCardObject.keys();
-                            while (keys.hasNext()){
-                                String key = keys.next();
-                                try {
-                                    JSONObject taskCard = (JSONObject) taskCardObject.get(key);
-
-                                    TasksCard tasksCardPOJO = mapper.readValue(taskCard.toString(), TasksCard.class);
-
-                                    tasksCardsArrayList.add(tasksCardPOJO);
-                                } catch (JSONException | JsonProcessingException e) {
-                                    e.printStackTrace();
-                                }
-
-                            }
-                        }
-
-                        tasksCardAdapter = new TasksCardAdapter(tasksCardsArrayList , getActivity() , true , apartmentID , getChildFragmentManager() , rootLayout);
-                        tasksRecyclerView.setAdapter(tasksCardAdapter);
-                        tasksCardAdapter.notifyDataSetChanged();
-
 
                     }, error -> {
                         String message = null; // error message, show it in toast or dialog, whatever you want
@@ -197,7 +195,15 @@ public class ArchiveFragment extends Fragment {
                             message = "Parsing error! Please try again later";
                         }
                         displayErrorAlert(message);
-                    });
+                    }) {
+                        @Override
+                        public Map<String, String> getHeaders()  {
+                            Map<String, String> params = new HashMap<>();
+                            params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
+                            params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
+                            return params;
+                        }
+                    };
                     requestQueue.add(jsonObjectRequest);
             }
         });
@@ -211,11 +217,7 @@ public class ArchiveFragment extends Fragment {
                 .setCancelable(false)
                 .setNeutralButton("return", (dialog, which) -> {
                     getActivity().finish();
-                    dialog.dismiss();
-                })
-                .setPositiveButton("refresh", (dialog, which) -> {
-                    //todo change to get token!!
-                })
+                    dialog.dismiss(); })
                 .create()
                 .show();
     }

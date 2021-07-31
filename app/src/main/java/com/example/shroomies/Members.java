@@ -1,5 +1,4 @@
 package com.example.shroomies;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -38,11 +37,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.common.net.HttpHeaders;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-
 
 
 import org.json.JSONArray;
@@ -50,6 +48,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Members extends Fragment {
     //views
@@ -57,7 +57,7 @@ public class Members extends Fragment {
     private RecyclerView membersRecyclerView;
     private TextView ownerName;
     private ImageView adminImageView , ghostImageView;
-    private RelativeLayout noMembersRelativeLayout;
+    private RelativeLayout noMembersRelativeLayout , rootLayout;
 
     //firebase
     private FirebaseAuth mAuth;
@@ -94,6 +94,7 @@ public class Members extends Fragment {
         membersRecyclerView = v.findViewById(R.id.members_recyclerView);
         ghostImageView = v.findViewById(R.id.ghost_view);
         noMembersRelativeLayout = v.findViewById(R.id.no_members_relative_layout);
+        rootLayout = v.findViewById(R.id.relative_layout_member);
 
         Toolbar toolbar = getActivity().findViewById(R.id.my_shroomies_toolbar);
         toolbar.setTitle("Members");
@@ -187,10 +188,34 @@ public class Members extends Fragment {
         firebaseUser.getIdToken(false).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 String token = task.getResult().getToken();
+                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_LEAVE_APARTMENT, data, response -> {
+                    try {
+                        JSONObject result = (JSONObject) response.get(Config.result);
+                        boolean success = result.getBoolean(Config.success);
+                        if(success){
+                            String message = result.getString(Config.message);
+                            getActivity().finish();
+                            Snackbar.make(rootLayout ,message , Snackbar.LENGTH_LONG );
+                        }else{
+                            String title = "Unexpected error";
+                            String message = "We have encountered an unexpected error, try to check your internet connection and log in again.";
+                            displayErrorAlert(title, message , null);
+                        }
 
-                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_LEAVE_APARTMENT, data, response -> getActivity().finish(), error -> {
-                    displayErrorAlert("Error" ,null , error );
-                });
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+                        , error -> displayErrorAlert("Error", null, error)) {
+                    @Override
+                    public Map<String, String> getHeaders() {
+                        Map<String, String> params = new HashMap<String, String>();
+                        params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
+                        params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
+                        return params;
+                    }
+                };
                 requestQueue.add(jsonObjectRequest);
             }else{
                 String title = "Authentication error";
@@ -203,77 +228,84 @@ public class Members extends Fragment {
 
 
     private void getMemberDetail(ShroomiesApartment shroomiesApartment) {
-        ArrayList<String> members = new ArrayList<>();
-        //add the the admin to the members
-        if(shroomiesApartment.getApartmentMembers()!=null){
-            members.addAll(shroomiesApartment.getApartmentMembers().values());
-        }
-        members.add(shroomiesApartment.getAdminID());
-
-        membersList = new ArrayList<>();
-        userAdapter = new UserAdapter(membersList, getContext(),apartment,getView());
-        membersRecyclerView.setAdapter(userAdapter);
-
-        JSONObject jsonObject=new JSONObject();
-        JSONObject data = new JSONObject();
-        JSONArray jsonArray = new JSONArray(members);
-
-        try {
-            jsonObject.put(Config.membersID,jsonArray);
-            data.put(Config.data , jsonObject);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
 
         FirebaseUser firebaseUser = mAuth.getCurrentUser();
-        firebaseUser.getIdToken(true).addOnCompleteListener(task -> {
+        firebaseUser.getIdToken(false).addOnCompleteListener(task -> {
             if(task.isSuccessful()){
+                ArrayList<String> members = new ArrayList<>();
+                //add the the admin to the members
+                if(shroomiesApartment.getApartmentMembers()!=null){
+                    members.addAll(shroomiesApartment.getApartmentMembers().values());
+                }
+                members.add(shroomiesApartment.getAdminID());
+
+                membersList = new ArrayList<>();
+                userAdapter = new UserAdapter(membersList, getContext(),apartment,getView());
+                membersRecyclerView.setAdapter(userAdapter);
+
+                JSONObject jsonObject=new JSONObject();
+                JSONObject data = new JSONObject();
+                JSONArray jsonArray = new JSONArray(members);
+
+                try {
+                    jsonObject.put(Config.membersID,jsonArray);
+                    data.put(Config.data , jsonObject);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
                 String token = task.getResult().getToken();
                 JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_GET_MEMBER_DETAIL, data, response -> {
                     final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
-                    JSONArray users = null;
                     try {
-                        users = response.getJSONArray(Config.result);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    if(users!=null) {
-                        if (users.length()!=0) {
-                            for (int i = 0 ; i<jsonArray.length();i++) {
-                                User user = null;
-                                try {
-                                    user = mapper.readValue((users.get(i)).toString(), User.class);
-                                } catch (JSONException | JsonProcessingException e) {
-                                    e.printStackTrace();
-                                }
-                                //if the admin id corresponds to this user id then
-                                // set the details of the admin without adding to the recycler view
-                                if(user!=null) {
-                                    if (user.getUserID().equals(apartment.getAdminID())) {
-                                        setAdminDetails(user);
-                                    } else {
-                                        membersList.add(user);
+                        boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
+                        if (success){
+                            JSONArray users = response.getJSONObject(Config.result).getJSONArray(Config.members);
+                        if (users != null) {
+                            if (users.length() != 0) {
+                                for (int i = 0; i < jsonArray.length(); i++) {
+                                    User user = mapper.readValue((users.get(i)).toString(), User.class);
+                                    //if the admin id corresponds to this user id then
+                                    // set the details of the admin without adding to the recycler view
+                                    if (user != null) {
+                                        if (user.getUserID().equals(apartment.getAdminID())) {
+                                            setAdminDetails(user);
+                                        } else {
+                                            membersList.add(user);
+                                        }
                                     }
                                 }
+                                userAdapter.notifyDataSetChanged();
+                            } else {
+                                noMembersRelativeLayout.setVisibility(View.VISIBLE);
                             }
-                            userAdapter.notifyDataSetChanged();
-                        }else{
+                        } else {
                             noMembersRelativeLayout.setVisibility(View.VISIBLE);
                         }
                     }else{
-                        noMembersRelativeLayout.setVisibility(View.VISIBLE);
+                        String title = "Unexpected error";
+                        String message = "We have encountered an unexpected error, try to check your internet connection and log in again.";
+                        displayErrorAlert(title, message , null);
+                    }
+                    } catch (JSONException | JsonProcessingException e) {
+                        e.printStackTrace();
                     }
 
-
-                }, error -> {
-                    displayErrorAlert("Error" ,null , error );
-                });
+                }, error -> displayErrorAlert("Error" ,null , error )){
+                    @Override
+                    public Map<String, String> getHeaders() {
+                        Map<String, String> params = new HashMap<String, String>();
+                        params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
+                        params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
+                        return params;
+                    }
+                };
                 requestQueue.add(jsonObjectRequest);
             }else{
-                    String title = "Authentication error";
-                    String message = "We encountered a problem while authenticating your account";
-                    displayErrorAlert(title, message , null);
-                    }
+                String title = "Authentication error";
+                String message = "We encountered a problem while authenticating your account";
+                displayErrorAlert(title, message , null);
+            }
         });
 
     }
@@ -303,7 +335,7 @@ public class Members extends Fragment {
             if (error instanceof NetworkError || error instanceof AuthFailureError || error instanceof NoConnectionError || error instanceof TimeoutError) {
                 message = "Cannot connect to Internet";
             } else if (error instanceof ServerError) {
-                message = "The server could not be found. Please try again later";
+                message = "Server error, Please try again later";
             } else if (error instanceof ParseError) {
                 message = "Parsing error! Please try again later";
             }

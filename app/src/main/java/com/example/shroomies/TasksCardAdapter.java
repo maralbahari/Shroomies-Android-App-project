@@ -23,7 +23,6 @@ import com.android.volley.NoConnectionError;
 import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
 import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
@@ -32,16 +31,12 @@ import com.android.volley.toolbox.Volley;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.common.net.HttpHeaders;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GetTokenResult;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.functions.FirebaseFunctions;
+
 import com.hendraanggrian.appcompat.widget.SocialTextView;
 
 import org.json.JSONException;
@@ -52,28 +47,27 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
 
 
 public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.TasksCardViewHolder> implements ItemTouchHelperAdapter {
-    private View parentView;
-    private Context context;
+    private final View parentView;
+    private final Context context;
     private View view;
-    private ItemTouchHelper itemTouchHelper;
 
-    private ArrayList<TasksCard> tasksCardsList;
-    private FragmentManager fragmentManager;
+    private final ArrayList<TasksCard> tasksCardsList;
+    private final FragmentManager fragmentManager;
 
-    private RequestQueue requestQueue;
-    private DatabaseReference rootRef;
-    private FirebaseAuth mAuth;
+    private final RequestQueue requestQueue;
+    private final FirebaseAuth mAuth;
 
-    private Boolean fromArchive;
+    private final Boolean fromArchive;
     private static final String DELETE = "delete";
     private static final String ARCHIVE = "archive";
     private static final String MARK = "mark";
-    private String apartmentID;
+    private final String apartmentID;
 
 
 
@@ -92,22 +86,20 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
 
     @Override
     public void onItemSwiped(int position) {
-        getUserToken(DELETE ,position , null ,false );
+        getUserToken(DELETE ,position , null ,false , null );
 
     }
 
     public void setItemTouchHelper(ItemTouchHelper itemTouchHelper) {
-        this.itemTouchHelper = itemTouchHelper;
     }
 
     public class TasksCardViewHolder extends RecyclerView.ViewHolder {
 
-        private View taskImportanceView;
-        private TextView titleTextView, descriptionTextView, dueDateTextView;
-        private SocialTextView mention;
-        private ImageButton archive;
-        private CheckBox done;
-        private CardView taskCardView;
+        private final View taskImportanceView;
+        private final TextView titleTextView, descriptionTextView, dueDateTextView;
+        private final SocialTextView mention;
+        private final ImageButton archive;
+        private final CheckBox done;
 
         public TasksCardViewHolder(@NonNull View v) {
             super(v);
@@ -120,33 +112,23 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
 
             mention = v.findViewById(R.id.task_mention_et);
             mention.setMentionColor(Color.BLUE);
-            taskCardView = v.findViewById(R.id.task_card_view);
-            taskCardView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    ViewCards viewCard = new ViewCards();
-                    Bundle bundle = new Bundle();
-                    bundle.putParcelable("CARD_DETAILS", tasksCardsList.get(getAdapterPosition()));
-                    bundle.putBoolean("FROM_TASK_TAB", true);
-                    viewCard.setArguments(bundle);
-                    viewCard.show(fragmentManager, "VIEWCARD");
-                }
+            CardView taskCardView = v.findViewById(R.id.task_card_view);
+            taskCardView.setOnClickListener(view -> {
+                ViewCards viewCard = new ViewCards();
+                Bundle bundle = new Bundle();
+                bundle.putParcelable("CARD_DETAILS", tasksCardsList.get(getAdapterPosition()));
+                bundle.putBoolean("FROM_TASK_TAB", true);
+                viewCard.setArguments(bundle);
+                viewCard.show(fragmentManager, "VIEWCARD");
             });
 
-            done.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    TasksCard tasksCard = tasksCardsList.get(getAdapterPosition());
-                    getUserToken(MARK , getAdapterPosition() , tasksCard , done.isChecked());
-                }
+            done.setOnClickListener(view -> {
+                TasksCard tasksCard = tasksCardsList.get(getAdapterPosition());
+                getUserToken(MARK , getAdapterPosition() , tasksCard , done.isChecked() , TasksCardViewHolder.this);
             });
 
-            archive.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    archive(getAdapterPosition(), tasksCardsList.get(getAdapterPosition()));
-                    getUserToken(ARCHIVE , getAdapterPosition() , tasksCardsList.get(getAdapterPosition()) , false);
-                }
+            archive.setOnClickListener(view -> {
+                getUserToken(ARCHIVE , getAdapterPosition() , tasksCardsList.get(getAdapterPosition()) , false  , null);
             });
 
 
@@ -195,7 +177,6 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
     public TasksCardAdapter.TasksCardViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(context);
         view = layoutInflater.inflate(R.layout.my_shroomie_tasks_card, parent, false);
-        rootRef = FirebaseDatabase.getInstance().getReference();
         return new TasksCardViewHolder(view);
     }
 
@@ -249,31 +230,29 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         return tasksCardsList.size();
     }
 
-    private void getUserToken(String method , int position , TasksCard tasksCard , boolean checked){
+    private void getUserToken(String method , int position , TasksCard tasksCard , boolean checked ,  TasksCardViewHolder tasksCardViewHolder){
         FirebaseUser firebaseUser = mAuth.getCurrentUser();
-        firebaseUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
-            @Override
-            public void onComplete(@NonNull Task<GetTokenResult> task) {
-                if (task.isSuccessful()) {
-                    String token = task.getResult().getToken();
-                    switch (method) {
-                        case DELETE:
-                            deleteTasksCard(position);
-                            break;
-                        case MARK:
-                            markTaskCard(tasksCard.getCardID(), apartmentID  , checked);
-                        case ARCHIVE:
-                            archive(position , tasksCard);
-                    }
-                }else{
-                    Snackbar.make(parentView,"We encountered an error while authenticating your account", BaseTransientBottomBar.LENGTH_LONG);
+        firebaseUser.getIdToken(true).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                String token = task.getResult().getToken();
+                switch (method) {
+                    case DELETE:
+                        deleteTasksCard(position ,  token);
+                        break;
+                    case MARK:
+                        markTaskCard(tasksCard.getCardID(), apartmentID  , checked , tasksCardViewHolder , token);
+                        break;
+                    case ARCHIVE:
+                        archive(position , tasksCard , token);
                 }
+            }else{
+                Snackbar.make(parentView,"We encountered an error while authenticating your account", BaseTransientBottomBar.LENGTH_LONG);
             }
         });
     }
 
 
-    public void archive(final int position, final TasksCard tasksCard) {
+    public void archive(final int position, final TasksCard tasksCard , String token) {
         final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
         mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
 
@@ -289,26 +268,38 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_ARCHIVE_TASKS_CARD, data, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                Snackbar.make(parentView, "Card archived", BaseTransientBottomBar.LENGTH_SHORT)
-                        .show();
-                tasksCardsList.remove(position);
-                notifyItemRemoved(position);
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_ARCHIVE_TASKS_CARD, data, response -> {
 
+            try {
+                boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
+                if(success){
+                    Snackbar.make(parentView, "Card archived", BaseTransientBottomBar.LENGTH_SHORT)
+                            .show();
+                    tasksCardsList.remove(position);
+                    notifyItemRemoved(position);
+                }else{
+                    Snackbar.make(parentView, "We encountered an error while archiving the card ", BaseTransientBottomBar.LENGTH_SHORT)
+                            .show();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
-        }, new Response.ErrorListener() {
+
+        }, this::displayError)
+        {
             @Override
-            public void onErrorResponse(VolleyError error) {
-                displayError(error);
+            public Map<String, String> getHeaders() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
+                params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
+                return params;
             }
-        });
+        };
         requestQueue.add(jsonObjectRequest);
 
     }
 
-    public void deleteTasksCard(final int position) {
+    public void deleteTasksCard(final int position , String token) {
 
             JSONObject jsonObject = new JSONObject();
             JSONObject data = new JSONObject();
@@ -321,20 +312,34 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
             }
             String url = fromArchive ? Config.FUNCTION_DELETE_TASK_CARD_ARCHIVE:Config.FUNCTION_DELETE_TASK_CARD;
 
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url , data, new Response.Listener<JSONObject>() {
-                @Override
-                public void onResponse(JSONObject response) {
-                    Snackbar snack = Snackbar.make(parentView, "Card deleted", BaseTransientBottomBar.LENGTH_SHORT);
-                    snack.show();
-                    tasksCardsList.remove(position);
-                    notifyItemRemoved(position);
+            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url , data, response -> {
+
+                try {
+                    boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
+                    if(success) {
+                        Snackbar snack = Snackbar.make(parentView, "Card deleted", BaseTransientBottomBar.LENGTH_SHORT);
+                        snack.show();
+                        tasksCardsList.remove(position);
+                        notifyItemRemoved(position);
+                    }else{
+                        Snackbar snack = Snackbar.make(parentView, "We encountered an error while deleting the card", BaseTransientBottomBar.LENGTH_SHORT);
+                        snack.show();
+                    }
+
+                } catch (JSONException e) {
+                e.printStackTrace();
                 }
-            }, new Response.ErrorListener() {
+
+            }, this::displayError)
+            {
                 @Override
-                public void onErrorResponse(VolleyError error) {
-                    displayError(error);
+                public Map<String, String> getHeaders() {
+                    Map<String, String> params = new HashMap<String, String>();
+                    params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
+                    params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
+                    return params;
                 }
-            });
+            };
             requestQueue.add(jsonObjectRequest);
 
 
@@ -342,7 +347,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
 
 
 
-    private void markTaskCard(String cardID, String apartmentID, boolean checked) {
+    private void markTaskCard(String cardID, String apartmentID, boolean checked , TasksCardViewHolder tasksCardViewHolder ,  String token) {
         JSONObject jsonObject = new JSONObject();
         JSONObject data = new JSONObject();
         try {
@@ -354,20 +359,34 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
             e.printStackTrace();
         }
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_MARK_TASK_CARD, data, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                String done = "done";
-                if(!checked){ done = " not done"; }
-                Snackbar.make(parentView,"Card marked as"+done, BaseTransientBottomBar.LENGTH_SHORT)
-                        .show();
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_MARK_TASK_CARD, data, response -> {
+            try {
+                boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
+                if(success){
+                    String done = "done";
+                    if(!checked){ done = " not done"; }
+                    Snackbar.make(parentView,"Card marked as"+done, BaseTransientBottomBar.LENGTH_SHORT)
+                            .show();
+                }else{
+                    tasksCardViewHolder.done.setChecked(!checked);
+                    Snackbar.make(parentView,"Couldn't mark the card",  BaseTransientBottomBar.LENGTH_SHORT)
+                            .show();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
-        }, new Response.ErrorListener() {
+
+
+        }, this::displayError)
+        {
             @Override
-            public void onErrorResponse(VolleyError error) {
-                displayError(error);
+            public Map<String, String> getHeaders() {
+                Map<String, String> params = new HashMap<String, String>();
+                params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
+                params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
+                return params;
             }
-        });
+        };
         requestQueue.add(jsonObjectRequest);
 
 

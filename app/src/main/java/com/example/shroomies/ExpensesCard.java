@@ -16,7 +16,7 @@ public class ExpensesCard implements Parcelable {
             done, fileType,actor;
     HashMap<String, String> mention;
 
-    HashMap<String, Float> membersShares=new HashMap<String, Float>();
+    HashMap<String, Integer> membersShares=new HashMap<String, Integer>();
     String date;
 
 
@@ -79,7 +79,7 @@ public class ExpensesCard implements Parcelable {
     }
 
 
-    public ExpensesCard(String attachedFile, String description, String title, String dueDate, String importance, String members, String cardId, String done, HashMap<String,String> mention, HashMap<String, Float> membersShares) {
+    public ExpensesCard(String attachedFile, String description, String title, String dueDate, String importance, String cardId, String done, HashMap<String,String> mention, HashMap<String, Integer> membersShares) {
         this.attachedFile = attachedFile;
         this.description = description;
         this.title = title;
@@ -94,11 +94,11 @@ public class ExpensesCard implements Parcelable {
 
 
 
-    public HashMap<String, Float> getMembersShares() {
+    public HashMap<String, Integer> getMembersShares() {
         return membersShares;
     }
 
-    public void setMembersShares(HashMap<String, Float> membersShares) {
+    public void setMembersShares(HashMap<String, Integer> membersShares) {
         this.membersShares = membersShares;
     }
 

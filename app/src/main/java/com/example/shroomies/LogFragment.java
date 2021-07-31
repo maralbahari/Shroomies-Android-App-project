@@ -26,10 +26,12 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.factor.bouncy.BouncyRecyclerView;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.common.net.HttpHeaders;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GetTokenResult;
@@ -40,6 +42,7 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 
 
 public class LogFragment extends Fragment {
@@ -99,61 +102,66 @@ public class LogFragment extends Fragment {
     }
 
     private void getMemberDetails(ArrayList<String> members) {
-        JSONObject jsonObject=new JSONObject();
-        JSONObject data = new JSONObject();
-        JSONArray jsonArray = new JSONArray(members);
 
-        try {
-            jsonObject.put(Config.membersID,jsonArray);
-            data.put(Config.data , jsonObject);
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-//
-//        FirebaseFunctions mfunc = FirebaseFunctions.getInstance();
-//        mfunc.useEmulator("10.0.2.2",5001);
         FirebaseUser firebaseUser = mAuth
                 .getCurrentUser();
         firebaseUser.getIdToken(false)
                 .addOnCompleteListener(task -> {
                     if(task.isSuccessful()){
+                        String token = task.getResult().getToken();
+                        JSONObject jsonObject=new JSONObject();
+                        JSONObject data = new JSONObject();
+                        JSONArray jsonArray = new JSONArray(members);
+                        try {
+                            jsonObject.put(Config.membersID,jsonArray);
+                            data.put(Config.data , jsonObject);
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            return;
+                        }
                         HashMap<String , User > usersMap = new HashMap();
-                        JsonObjectRequest jsonObjectRequest= new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_GET_MEMBER_DETAIL, data, new Response.Listener<JSONObject>() {
-                            @Override
-                            public void onResponse(JSONObject response) {
-                                final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
-                                mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-
-                                JSONArray users = null;
-                                try {
-                                    users = (JSONArray) response.get(Config.result);
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                                if(users!=null) {
-                                    for (int i = 0; i < users.length(); i++) {
-                                        User user = null;
-                                        try {
+                        JsonObjectRequest jsonObjectRequest= new JsonObjectRequest(Request.Method.POST,
+                                Config.FUNCTION_GET_MEMBER_DETAIL,
+                                data,
+                                (Response.Listener<JSONObject>) response -> {
+                            try {
+                                JSONObject result  = response.getJSONObject(Config.result);
+                                boolean success = result.getBoolean(Config.success);
+                                if(success) {
+                                    final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
+                                    mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+                                    JSONArray users = result.getJSONArray(Config.members);
+                                    if (users != null) {
+                                        for (int i = 0; i < users.length(); i++) {
+                                            User user = null;
                                             user = mapper.readValue(((JSONObject) users.get(i)).toString(), User.class);
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                        }catch (JsonProcessingException e) {
-                                            e.printStackTrace();
+                                            usersMap.put(user.getUserID(), user);
                                         }
-
-                                        usersMap.put(user.getUserID(), user);
-                                        Log.d( "logs user" , usersMap.toString());
+                                        logAdapter = new LogAdapter(getContext(), apartmentLogs, usersMap, getParentFragmentManager(), getTargetFragment());
+                                        logRecycler.setAdapter(logAdapter);
+                                        logAdapter.notifyDataSetChanged();
                                     }
-
-                                    logAdapter = new LogAdapter(getContext(), apartmentLogs, usersMap, getParentFragmentManager(), getTargetFragment());
-                                    logRecycler.setAdapter(logAdapter);
-                                    logAdapter.notifyDataSetChanged();
+                                }else{
+                                    String title = "Unexpected error";
+                                    String message = "We have encountered an unexpected error, try to check your internet connection and log in again.";
+                                    displayErrorAlert(title, null, message);
                                 }
+                            } catch (JSONException | JsonProcessingException e) {
+                                e.printStackTrace();
                             }
+
                         }, error -> {
                             displayErrorAlert("Error" ,error, null);
-                        });
+                        }){
+                            @Override
+                            public Map<String, String> getHeaders() {
+                                Map<String, String> params = new HashMap<String, String>();
+                                params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
+                                params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
+                                return params;
+                            }
+                        };
                         requestQueue.add(jsonObjectRequest);
 
                     }else{
@@ -161,10 +169,7 @@ public class LogFragment extends Fragment {
                         String message = "We encountered a problem while authenticating your account";
                         displayErrorAlert(title ,null, message);
                     }
-                });
-
-
-
+        });
     }
 
 
@@ -172,7 +177,10 @@ public class LogFragment extends Fragment {
     void displayErrorAlert(String title  , @Nullable VolleyError error , @Nullable String errorMessage){
         String message = null; // error message, show it in toast or dialog, whatever you want
         if(error!=null) {
-            if (error instanceof NetworkError || error instanceof AuthFailureError || error instanceof NoConnectionError || error instanceof TimeoutError) {
+            if (error instanceof NetworkError ||
+                    error instanceof AuthFailureError ||
+                    error instanceof NoConnectionError ||
+                    error instanceof TimeoutError) {
                 message = "Cannot connect to Internet";
             } else if (error instanceof ServerError) {
                 message = "The server could not be found. Please try again later";
