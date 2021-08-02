@@ -2,12 +2,13 @@ package com.example.shroomies;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.Toast;
+
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,6 +17,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkError;
@@ -27,14 +29,12 @@ import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.factor.bouncy.BouncyRecyclerView;
+
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
@@ -42,11 +42,10 @@ import com.google.common.net.HttpHeaders;
 import com.google.firebase.auth.FirebaseAuth;
 
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GetTokenResult;
+import com.skydoves.powerspinner.OnSpinnerItemSelectedListener;
 import com.skydoves.powerspinner.PowerSpinnerView;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.util.ArrayList;
@@ -54,14 +53,23 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import me.everything.android.ui.overscroll.IOverScrollDecor;
+import me.everything.android.ui.overscroll.IOverScrollUpdateListener;
+import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
+
 
 public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshroomies , CardUploaded {
     //views
     private View v;
     private TabLayout myShroomiesTablayout;
-    private BouncyRecyclerView myExpensesRecyclerView,myTasksRecyclerView;
+    private RecyclerView myExpensesRecyclerView,myTasksRecyclerView;
     private ImageButton expandButton;
     private SlidingUpPanelLayout slidingLayout;
+    private CustomLoadingProgressBar customLoadingProgressBar;
+    private IOverScrollDecor expensesDecor;
+    private IOverScrollDecor tasksDecor;
+    private IOverScrollUpdateListener onOverPullListener;
+
     //data structures
     private ArrayList<TasksCard> tasksCardsList;
     private ArrayList<ExpensesCard> expensesCardsList;
@@ -79,7 +87,7 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
     private FragmentTransaction ft;
     private FragmentManager fm;
     //values
-    private String selectedCardID , selectedCardType, tabSelected="expenses";
+    private String selectedCardID , selectedCardType;
     private boolean cardFound =false;
     private int recyclerPosition=0;
 
@@ -94,10 +102,6 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
             if(expensesCardsList!=null && expensesCardAdapter!=null){
                 expensesCardsList.add(expensesCard);
                 expensesCardAdapter.notifyDataSetChanged();
-            }else{
-                if(expensesCardsList.isEmpty());
-                expensesCardsList = new ArrayList<>();
-                expensesCardsList.add(expensesCard);
             }
         }
 
@@ -118,11 +122,7 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-
          getUserToken();
-
-
         myTasksRecyclerView = v.findViewById(R.id.my_tasks_recycler_view);
         Button memberButton = v.findViewById(R.id.my_shroomies_member_btn);
         ImageButton addCardButton = v.findViewById(R.id.my_shroomies_add_card_btn);
@@ -149,6 +149,23 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
         myTasksRecyclerView.setLayoutManager(linearLayoutManager1);
 
 
+        expensesDecor = OverScrollDecoratorHelper.setUpOverScroll(myExpensesRecyclerView, OverScrollDecoratorHelper.ORIENTATION_VERTICAL);
+        tasksDecor = OverScrollDecoratorHelper.setUpOverScroll(myTasksRecyclerView, OverScrollDecoratorHelper.ORIENTATION_VERTICAL);
+
+        onOverPullListener = (decor, state, offset) -> {
+            //recyceler view is overscrolled from the top
+            if(offset>200){
+                //fetch new data when over scrolled from top
+                // remove the listener to prevent the user from over scrolling
+                // again while the data is still being fetched
+                //the listener will be set again when the data has been retrieved
+                expensesDecor.setOverScrollUpdateListener(null);
+                tasksDecor.setOverScrollUpdateListener(null);
+                getUserToken();
+            }
+        };
+
+
 
         slidingLayout.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
             @Override
@@ -162,6 +179,7 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
                     expandButton.animate().rotation(180).setDuration(100).start();
 
                 }else{
+                    shroomieSpinnerFilter.dismiss();
                     expandButton.animate().rotation(0).setDuration(100).start();
                 }
             }
@@ -175,15 +193,12 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
                     myShroomiesTablayout.setSelectedTabIndicator(R.drawable.tab_indicator_left);
                     myExpensesRecyclerView.setVisibility(View.VISIBLE);
                     myTasksRecyclerView.setVisibility(View.GONE);
-                    tabSelected="expenses";
-
                 }
 
                 else if(tab.getPosition()==1){
                     myShroomiesTablayout.setSelectedTabIndicator(R.drawable.tab_indicator_right);
                     myTasksRecyclerView.setVisibility(View.VISIBLE);
                     myExpensesRecyclerView.setVisibility(View.GONE);
-                    tabSelected="tasks";
                 }
             }
 
@@ -197,20 +212,30 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
 
             }
         });
-        shroomieSpinnerFilter.setOnSpinnerItemSelectedListener((i, o, i1, t1) -> {
-            switch (i) {
-                case 0:
-                    sortAccordingtoImportance(tabSelected);
-                    break;
-                case 1:
-                    sortAccordingToLatest(tabSelected);
-                    break;
-                case 2:
-                    sortAccordingToOldest(tabSelected);
-                    break;
-                case 3:
-                    sortAccordingToTitle(tabSelected);
-                    break;
+        shroomieSpinnerFilter.setOnSpinnerItemSelectedListener(new OnSpinnerItemSelectedListener<Object>() {
+            @Override
+            public void onItemSelected(int i, @org.jetbrains.annotations.Nullable Object o, int i1, Object t1) {
+                int selectedTab=  myShroomiesTablayout.getSelectedTabPosition();
+                switch (i) {
+                    case 0:
+                        sortAccordingtoImportance(selectedTab);
+                        slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                        Toast.makeText(getActivity(),"wowow" , Toast.LENGTH_SHORT).show();
+                        break;
+                    case 1:
+                        sortAccordingToLatest(selectedTab);
+                        slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                        break;
+                    case 2:
+                        sortAccordingToOldest(selectedTab);
+                        slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+
+                        break;
+                    case 3:
+                        sortAccordingToTitle(selectedTab);
+                        slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                        break;
+                }
             }
         });
 
@@ -261,9 +286,9 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
             ArrayList<String> members;
             if(apartment.getApartmentMembers()!=null){
                 //put the members and add the admin
-                members = new ArrayList(apartment.getApartmentMembers().values());
+                members = new ArrayList<>(apartment.getApartmentMembers().values());
             }else{
-                members = new ArrayList();
+                members = new ArrayList<>();
             }
             members.add(apartment.getAdminID());
             bundle.putStringArrayList("MEMBERS" ,members);
@@ -283,25 +308,26 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
 
 
     private void getUserToken(){
+        customLoadingProgressBar = new CustomLoadingProgressBar(getActivity() , "null" , R.raw.myshroomies_loading);
+        customLoadingProgressBar.getWindow()
+                .setBackgroundDrawableResource(android.R.color.transparent);
+        customLoadingProgressBar.show();
+
         FirebaseUser firebaseUser = mAuth.getCurrentUser();
-        firebaseUser.getIdToken(false).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
-            @Override
-            public void onComplete(@NonNull Task<GetTokenResult> task) {
-                if(task.isSuccessful()) {
-                    String token = task.getResult().getToken();
-                    getApartmentDetails(token);
-                    Log.d("user error" , "works");
-                }else{
-                    //todo handle error
-                    String title = "Authentication error";
-                    String message = "We encountered a problem while authenticating your account";
-                    displayErrorAlert(title, message);
-                }
+        firebaseUser.getIdToken(false).addOnCompleteListener(task -> {
+            if(task.isSuccessful()) {
+                String token = task.getResult().getToken();
+                getApartmentDetails(token);
+            }else{
+                //todo handle error
+                String title = "Authentication error";
+                String message = "We encountered a problem while authenticating your account";
+                displayErrorAlert(title, message);
             }
         });
     }
 
-    private void getApartmentDetails(String  token) {
+    private void getApartmentDetails(String token){
         JSONObject jsonObject = new JSONObject();
         JSONObject data  = new JSONObject();
         try {
@@ -331,6 +357,7 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
                 expensesCardsList = new ArrayList<>();
                 if (apartment.getExpensesCard() != null) {
                     if (isAdded()) {
+
                         expensesCardsList = new ArrayList<>(apartment.getExpensesCard().values());
                     }
                 }
@@ -351,6 +378,11 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
                         apartmentLogs = new ArrayList<>(apartment.getLogs().values());
                     }
                 }
+
+                tasksDecor.setOverScrollUpdateListener(onOverPullListener);
+                expensesDecor.setOverScrollUpdateListener(onOverPullListener);
+
+                customLoadingProgressBar.dismiss();
             } else {
                 String title = "Unexpected error";
                 String message = "We have encountered an unexpected error ,try to check your internet connection and log in again.";
@@ -363,6 +395,7 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
                 String message = "We have encountered an unexpected error ,try to check your internet connection and log in again.";
                 displayErrorAlert(title, message);
             }
+
 
         }, error -> {
             String message = null; // error message, show it in toast or dialog, whatever you want
@@ -379,7 +412,7 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
         {
             @Override
             public Map<String, String> getHeaders() {
-                Map<String, String> params = new HashMap<String, String>();
+                Map<String, String> params = new HashMap<>();
                 params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
                 params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
                 return params;
@@ -429,15 +462,15 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
     }
 
 
-    private void sortAccordingToOldest(String tab) {
-        if(tab.equals("expenses")){
+    private void sortAccordingToOldest(int tab) {
+        if(tab==0){
             expensesCardsList.sort((o1, o2) -> {
                 Date dateO1 = new Date(o1.getDate());
                 Date dateO2 = new Date(o2.getDate());
                 return dateO1.compareTo(dateO2);
             });
             expensesCardAdapter.notifyDataSetChanged();
-        }else if(tab.equals("tasks")){
+        }else if(tab==1){
             tasksCardsList.sort((o1, o2) -> {
                 Date dateO1 = new Date(o1.getDate());
                 Date dateO2 = new Date(o2.getDate());
@@ -450,8 +483,8 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
         }
         }
 
-   private void sortAccordingToLatest(String tab) {
-        if(tab.equals("expenses")){
+   private void sortAccordingToLatest(int tab) {
+        if(tab==0){
             expensesCardsList.sort((o1, o2) -> {
                 Date dateO1 = new Date(o1.getDate());
                 Date dateO2 = new Date(o2.getDate());
@@ -460,7 +493,7 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
             });
             expensesCardAdapter.notifyDataSetChanged();
         }
-        else if(tab.equals("tasks")){
+        else if(tab==1){
 
             tasksCardsList.sort((o1, o2) -> {
                 Date dateO1 =new Date(o1.getDate());
@@ -476,44 +509,46 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
     }
 
 
-   private void sortAccordingtoImportance(String tab){
-        if(tab.equals("expenses")){
-            expensesCardsList.sort((o1, o2) -> {
-                int colorO1=Integer.parseInt(o1.getImportance());
-                int colorO2=Integer.parseInt(o2.getImportance());
+   private void sortAccordingtoImportance(int tab){
+        if(tab==0){
+            if(expensesCardsList!=null) {
+                expensesCardsList.sort((o1, o2) -> {
+                    int colorO1 = Integer.parseInt(o1.getImportance());
+                    int colorO2 = Integer.parseInt(o2.getImportance());
+                    if (colorO1 < colorO2) {
+                        return 1;
+                    } else {
+                        return -1;
+                    }
 
-                if (colorO1<colorO2){
-                    return 1;
-                }else {
-                    return -1;
-                }
+                });
+                expensesCardAdapter.notifyDataSetChanged();
+            }
 
-            });
-            expensesCardAdapter.notifyDataSetChanged();
         }
-        else if(tab.equals("tasks")){
-            tasksCardsList.sort((o1, o2) -> {
-                int colorO1=Integer.parseInt(o1.getImportance());
-                int colorO2=Integer.parseInt(o2.getImportance());
-                if (colorO1<colorO2){
-                    return 1;
-                }else {
-                    return -1;
-                }
-
-            });
-            tasksCardAdapter.notifyDataSetChanged();
-
+        else if(tab==1){
+            if(tasksCardsList!=null){
+                tasksCardsList.sort((o1, o2) -> {
+                    int colorO1=Integer.parseInt(o1.getImportance());
+                    int colorO2=Integer.parseInt(o2.getImportance());
+                    if (colorO1<colorO2){
+                        return 1;
+                    }else {
+                        return -1;
+                    }
+                });
+                tasksCardAdapter.notifyDataSetChanged();
+            }
         }
 
     }
 
-   private void sortAccordingToTitle(String tab){
-        if(tab.equals("expenses")){
+   private void sortAccordingToTitle(int tab){
+        if(tab==0){
             expensesCardsList.sort((o1, o2) -> o1.getTitle().compareToIgnoreCase(o2.getTitle()));
             expensesCardAdapter.notifyDataSetChanged();
 
-        }else if(tab.equals("tasks")){
+        }else if(tab==1){
             tasksCardsList.sort((o1, o2) -> o1.getTitle().compareToIgnoreCase(o2.getTitle()));
             tasksCardAdapter.notifyDataSetChanged();
         }
@@ -523,7 +558,6 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
    public void sendInput(String cardID, String cardType) {
         this.selectedCardID = cardID;
         this.selectedCardType=cardType;
-
         if(selectedCardType.equals("tasks")){
             for (TasksCard card:tasksCardsList){
                 if(card.getCardID().equals(selectedCardID)){
@@ -534,7 +568,6 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
                     }else{
                         cardFound=false;
                     }
-
                 }
             }
 
@@ -558,6 +591,9 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
         }
     }
     void displayErrorAlert(String title, String message){
+        tasksDecor.setOverScrollUpdateListener(onOverPullListener);
+        expensesDecor.setOverScrollUpdateListener(onOverPullListener);
+        customLoadingProgressBar.dismiss();
          new AlertDialog.Builder(getActivity())
                 .setIcon(R.drawable.ic_alert)
                 .setTitle(title)
@@ -567,9 +603,7 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
                      getActivity().finish();
                      dialog.dismiss();
                  })
-                 .setPositiveButton("refresh", (dialog, which) -> {
-                     getUserToken();
-                 })
+                 .setPositiveButton("refresh", (dialog, which) -> getUserToken())
                 .create()
                 .show();
     }

@@ -26,9 +26,11 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.common.net.HttpHeaders;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.auth.UserProfileChangeRequest;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -114,61 +116,6 @@ public class SignUpActivity extends AppCompatActivity{
 
     private void registerUser(final String name, final String email, String password, String confirmpw) {
         pd.show();
-//        mAuth.createUserWithEmailAndPassword(email, password).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
-//            @Override
-//            public void onSuccess(AuthResult authResult) {
-//                  pd.dismiss();
-//                  Toast.makeText(getApplicationContext(),"registered",Toast.LENGTH_LONG).show();
-//                FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-//
-//                UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-//                        .setDisplayName(name).build();
-//                user.updateProfile(profileUpdates).addOnCompleteListener(new OnCompleteListener<Void>() {
-//                    @Override
-//                    public void onComplete(@NonNull @NotNull Task<Void> task) {
-//                        if(task.isSuccessful()) {
-//                            final DatabaseReference ref = mRootref.child("apartments").push();
-//                            apartmentID = ref.getKey();
-//                            HashMap<String, Object> userDetails = new HashMap<>();
-//                            userDetails.put("name", name);
-//                            userDetails.put("email", email);
-//                            userDetails.put("userID", mAuth.getCurrentUser().getUid());
-//                            userDetails.put("image", ""); //add later in edit profile
-//                            userDetails.put("apartmentID", apartmentID); //change later
-//                            final HashMap<String, Object> apartmentDetails = new HashMap<>();
-//                            apartmentDetails.put("apartmentID", apartmentID);
-//                            apartmentDetails.put("adminID", mAuth.getCurrentUser().getUid());
-//                            mRootref.child("users").child(mAuth.getCurrentUser().getUid()).setValue(userDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
-//                                @Override
-//                                public void onComplete(@NonNull Task<Void> task) {
-//                                    if (task.isSuccessful()) {
-//                                        ref.updateChildren(apartmentDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
-//                                            @Override
-//                                            public void onComplete(@NonNull Task<Void> task) {
-//                                                if (task.isSuccessful()) {
-//                                                    pd.dismiss();
-//                                                    sendEmailVerification();
-////                                                    Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
-////                                                    startActivity(intent);
-////                                                    Toast.makeText(SignUpActivity.this, name+", you are a Shroomie now", Toast.LENGTH_SHORT).show();
-//                                                }
-//                                            }
-//                                        });
-//                                    }
-//                                }
-//                            });
-//                        }
-//                    }
-//                });
-//            }
-//                }).addOnFailureListener(new OnFailureListener() {
-//            @Override
-//            public void onFailure(@NonNull Exception e) {
-//                pd.dismiss();
-//                Toast.makeText(SignUpActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-//            }
-//            });
-
         JSONObject jsonObject = new JSONObject();
         JSONObject data = new JSONObject();
 
@@ -180,23 +127,36 @@ public class SignUpActivity extends AppCompatActivity{
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_REGISTER_USER, data, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-            pd.dismiss();
-//            sendEmailVerification();
-            Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
-            startActivity(intent);
-            Toast.makeText(SignUpActivity.this, name+", you are a Shroomie now", Toast.LENGTH_SHORT).show();
+        FirebaseUser firebaseUser  = mAuth.getCurrentUser();
+        firebaseUser.getIdToken(false)
+                .addOnCompleteListener(task -> {
+                    if(task.isSuccessful()){
+                        String token = task.getResult().getToken();
 
-            }
-        }, new Response.ErrorListener() {
-            @Override
-            public void onErrorResponse(VolleyError error) {
+                        JsonObjectRequest jsonObjectRequest =
+                                new JsonObjectRequest(Request.Method.POST, Config.URL_REGISTER_USER, data, response -> {
+                                    pd.dismiss();
+    //                              sendEmailVerification();
+                                    Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
+                                    startActivity(intent);
+                                    Toast.makeText(SignUpActivity.this, name+", you are a Shroomie now", Toast.LENGTH_SHORT).show();
+                                }, error -> {
 
-            }
-        });
-        requestQueue.add(jsonObjectRequest);
+                        })
+                        {
+                            @Override
+                            public Map<String, String> getHeaders() {
+                                Map<String, String> params = new HashMap<>();
+                                params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
+                                params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
+                                return params;
+                            }
+                        };
+                        requestQueue.add(jsonObjectRequest);
+                    }
+
+                });
+
     }
     private void sendEmailVerification(){
         final FirebaseUser user = mAuth.getCurrentUser();

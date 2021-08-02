@@ -2,7 +2,6 @@
 <com.sothree.slidinguppanel.SlidingUpPanelLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     xmlns:sothree="http://schemas.android.com/apk/res-auto"
     android:id="@+id/sliding_layout"
     android:layout_width="match_parent"
@@ -14,6 +13,7 @@
     app:umanoShadowHeight="0dp"
 
  >
+
     <FrameLayout
         android:id="@+id/my_shroomies_frame_layout"
         android:layout_width="match_parent"
@@ -56,33 +56,6 @@
 
 
 
-
-
-        <com.factor.bouncy.BouncyRecyclerView
-
-            android:id="@+id/my_expenses_recycler_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/my_shroomies_tablayout"
-            android:layout_marginLeft="3dp"
-            android:layout_marginRight="3dp"
-            app:recyclerview_fling_animation_size=".5"
-            app:recyclerview_overscroll_animation_size=".5"
-            app:recyclerview_damping_ratio="DAMPING_RATIO_LOW_BOUNCY"
-            app:recyclerview_stiffness="STIFFNESS_MEDIUM"
-            app:allow_drag_reorder="true"
-            app:allow_item_swipe="false"/>
-
-
-        <com.factor.bouncy.BouncyRecyclerView
-            android:id="@+id/my_tasks_recycler_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/my_shroomies_tablayout"
-            android:layout_marginLeft="3dp"
-            android:layout_marginRight="3dp"
-            android:visibility="gone"
-            app:allow_item_swipe="true"/>
         <LinearLayout
             android:id="@+id/drag_down_layout"
             android:layout_width="wrap_content"
@@ -90,25 +63,50 @@
             android:orientation="vertical"
             android:layout_below="@id/my_shroomies_tablayout"
             android:layout_centerHorizontal="true"
-            android:elevation="10dp">
+            >
 
-    <com.airbnb.lottie.LottieAnimationView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:lottie_rawRes="@raw/drag_down"
-        app:lottie_autoPlay="true"
-        app:lottie_loop="true"
-        android:layout_gravity="center"
-        android:layout_marginTop="-20dp"
-        />
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="drag for updates"
-        android:layout_marginTop="-30dp"
-        />
+            <com.airbnb.lottie.LottieAnimationView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:lottie_rawRes="@raw/drag_down"
+                app:lottie_autoPlay="true"
+                app:lottie_loop="true"
+                android:layout_gravity="center"
+                android:layout_marginTop="-20dp"
+                />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="drag for updates"
+                android:layout_marginTop="-30dp"
+                />
 
-</LinearLayout>
+        </LinearLayout>
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:background="@color/white"
+            android:id="@+id/my_expenses_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/my_shroomies_tablayout"
+            android:layout_alignParentBottom="true"
+            android:layout_marginLeft="3dp"
+            android:layout_marginRight="3dp"
+          />
+
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/my_tasks_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:layout_below="@+id/my_shroomies_tablayout"
+            android:layout_marginLeft="3dp"
+            android:layout_marginRight="3dp"
+            android:layout_alignParentBottom="true"
+            android:visibility="gone"
+           />
+
 
 
 
@@ -132,7 +130,9 @@
             android:padding="10dp"
             android:foreground="?android:attr/selectableItemBackground"
             android:background="@android:color/transparent"
-            android:src="@drawable/ic_add" />
+            android:src="@drawable/ic_add"
+            android:elevation="5dp"/>
+
         </androidx.cardview.widget.CardView>
         <View
             android:id="@+id/view"

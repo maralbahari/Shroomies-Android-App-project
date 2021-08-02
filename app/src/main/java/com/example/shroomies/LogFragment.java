@@ -1,8 +1,7 @@
 package com.example.shroomies;
 
-import android.content.DialogInterface;
 import android.os.Bundle;
-import android.util.Log;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,16 +24,14 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.factor.bouncy.BouncyRecyclerView;
+import com.factor.bouncy.util.OnOverPullListener;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+
 import com.google.common.net.HttpHeaders;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GetTokenResult;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -50,7 +47,6 @@ public class LogFragment extends Fragment {
     private ArrayList<apartmentLogs> apartmentLogs;
     private ArrayList<String> membersIDs;
     private BouncyRecyclerView logRecycler;
-    private Bundle bundle;
     private LogAdapter logAdapter;
     private RequestQueue requestQueue;
     private FirebaseAuth mAuth;
@@ -79,18 +75,15 @@ public class LogFragment extends Fragment {
         toolbar.setTitleTextColor(getActivity().getColor(R.color.jetBlack));
         toolbar.setNavigationIcon(R.drawable.ic_back_button);
         toolbar.setElevation(5);
-        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                toolbar.setTitle(null);
-                toolbar.setNavigationIcon(null);
-                getActivity().onBackPressed();
-            }
+        toolbar.setNavigationOnClickListener(view1 -> {
+            toolbar.setTitle(null);
+            toolbar.setNavigationIcon(null);
+            getActivity().onBackPressed();
         });
 
 
-        bundle=this.getArguments();
-        if(bundle!=null){
+        Bundle bundle = this.getArguments();
+        if(bundle !=null){
             apartmentLogs = bundle.getParcelableArrayList("LOG_LIST");
             membersIDs = bundle.getStringArrayList("MEMBERS");
             if(apartmentLogs!=null){
@@ -99,6 +92,9 @@ public class LogFragment extends Fragment {
                 //todo display  empty logs
             }
         }
+
+
+
     }
 
     private void getMemberDetails(ArrayList<String> members) {
@@ -120,43 +116,46 @@ public class LogFragment extends Fragment {
                             e.printStackTrace();
                             return;
                         }
-                        HashMap<String , User > usersMap = new HashMap();
+                        HashMap<String , User > usersMap = new HashMap<>();
                         JsonObjectRequest jsonObjectRequest= new JsonObjectRequest(Request.Method.POST,
                                 Config.FUNCTION_GET_MEMBER_DETAIL,
                                 data,
                                 (Response.Listener<JSONObject>) response -> {
-                            try {
-                                JSONObject result  = response.getJSONObject(Config.result);
-                                boolean success = result.getBoolean(Config.success);
-                                if(success) {
-                                    final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
-                                    mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-                                    JSONArray users = result.getJSONArray(Config.members);
-                                    if (users != null) {
-                                        for (int i = 0; i < users.length(); i++) {
-                                            User user = null;
-                                            user = mapper.readValue(((JSONObject) users.get(i)).toString(), User.class);
-                                            usersMap.put(user.getUserID(), user);
-                                        }
-                                        logAdapter = new LogAdapter(getContext(), apartmentLogs, usersMap, getParentFragmentManager(), getTargetFragment());
-                                        logRecycler.setAdapter(logAdapter);
-                                        logAdapter.notifyDataSetChanged();
-                                    }
-                                }else{
-                                    String title = "Unexpected error";
-                                    String message = "We have encountered an unexpected error, try to check your internet connection and log in again.";
-                                    displayErrorAlert(title, null, message);
-                                }
-                            } catch (JSONException | JsonProcessingException e) {
-                                e.printStackTrace();
-                            }
+                                    try {
+                                        JSONObject result = response.getJSONObject(Config.result);
+                                        boolean success = result.getBoolean(Config.success);
+                                        if (success) {
+                                            final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
+                                            mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+                                            JSONArray users = result.getJSONArray(Config.members);
+                                            if (users != null) {
+                                                for (int i = 0; i < users.length(); i++) {
+                                                    User user = mapper.readValue(((JSONObject) users.get(i)).toString(), User.class);
+                                                    usersMap.put(user.getUserID(), user);
+                                                }
+                                                logAdapter = new LogAdapter(getContext(), apartmentLogs, usersMap, getParentFragmentManager(), getTargetFragment());
+                                                logRecycler.setAdapter(logAdapter);
+                                                logAdapter.notifyDataSetChanged();
+                                            }
 
-                        }, error -> {
-                            displayErrorAlert("Error" ,error, null);
-                        }){
+                                        } else {
+                                            String title = "Unexpected error";
+                                            String message = "We have encountered an unexpected error, try to check your internet connection and log in again.";
+                                            displayErrorAlert(title, null, message);
+
+                                        }
+                                    } catch (JSONException | JsonProcessingException e) {
+                                        e.printStackTrace();
+                                    }
+
+                                }, (Response.ErrorListener) error -> {
+
+                                    displayErrorAlert("Error" ,error, null);
+                                })
+                        {
                             @Override
                             public Map<String, String> getHeaders() {
-                                Map<String, String> params = new HashMap<String, String>();
+                                Map<String, String> params = new HashMap<>();
                                 params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
                                 params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
                                 return params;
@@ -174,7 +173,7 @@ public class LogFragment extends Fragment {
 
 
 
-    void displayErrorAlert(String title  , @Nullable VolleyError error , @Nullable String errorMessage){
+    void displayErrorAlert(String title  , VolleyError error , String errorMessage){
         String message = null; // error message, show it in toast or dialog, whatever you want
         if(error!=null) {
             if (error instanceof NetworkError ||
@@ -195,18 +194,8 @@ public class LogFragment extends Fragment {
                 .setTitle(title)
                 .setMessage(message)
                 .setCancelable(false)
-                .setNeutralButton("return", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        LogFragment.this.getActivity().onBackPressed();
-                    }
-                })
-                .setPositiveButton("refresh", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        getMemberDetails(membersIDs);
-                    }
-                })
+                .setNeutralButton("return", (dialog, which) -> LogFragment.this.getActivity().onBackPressed())
+                .setPositiveButton("refresh", (dialog, which) -> getMemberDetails(membersIDs))
                 .create()
                 .show();
     }

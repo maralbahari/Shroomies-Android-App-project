@@ -105,7 +105,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                 holder.sendRequest.setText("Sent!");
             }
         }else{
-            if (userList.get(position).getUserID().equals(mAuth.getInstance().getCurrentUser().getUid())){
+            if (userList.get(position).getUserID().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())){
                 holder.msgMember.setVisibility(View.INVISIBLE);
                 holder.removeMember.setVisibility(View.INVISIBLE);
                 holder.userName.setText("You");

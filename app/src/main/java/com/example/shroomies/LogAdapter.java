@@ -2,7 +2,7 @@ package com.example.shroomies;
 
 import android.content.Context;
 import android.graphics.Typeface;
-import android.icu.lang.UScript;
+
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextPaint;
@@ -24,26 +24,25 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
+
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
-    private View v;
-    private Context context;
-    private ArrayList<apartmentLogs> apartmentLogsList;
-    private HashMap<String , User> usersMap;
+    private final Context context;
+    private final ArrayList<apartmentLogs> apartmentLogsList;
+    private final HashMap<String , User> usersMap;
     private Spannable cardName=new SpannableString("");
     private LogAdapterToMyshroomies logAdapterToMyshroomies;
-    private Fragment targetedFragment;
+    private final Fragment targetedFragment;
     private FragmentTransaction ft;
-    private FragmentManager fm;
+    private final FragmentManager fm;
 
 
 
@@ -61,7 +60,7 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
     @Override
     public LogViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(context);
-        v = layoutInflater.inflate(R.layout.log_card,parent,false);
+        View v = layoutInflater.inflate(R.layout.log_card, parent, false);
         return new LogViewHolder(v);
     }
 
@@ -91,35 +90,35 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
 
       final String cardType= apartmentLogsList.get(position).getCardType();
       final String cardID= apartmentLogsList.get(position).getCardID();
-//      long when= apartmentLogsList.get(position).getWhen();
-//          Date happend=(new Date(when));
-//          Date currentDate=(new Date(System.currentTimeMillis()));
-//          long diff=currentDate.getTime()-happend.getTime();
-//          long diffInSec = TimeUnit.MILLISECONDS.toSeconds(diff);
-//        long seconds = diffInSec % 60;
-//         diffInSec /= 60;
-//        long minutes = diffInSec % 60;
-//        diffInSec /= 60;
-//        long hours = diffInSec % 24;
-//        diffInSec /= 24;
-//        long days = diffInSec;
-//         if(days>0){
-//             holder.logDate.setText(days+"d");
-//         }else{
-//             if(hours>0){
-//                 holder.logDate.setText(hours+"h");
-//             }else{
-//                 if(minutes>0){
-//                     holder.logDate.setText(minutes+"m");
-//                 }else{
-//                     if(seconds>0){
-//                         holder.logDate.setText(seconds+"s");
-//                     }else{
-//                         holder.logDate.setText("now");
-//                     }
-//                 }
-//             }
-//         }
+        DateTimeFormatter formatter = DateTimeFormatter
+                .ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+                .withZone(ZoneOffset.UTC);
+        ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.SECONDS);
+        String currentDateString = formatter.format(now);
+
+        final LocalDateTime secondDate = LocalDateTime.parse(apartmentLogsList.get(position).getWhen(), formatter);
+        final LocalDateTime firstDate = LocalDateTime.parse(currentDateString  , formatter);
+
+
+        final long days = ChronoUnit.DAYS.between(secondDate, firstDate);
+        if(days>0){
+            holder.logDate.setText(days+ "d");
+        }else{
+            long hours = ChronoUnit.HOURS.between(secondDate, firstDate);
+            Log.d("time" , Long.toString(hours));
+
+            if(hours>0){
+                holder.logDate.setText(hours+ "h");
+            }else{
+                long minutes = ChronoUnit.MINUTES.between(secondDate, firstDate);
+                if(minutes>0){
+                    holder.logDate.setText(minutes+ "m");
+                }else{
+                    long seconds = ChronoUnit.SECONDS.between(secondDate, firstDate);
+                    holder.logDate.setText(seconds+ "s");
+                }
+            }
+        }
 
             Spannable nameOfActor = new SpannableString(user.getName());
             nameOfActor.setSpan(new ForegroundColorSpan(context.getColor(R.color.Black)), 0, nameOfActor.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
@@ -260,10 +259,10 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
         return apartmentLogsList.size();
     }
 
-    public class LogViewHolder extends RecyclerView.ViewHolder {
-        private ImageView userPic;
-        private TextView logMessage;
-        private TextView logDate;
+    public static class LogViewHolder extends RecyclerView.ViewHolder {
+        private final ImageView userPic;
+        private final TextView logMessage;
+        private final TextView logDate;
 
         public LogViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -279,7 +278,7 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
         try {
             logAdapterToMyshroomies = (LogAdapterToMyshroomies) targetedFragment;
         }catch(ClassCastException e){
-
+            e.printStackTrace();
         }
     }
 

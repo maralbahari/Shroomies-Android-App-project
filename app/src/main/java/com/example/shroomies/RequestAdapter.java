@@ -26,10 +26,13 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.common.net.HttpHeaders;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.GetTokenResult;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -131,37 +134,57 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
 
 
         private void rejectRequest(final String senderID , int position){
+            mAuth.getCurrentUser().getIdToken(false).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+                @Override
+                public void onComplete(@NonNull Task<GetTokenResult> task) {
+                    if(task.isSuccessful()) {
+                        String token = task.getResult().getToken();
 
-            JSONObject data = new JSONObject();
-            JSONObject jsonObject = new JSONObject();
+                        JSONObject data = new JSONObject();
+                        JSONObject jsonObject = new JSONObject();
 
-            try {
-                jsonObject.put("senderID" , senderID);
-                jsonObject.put("receiverID" , mAuth.getCurrentUser().getUid());
-                data.put("data" , jsonObject);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+                        try {
+                            jsonObject.put("senderID", senderID);
+                            jsonObject.put("receiverID", mAuth.getCurrentUser().getUid());
+                            data.put("data", jsonObject);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
 
-            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_CANCEL_OR_REJECT_REQUEST, data, response -> {
+                        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_CANCEL_OR_REJECT_REQUEST, data, response -> {
 
-                try {
-                    boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
-                    if(success){
-                        usersList.remove(position);
-                        notifyItemRemoved(position);
+                            try {
+                                boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
+                                if (success) {
+                                    usersList.remove(position);
+                                    notifyItemRemoved(position);
+                                } else {
+                                    Snackbar.make(rootLayout, "We encountered an error while performing your request", BaseTransientBottomBar.LENGTH_LONG).show();
+
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
+
+                        }, error -> displayErrorAlert(error))
+                        {
+                            @Override
+                            public Map<String, String> getHeaders()  {
+                                Map<String, String> params = new HashMap<>();
+                                params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
+                                params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
+                                return params;
+                            }
+                        };
+
+                        requestQueue.add(jsonObjectRequest);
                     }else{
-                        Snackbar.make(rootLayout,"We encountered an error while performing your request", BaseTransientBottomBar.LENGTH_LONG).show();
-
+                        //todo handle error;
                     }
-                } catch (JSONException e) {
-                    e.printStackTrace();
                 }
+            });
 
-
-            }, error -> displayErrorAlert(error));
-
-            requestQueue.add(jsonObjectRequest);
 
 
         }
@@ -170,7 +193,6 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
             mAuth.getCurrentUser().getIdToken(false).addOnCompleteListener(task -> {
                 if(task.isSuccessful()){
                     String token = task.getResult().getToken();
-
                     JSONObject jsonObject = new JSONObject();
                     JSONObject data = new JSONObject();
                     try {
@@ -210,7 +232,8 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
                         }
                     };
                     requestQueue.add(jsonObjectRequest);
-
+                }else{
+                    //todo handle error;
                 }
             });
 

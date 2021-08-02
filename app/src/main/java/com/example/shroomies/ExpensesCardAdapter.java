@@ -144,7 +144,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                 holder.importanceView.setBackgroundColor(context.getColor(R.color.okGreen));
         }
 
-        if (!expensesCardArrayList.get(position).getAttachedFile().isEmpty()) {
+        if (expensesCardArrayList.get(position).getAttachedFile()!=null) {
             if(expensesCardArrayList.get(position).getFileType().equals("pdf")){
                 holder.cardImage.setImageDrawable(ContextCompat.getDrawable(context , R.drawable.ic_pdf_icon));
             }else{
