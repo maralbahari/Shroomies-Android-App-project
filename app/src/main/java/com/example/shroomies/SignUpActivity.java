@@ -80,7 +80,7 @@ public class SignUpActivity extends AppCompatActivity{
         password = findViewById(R.id.password);
         confirmpw = findViewById(R.id.confirmpw);
         register = findViewById(R.id.registerbt);
-        FirebaseDatabase.getInstance().useEmulator("10.0.2.2",9000);
+//        FirebaseDatabase.getInstance().useEmulator("10.0.2.2",9000);
         mRootref = FirebaseDatabase.getInstance().getReference();
 
         mAuth = FirebaseAuth.getInstance();
@@ -127,11 +127,6 @@ public class SignUpActivity extends AppCompatActivity{
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        FirebaseUser firebaseUser  = mAuth.getCurrentUser();
-        firebaseUser.getIdToken(false)
-                .addOnCompleteListener(task -> {
-                    if(task.isSuccessful()){
-                        String token = task.getResult().getToken();
 
                         JsonObjectRequest jsonObjectRequest =
                                 new JsonObjectRequest(Request.Method.POST, Config.URL_REGISTER_USER, data, response -> {
@@ -148,16 +143,13 @@ public class SignUpActivity extends AppCompatActivity{
                             public Map<String, String> getHeaders() {
                                 Map<String, String> params = new HashMap<>();
                                 params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
-                                params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
                                 return params;
                             }
                         };
                         requestQueue.add(jsonObjectRequest);
                     }
 
-                });
 
-    }
     private void sendEmailVerification(){
         final FirebaseUser user = mAuth.getCurrentUser();
          user.sendEmailVerification().addOnCompleteListener(this, new OnCompleteListener<Void>() {

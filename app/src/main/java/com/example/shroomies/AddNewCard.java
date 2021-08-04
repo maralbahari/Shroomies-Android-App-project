@@ -141,8 +141,9 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
         // Inflate the layout for this fragment
         requestQueue= Volley.newRequestQueue(getActivity());
         mAuth = FirebaseAuth.getInstance();
-        mAuth.useEmulator("10.0.2.2" , 9099);
+//        mAuth.useEmulator("10.0.2.2" , 9099);
         mStorage = FirebaseStorage.getInstance();
+//        mStorage.useEmulator("10.0.2.2",9199);
         v = inflater.inflate(R.layout.fragment_add_new_card, container, false);
 
         return v;
@@ -364,13 +365,14 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
         JSONArray jsonArray = new JSONArray(members);
 
         try {
+
             jsonObject.put(Config.membersID,jsonArray);
             data.put(Config.data , jsonObject);
         } catch (JSONException e) {
             e.printStackTrace();
         }
         FirebaseUser firebaseUser = mAuth.getCurrentUser();
-        firebaseUser.getIdToken(false).addOnCompleteListener(task -> {
+        firebaseUser.getIdToken(true).addOnCompleteListener(task -> {
             if(task.isSuccessful()){
                 String token = task.getResult().getToken();
                 JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_GET_MEMBER_DETAIL, data, response -> {
@@ -429,7 +431,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
 
     private void saveTaskCardToFirebase(String mtitle, String mdescription, String mdueDate, String importance, JSONObject mMention, String apartmentID) {
         FirebaseUser firebaseUser = mAuth.getCurrentUser();
-        firebaseUser.getIdToken(false).addOnCompleteListener(task -> {
+        firebaseUser.getIdToken(true).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 String token = task.getResult().getToken();
                 JSONObject jsonObject = new JSONObject();
@@ -512,7 +514,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
        //get the authorization token
         //if authorization token is recived then proceed
         FirebaseUser firebaseUser = mAuth.getCurrentUser();
-        firebaseUser.getIdToken(false).addOnCompleteListener(task -> {
+        firebaseUser.getIdToken(true).addOnCompleteListener(task -> {
             if(task.isSuccessful()) {
                 String token = task.getResult().getToken();
                 JSONObject jsonObject = new JSONObject();

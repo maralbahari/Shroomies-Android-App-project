@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity {
         //Creating session in main activity
 //        rootRef = FirebaseDatabase.getInstance().getReference();
         mAuth = FirebaseAuth.getInstance();
-        mAuth.useEmulator("10.0.2.2" , 9099);
+//        mAuth.useEmulator("10.0.2.2" , 9099);
 
 
         FirebaseUser fUser=mAuth.getCurrentUser();
@@ -117,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
            @Override
            public void onComplete(@NonNull @NotNull Task<String> task) {
                FirebaseDatabase database=FirebaseDatabase.getInstance();
-               database.useEmulator("10.0.2.2",9000);
+//               database.useEmulator("10.0.2.2",9000);
                FirebaseUser user=mAuth.getCurrentUser();
                String userID= user.getUid();
                DatabaseReference ref= database.getReference("tokens");

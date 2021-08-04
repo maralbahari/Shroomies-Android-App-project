@@ -79,7 +79,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         this.fragmentManager = fragmentManager;
         this.parentView = parentView;
         mAuth = FirebaseAuth.getInstance();
-        mAuth.useEmulator("10.0.2.2", 9099);
+//        mAuth.useEmulator("10.0.2.2", 9099);
         requestQueue = Volley.newRequestQueue(context);
     }
 

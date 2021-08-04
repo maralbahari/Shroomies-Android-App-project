@@ -111,7 +111,7 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         mAuth = FirebaseAuth.getInstance();
-        mAuth.useEmulator("10.0.2.2" , 9099);
+//        mAuth.useEmulator("10.0.2.2" , 9099);
         requestQueue = Volley.newRequestQueue(getActivity());
         v = inflater.inflate(R.layout.fragment_my_shroomies, container, false);
         return v;
@@ -314,7 +314,7 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
         customLoadingProgressBar.show();
 
         FirebaseUser firebaseUser = mAuth.getCurrentUser();
-        firebaseUser.getIdToken(false).addOnCompleteListener(task -> {
+        firebaseUser.getIdToken(true).addOnCompleteListener(task -> {
             if(task.isSuccessful()) {
                 String token = task.getResult().getToken();
                 getApartmentDetails(token);
@@ -408,7 +408,6 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
             }
             displayErrorAlert("Error" ,message);
         })
-                //todo uncomment when function  is deployed
         {
             @Override
             public Map<String, String> getHeaders() {

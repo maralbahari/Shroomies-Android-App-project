@@ -61,29 +61,14 @@ public class LoginActivity extends AppCompatActivity {
     public static EThree eThree;
     private String token;
     private DatabaseReference rootRef;
-
-
-//    @Override
-//    protected void onStart() {
-//        super.onStart();
-//        mAuth.addAuthStateListener(authStateListener);
-//    }
-//
-//    @Override
-//    protected void onStop() {
-//        super.onStop();
-//        mAuth.removeAuthStateListener(authStateListener);
-//    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         FirebaseApp.initializeApp(getApplicationContext());
         mAuth = FirebaseAuth.getInstance();
-        FirebaseDatabase.getInstance().useEmulator("10.0.2.2",9000);
+//        FirebaseDatabase.getInstance().useEmulator("10.0.2.2",9000);
         rootRef=FirebaseDatabase.getInstance().getReference();
-        mAuth.useEmulator("10.0.2.2" , 9099);
+//        mAuth.useEmulator("10.0.2.2" , 9099);
 
         setContentView(R.layout.activity_login);
         username=findViewById(R.id.email_login);
@@ -92,26 +77,6 @@ public class LoginActivity extends AppCompatActivity {
         signup=findViewById(R.id.sign_up_button);
         google_sign = findViewById(R.id.google_sign_up);
         forgotPassword=findViewById(R.id.forgot_password_login);
-//        progressBar=findViewById(R.id.progressBar_login);
-
-//        authStateListener = new FirebaseAuth.AuthStateListener() {
-//            @Override
-//            public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
-//                FirebaseUser firebaseUser = mAuth.getCurrentUser();
-//                if(firebaseUser!=null && firebaseUser.isEmailVerified()){
-//                    String userID =mAuth.getCurrentUser().getUid();
-//                    String userEmail =mAuth.getCurrentUser().getEmail();
-//                    Toast.makeText(LoginActivity.this, "Welcome to Shroomies! ", Toast.LENGTH_SHORT).show();
-//                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-//                    intent.putExtra("ID",userID);
-//                    intent.putExtra("EMAIL",userEmail);
-//                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-//                    startActivity(intent);
-//                }
-//            }
-//        };
-
-
         google_sign.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -172,11 +137,7 @@ public class LoginActivity extends AppCompatActivity {
                             FirebaseUser user =mAuth.getCurrentUser();
                             String userID =user.getUid();
                             String userEmail =user.getEmail();
-//                            sessionManager= new SessionManager(LoginActivity.this,userID);
-//                            sessionManager.createSession(userID,userEmail);
-//                            sessionManager.setVerifiedEmail(mAuth.getCurrentUser().isEmailVerified());
-//                            sessionManager.setVerifiedEmail(true);
-                            getE3Token();
+//                            getE3Token();
                             Toast.makeText(LoginActivity.this, "Welcome to Shroomies! ", Toast.LENGTH_SHORT).show();
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                             intent.putExtra("ID",userID);
