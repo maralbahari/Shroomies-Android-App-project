@@ -32,15 +32,15 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.HashMap;
 
 public class ChangeBioDialog extends DialogFragment {
-    private FirebaseUser userRef;
-    private FirebaseDatabase dataRef;
-    private FirebaseAuth authRef;
+
+    private FirebaseAuth mAuth;
     private DatabaseReference rootRef;
-    final String userUid =  authRef.getInstance().getCurrentUser().getUid();
 
     private EditText newBio;
     private TextView currentBio;
     private Button saveBio, exitBioDialog;
+
+    private User user;
     View v;
 
     @Override
@@ -63,6 +63,8 @@ public class ChangeBioDialog extends DialogFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         v=inflater.inflate(R.layout.dialog_fragment_change_bio, container, false);
+        mAuth=FirebaseAuth.getInstance();
+        rootRef=FirebaseDatabase.getInstance().getReference();
         return v;
     }
 
@@ -73,27 +75,22 @@ public class ChangeBioDialog extends DialogFragment {
         currentBio = v.findViewById(R.id.display_current_bio);
         saveBio = v.findViewById(R.id.change_bio_button);
         exitBioDialog = v.findViewById(R.id.exit_button);
-
-        rootRef = dataRef.getInstance().getReference();
-        rootRef.child("Users").child(userUid).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                User user = snapshot.getValue(User.class);
-                currentBio.setText(user.getBio());
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
+        Bundle bundle=this.getArguments();
+        if (bundle!=null) {
+            user=bundle.getParcelable("USER");
+        } else {
+//            todo handle error when bundle is null
+        }
         saveBio.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateBio();
+                FirebaseUser firebaseUser= mAuth.getCurrentUser();
+                if (firebaseUser!=null) {
+                    String txtBio = newBio.getText().toString();
+                    updateBio(txtBio);
+                }
             }
         });
-
         exitBioDialog.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -102,18 +99,15 @@ public class ChangeBioDialog extends DialogFragment {
         });
 
     }
-    private void updateBio() {
-
-        String txtBio = newBio.getText().toString();
-
+    private void updateBio(String txtBio) {
         HashMap<String, Object> updateDetails = new HashMap<>();
         updateDetails.put("bio", txtBio);
 
-        dataRef.getInstance().getReference().child("Users").child(userUid).updateChildren(updateDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
+        rootRef.child("users").child(user.getUserID()).updateChildren(updateDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
-                  //  Toast.makeText(getActivity(), "Updated your bio", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Updated your bio", Toast.LENGTH_SHORT).show();
                 }
             }
         }).addOnFailureListener(new OnFailureListener() {

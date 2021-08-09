@@ -31,15 +31,14 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.HashMap;
 
 public class ChangeUsernameDialog extends DialogFragment {
-    private FirebaseUser userRef;
-    private FirebaseDatabase dataRef;
-    private FirebaseAuth authRef;
+    private FirebaseAuth mAuth;
     private DatabaseReference rootRef;
-    final String userUid =  authRef.getInstance().getCurrentUser().getUid();
 
     private EditText username;
     private TextView currentUsername;
     private Button saveUsername, exitUsernameDialog;
+
+    private User user;
 
     View v;
 
@@ -64,6 +63,8 @@ public class ChangeUsernameDialog extends DialogFragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         v=inflater.inflate(R.layout.dialog_fragment_change_username, container, false);
+        mAuth=FirebaseAuth.getInstance();
+        rootRef=FirebaseDatabase.getInstance().getReference();
         return v;
     }
 
@@ -74,24 +75,23 @@ public class ChangeUsernameDialog extends DialogFragment {
         currentUsername = v.findViewById(R.id.display_current_username);
         saveUsername = v.findViewById(R.id.change_username_button);
         exitUsernameDialog = v.findViewById(R.id.exit_button);
-
-        rootRef = dataRef.getInstance().getReference();
-        rootRef.child("Users").child(userUid).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                User user = snapshot.getValue(User.class);
-                currentUsername.setText(user.getName());
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
+        Bundle bundle=this.getArguments();
+        if (bundle!=null) {
+            user=bundle.getParcelable("USER");
+            currentUsername.setText(user.getName());
+        } else {
+//            todo handle error when bundle is null
+        }
         saveUsername.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateUsername();
+                FirebaseUser firebaseUser=mAuth.getCurrentUser();
+                if (firebaseUser!=null) {
+                    String txtName = username.getText().toString().toLowerCase();
+                    updateUsername(txtName);
+                } else {
+//                    todo error handling when user is null
+                }
             }
         });
 
@@ -103,17 +103,16 @@ public class ChangeUsernameDialog extends DialogFragment {
         });
     }
 
-    private void updateUsername() {
-        String txtName = username.getText().toString();
+    private void updateUsername(String txtName) {
         HashMap<String, Object> updateDetails = new HashMap<>();
         updateDetails.put("name", txtName);
-
-        dataRef.getInstance().getReference().child("Users").child(userUid).updateChildren(updateDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
-
+        rootRef.child("users").child(user.getUserID()).updateChildren(updateDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
-//                    Toast.makeText(getActivity(), "Updated username successfully", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "Updated username successfully", Toast.LENGTH_SHORT).show();
+                } else {
+//                    todo handle error if task failes
                 }
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -124,5 +123,4 @@ public class ChangeUsernameDialog extends DialogFragment {
         });
         dismiss();
     }
-
 }

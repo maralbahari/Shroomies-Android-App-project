@@ -98,7 +98,6 @@ public class UserProfile extends Fragment {
         sendUserMessage = v.findViewById(R.id.send_user_message);
         sendUserMessage.setVisibility(View.GONE);
 
-
         numberPosts = v.findViewById(R.id.number_posts);
 
         recyclerView = v.findViewById(R.id.recycler_view);

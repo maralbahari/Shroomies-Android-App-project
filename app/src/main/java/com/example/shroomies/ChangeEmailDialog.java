@@ -32,12 +32,11 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.HashMap;
 
 public class ChangeEmailDialog extends DialogFragment {
-    private FirebaseUser userRef;
-    private FirebaseDatabase dataRef;
-    private FirebaseAuth authRef;
-    private DatabaseReference rootRef;
-    final String userUid =  authRef.getInstance().getCurrentUser().getUid();
 
+    private FirebaseAuth mAuth;
+    private DatabaseReference rootRef;
+
+    private User user;
     private EditText newEmail;
     private TextView currentEmail;
     private Button saveEmail, exitEmailDialog;
@@ -63,6 +62,8 @@ public class ChangeEmailDialog extends DialogFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         v=inflater.inflate(R.layout.dialog_fragment_change_email, container, false);
+        mAuth=FirebaseAuth.getInstance();
+        rootRef=FirebaseDatabase.getInstance().getReference();
         return v;
     }
 
@@ -73,24 +74,26 @@ public class ChangeEmailDialog extends DialogFragment {
         currentEmail = v.findViewById(R.id.display_current_email);
         saveEmail = v.findViewById(R.id.change_email_button);
         exitEmailDialog = v.findViewById(R.id.exit_button);
+        Bundle bundle=this.getArguments();
+        if (bundle!=null) {
+            user=bundle.getParcelable("USER");
+            currentEmail.setText(user.getEmail());
+        } else {
+//            todo error handling when bundle is null
+        }
 
-        rootRef = dataRef.getInstance().getReference();
-        rootRef.child("Users").child(userUid).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                User user = snapshot.getValue(User.class);
-                currentEmail.setText(user.getEmail());
-            }
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
 
         saveEmail.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                updateEmail();
+                FirebaseUser firebaseUser=mAuth.getCurrentUser();
+                if (firebaseUser!=null) {
+                    String txtEmail = newEmail.getText().toString();
+                    updateEmail(txtEmail);
+                } else{
+                    //            todo error handling when user is null or signed out
+
+                }
             }
         });
 
@@ -102,20 +105,18 @@ public class ChangeEmailDialog extends DialogFragment {
         });
 
     }
-    private void updateEmail() {
-
-        String txtEmail = newEmail.getText().toString();
-
+    private void updateEmail(String txtEmail) {
         HashMap<String, Object> updateDetails = new HashMap<>();
         updateDetails.put("email", txtEmail);
 
-        dataRef.getInstance().getReference().child("Users").child(userUid).updateChildren(updateDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
+        rootRef.child("users").child(user.getUserID()).updateChildren(updateDetails).addOnCompleteListener(new OnCompleteListener<Void>() {
 
             @Override
             public void onComplete(@NonNull Task<Void> task) {
                 if (task.isSuccessful()) {
                     Toast.makeText(getActivity(), "Updated email successfully", Toast.LENGTH_SHORT).show();
-                    sendEmailVerification();
+//                    FirebaseUser firebaseUser=mAuth.getCurrentUser();
+//                    sendEmailVerification(firebaseUser);
                 }
             }
         }).addOnFailureListener(new OnFailureListener() {
@@ -125,21 +126,17 @@ public class ChangeEmailDialog extends DialogFragment {
             }
         });
     }
-
-    private void sendEmailVerification() {
-        userRef = authRef.getInstance().getCurrentUser();
-
-        userRef.updateEmail(newEmail.getText().toString()).addOnCompleteListener(new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                if(task.isSuccessful()){
-                   // Toast.makeText(getContext(), "Error! Try again", Toast.LENGTH_SHORT).show();
-                    final FirebaseUser user = authRef.getInstance().getCurrentUser();
-                    user.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
+    private void sendEmailVerification(FirebaseUser firebaseUser) {
+//        firebaseUser.updateEmail(newEmail.getText().toString()).addOnCompleteListener(new OnCompleteListener<Void>() {
+//            @Override
+//            public void onComplete(@NonNull Task<Void> task) {
+//                if(task.isSuccessful()){
+//                   // Toast.makeText(getContext(), "Error! Try again", Toast.LENGTH_SHORT).show();
+                    firebaseUser.sendEmailVerification().addOnCompleteListener(new OnCompleteListener<Void>() {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
-                                Toast.makeText(getActivity(), "Updated Successfully. Verification email sent to " + userRef.getEmail(), Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getActivity(), "Updated Successfully. Verification email sent to " + firebaseUser.getEmail(), Toast.LENGTH_SHORT).show();
                                 Intent intent = new Intent(getActivity(), LoginActivity.class);
                                 startActivity(intent);
 
@@ -148,12 +145,11 @@ public class ChangeEmailDialog extends DialogFragment {
                             }
                         }
                     });
-                }
-                else {
-
-                }
-            }
-        });
-
+//                }
+//                else {
+//
+//                }
+//            }
+//        });
     }
 }

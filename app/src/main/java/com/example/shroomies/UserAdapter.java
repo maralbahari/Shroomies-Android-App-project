@@ -72,7 +72,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         LayoutInflater layoutInflater = LayoutInflater.from(context);
         View v = layoutInflater.inflate(R.layout.send_request_card, parent, false);
         mAuth=FirebaseAuth.getInstance();
-        mAuth.useEmulator("10.0.2.2" , 9099);
+//        mAuth.useEmulator("10.0.2.2" , 9099);
         requestQueue = Volley.newRequestQueue(context);
         return new UserViewHolder(v);
     }
