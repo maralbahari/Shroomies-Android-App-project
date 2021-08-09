@@ -12,6 +12,7 @@
     app:edMenuBackground="@color/LogoYellow"
     tools:context=".MainActivity"
 
+
    >
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -68,6 +69,7 @@
         android:layout_height="match_parent"
         android:fitsSystemWindows="true"
         android:layout_gravity="start"
+
         >
         <include
             android:id="@id/include"

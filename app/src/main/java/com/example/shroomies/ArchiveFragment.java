@@ -2,20 +2,22 @@ package com.example.shroomies;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkError;
-import com.android.volley.NoConnectionError;
 import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -41,19 +43,32 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import me.everything.android.ui.overscroll.IOverScrollDecor;
+import me.everything.android.ui.overscroll.IOverScrollStateListener;
+import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
+
 public class ArchiveFragment extends Fragment {
     private TabLayout archiveTablayout;
     private RecyclerView expensesRecyclerview;
     private RecyclerView tasksRecyclerView;
     private RelativeLayout rootLayout;
+    private TextView noArchiveCardsTextView;
     //data
     private ArrayList<ExpensesCard> expensesCardsArrayList;
     private ArrayList<TasksCard> tasksCardsArrayList;
     private TasksCardAdapter tasksCardAdapter;
     private ExpensesCardAdapter expensesCardAdapter;
+    private IOverScrollDecor expensesDecor;
+    private IOverScrollDecor tasksDecor;
+    private IOverScrollStateListener onOverPullListener;
     //firebase
     private FirebaseAuth mAuth;
     private RequestQueue requestQueue;
+    //values
+    private boolean scrollFromTop;
+    private String apartmentID;
+    private HashMap<String , User > memberHashMap;
+
 
 
     @Override
@@ -76,21 +91,60 @@ public class ArchiveFragment extends Fragment {
         tasksRecyclerView = v.findViewById(R.id.archive_recyclerview_task);
         archiveTablayout = v.findViewById(R.id.my_tablayout_archive);
         rootLayout = v.findViewById(R.id.archive_root_layout);
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
-        LinearLayoutManager linearLayoutManager1 = new LinearLayoutManager(getContext());
-        expensesRecyclerview.setHasFixedSize(true);
-        expensesRecyclerview.setLayoutManager(linearLayoutManager);
-        tasksRecyclerView.setHasFixedSize(true);
-        tasksRecyclerView.setLayoutManager(linearLayoutManager1);
+        noArchiveCardsTextView = v.findViewById(R.id.no_archive_text_view);
+        Toolbar toolbar =getActivity().findViewById(R.id.my_shroomies_toolbar);
 
         //get the apartment data
         Bundle bundle = this.getArguments();
 
         if (bundle != null) {
             //variable
-            String apartmentID = bundle.getString(Config.apartmentID);
+            apartmentID = bundle.getString(Config.apartmentID);
+            memberHashMap = (HashMap<String, User>) bundle.getSerializable(Config.members);
             getCards(apartmentID);
         }
+
+        toolbar.setTitle("Archive");
+        toolbar.setTitleTextColor(getActivity().getColor(R.color.jetBlack));
+        toolbar.setNavigationIcon(R.drawable.ic_back_button);
+        toolbar.findViewById(R.id.myshroomies_toolbar_logo).setVisibility(View.GONE);
+        toolbar.findViewById(R.id.my_shroomies_add_card_btn).setVisibility(View.GONE);
+        toolbar.setNavigationOnClickListener(view1 -> {
+            toolbar.setTitle(null);
+            toolbar.setNavigationIcon(null);
+            getActivity().onBackPressed();
+        });
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+        LinearLayoutManager linearLayoutManager1 = new LinearLayoutManager(getContext());
+        expensesRecyclerview.setHasFixedSize(true);
+        expensesRecyclerview.setLayoutManager(linearLayoutManager);
+        tasksRecyclerView.setHasFixedSize(true);
+        tasksRecyclerView.setLayoutManager(linearLayoutManager1);
+        expensesDecor = OverScrollDecoratorHelper.setUpOverScroll(expensesRecyclerview, OverScrollDecoratorHelper.ORIENTATION_VERTICAL);
+        tasksDecor = OverScrollDecoratorHelper.setUpOverScroll(tasksRecyclerView, OverScrollDecoratorHelper.ORIENTATION_VERTICAL);
+
+        //fetch new data when over scrolled from top
+        // remove the listener to prevent the user from over scrolling
+        // again while the data is still being fetched
+        //the listener will be set again when the data has been retrieved
+         onOverPullListener = (decor, oldState, newState) -> {
+            if (oldState == 1) {
+                scrollFromTop = true;
+            }
+
+            if (newState == 0 && scrollFromTop) {
+                //fetch new data when over scrolled from top
+                // remove the listener to prevent the user from over scrolling
+                // again while the data is still being fetched
+                //the listener will be set again when the data has been retrieved
+                expensesDecor.setOverScrollUpdateListener(null);
+                tasksDecor.setOverScrollUpdateListener(null);
+                scrollFromTop = false;
+                getCards(apartmentID);
+            }
+        };
+
+
 
         archiveTablayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
@@ -99,12 +153,21 @@ public class ArchiveFragment extends Fragment {
                     archiveTablayout.setSelectedTabIndicator(R.drawable.tab_indicator_left);
                     tasksRecyclerView.setVisibility(View.GONE);
                     expensesRecyclerview.setVisibility(View.VISIBLE);
-                    expensesCardsArrayList = new ArrayList<>();
+                    if(expensesCardsArrayList.isEmpty()){
+                      noArchiveCardsTextView.setVisibility(View.VISIBLE);
+                    }else{
+                        noArchiveCardsTextView.setVisibility(View.GONE);
+                    }
 
                 } else if (tab.getPosition() == 1) {
                     archiveTablayout.setSelectedTabIndicator(R.drawable.tab_indicator_right);
                     tasksRecyclerView.setVisibility(View.VISIBLE);
                     expensesRecyclerview.setVisibility(View.GONE);
+                    if(tasksCardsArrayList.isEmpty()){
+                        noArchiveCardsTextView.setVisibility(View.VISIBLE);
+                    }else{
+                        noArchiveCardsTextView.setVisibility(View.GONE);
+                    }
                 }
             }
 
@@ -142,41 +205,54 @@ public class ArchiveFragment extends Fragment {
                         try {
                             boolean success =  response.getJSONObject(Config.result).getBoolean(Config.success);
                             if(success) {
+                                JSONObject expensesCardObject;
+                                JSONObject taskCardObject;
                                 JSONObject cards =response.getJSONObject(Config.result).getJSONObject(Config.cards);
-                                JSONObject taskCardObject = (JSONObject) cards.get(Config.taskCards);
-                                JSONObject expensesCardObject = (JSONObject)cards.get(Config.expensesCards);
-                                if(expensesCardObject!=null){
-                                    Iterator<String> keys = expensesCardObject.keys();
-                                    while (keys.hasNext()){
-                                        String key = keys.next();
-                                        JSONObject expensesCard = (JSONObject) expensesCardObject.get(key);
-                                        ExpensesCard expensesCardPOJO = mapper.readValue(expensesCard.toString(), ExpensesCard.class);
-                                        expensesCardsArrayList.add(expensesCardPOJO);
+                                Log.d("archive" , cards.toString());
 
+
+                                if(!cards.isNull(Config.expensesCards)){
+                                    expensesCardObject = cards.getJSONObject(Config.expensesCards);
+                                    if(expensesCardObject.length()!=0){
+                                        Iterator<String> keys = expensesCardObject.keys();
+                                        while (keys.hasNext()){
+                                            String key = keys.next();
+                                            JSONObject expensesCard = expensesCardObject.getJSONObject(key);
+                                            ExpensesCard expensesCardPOJO = mapper.readValue(expensesCard.toString(), ExpensesCard.class);
+                                            expensesCardsArrayList.add(expensesCardPOJO);
+                                        }
+                                    }else{
+                                        noArchiveCardsTextView.setVisibility(View.VISIBLE);
                                     }
+
+                                }else{
+                                    noArchiveCardsTextView.setVisibility(View.VISIBLE);
                                 }
-                                expensesCardAdapter= new ExpensesCardAdapter(expensesCardsArrayList , getActivity() , true , apartmentID , getChildFragmentManager()  , rootLayout);
+
+                                expensesCardAdapter= new ExpensesCardAdapter(expensesCardsArrayList , getActivity() , true , apartmentID , getChildFragmentManager()  , rootLayout , memberHashMap);
                                 expensesCardAdapter.notifyDataSetChanged();
                                 expensesRecyclerview.setAdapter(expensesCardAdapter);
 
-                                if(taskCardObject!=null){
-                                    Iterator<String> keys = taskCardObject.keys();
-                                    while (keys.hasNext()){
-                                        String key = keys.next();
-                                        try {
-                                            JSONObject taskCard = (JSONObject) taskCardObject.get(key);
 
+                                if(!cards.isNull(Config.taskCards)){
+                                    taskCardObject = cards.getJSONObject(Config.taskCards);
+                                    if(taskCardObject.length()!=0){
+                                        Iterator<String> keys = taskCardObject.keys();
+                                        while (keys.hasNext()){
+                                            String key = keys.next();
+                                            JSONObject taskCard = taskCardObject.getJSONObject(key);
                                             TasksCard tasksCardPOJO = mapper.readValue(taskCard.toString(), TasksCard.class);
-
                                             tasksCardsArrayList.add(tasksCardPOJO);
-                                        } catch (JSONException | JsonProcessingException e) {
-                                            e.printStackTrace();
                                         }
                                     }
                                 }
-                                tasksCardAdapter = new TasksCardAdapter(tasksCardsArrayList , getActivity() , true , apartmentID , getChildFragmentManager() , rootLayout);
+
+                                tasksCardAdapter = new TasksCardAdapter(tasksCardsArrayList , getActivity() , true , apartmentID , getChildFragmentManager() , rootLayout , memberHashMap);
                                 tasksRecyclerView.setAdapter(tasksCardAdapter);
                                 tasksCardAdapter.notifyDataSetChanged();
+                                tasksDecor.setOverScrollStateListener(onOverPullListener);
+                                expensesDecor.setOverScrollStateListener(onOverPullListener);
+
                             }else{
                                 String message = "We encountered an error while retrieving the archive cards.";
                                 displayErrorAlert(message);
@@ -187,7 +263,7 @@ public class ArchiveFragment extends Fragment {
 
                     }, error -> {
                         String message = null; // error message, show it in toast or dialog, whatever you want
-                        if (error instanceof NetworkError || error instanceof AuthFailureError || error instanceof NoConnectionError || error instanceof TimeoutError) {
+                        if (error instanceof NetworkError || error instanceof AuthFailureError || error instanceof TimeoutError) {
                             message = "Cannot connect to Internet";
                         } else if (error instanceof ServerError) {
                             message = "Server error. Please try again later";
@@ -210,13 +286,17 @@ public class ArchiveFragment extends Fragment {
 
     }
     void displayErrorAlert(String message){
+        tasksDecor.setOverScrollStateListener(onOverPullListener);
+        expensesDecor.setOverScrollStateListener(onOverPullListener);
         new AlertDialog.Builder(getActivity())
                 .setIcon(R.drawable.ic_alert)
                 .setTitle("Error")
                 .setMessage(message)
                 .setCancelable(false)
                 .setNeutralButton("return", (dialog, which) -> {
-                    getActivity().finish();
+                    if(getActivity()!=null){
+                        getActivity().finish();
+                    }
                     dialog.dismiss(); })
                 .create()
                 .show();

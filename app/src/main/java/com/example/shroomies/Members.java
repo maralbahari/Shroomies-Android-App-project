@@ -102,6 +102,8 @@ public class Members extends Fragment {
         toolbar.setTitleTextColor(getActivity().getColor(R.color.jetBlack));
         toolbar.setNavigationIcon(R.drawable.ic_back_button);
         toolbar.setElevation(5);
+        toolbar.findViewById(R.id.myshroomies_toolbar_logo).setVisibility(View.GONE);
+        toolbar.findViewById(R.id.my_shroomies_add_card_btn).setVisibility(View.GONE);
         toolbar.setNavigationOnClickListener(view1 -> {
             toolbar.setTitle(null);
             toolbar.setNavigationIcon(null);

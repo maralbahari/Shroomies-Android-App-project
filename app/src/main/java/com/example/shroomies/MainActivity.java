@@ -21,6 +21,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -83,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
         toolbar =  findViewById(R.id.toolbar);
         navigationView = findViewById(R.id.navigationView);
 
-        drawerLayout.setTouchMode(ElasticDrawer.TOUCH_MODE_FULLSCREEN);
+        drawerLayout.setTouchMode(ElasticDrawer.TOUCH_MODE_BEZEL);
 
 
         requestsButton.setOnClickListener(v -> {
@@ -159,30 +160,22 @@ public class MainActivity extends AppCompatActivity {
 //                return false;
 //            }
 //        });
-        btm_view.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener(){
-
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                if(menuItem.getItemId()==R.id.find_roomie_menu){
-                    getFragment(new FindRoommate());
-                }if(menuItem.getItemId()==R.id.publish_post_menu){
-                    getFragment(new PublishPost());
-                }if(menuItem.getItemId()==R.id.message_inbox_menu){
-                    Intent intent= new Intent(getApplicationContext(),MessageInbox.class);
-                    startActivity(intent);
-                }if(menuItem.getItemId()==R.id.user_profile_menu){
-                    getFragment(new UserProfile());
-                }
-                return true;
+        btm_view.setOnItemSelectedListener(item -> {
+            if(item.getItemId()==R.id.find_roomie_menu){
+                getFragment(new FindRoommate());
+            }if(item.getItemId()==R.id.publish_post_menu){
+                getFragment(new PublishPost());
+            }if(item.getItemId()==R.id.message_inbox_menu){
+                Intent intent= new Intent(getApplicationContext(),MessageInbox.class);
+                startActivity(intent);
+            }if(item.getItemId()==R.id.user_profile_menu){
+                getFragment(new UserProfile());
             }
+            return true;
+
         });
         myShroomies=findViewById(R.id.logo_toolbar);
-        myShroomies.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent( getApplicationContext(), MyShroomiesActivity.class));
-            }
-        });
+        myShroomies.setOnClickListener(v -> startActivity(new Intent( getApplicationContext(), MyShroomiesActivity.class)));
 //        setBadgeToNumberOfNotifications(rootRef,mAuth);
 
 

@@ -10,7 +10,7 @@
     >
 
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/add_shroomie_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -25,7 +25,7 @@
         android:paddingEnd="10dp"
         android:text="Add shroomies"
         android:textAllCaps="false"
-        android:textColor="@color/white"
+        android:textColor="@color/jetBlack"
         android:textSize="12sp" />
 
 
@@ -97,7 +97,7 @@
             android:layout_below="@+id/admin_details"
             />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/leave_room_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -108,8 +108,10 @@
             android:layout_marginTop="20dp"
             android:layout_alignParentBottom="true"
             android:textAllCaps="false"
-            android:background="@color/canceRed"
-            android:textColor="@color/white"
+            android:insetBottom="0dp"
+            app:cornerRadius="0dp"
+            android:backgroundTint="@color/lightGrey"
+            android:textColor="@color/jetBlack"
             android:textSize="15sp"
             />
 

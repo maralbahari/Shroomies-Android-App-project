@@ -39,32 +39,31 @@
                 android:fontFamily="@font/montserrat"
                 />
 
-            <CheckBox
-                android:id="@+id/task_done"
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/expense_done"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/task_mention_et"
+                android:layout_below="@+id/divider"
                android:layout_marginLeft="4dp"
-                android:buttonTint="@color/okGreen"
+                android:layout_marginTop="10dp"
+                android:buttonTint="@color/lightGrey"
                 android:text="Mark as done"
-                android:textSize="12sp"
-                android:layout_marginBottom="10dp"
-                android:textColor="@color/lightGrey"
+                android:textColor="@color/jetBlack"
+                android:minHeight="0dp"
+                android:padding="0dp"
                 />
             <ImageButton
-                android:id="@+id/archive_card_btn"
-                android:src="@drawable/ic_archive"
+                android:id="@+id/card_menu_image_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignBottom="@id/task_done"
-                android:layout_toLeftOf="@id/card_img"
-                android:layout_marginLeft="15dp"
-                android:layout_marginRight="20dp"
-                android:layout_marginTop="5dp"
-                android:padding="7dp"
-                android:elevation="2dp"
+                android:padding="20dp"
                 android:background="@android:color/transparent"
+                android:layout_alignParentEnd="true"
+                android:src="@drawable/ic_menu_icon"
+                android:layout_below="@id/divider"
                 />
+
+
 
             <TextView
                 android:id="@+id/card_description"
@@ -79,7 +78,6 @@
                 android:ellipsize="end"
                 android:fontFamily="@font/montserrat"
                 android:maxLines="4"
-
                 android:minHeight="80dp" />
 
             <TextView
@@ -103,24 +101,30 @@
                 android:minWidth="140dp"
                 android:maxWidth="170dp"
                 android:scaleType="center"
-                android:layout_alignBottom="@id/task_done"
-                android:layout_marginBottom="10dp"
-                android:layout_marginRight="10dp"
+                android:layout_above="@id/divider"
+                android:layout_marginEnd="10dp"
                 android:layout_marginTop="15dp"
-                android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
+                android:layout_toLeftOf="@id/image_view_helper"
                 android:elevation="2dp"
                 android:background="@drawable/expense_card_image_background"
-                android:src="@drawable/ic_no_file_added" />
+                android:src="@drawable/ic_no_file_added"
+                />
+            <View
+                android:id="@+id/image_view_helper"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_alignParentEnd="true"
+                />
 
-            <Button
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:background="@drawable/ic_delete"
-                android:id="@+id/delete_button"
-                android:elevation="10dp"
-                android:minHeight="0dp"
+            <View
+                android:id="@+id/divider"
+                android:layout_width="match_parent"
+                android:layout_height="0.3dp"
+                android:layout_below="@id/expense_mention_et"
+                android:layout_marginTop="10dp"
+                android:background="@color/veryLightGrey"
+
                 />
 
 
@@ -130,8 +134,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignTop="@+id/card_img"
-                android:layout_alignLeft="@id/card_img"
-                android:layout_alignRight="@id/card_img"
+                android:layout_alignStart="@id/card_img"
+                android:layout_alignEnd="@id/card_img"
 
                 android:background="@drawable/due_date_background"
                 android:drawableStart="@drawable/ic_calendar_day"
@@ -145,27 +149,57 @@
 
 
 
-            <com.hendraanggrian.appcompat.widget.SocialAutoCompleteTextView
-                android:id="@+id/task_mention_et"
+<!--            <com.hendraanggrian.appcompat.widget.SocialAutoCompleteTextView-->
+<!--                -->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_alignParentStart="true"-->
+<!--                android:visibility="invisible"-->
+<!--                android:layout_toStartOf="@id/card_img"-->
+<!--                android:layout_below="@id/card_description"-->
+<!--                android:layout_marginTop="10dp"-->
+<!--                android:elevation="3dp"-->
+<!--                android:maxLines="3"-->
+<!--               android:layout_marginStart="5dp"-->
+<!--                android:layout_marginEnd="10dp"-->
+<!--                android:layout_marginBottom="10dp"-->
+<!--                android:ellipsize="end"-->
+<!--                android:paddingTop="3dp"-->
+<!--                android:paddingBottom="3dp"-->
+<!--                android:textColor="@android:color/holo_blue_dark"-->
+<!--                android:textSize="10sp"-->
+<!--                />-->
+
+            <HorizontalScrollView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:id="@+id/expense_mention_et"
+
+                android:layout_toStartOf="@id/card_img"
                 android:layout_alignParentStart="true"
-                android:visibility="invisible"
-                android:layout_toLeftOf="@id/card_img"
+                android:minHeight="40dp"
                 android:layout_below="@id/card_description"
                 android:layout_marginTop="10dp"
                 android:elevation="3dp"
-                android:maxLines="3"
-               android:layout_marginLeft="5dp"
-                android:layout_marginRight="10dp"
-                android:layout_marginBottom="5dp"
-                android:ellipsize="end"
-                android:paddingTop="3dp"
-                android:paddingBottom="3dp"
-                android:textColor="@android:color/holo_blue_dark"
-                android:textSize="10sp"
-                />
+                android:layout_marginStart="5dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="10dp"
+                android:scrollbars="none"
+                android:visibility="visible"
+                >
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/expense_mention_chip_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:singleLine="true"
+                android:overScrollMode="ifContentScrolls"
+                app:chipSpacingHorizontal="3dp"
+                >
+
+            </com.google.android.material.chip.ChipGroup>
+            </HorizontalScrollView>
         </RelativeLayout>
+
 
 
     </androidx.cardview.widget.CardView>

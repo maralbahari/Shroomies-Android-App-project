@@ -21,14 +21,14 @@
             android:id="@+id/expand_image_card_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:padding="5dp"
             android:src="@drawable/ic_expand_image_icon"
-            android:background="@drawable/rectangle_low_alpha_background"
-            android:foreground="?android:attr/selectableItemBackground"
+            android:background="@android:color/transparent"
+                android:padding="10dp"
+            android:minHeight="0dp"
             android:visibility="visible"
             android:layout_alignTop="@id/view_card_image"
             android:elevation="3dp"
-            android:layout_margin="5dp"
+
             />
             <com.airbnb.lottie.LottieAnimationView
                 android:id="@+id/lottie_downloading_animation"
@@ -55,6 +55,7 @@
                 android:background="@color/white"
                 android:scaleType="centerInside"
                 android:src="@drawable/ic_no_file_added"
+
                 android:foreground="?android:attr/selectableItemBackground"
                 />
         <View
@@ -69,12 +70,15 @@
             android:id="@+id/view_card_title_tv"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_toLeftOf="@id/view_card_date"
-            android:layout_alignParentLeft="true"
+            android:layout_toStartOf="@id/view_card_date"
+
+            android:layout_alignParentStart="true"
             android:layout_below="@id/view_card_importance"
+
             android:layout_marginStart="10dp"
             android:layout_marginEnd="10dp"
             android:layout_marginTop="10dp"
+            android:textSize="18sp"
             android:text="Title"
             android:textColor="@color/jetBlack"
             android:textStyle="bold"
@@ -84,17 +88,17 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="no due date picked"
-            android:inputType="date"
+            android:text="No due date"
             android:id="@+id/view_card_date"
-            android:layout_below="@+id/view_card_importance"
+            android:layout_alignBottom="@id/view_card_title_tv"
             android:textColor="@color/lightGrey"
-            android:paddingRight="10dp"
-            android:layout_alignParentRight="true"
+            android:padding="3dp"
+            android:layout_alignParentEnd="true"
             android:layout_marginTop="10dp"
-            android:layout_marginRight="10dp"
+            android:layout_marginEnd="10dp"
             android:drawableStart="@drawable/ic_calendar_day"
             android:drawablePadding="8dp"
+
 
             />
 
@@ -105,8 +109,7 @@
             android:id="@+id/view_card_description"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="No description added"
-            android:textSize="12dp"
+            android:textSize="16sp"
             android:layout_marginRight="10dp"
             android:layout_marginLeft="10dp"
             android:layout_marginTop="10dp"
@@ -116,32 +119,51 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginRight="10dp"
-            android:layout_marginLeft="10dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="5dp"
             android:id="@+id/view_card_mention_tv"
             android:text="Mentions"
             android:textStyle="bold"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            android:paddingTop="2dp"
-            android:paddingBottom="2dp"
-            android:textSize="10sp"
-            android:textColor="@color/white"
-            android:background="@drawable/mention_background"
-            android:layout_marginTop="5dp"
+            android:textSize="16sp"
+            android:textColor="@color/jetBlack"
             android:layout_below="@+id/view_card_description"/>
 
-        <com.hendraanggrian.appcompat.widget.SocialAutoCompleteTextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:text="no shroomies have been tagged"
-            android:textSize="10sp"
-            android:padding="2dp"
-            android:textColor="@android:color/holo_blue_dark"
-            android:layout_alignBottom="@id/view_card_mention_tv"
-            android:layout_toRightOf="@id/view_card_mention_tv"
+<!--        <com.hendraanggrian.appcompat.widget.SocialAutoCompleteTextView-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:text="no shroomies have been tagged"-->
+<!--            android:textSize="10sp"-->
+<!--            android:padding="2dp"-->
+<!--            android:textColor="@android:color/holo_blue_dark"-->
+<!--            android:layout_below="@id/view_card_mention_tv"-->
+<!--            android:layout_marginStart="10dp"-->
+<!--            android:layout_marginEnd="10dp"-->
+<!--            android:id="@+id/view_card_mention"-->
+<!--            />-->
+
+        <com.google.android.material.chip.ChipGroup
             android:id="@+id/view_card_mention"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/view_card_mention_tv"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            app:chipSpacingVertical="0dp"
+
+            >
+
+        </com.google.android.material.chip.ChipGroup>
+        <TextView
+            android:id="@+id/no_mentions_added"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/view_card_mention_tv"
+            android:text="No mentions added"
+            android:gravity="center"
+            android:textColor="@color/lightGrey"
+            android:visibility="gone"
             />
+
 
         <TextView
             android:id="@+id/expenses_text_view"
@@ -150,8 +172,9 @@
             android:text="Expenses"
             android:layout_marginTop="15dp"
             android:layout_marginLeft="10dp"
-
-            android:textColor="@color/lightGrey"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:textColor="@color/jetBlack"
             android:layout_below="@id/view_card_mention"
             />
 
@@ -171,12 +194,11 @@
             android:id="@+id/close_view_card"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignEnd="@id/view_card_image"
-           android:layout_margin="5dp"
+            android:layout_alignParentEnd="true"
+            android:padding="10dp"
             android:elevation="3dp"
 
             android:foreground="?android:attr/selectableItemBackground"
-
             android:background="@android:color/transparent"
             android:src="@drawable/ic_close_icon"
             android:textColor="@color/white" />

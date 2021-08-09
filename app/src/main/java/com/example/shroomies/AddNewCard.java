@@ -56,6 +56,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import com.google.android.material.chip.Chip;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.common.net.HttpHeaders;
@@ -63,6 +64,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 
 import com.hendraanggrian.appcompat.socialview.Mention;
@@ -106,12 +108,13 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                      PDF_PICK_CODE =500 ,DIALOG_RESULT=100;
     //views
     private View v;
-    private TextView   dueDatePlaceholder , expensePlaceholder , addCardTextView;
-    private RelativeLayout imageRelativeLayout, dueDateRelativeLayout, expenseRelativeLayout , addCardRelativeLayout , rootLayout;
+    private TextView addCardTextView;
+    private RelativeLayout imageRelativeLayout , addCardRelativeLayout , rootLayout;
     private ImageView selectedImageView;
     private EditText titleEditText, descriptionEditText;
     private SocialAutoCompleteTextView mentionAutoCompleteTextView;
     private RadioGroup cardColorRadioGroup;
+    private Chip dateChip,expenseChip;
     private LottieAnimationView loadingLottieAnimationView;
     //fireBase
     private FirebaseAuth mAuth;
@@ -151,7 +154,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        getDialog().getWindow().setWindowAnimations(R.style.DialogAnimation);
+        getDialog().getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
     }
 
     @Override
@@ -178,17 +181,13 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
         ImageButton closeImageButton = v.findViewById(R.id.x_button_new_card);
         Button splitExpensesButton = v.findViewById(R.id.split_expenses);
         addCardRelativeLayout = v.findViewById(R.id.my_shroomies_add_card_layout);
-        dueDatePlaceholder = v.findViewById(R.id.date_text_view);
-        dueDateRelativeLayout = v.findViewById(R.id.date_relative_layout);
-        expensePlaceholder  = v.findViewById(R.id.expenses_text_view);
-        expenseRelativeLayout = v.findViewById(R.id.expenses_relative_layout);
         selectedImageView = v.findViewById(R.id.attachment_image_view);
         imageRelativeLayout = v.findViewById(R.id.image_relative_layout);
         rootLayout = v.findViewById(R.id.add_new_card_root_layout);
         ImageButton deleteImageButton = v.findViewById(R.id.delete_attached_image);
-        ImageButton deleteDueDateImageButton = v.findViewById(R.id.remove_date_image_button);
-        ImageButton deleteExpenseImageButton = v.findViewById(R.id.remove_expense_image_button);
         loadingLottieAnimationView = v.findViewById(R.id.lottie_loading_animation);
+        dateChip = v.findViewById(R.id.date_chip);
+        expenseChip = v.findViewById(R.id.expense_chip);
 
         mentionAutoCompleteTextView.setMentionEnabled(true);
         mentionAutoCompleteTextView.setMentionColor(Color.BLUE);
@@ -211,13 +210,16 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                 splitExpensesButton.setVisibility(View.GONE);
             }
         }
-        deleteDueDateImageButton.setOnClickListener(v -> {
-            dueDatePlaceholder.setText("");
-            dueDateRelativeLayout.setVisibility(View.GONE);
+
+        dateChip.setOnCloseIconClickListener(v -> {
+            dateChip.setText("");
+            dateChip.setVisibility(View.GONE);
+            dueDate=null;
         });
-        deleteExpenseImageButton.setOnClickListener(v -> {
+        expenseChip.setOnCloseIconClickListener(v -> {
             sharedAmountsHashMap = null;
-            expenseRelativeLayout.setVisibility(View.GONE);
+            expenseChip.setText("");
+            expenseChip.setVisibility(View.GONE);
         });
         splitExpensesButton.setOnClickListener(view14 -> {
             if(!apartmentMembersArrayList.isEmpty()) {
@@ -290,12 +292,14 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                         .withZone(TimeZone.getDefault().toZoneId());
                 Calendar c= Calendar.getInstance();
                 c.set(year1, month1,dayOfMonth);
+                DateTimeFormatter displayFormat =  DateTimeFormatter.ofPattern("EEE, MMM d")
+                        .withZone(TimeZone.getDefault().toZoneId());
 
 //                        ZonedDateTime zonedDateTime  = new ZonedDateTime(new LocalDateTime());
                 String sDate=dateformat.format(c.toInstant());
                 //set the visibility of the due date to visible
-                dueDateRelativeLayout.setVisibility(View.VISIBLE);
-                dueDatePlaceholder.setText(sDate);
+                dateChip.setVisibility(View.VISIBLE);
+                dateChip.setText(displayFormat.format(c.toInstant()));
                 dueDate = dateformat.format(c.toInstant());
 
             }, year, month, day);
@@ -323,6 +327,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
         }
         return mentionedUsers;
     }
+
 
 
     private boolean checkMentions() {
@@ -539,7 +544,8 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                     }
                     cardDetails.put("actor", mAuth.getCurrentUser().getUid());
                     if (shareAmounts != null) {
-                        cardDetails.put("membersShares", shareAmounts);
+                        JSONObject sharedAmountsJson = new JSONObject(shareAmounts);
+                        cardDetails.put("membersShares", sharedAmountsJson);
                     }
                     jsonObject.put("cardDetails", cardDetails);
                     jsonObject.put("apartmentID", apartmentID);
@@ -602,8 +608,21 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
             addExpenseCard(title, description, dueDate, "" , "", importance, mMention,apartment.getApartmentID(),sharedAmounts);
         } else {
 
+            String type =  null;
+            switch (fileType){
+                case "image":
+                     type = "image/jpg";
+                    break;
+                case "pdf":
+                     type = "application/pdf";
+                    break;
+            }
+            StorageMetadata metadata = new StorageMetadata.Builder()
+                    .setContentType(type)
+                    .build();
+
             StorageReference filePath = mStorage.getReference().child(apartment.getApartmentID()).child("Card post image").child(imgUri.getLastPathSegment() + fileExtension);
-            filePath.putFile(imgUri).addOnCompleteListener(task -> task.getResult().getMetadata().getReference().getDownloadUrl().addOnSuccessListener(uri -> {
+            filePath.putFile(imgUri , metadata).addOnCompleteListener(task -> task.getResult().getMetadata().getReference().getDownloadUrl().addOnSuccessListener(uri -> {
                 addExpenseCard(title, description, dueDate, uri.toString()  , fileType, importance, mMention,apartment.getApartmentID(),sharedAmounts);
             })).addOnFailureListener(e -> {
                 loadingLottieAnimationView.setVisibility(View.GONE);
@@ -795,8 +814,8 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                 }
                 NumberFormat numberFormat = NumberFormat.getInstance();
                 numberFormat.setGroupingUsed(true);
-                expensePlaceholder.setText(numberFormat.format(totalAmount) + " RM");
-                expenseRelativeLayout.setVisibility(View.VISIBLE);
+                expenseChip.setText(numberFormat.format(totalAmount) + " RM");
+                expenseChip.setVisibility(View.VISIBLE);
             }
         }
     }

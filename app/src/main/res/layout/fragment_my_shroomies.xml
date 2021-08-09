@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="bottom"
-    sothree:umanoPanelHeight="19dp"
+    sothree:umanoPanelHeight="24dp"
     app:umanoDragView="@id/expand_button"
     sothree:umanoOverlay="true"
     app:umanoShadowHeight="0dp"
@@ -25,6 +25,39 @@
         android:scrollIndicators="none"
         android:gravity="center"
         >
+        <RelativeLayout
+            android:id="@+id/no_cards_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:elevation="10dp"
+            android:visibility="gone"
+            android:orientation="vertical">
+
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/empty_animation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:lottie_rawRes="@raw/empty_animation"
+                app:lottie_autoPlay="true"
+                app:lottie_loop="true"
+                android:layout_gravity="center"
+                android:layout_margin="20dp"
+                />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="No cards to show, drag for updates or add some cards."
+                android:layout_below="@id/empty_animation"
+                android:textColor="@color/lightGrey"
+                android:textSize="16sp"
+                android:layout_marginTop="-200dp"
+                android:layout_marginEnd="20dp"
+                android:layout_marginStart="20dp"
+                android:gravity="center"
+                />
+
+        </RelativeLayout>
 
         <com.google.android.material.tabs.TabLayout
 
@@ -92,6 +125,8 @@
             android:layout_alignParentBottom="true"
             android:layout_marginLeft="3dp"
             android:layout_marginRight="3dp"
+            android:paddingBottom="30dp"
+            android:clipToPadding="false"
           />
 
 
@@ -110,218 +145,160 @@
 
 
 
-        <androidx.cardview.widget.CardView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
-            android:layout_marginBottom="20dp"
-            android:layout_above="@+id/view"
-            android:background="@color/LogoYellow"
-            android:backgroundTint="@color/LogoYellow"
-            app:cardCornerRadius="50dp"
-            android:layout_alignParentEnd="true"
-            android:foreground="?android:attr/selectableItemBackground"
-            android:clickable="true">
-        <ImageButton
-            android:id="@+id/my_shroomies_add_card_btn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:padding="10dp"
-            android:foreground="?android:attr/selectableItemBackground"
-            android:background="@android:color/transparent"
-            android:src="@drawable/ic_add"
-            android:elevation="5dp"/>
-
-        </androidx.cardview.widget.CardView>
-        <View
-            android:id="@+id/view"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true"/>
-
     </RelativeLayout>
 
     </FrameLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:gravity="center|top"
-        android:background="@android:color/transparent"
 
-        >
 
         <LinearLayout
-            android:id="@+id/expand_button_wrapper"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/my_shroomies_tablayout"
-            android:layout_alignParentRight="true"
-            android:elevation="3dp"
-            android:background="@drawable/yellow_background_round_left_bottom_top"
-            >
+
+            android:background="@drawable/yellow_rectangle_round_top_corners"
+            android:orientation="vertical">
 
             <ImageButton
                 android:id="@+id/expand_button"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
                 android:background="@android:color/transparent"
                 android:paddingLeft="15dp"
-                android:paddingTop="5dp"
+                android:paddingTop="10dp"
                 android:paddingRight="15dp"
-                android:paddingBottom="5dp"
+                android:paddingBottom="10dp"
                 android:src="@drawable/ic_expand"
-                android:foreground="?android:attr/selectableItemBackground"/>
+                android:contentDescription="expand"
+                />
 
-        </LinearLayout>
+            <LinearLayout
+                android:id="@+id/shroomie_linearlayout_filter"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:orientation="horizontal"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                >
 
-        <RelativeLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="start"
+                    android:layout_marginStart="20dp"
 
-            android:paddingBottom="5dp"
-            android:background="@color/white">
+                    android:layout_gravity="center_vertical"
+                    android:textStyle="bold"
+                    android:textColor="@color/jetBlack"
+                    android:text="Sort by:"
+                    android:drawableStart="@drawable/ic_sort_by_icon"
+                    android:drawablePadding="10dp"/>
 
-        <Button
+
+                <com.skydoves.powerspinner.PowerSpinnerView
+                    android:id="@+id/shroomie_spinner_filter"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:layout_gravity="center_vertical"
+                    android:gravity="center_vertical"
+                    android:padding="10dp"
+                    android:hint="None"
+                    android:textColor="@color/jetBlack"
+                    android:textColorHint="@color/jetBlack"
+                    android:layout_marginStart="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:textStyle="bold"
+                    app:spinner_arrow_padding="8dp"
+                    app:spinner_arrow_tint="@color/jetBlack"
+                    app:spinner_arrow_gravity="end"
+                    app:spinner_divider_color="@color/jetBlack"
+                    app:spinner_divider_show="true"
+                    app:spinner_divider_size="0.1dp"
+                    app:spinner_item_array="@array/spinner_options"
+                    app:spinner_popup_animation="dropdown"
+                    app:spinner_popup_background="#E3E3E3"
+                    app:spinner_popup_elevation="14dp"
+                    app:drawableRightCompat="@drawable/ic_filter"
+                    />
+
+
+            </LinearLayout>
+
+        <com.google.android.material.button.MaterialButton
             android:layout_width="match_parent"
             android:id="@+id/my_shroomies_log"
             android:layout_height="wrap_content"
-            android:background="@drawable/rectangle_yellow_border"
-            android:fontFamily="@font/amiko"
             android:textStyle="bold"
             android:padding="20dp"
-            android:text="Activity apartmentLogs"
-            android:layout_below="@id/shroomie_linearlayout_filter"
-            android:gravity="start"
-            android:textColor="@color/LogoYellow"
-            android:lines="1"
-            android:textSize="12sp"
+            android:text="Activity Logs"
+            android:gravity="center_vertical"
+            android:textColor="@color/jetBlack"
             android:textAllCaps="false"
-            android:foreground="?android:attr/selectableItemBackground"
-
+            app:icon="@drawable/ic_log_icon"
+            app:iconGravity="start"
+            app:iconTint="@color/jetBlack"
+            android:insetBottom="0dp"
+            android:insetTop="0dp"
             />
-
-        <Button
-            android:id="@+id/my_shroomies_member_btn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/white"
-            android:gravity="start"
-            android:padding="20dp"
-            android:text="Members"
-            android:fontFamily="@font/amiko"
-            android:textStyle="bold"
-            android:textColor="@color/LogoYellow"
-            android:lines="1"
-            android:textSize="12sp"
-            android:textAllCaps="false"
-
-            android:layout_below="@id/my_shroomies_log"
-            android:foreground="?android:attr/selectableItemBackground"
-
-            />
-            <Button
-                android:id="@+id/my_shroomies_group_message_btn"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="start"
-                android:padding="20dp"
-                android:text="Group messaging"
-                android:fontFamily="@font/amiko"
-                android:textStyle="bold"
-                android:textColor="@color/LogoYellow"
-                android:lines="1"
-                android:textSize="12sp"
-                android:textAllCaps="false"
-                android:background="@drawable/rectangle_yellow_border"
-
-                android:layout_below="@id/my_shroomies_member_btn"
-                android:foreground="?android:attr/selectableItemBackground"
-
-                />
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/my_shroomies_archive_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="start"
+                android:gravity="center_vertical"
                 android:padding="20dp"
                 android:text="Archive"
-                android:fontFamily="@font/amiko"
                 android:textStyle="bold"
-                android:textColor="@color/LogoYellow"
+                android:textColor="@color/jetBlack"
                 android:lines="1"
-                android:textSize="12sp"
+                android:drawablePadding="10dp"
                 android:textAllCaps="false"
-                android:background="@drawable/rectangle_yellow_border"
-                android:layout_below="@id/my_shroomies_member_btn"
-                android:foreground="?android:attr/selectableItemBackground"
+                app:icon="@drawable/ic_archive_icon"
+                app:iconTint="@color/jetBlack"
+                app:iconGravity="start"
+                android:insetBottom="0dp"
+                android:insetTop="0dp"
                 />
 
-        <LinearLayout
-            android:id="@+id/shroomie_linearlayout_filter"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-
-            android:orientation="horizontal"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-
-            android:foreground="?android:attr/selectableItemBackground"
-
-            >
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:drawablePadding="5dp"
-                android:gravity="start"
-                android:layout_marginStart="20dp"
-
-                android:layout_gravity="center_vertical"
-                android:fontFamily="@font/amiko"
-                android:textStyle="bold"
-                android:textColor="@color/LogoYellow"
-                android:text="Sort by:"
-                android:textSize="12sp" />
 
 
-            <com.skydoves.powerspinner.PowerSpinnerView
-                android:id="@+id/shroomie_spinner_filter"
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/my_shroomies_group_message_btn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:layout_gravity="center_vertical"
                 android:gravity="center_vertical"
-                android:fontFamily="@font/amiko"
-                android:padding="10dp"
-                android:hint="None"
-                android:textColor="@color/LogoYellow"
-                android:textColorHint="@color/LogoYellow"
-                android:layout_marginStart="10dp"
-                android:layout_marginEnd="10dp"
-                android:textSize="12sp"
+                android:padding="20dp"
+                android:text="Group messaging"
                 android:textStyle="bold"
-                app:spinner_arrow_padding="8dp"
-                app:spinner_arrow_tint="@color/LogoYellow"
-                app:spinner_arrow_gravity="end"
-                app:spinner_divider_color="@color/LogoYellow"
-                app:spinner_divider_show="true"
-                app:spinner_divider_size="0.4dp"
-                app:spinner_item_array="@array/spinner_options"
-                app:spinner_popup_animation="dropdown"
-                app:spinner_popup_background="@color/white"
-                app:spinner_popup_elevation="14dp"
-                app:drawableRightCompat="@drawable/ic_filter"
+                android:textColor="@color/jetBlack"
+                android:textAllCaps="false"
+                app:icon="@drawable/ic_message"
+                app:iconGravity="start"
+                app:iconTint="@color/jetBlack"
+                android:insetBottom="0dp"
+                android:insetTop="0dp"
                 />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/my_shroomies_member_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:padding="20dp"
+                android:text="Members"
+                android:textStyle="bold"
+                android:textColor="@color/jetBlack"
+                android:textAllCaps="false"
+                app:icon="@drawable/ic_members_icon"
+                app:iconGravity="start"
+                app:iconTint="@color/jetBlack"
+                android:insetBottom="0dp"
+                android:insetTop="0dp"
+                />
+
 
 
         </LinearLayout>
-        </RelativeLayout>
-    </LinearLayout>
 
 
 

@@ -46,7 +46,7 @@ import java.util.Map;
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
    private final ArrayList<User> userList;
    private final Context context;
-    private FirebaseAuth mAuth;
+   private FirebaseAuth mAuth;
    private boolean fromSearchMember =false;
    private RequestQueue requestQueue;
    private final ShroomiesApartment apartment;
@@ -94,15 +94,18 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             holder.removeMember.setVisibility(View.INVISIBLE);
         }
         if(fromSearchMember){
-            holder.msgMember.setVisibility(View.GONE);
-            holder.removeMember.setVisibility(View.GONE);
+            holder.msgMember.setVisibility(View.INVISIBLE);
+            holder.removeMember.setVisibility(View.INVISIBLE);
             holder.userName.setText(userList.get(position).getName());
-            holder.msgMember.setVisibility(View.GONE);
             holder.sendRequest.setVisibility(View.VISIBLE);
 
             if(userList.get(position).requestSent()){
                 holder.sendRequest.setClickable(false);
-                holder.sendRequest.setText("Sent!");
+                holder.sendRequest.setText("Request sent!");
+            }
+            if(userList.get(position).getUserID().equals(mAuth.getCurrentUser().getUid())){
+                holder.sendRequest.setClickable(false);
+                holder.sendRequest.setVisibility(View.GONE);
             }
         }else{
             if (userList.get(position).getUserID().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())){
@@ -224,7 +227,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                         try {
                             boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
                             if(success){
-                                sendRequest.setText("Sent!");
+                                sendRequest.setText("Request Sent!");
                                 sendRequest.setClickable(false);
                             }else{
                                 Snackbar snack=Snackbar.make(parentView,"We encountered an error while sending the request", BaseTransientBottomBar.LENGTH_SHORT);

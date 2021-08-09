@@ -3,6 +3,7 @@ package com.example.shroomies;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -167,6 +168,7 @@ public class AddShroomieMember extends DialogFragment {
                             }
                             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_SEARCH_USERS, data, response -> {
                                 try {
+                                    Log.d("search" , response.toString());
                                     JSONObject result = response.getJSONObject(Config.result);
                                     boolean success = result.getBoolean(Config.success);
                                 if(success){

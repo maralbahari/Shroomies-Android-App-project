@@ -14,12 +14,13 @@
     <color name="Black">#000000</color>
     <color name="pink">#F72585</color>
     <color name="jetBlack">#333533</color>
+    <color name="veryLightGrey">#E3E3E3</color>
+
     <color name="lightGrey">#A4A6A4</color>
     <color name="canceRed">#F25454</color>
     <color name="orange">#FF7915</color>
     <color name="y">#FEFCF8</color>
     <color name="red">#F13030</color>
-    <color name="verylightgrey">#f4eee0</color>
     <color name="brownishlight">#ddcdc0</color>
     <color name="grayishTimberWolf">#AFB3A8</color>
     <color name="place_autocomplete_search_text">@android:color/primary_text_dark</color>

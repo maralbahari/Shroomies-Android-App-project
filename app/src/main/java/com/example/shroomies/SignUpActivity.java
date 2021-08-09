@@ -85,7 +85,7 @@ public class SignUpActivity extends AppCompatActivity{
 
         mAuth = FirebaseAuth.getInstance();
         requestQueue = Volley.newRequestQueue(getApplicationContext());
-//        mAuth.useEmulator("10.0.2.2",9099);
+        mAuth.useEmulator("10.0.2.2",9099);
         pd = new CustomLoadingProgressBar(SignUpActivity.this , "Creating account... " , R.raw.loading_animation);
 
         Boolean isEnabled;
@@ -127,35 +127,26 @@ public class SignUpActivity extends AppCompatActivity{
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        FirebaseUser firebaseUser  = mAuth.getCurrentUser();
-        firebaseUser.getIdToken(false)
-                .addOnCompleteListener(task -> {
-                    if(task.isSuccessful()){
-                        String token = task.getResult().getToken();
 
-                        JsonObjectRequest jsonObjectRequest =
-                                new JsonObjectRequest(Request.Method.POST, Config.URL_REGISTER_USER, data, response -> {
-                                    pd.dismiss();
-    //                              sendEmailVerification();
-                                    Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
-                                    startActivity(intent);
-                                    Toast.makeText(SignUpActivity.this, name+", you are a Shroomie now", Toast.LENGTH_SHORT).show();
-                                }, error -> {
+        JsonObjectRequest jsonObjectRequest =
+                new JsonObjectRequest(Request.Method.POST, Config.URL_REGISTER_USER, data, response -> {
+                    pd.dismiss();
+                    Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
+                    startActivity(intent);
+                    Toast.makeText(SignUpActivity.this, name+", you are a Shroomie now", Toast.LENGTH_SHORT).show();
+                }, error -> {
 
-                        })
-                        {
-                            @Override
-                            public Map<String, String> getHeaders() {
-                                Map<String, String> params = new HashMap<>();
-                                params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
-                                params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
-                                return params;
-                            }
-                        };
-                        requestQueue.add(jsonObjectRequest);
-                    }
+        })
+        {
+            @Override
+            public Map<String, String> getHeaders() {
+                Map<String, String> params = new HashMap<>();
+                params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
+                return params;
+            }
+        };
+        requestQueue.add(jsonObjectRequest);
 
-                });
 
     }
     private void sendEmailVerification(){

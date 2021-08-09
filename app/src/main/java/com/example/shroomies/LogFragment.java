@@ -5,11 +5,14 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkError;
@@ -41,12 +44,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
+
 
 public class LogFragment extends Fragment {
     private View v;
     private ArrayList<apartmentLogs> apartmentLogs;
     private ArrayList<String> membersIDs;
-    private BouncyRecyclerView logRecycler;
+    private RecyclerView logRecycler;
+    private TextView noLogsTextView;
     private LogAdapter logAdapter;
     private RequestQueue requestQueue;
     private FirebaseAuth mAuth;
@@ -64,23 +70,28 @@ public class LogFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         logRecycler=v.findViewById(R.id.log_recycler);
+        noLogsTextView = v.findViewById(R.id.no_logs_text_view);
+
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         logRecycler.setHasFixedSize(true);
         logRecycler.setLayoutManager(linearLayoutManager);
+        OverScrollDecoratorHelper.setUpOverScroll(logRecycler, OverScrollDecoratorHelper.ORIENTATION_VERTICAL);
+
         apartmentLogs =new ArrayList<>();
 
         Toolbar toolbar =getActivity().findViewById(R.id.my_shroomies_toolbar);
         toolbar.setTitle("Logs");
         toolbar.setTitleTextColor(getActivity().getColor(R.color.jetBlack));
         toolbar.setNavigationIcon(R.drawable.ic_back_button);
+        toolbar.findViewById(R.id.myshroomies_toolbar_logo).setVisibility(View.GONE);
+        toolbar.findViewById(R.id.my_shroomies_add_card_btn).setVisibility(View.GONE);
         toolbar.setElevation(5);
         toolbar.setNavigationOnClickListener(view1 -> {
             toolbar.setTitle(null);
             toolbar.setNavigationIcon(null);
             getActivity().onBackPressed();
         });
-
 
         Bundle bundle = this.getArguments();
         if(bundle !=null){
@@ -89,7 +100,8 @@ public class LogFragment extends Fragment {
             if(apartmentLogs!=null){
                 getMemberDetails(membersIDs);
             }else{
-                //todo display  empty logs
+                noLogsTextView.animate().setDuration(300).alpha(1.0f);
+                noLogsTextView.setVisibility(View.VISIBLE);
             }
         }
 

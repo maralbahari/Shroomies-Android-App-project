@@ -1,20 +1,19 @@
 package com.example.shroomies;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-
-import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-
+import androidx.appcompat.widget.PopupMenu;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
@@ -35,28 +34,26 @@ import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
-
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-
+import com.google.android.material.checkbox.MaterialCheckBox;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.common.net.HttpHeaders;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import com.hendraanggrian.appcompat.widget.SocialAutoCompleteTextView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.time.LocalDate;
-
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
@@ -72,14 +69,16 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
     private final FragmentManager fragmentManager;
     private RequestQueue requestQueue;
     private final ArrayList<ExpensesCard> expensesCardArrayList;
+    private final HashMap<String, User> memberHashMap;
 
-    public ExpensesCardAdapter(ArrayList<ExpensesCard> expensesCardArrayList, Context context, Boolean fromArchive,String apartmentID,FragmentManager fragmentManager,View parentView) {
+    public ExpensesCardAdapter(ArrayList<ExpensesCard> expensesCardArrayList, Context context, Boolean fromArchive,String apartmentID,FragmentManager fragmentManager,View parentView , HashMap<String, User> memberHashMap) {
         this.expensesCardArrayList = expensesCardArrayList;
         this.context=context;
         this.fromArchive = fromArchive;
         this.apartmentID=apartmentID;
         this.fragmentManager=fragmentManager;
         this.parentView=parentView;
+        this.memberHashMap = memberHashMap;
     }
 
     public void setItemTouchHelper(ItemTouchHelper itemTouchHelper){
@@ -114,25 +113,39 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
             //get the  dateformat with UTC
             setDate( dueString, holder.dueDate);
         }
-        String importanceViewColor = expensesCardArrayList.get(position).getImportance();
         if(expensesCardArrayList.get(position).getMention()!=null) {
-            holder.mention.setVisibility(View.VISIBLE);
-//            holder.mention.setText(expensesCardArrayList.get(position).getMention());
+            //check the ids that have been mentioned
+            //and get the respective name from the user hashmap
+            for(Map.Entry<String,String> entry
+            :expensesCardArrayList.get(position).getMention().entrySet()){
+                if(memberHashMap.get(entry.getKey())!=null){
+
+                    //create a new Chip for each mentioned user
+                    String name = memberHashMap.get(entry.getKey()).getName();
+
+                    Chip chip = new Chip(context);
+                    chip.setText("@"+name);
+                    holder.mentionChipGroup.addView(chip);
+                }
+            }
         }
         boolean cardStatus = expensesCardArrayList.get(position).getDone().equals("true");
         if (cardStatus){
             holder.done.setChecked(true);
             holder.done.setText("Done!");
+            holder.done.setBackgroundTintList(context.getColorStateList(R.color.okGreen));
+
         }else{
             holder.done.setChecked(false);
             holder.done.setText("Mark as done");
         }
 
         if (fromArchive){
-            holder.archive.setVisibility(View.GONE);
+//            holder.archive.setVisibility(View.GONE);
             holder.done.setVisibility(View.GONE);
         }
 
+        String importanceViewColor = expensesCardArrayList.get(position).getImportance();
         switch (importanceViewColor) {
             case  "2":
                 holder.importanceView.setBackgroundColor(context.getColor(R.color.canceRed));
@@ -145,17 +158,24 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
         }
 
         if (expensesCardArrayList.get(position).getAttachedFile()!=null) {
-            if(expensesCardArrayList.get(position).getFileType().equals("pdf")){
-                holder.cardImage.setImageDrawable(ContextCompat.getDrawable(context , R.drawable.ic_pdf_icon));
+            if(!expensesCardArrayList.get(position).getAttachedFile().isEmpty()) {
+                if(expensesCardArrayList.get(position).getFileType().equals("pdf")){
+                    holder.cardImage.setImageDrawable(ContextCompat.getDrawable(context , R.drawable.ic_pdf_icon));
+                }else{
+                    GlideApp.with(context)
+                            .load(expensesCardArrayList.get(position).getAttachedFile())
+                            .transform( new CenterCrop() , new RoundedCorners(10))
+                            .transition(DrawableTransitionOptions.withCrossFade()) //Here a fading animation
+                            .into(holder.cardImage);
+                    holder.cardImage.setPadding(0,0,0,0);
+                }
+                holder.noFileAttached.setVisibility(View.GONE);
             }else{
-                GlideApp.with(context)
-                        .load(expensesCardArrayList.get(position).getAttachedFile())
-                        .transform( new CenterCrop() , new RoundedCorners(10))
-                        .transition(DrawableTransitionOptions.withCrossFade()) //Here a fading animation
-                        .into(holder.cardImage);
-                holder.cardImage.setPadding(0,0,0,0);
+                holder.cardImage.setImageDrawable(ContextCompat.getDrawable(context , R.drawable.ic_no_file_added));
+                holder.cardImage.setPadding(40,60,40,60);
+                holder.noFileAttached.setVisibility(View.VISIBLE);
             }
-            holder.noFileAttached.setVisibility(View.GONE);
+
 
         }else{
             holder.cardImage.setImageDrawable(ContextCompat.getDrawable(context , R.drawable.ic_no_file_added));
@@ -212,10 +232,10 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
     public class ExpensesViewHolder extends RecyclerView.ViewHolder {
         private final View importanceView;
         private final TextView title,description,  dueDate,  noFileAttached;
-        private final SocialAutoCompleteTextView mention;
+        private final ChipGroup mentionChipGroup;
         private final ImageView cardImage;
-        private final ImageButton archive;
-        private final CheckBox done;
+//        private final MaterialButton archive;
+        private final MaterialCheckBox done;
 
         public ExpensesViewHolder(@NonNull View v) {
             super(v);
@@ -224,25 +244,27 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
             description = v.findViewById(R.id.card_description);
             dueDate = v.findViewById(R.id.dueDate_card);
             cardImage= v.findViewById(R.id.card_img);
-            archive = v.findViewById(R.id.archive_card_btn);
-            mention = v.findViewById(R.id.task_mention_et);
-            mention.setMentionColor(Color.BLUE);
-            done = v.findViewById(R.id.task_done);
+            mentionChipGroup = v.findViewById(R.id.expense_mention_chip_group);
+            done = v.findViewById(R.id.expense_done);
             noFileAttached = v.findViewById(R.id.no_file_attached);
+            ImageButton optionsMenuButton = v.findViewById(R.id.card_menu_image_button);
+
 
             CardView expensesCardView = v.findViewById(R.id.my_shroomie_expenses_card);
 
 
             done.setOnClickListener(view -> {
                 ExpensesCard selectedCard=expensesCardArrayList.get(getLayoutPosition());
-                getUserToken(MARK ,0,selectedCard, done.isChecked() , null);
+                getUserToken(MARK ,0,selectedCard, done.isChecked() , ExpensesViewHolder.this);
             });
 
-            archive.setOnClickListener(view -> getUserToken(ARCHIVE ,0,expensesCardArrayList.get(getAdapterPosition()),false , ExpensesViewHolder.this ));
+            optionsMenuButton.setOnClickListener(v1 -> showPopup(v1, getAdapterPosition(), expensesCardArrayList.get(getAdapterPosition())));
+
 
             expensesCardView.setOnClickListener(view -> {
                 ViewCards viewCard=new ViewCards();
                 Bundle bundle=new Bundle();
+                bundle.putSerializable(Config.members , memberHashMap);
                 bundle.putParcelable("CARD_DETAILS",expensesCardArrayList.get(getAdapterPosition()));
                 bundle.putBoolean("FROM_TASK_TAB",false);
                 viewCard.setArguments(bundle);
@@ -251,6 +273,30 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
         }
 
 
+    }
+    public void showPopup(View v , int position , ExpensesCard expensesCard) {
+        PopupMenu popup = new PopupMenu(context, v);
+        MenuInflater inflater = popup.getMenuInflater();
+        if(!fromArchive){
+            inflater.inflate(R.menu.card_options, popup.getMenu());
+
+        }else{
+            inflater.inflate(R.menu.archive_card_options, popup.getMenu());
+
+        }
+        popup.setOnMenuItemClickListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.delete_option:
+                    getUserToken(DELETE, position , null , false , null);
+                    return true;
+                case R.id.archive_option:
+                    getUserToken(ARCHIVE ,position ,expensesCard,false,null);
+                    return true;
+                default:
+                    return false;
+            }
+        });
+        popup.show();
     }
 
      private void markExpenseCard(String cardID, String apartmentID, boolean checked ,String token , ExpensesViewHolder expensesViewHolder) {
@@ -267,12 +313,15 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
 
          JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_MARK_EXPENSES_CARD, data, response -> {
              try {
-                 boolean success = response.getJSONObject(Config.success).getBoolean(Config.success);
+                 boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
                  if(success){
-                     String done = " done";
-                     if(!checked){ done = " not done"; }
+                     String done = "Done!";
+                     if(!checked){
+                         done = "Mark card as done";
+                     }
                      Snackbar.make(parentView,"Card marked as"+done, BaseTransientBottomBar.LENGTH_SHORT)
                              .show();
+                     expensesViewHolder.done.setText(done);
                  }else{
                      expensesViewHolder.done.setChecked(!checked);
                      Snackbar.make(parentView,"Couldn't mark the card",  BaseTransientBottomBar.LENGTH_SHORT)
@@ -388,6 +437,8 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                 if(success){
                     expensesCardArrayList.remove(position);
                     notifyItemRemoved(position);
+                    Snackbar.make(parentView, "Card deleted", BaseTransientBottomBar.LENGTH_SHORT).show();
+
                 }else{
                     Snackbar snack = Snackbar.make(parentView, "We encountered an error while deleting the card", BaseTransientBottomBar.LENGTH_SHORT);
                     snack.show();
@@ -400,7 +451,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
             {
                 @Override
                 public Map<String, String> getHeaders() {
-                    Map<String, String> params = new HashMap<String, String>();
+                    Map<String, String> params = new HashMap<>();
                     params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
                     params.put(HttpHeaders.AUTHORIZATION, "Bearer " + token);
                     return params;

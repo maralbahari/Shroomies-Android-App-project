@@ -1,17 +1,18 @@
 package com.example.shroomies;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.FragmentManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
@@ -31,13 +32,14 @@ import com.android.volley.toolbox.Volley;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.google.android.material.checkbox.MaterialCheckBox;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.common.net.HttpHeaders;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-
-import com.hendraanggrian.appcompat.widget.SocialTextView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -68,16 +70,18 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
     private static final String ARCHIVE = "archive";
     private static final String MARK = "mark";
     private final String apartmentID;
+    private final HashMap<String, User> memberHashMap;
 
 
 
-    public TasksCardAdapter(ArrayList<TasksCard> tasksCardsList, Context context, boolean fromArchive, String apartmentID, FragmentManager fragmentManager, View parentView) {
+    public TasksCardAdapter(ArrayList<TasksCard> tasksCardsList, Context context, boolean fromArchive, String apartmentID, FragmentManager fragmentManager, View parentView , HashMap<String,  User> memberHashMap) {
         this.tasksCardsList = tasksCardsList;
         this.context = context;
         this.fromArchive = fromArchive;
         this.apartmentID = apartmentID;
         this.fragmentManager = fragmentManager;
         this.parentView = parentView;
+        this.memberHashMap = memberHashMap;
         mAuth = FirebaseAuth.getInstance();
         mAuth.useEmulator("10.0.2.2", 9099);
         requestQueue = Volley.newRequestQueue(context);
@@ -97,9 +101,10 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
 
         private final View taskImportanceView;
         private final TextView titleTextView, descriptionTextView, dueDateTextView;
-        private final SocialTextView mention;
-        private final ImageButton archive;
-        private final CheckBox done;
+        private final ChipGroup mentionChipGroup;
+        private final ImageButton cardOptions;
+        private final MaterialCheckBox done;
+        private final HorizontalScrollView horizontalScrollView;
 
         public TasksCardViewHolder(@NonNull View v) {
             super(v);
@@ -107,15 +112,17 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
             titleTextView = v.findViewById(R.id.title_card);
             descriptionTextView = v.findViewById(R.id.card_description);
             dueDateTextView = v.findViewById(R.id.dueDate_card);
-            archive = v.findViewById(R.id.archive_card_btn);
+            cardOptions = v.findViewById(R.id.task_card_menu_image_button);
             done = v.findViewById(R.id.task_done);
+            mentionChipGroup = v.findViewById(R.id.task_mention_chip_group);
+            horizontalScrollView = v.findViewById(R.id.task_mention_et);
 
-            mention = v.findViewById(R.id.task_mention_et);
-            mention.setMentionColor(Color.BLUE);
+
             CardView taskCardView = v.findViewById(R.id.task_card_view);
             taskCardView.setOnClickListener(view -> {
                 ViewCards viewCard = new ViewCards();
                 Bundle bundle = new Bundle();
+                bundle.putSerializable(Config.members , memberHashMap);
                 bundle.putParcelable("CARD_DETAILS", tasksCardsList.get(getAdapterPosition()));
                 bundle.putBoolean("FROM_TASK_TAB", true);
                 viewCard.setArguments(bundle);
@@ -127,8 +134,8 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
                 getUserToken(MARK , getAdapterPosition() , tasksCard , done.isChecked() , TasksCardViewHolder.this);
             });
 
-            archive.setOnClickListener(view -> {
-                getUserToken(ARCHIVE , getAdapterPosition() , tasksCardsList.get(getAdapterPosition()) , false  , null);
+            cardOptions.setOnClickListener(view -> {
+                showPopup(v , getAdapterPosition(), tasksCardsList.get(getAdapterPosition()));
             });
 
 
@@ -136,6 +143,30 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
 
 
     }
+
+    public void showPopup(View v , int position , TasksCard tasksCard) {
+        PopupMenu popup = new PopupMenu(context, v);
+        MenuInflater inflater = popup.getMenuInflater();
+        if(!fromArchive){
+            inflater.inflate(R.menu.card_options, popup.getMenu());
+        }else{
+            inflater.inflate(R.menu.archive_card_options, popup.getMenu());
+        }
+        popup.setOnMenuItemClickListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.delete_option:
+                    getUserToken(DELETE, position , null , false , null);
+                    return true;
+                case R.id.archive_option:
+                    getUserToken(ARCHIVE ,position ,tasksCard,false,null);
+                    return true;
+                default:
+                    return false;
+            }
+        });
+        popup.show();
+    }
+
     private void setDate(String dueString, TextView dueDateTextView) {
         DateTimeFormatter dateformat =  DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss Z")
                 .withZone(TimeZone.getDefault().toZoneId());
@@ -191,9 +222,21 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
             setDate(tasksCardsList.get(position).getDueDate() , holder.dueDateTextView);
         }
         if (tasksCardsList.get(position).getMention()!=null) {
-            holder.mention.setVisibility(View.VISIBLE);
-//            holder.mention.setText(tasksCardsList.get(position).getMention());
+            holder.horizontalScrollView.setVisibility(View.VISIBLE);
         }
+        if(tasksCardsList.get(position).getMention()!=null){
+            for(Map.Entry<String,String> entry
+                    :tasksCardsList.get(position).getMention().entrySet()){
+                if(memberHashMap.get(entry.getKey())!=null){
+                    //create a new Chip for each mentioned user
+                    String name = memberHashMap.get(entry.getKey()).getName();
+                    Chip chip = new Chip(context);
+                    chip.setText("@"+name);
+                    holder.mentionChipGroup.addView(chip);
+                }
+            }
+        }
+
         String importanceView = tasksCardsList.get(position).getImportance();
         Boolean cardStatus = tasksCardsList.get(position).getDone().equals("true");
         if (cardStatus) {
@@ -205,8 +248,6 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         }
 
         if (fromArchive) {
-            holder.archive.setVisibility(view.GONE);
-            holder.done.setVisibility(View.GONE);
             holder.done.setVisibility(View.GONE);
 //            holder.mention.setText(tasksCardsList.get(position).getMention());
         }
@@ -363,10 +404,12 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
             try {
                 boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
                 if(success){
-                    String done = "done";
-                    if(!checked){ done = " not done"; }
+                    String done = "Done!";
+                    if(!checked){ done = "Mark card as done"; }
                     Snackbar.make(parentView,"Card marked as"+done, BaseTransientBottomBar.LENGTH_SHORT)
                             .show();
+                    tasksCardViewHolder.done.setText(done);
+
                 }else{
                     tasksCardViewHolder.done.setChecked(!checked);
                     Snackbar.make(parentView,"Couldn't mark the card",  BaseTransientBottomBar.LENGTH_SHORT)

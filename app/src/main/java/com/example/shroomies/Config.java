@@ -7,7 +7,7 @@ public class Config {
     public static final String userID="userID";
     public static final String membersID="membersID";
     public static final String taskCards="taskCard";
-    public static final String expensesCards="expensesCards";
+    public static final String expensesCards="expensesCard";
     public static final String apartmentMembers="apartmentMembers";
     public static final String data="data";
     public static final String name="name";
@@ -19,6 +19,10 @@ public class Config {
     public static final String message = "message";
     public static final String cards = "cards";
     public static final String requests = "requests";
+    public static final String role=  "role";
+    public static final String receiverApartmentID  = "receiverApartmentID";
+    public static final String receiverID = "receiverID";
+    public static final String senderID ="senderID";
 
 
 

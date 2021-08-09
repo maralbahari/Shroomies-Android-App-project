@@ -1,10 +1,13 @@
 package com.example.shroomies;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 
 
@@ -21,6 +24,7 @@ import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 
+import com.android.volley.Response;
 import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
@@ -30,6 +34,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.tabs.TabLayout;
 import com.google.common.net.HttpHeaders;
 import com.google.firebase.auth.FirebaseAuth;
@@ -44,23 +49,27 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
+
 
 public class RequestFragment extends Fragment {
+    //views
    private View v;
-   private RecyclerView requestRecyclerView;
-   private RelativeLayout rootLayout;
+   private RecyclerView requestRecyclerView, invitationRecyclerView;
+   private RelativeLayout  noSentRequestsLayout , noReceivedRequestsLayout;
+   private LinearLayout rootLayout;
+   private MaterialButton goToMyShroomiesButton;
+   //firebase
    private FirebaseAuth mAuth;
-   private TabLayout requestTab;
-   private ArrayList<User> senderUsers;
-   private ArrayList<User> receiverUsers;
-   private String apartmentID;
-
    private RequestQueue requestQueue;
-
-   private RecyclerView invitationRecyclerView;
-
+   //data
    private RequestAdapter requestAdapter;
    private RequestAdapter invitationAdapter;
+   private ArrayList<User> senderUsers;
+   private ArrayList<User> receiverUsers;
+
+    //variables
+   private String apartmentID;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -75,44 +84,27 @@ public class RequestFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         requestRecyclerView = v.findViewById(R.id.request_recyclerview);
-        requestTab = v.findViewById(R.id.request_tablayout);
+
         invitationRecyclerView=v.findViewById(R.id.invitation_recyclerview);
         rootLayout = v.findViewById(R.id.request_fragment_root_layout);
+        noSentRequestsLayout = v.findViewById(R.id.no_sent_request_Layout);
+        goToMyShroomiesButton = v.findViewById(R.id.go_to_shroomies_button);
+        noReceivedRequestsLayout = v.findViewById(R.id.no_received_request_Layout);
 
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+        goToMyShroomiesButton.setOnClickListener(v -> startActivity(new Intent(this.getActivity(), MyShroomiesActivity.class)));
+
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext() , RecyclerView.HORIZONTAL,false);
         requestRecyclerView.setHasFixedSize(true);
         requestRecyclerView.setLayoutManager(linearLayoutManager);
 
-        LinearLayoutManager linearLayoutManager1 = new LinearLayoutManager(getContext());
+        LinearLayoutManager linearLayoutManager1 = new LinearLayoutManager(getContext() , RecyclerView.HORIZONTAL , false);
         invitationRecyclerView.setLayoutManager(linearLayoutManager1);
         invitationRecyclerView.setHasFixedSize(true);
 
+        OverScrollDecoratorHelper.setUpOverScroll(invitationRecyclerView, OverScrollDecoratorHelper.ORIENTATION_HORIZONTAL);
+        OverScrollDecoratorHelper.setUpOverScroll(requestRecyclerView, OverScrollDecoratorHelper.ORIENTATION_HORIZONTAL);
 
-        requestTab.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                if(tab.getPosition()==0){
-                    requestTab.setSelectedTabIndicator(R.drawable.tab_indicator_left);
-                    invitationRecyclerView.setVisibility(View.VISIBLE);
-                    requestRecyclerView.setVisibility(View.GONE);
-                }
-                else if(tab.getPosition()==1){
-                    requestTab.setSelectedTabIndicator(R.drawable.tab_indicator_right);
-                    invitationRecyclerView.setVisibility(View.GONE);
-                    requestRecyclerView.setVisibility(View.VISIBLE);
-                }
-            }
 
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-
-            }
-        });
         getToken();
 
 
@@ -141,44 +133,52 @@ public class RequestFragment extends Fragment {
 
             try {
                 boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
-                if(success){
-                    JSONArray requests =response.getJSONObject(Config.result).getJSONArray(Config.requests);
-                    JSONArray sentJsonArray = (JSONArray) requests.get(0);
-                    JSONArray recievedJsonArray = (JSONArray) requests.get(1);
-                    if(sentJsonArray!=null){
-                        for(int i=0; i<sentJsonArray.length() ; i++){
-                            User user = mapper.readValue(sentJsonArray.get(i).toString() , User.class);
-                            senderUsers.add(user);
+                if (success) {
+                    JSONArray requests = response.getJSONObject(Config.result).getJSONArray(Config.requests);
+                    Log.d("requests" , requests.toString());
+                    JSONArray receivedJsonArray = requests.getJSONArray(0);
+                    JSONArray sentJsonArray =requests.getJSONArray(1);
+                    if (receivedJsonArray != null) {
+                        if(receivedJsonArray.length()>0){
+                            for (int i = 0; i < receivedJsonArray.length(); i++) {
+                                User user = mapper.readValue(receivedJsonArray.get(i).toString(), User.class);
+                                senderUsers.add(user);
+                            }
+                            invitationAdapter = new RequestAdapter(getContext(), rootLayout, senderUsers, false, apartmentID);
+                            invitationAdapter.notifyDataSetChanged();
+                            invitationRecyclerView.setAdapter(invitationAdapter);
+                        }else{
+                            invitationRecyclerView.setVisibility(View.GONE);
+                            noReceivedRequestsLayout.setVisibility(View.VISIBLE);
                         }
-                        invitationAdapter= new RequestAdapter(getContext(),rootLayout, senderUsers,false,apartmentID);
-                        invitationAdapter.notifyDataSetChanged();
-                        invitationRecyclerView.setAdapter(invitationAdapter);
-
-                    }else{
-                        //todo display something for the user
                     }
-                    if(recievedJsonArray!=null){
-                        for(int i=0; i<recievedJsonArray.length() ; i++){
-                            User user = mapper.readValue(recievedJsonArray.get(i).toString() , User.class);
-                            receiverUsers.add(user);
 
+                    if (sentJsonArray != null) {
+                        if(sentJsonArray.length()>0){
+                            for (int i = 0; i < sentJsonArray.length(); i++) {
+                                User user = mapper.readValue(sentJsonArray.get(i).toString(), User.class);
+                                receiverUsers.add(user);
+                            }
+                            requestAdapter = new RequestAdapter(getContext(), rootLayout, receiverUsers, true, apartmentID);
+                            requestAdapter.notifyDataSetChanged();
+                            requestRecyclerView.setAdapter(requestAdapter);
+
+                        }else{
+                            requestRecyclerView.setVisibility(View.GONE);
+                            noSentRequestsLayout.setVisibility(View.VISIBLE);
                         }
-                        requestAdapter= new RequestAdapter(getContext(),rootLayout , receiverUsers,true,apartmentID);
-                        requestAdapter.notifyDataSetChanged();
-                        requestRecyclerView.setAdapter(requestAdapter);
 
-                    }else{
-                        //todo display something for the user
                     }
-                }else{
-                    //todo display something for the user
+                } else {
+                    String message = "An Unexpected error occurred while performing your request";
+                    displayErrorAlert(null , message);
                 }
 
             } catch (JSONException | JsonProcessingException e) {
                 e.printStackTrace();
             }
 
-        }, this::displayErrorAlert){
+        }, error -> displayErrorAlert(error , null)){
             @Override
             public Map<String, String> getHeaders()  {
                 Map<String, String> params = new HashMap<>();
@@ -192,14 +192,6 @@ public class RequestFragment extends Fragment {
     }
 
  void getToken(){
-        JSONObject jsonObject = new JSONObject();
-        JSONObject data = new JSONObject();
-     try {
-         jsonObject.put("userID" , mAuth.getCurrentUser().getUid());
-         data.put("data" , jsonObject);
-     } catch (JSONException e) {
-         e.printStackTrace();
-     }
      FirebaseUser firebaseUser = mAuth.getCurrentUser();
      firebaseUser.getIdToken(false).addOnCompleteListener(task -> {
          if (task.isSuccessful()) {
@@ -214,7 +206,7 @@ public class RequestFragment extends Fragment {
 
 
  }
-    void displayErrorAlert(@Nullable VolleyError error){
+    void displayErrorAlert(@Nullable VolleyError error , String errorMessage){
         String message = null; // error message, show it in toast or dialog, whatever you want
         if(error!=null) {
             if (error instanceof NetworkError || error instanceof AuthFailureError || error instanceof NoConnectionError || error instanceof TimeoutError) {
@@ -225,7 +217,7 @@ public class RequestFragment extends Fragment {
                 message = "Parsing error! Please try again later";
             }
         }else{
-            message = null;
+            message = errorMessage;
         }
         new AlertDialog.Builder(getActivity())
                 .setIcon(R.drawable.ic_alert)

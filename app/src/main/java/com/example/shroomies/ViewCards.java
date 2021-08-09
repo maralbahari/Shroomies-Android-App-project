@@ -7,15 +7,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.FileProvider;
-import androidx.core.widget.NestedScrollView;
-import androidx.fragment.app.DialogFragment;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import android.os.Environment;
 import android.provider.Settings;
 import android.util.Log;
@@ -27,10 +18,23 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.FileProvider;
+import androidx.core.widget.NestedScrollView;
+import androidx.fragment.app.DialogFragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.airbnb.lottie.LottieAnimationView;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.chip.Chip;
+import com.google.android.material.chip.ChipGroup;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -40,27 +44,30 @@ import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.hendraanggrian.appcompat.widget.SocialAutoCompleteTextView;
-import com.hendraanggrian.appcompat.widget.SocialTextView;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
+
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TimeZone;
 
 
 public class ViewCards extends DialogFragment {
     //views
     private View v;
     private ImageButton close , expandImageButton;
-    private TextView title,dueDate,description, expensesTextView;
+    private TextView title,dueDate,description, expensesTextView , noMentionsAdded;
     private ImageView attachedFile;
-    private SocialAutoCompleteTextView mention;
+    private ChipGroup mentionChipGroup;
     private View importanceView;
     private RecyclerView viewCardRecycler;
     private NestedScrollView nestedScrollView;
@@ -72,19 +79,16 @@ public class ViewCards extends DialogFragment {
     private Bundle bundle;
     private UserAdapterSplitExpenses splitAdapter;
     private ArrayList<User> shroomiesList;
-    //firebase
-    private DatabaseReference rootRef;
     //variables
     private boolean taskCardSelected;
     private String imagePath;
-
+    private HashMap<String , User>  membersHashMap;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         v=inflater.inflate(R.layout.fragment_view_cards, container, false);
 
-        rootRef= FirebaseDatabase.getInstance().getReference();
         return v;
     }
 
@@ -103,7 +107,7 @@ public class ViewCards extends DialogFragment {
         title=v.findViewById(R.id.view_card_title_tv);
         dueDate=v.findViewById(R.id.view_card_date);
         description=v.findViewById(R.id.view_card_description);
-        mention=v.findViewById(R.id.view_card_mention);
+        mentionChipGroup=v.findViewById(R.id.view_card_mention);
         attachedFile=v.findViewById(R.id.view_card_image);
         importanceView=v.findViewById(R.id.view_card_importance);
         close=v.findViewById(R.id.close_view_card);
@@ -113,6 +117,7 @@ public class ViewCards extends DialogFragment {
         relativeLayout = v.findViewById(R.id.view_card_relative_layout);
         nestedScrollView = v.findViewById(R.id.view_card_nested_scroll_view);
         lottieAnimationView = v.findViewById(R.id.lottie_downloading_animation);
+        noMentionsAdded = v.findViewById(R.id.no_mentions_added);
 
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
@@ -124,173 +129,224 @@ public class ViewCards extends DialogFragment {
 
         bundle=this.getArguments();
         if(bundle!=null){
+            membersHashMap = (HashMap<String, User>) bundle.getSerializable(Config.members);
             taskCardSelected=bundle.getBoolean("FROM_TASK_TAB");
             if(taskCardSelected){
                 tasksCard=bundle.getParcelable("CARD_DETAILS");
-                viewCardRecycler.setVisibility(View.GONE);
-                attachedFile.setVisibility(View.GONE);
-                title.setText(tasksCard.getTitle());
-                String due= tasksCard.getDueDate();
-                String descriptionCard=tasksCard.getDescription();
-//                String mentions=tasksCard.getMention();
-                String importance=tasksCard.getImportance();
-                if(!due.isEmpty() ){
-                    dueDate.setText(due);
-                }if(!descriptionCard.isEmpty()){
-                    description.setText(descriptionCard);
-                }
-//                if(!mentions.isEmpty()){
-//                    mention.setText(mentions);
-//                }
-                if(!importance.isEmpty() ){
-                    switch (importance) {
-                        case  "2":
-                            importanceView.setBackgroundColor(getActivity().getColor(R.color.canceRed));
-                            break;
-                        case  "1":
-                            importanceView.setBackgroundColor(getActivity().getColor(R.color.orange));
-                            break;
-                        default:
-                            importanceView.setBackgroundColor(getActivity().getColor(R.color.okGreen));
-                    }
-
-                }
+                setUpTaskData(tasksCard);
             }else{
                 expensesCard=bundle.getParcelable("CARD_DETAILS");
-                title.setText(expensesCard.getTitle());
-                String due= expensesCard.getDueDate();
-                String descriptionCard=expensesCard.getDescription();
-                HashMap<String , String> mentions=expensesCard.getMention();
-                String importance=expensesCard.getImportance();
-                String fileType = expensesCard.getFileType();
-                imagePath=expensesCard.getAttachedFile();
-                HashMap<String, Integer> membersShares=expensesCard.getMembersShares();
-                if(membersShares!=null){
-                    getMembersShares(membersShares);
-                }else {
-                    expensesTextView.setVisibility(View.GONE);
-                }
-                if(due!=null ){
-                    dueDate.setText(due);
-                }if(descriptionCard!=null){
-                    description.setText(descriptionCard);
-                }
-//                if(!mentions.isEmpty()){
-//                    mention.setMentionColor(Color.BLUE);
-//                    mention.setText(mentions);
-//                }
-
-                        if(importance!=null ){
-                            switch (importance) {
-                                case "0":
-                                    importanceView.setBackgroundColor(getActivity().getColor(R.color.okGreen));
-                                    break;
-                                case  "2":
-                                    importanceView.setBackgroundColor(getActivity().getColor(R.color.canceRed));
-                                    break;
-                                case  "1":
-                                    importanceView.setBackgroundColor(getActivity().getColor(R.color.orange));
-                                    break;
-                                default:
-                                    importanceView.setBackgroundColor(Color.parseColor("#F5CB5C"));
-                            }
-                    }
-
-                if(imagePath!=null){
-                    if(!fileType.equals("pdf")) {
-                        GlideApp.with(getContext())
-                                .load(imagePath)
-                                .dontAnimate()
-                                .transition(DrawableTransitionOptions.withCrossFade()) //Here a fading animation
-                                .error(R.drawable.ic_no_file_added)
-                                .into(attachedFile);
-                    }else{
-                        expandImageButton.setImageDrawable(getActivity().getDrawable(R.drawable.ic_download));
-                        attachedFile.setImageDrawable(getActivity().getDrawable(R.drawable.ic_pdf_icon));
-                    }
-                }else{
-                    attachedFile.setImageDrawable(getActivity().getDrawable(R.drawable.ic_no_file_added));
-
-                }
+                setUpExpensesData(expensesCard);
 
             }
         }
-        expandImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(imagePath!=null){
-                    if(expensesCard.getFileType().equals("pdf")){
-                        Dexter.withContext(getActivity())
-                                .withPermissions(Manifest.permission.READ_EXTERNAL_STORAGE , Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                                .withListener(new MultiplePermissionsListener() {
-                                    @Override
-                                    public void onPermissionsChecked(MultiplePermissionsReport multiplePermissionsReport) {
-                                        if (multiplePermissionsReport.isAnyPermissionPermanentlyDenied()) {
-                                            // navigate user to app settings
-                                            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                                            Uri uri = Uri.fromParts("package", getActivity().getPackageName(), null);
-                                            intent.setData(uri);
-                                            startActivity(intent);
-                                        }else {
-                                            //start the animation in place of the icon
-                                            expandImageButton.setVisibility(View.GONE);
-                                            lottieAnimationView.setVisibility(View.VISIBLE);
-                                            download(imagePath);
-                                        }
+        expandImageButton.setOnClickListener(v -> {
+            if(imagePath!=null){
+                if(expensesCard.getFileType().equals("pdf")){
+                    Dexter.withContext(getActivity())
+                            .withPermissions(Manifest.permission.READ_EXTERNAL_STORAGE , Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                            .withListener(new MultiplePermissionsListener() {
+                                @Override
+                                public void onPermissionsChecked(MultiplePermissionsReport multiplePermissionsReport) {
+                                    if (multiplePermissionsReport.isAnyPermissionPermanentlyDenied()) {
+                                        // navigate user to app settings
+                                        Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+                                        Uri uri = Uri.fromParts("package", getActivity().getPackageName(), null);
+                                        intent.setData(uri);
+                                        startActivity(intent);
+                                    }else {
+                                        //start the animation in place of the icon
+                                        expandImageButton.setVisibility(View.GONE);
+                                        lottieAnimationView.setVisibility(View.VISIBLE);
+                                        download(imagePath);
                                     }
-                                    @Override
-                                    public void onPermissionRationaleShouldBeShown(List<PermissionRequest> list, PermissionToken permissionToken) {
-                                        permissionToken.continuePermissionRequest();
+                                }
+                                @Override
+                                public void onPermissionRationaleShouldBeShown(List<PermissionRequest> list, PermissionToken permissionToken) {
+                                    permissionToken.continuePermissionRequest();
 
-                                    }
-                                }).check();
-                    }else {
-                        Intent intent = new Intent(getActivity(), ImageViewPage.class);
-                        Bundle extras = new Bundle();
-                        extras.putString("imagebitmap", imagePath);
-                        intent.putExtras(extras);
-                        startActivity(intent);
-                    }
+                                }
+                            }).check();
+                }else {
+                    Intent intent = new Intent(getActivity(), ImageViewPage.class);
+                    Bundle extras = new Bundle();
+                    extras.putString("imagebitmap", imagePath);
+                    intent.putExtras(extras);
+                    startActivity(intent);
                 }
+            }
 
-            }
         });
-        close.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dismiss();
-            }
-        });
+        close.setOnClickListener(view1 -> dismiss());
 
 
     }
 
-    private void getMembersShares(final HashMap<String, Integer> membersShares) {
-        shroomiesList=new ArrayList<>();
-        splitAdapter= new UserAdapterSplitExpenses(shroomiesList,getContext(),true);
-        viewCardRecycler.setAdapter(splitAdapter);
-
-
-        for (final String id: membersShares.keySet()){
-            rootRef.child("Users").child(id).addListenerForSingleValueEvent(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    if (snapshot.exists()){
-                        User user = snapshot.getValue(User.class);
-                        user.setSharedAmount(Integer.valueOf(membersShares.get(id).toString()));
-                        shroomiesList.add(user);
-                        splitAdapter.notifyItemInserted(shroomiesList.indexOf(user));
-                    }
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError error) {
-
-                }
-            });
-
+    private void setUpExpensesData(ExpensesCard expensesCard) {
+        title.setText(expensesCard.getTitle());
+        String due= expensesCard.getDueDate();
+        String descriptionCard=expensesCard.getDescription();
+        HashMap<String , String> mentions=expensesCard.getMention();
+        HashMap<String, Integer> membersShares= expensesCard.getMembersShares();
+        String importance=expensesCard.getImportance();
+        String fileType = expensesCard.getFileType();
+        imagePath=expensesCard.getAttachedFile();
+        if(membersShares!=null){
+            if(!membersShares.isEmpty()){
+                getMembersShares(membersShares);
+            }else{
+                expensesTextView.setVisibility(View.GONE);
+            }
+        }else {
+            expensesTextView.setVisibility(View.GONE);
         }
 
+        if(due!=null ){
+            DateTimeFormatter dateformat =  DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss Z")
+                    .withZone(TimeZone.getDefault().toZoneId());
+            DateTimeFormatter displayFormat =  DateTimeFormatter.ofPattern("EEE, MMM d")
+                    .withZone(TimeZone.getDefault().toZoneId());
+            dueDate.setText(displayFormat.format(dateformat.parse(due)));
+
+        }if(descriptionCard!=null){
+            description.setText(descriptionCard);
+        }
+
+        if(mentions!=null){
+            if(!mentions.isEmpty()){
+                addMentionChips(mentions);
+            }else{
+                noMentionsAdded.setVisibility(View.VISIBLE);
+            }
+
+        }else{
+            noMentionsAdded.setVisibility(View.VISIBLE);
+        }
+
+
+        if(importance!=null ){
+            switch (importance) {
+                case "0":
+                    importanceView.setBackgroundColor(getActivity().getColor(R.color.okGreen));
+                    break;
+                case  "2":
+                    importanceView.setBackgroundColor(getActivity().getColor(R.color.canceRed));
+                    break;
+                case  "1":
+                    importanceView.setBackgroundColor(getActivity().getColor(R.color.orange));
+                    break;
+                default:
+                    importanceView.setBackgroundColor(Color.parseColor("#F5CB5C"));
+            }
+        }
+
+        if(imagePath!=null){
+            if(!imagePath.isEmpty()){
+                if(!fileType.equals("pdf")) {
+                    GlideApp.with(getContext())
+                            .load(imagePath)
+                            .dontAnimate()
+                            .transition(DrawableTransitionOptions.withCrossFade()) //Here a fading animation
+                            .error(R.drawable.ic_no_file_added)
+                            .into(attachedFile);
+                }else{
+                    expandImageButton.setImageDrawable(getActivity().getDrawable(R.drawable.ic_download));
+                    attachedFile.setImageDrawable(getActivity().getDrawable(R.drawable.ic_pdf_icon));
+                }
+            }else{
+                expandImageButton.setVisibility(View.GONE);
+                attachedFile.setImageDrawable(getActivity().getDrawable(R.drawable.ic_no_file_added));
+            }
+
+        }else{
+            expandImageButton.setVisibility(View.GONE);
+            attachedFile.setImageDrawable(getActivity().getDrawable(R.drawable.ic_no_file_added));
+
+        }
+    }
+
+
+
+
+    private void setUpTaskData(TasksCard tasksCard) {
+        expensesTextView.setVisibility(View.GONE);
+        viewCardRecycler.setVisibility(View.GONE);
+        attachedFile.setVisibility(View.GONE);
+        expandImageButton.setVisibility(View.GONE);
+        title.setText(tasksCard.getTitle());
+        // add extra margins so it doesn't overlap with the close button
+        ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) title.getLayoutParams();
+        params.topMargin = 100; params.setMarginStart(30); params.setMarginEnd(30);
+        title.setLayoutParams(params);
+        String due= tasksCard.getDueDate();
+        String descriptionCard=tasksCard.getDescription();
+        String importance=tasksCard.getImportance();
+        HashMap<String , String> mentions=tasksCard.getMention();
+        if(!descriptionCard.isEmpty()){
+            description.setText(descriptionCard);
+        }
+        if(due!=null) {
+            if (!due.isEmpty()) {
+                DateTimeFormatter dateformat = DateTimeFormatter.ofPattern("uuuu-MM-dd HH:mm:ss Z")
+                        .withZone(TimeZone.getDefault().toZoneId());
+                DateTimeFormatter displayFormat = DateTimeFormatter.ofPattern("EEE, MMM d")
+                        .withZone(TimeZone.getDefault().toZoneId());
+                dueDate.setText(displayFormat.format(dateformat.parse(due)));
+
+            }
+        }
+
+        if(mentions!=null){
+            if(!mentions.isEmpty()){
+                addMentionChips(mentions);
+            }else{
+                noMentionsAdded.setVisibility(View.VISIBLE);
+            }
+
+        }else{
+            noMentionsAdded.setVisibility(View.VISIBLE);
+        }
+        if(!importance.isEmpty() ){
+            switch (importance) {
+                case  "2":
+                    importanceView.setBackgroundColor(getActivity().getColor(R.color.canceRed));
+                    break;
+                case  "1":
+                    importanceView.setBackgroundColor(getActivity().getColor(R.color.orange));
+                    break;
+                default:
+                    importanceView.setBackgroundColor(getActivity().getColor(R.color.okGreen));
+            }
+
+        }
+    }
+
+    private void addMentionChips(HashMap<String,String> mentions) {
+        for(Map.Entry<String,String> mention
+        :mentions.entrySet()){
+            if(membersHashMap.get(mention.getKey())!=null){
+                Chip chip = new Chip(getActivity());
+                chip.setText(membersHashMap.get(mention.getKey()).getName());
+                mentionChipGroup.addView(chip);
+            }
+        }
+    }
+
+    private void getMembersShares(final HashMap<String, Integer> membersShares) {
+        shroomiesList=new ArrayList<>();
+        //add the  user to the list with the shared amount
+        for (Map.Entry<String , Integer> share
+        :membersShares.entrySet()){
+            int userShare = share.getValue();
+            String userID = share.getKey();
+            if(membersHashMap.get(userID)!=null){
+                User user  = membersHashMap.get(userID);
+                user.setSharedAmount(userShare);
+                shroomiesList.add(user);
+            }
+        }
+        splitAdapter= new UserAdapterSplitExpenses(shroomiesList,getContext(),true);
+        viewCardRecycler.setAdapter(splitAdapter);
     }
 
     public void download(String imagePath) {
@@ -306,39 +362,32 @@ public class ViewCards extends DialogFragment {
         String datetime = simpleDateFormat.format(date);
         final File localFile = new File(rootPath,datetime);
 
-        storageRef.getFile(localFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-            @Override
-            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                expandImageButton.setVisibility(View.VISIBLE);
-                lottieAnimationView.setVisibility(View.GONE);
+        storageRef.getFile(localFile).addOnSuccessListener(taskSnapshot -> {
+            expandImageButton.setVisibility(View.VISIBLE);
+            lottieAnimationView.setVisibility(View.GONE);
 
-                android.util.Log.e("firebase ", "local item file created" + localFile.toString());
-                if (localFile.canRead()){
-                }
-                //if download is successful
-                //open the file
-                Intent intent = new Intent(Intent.ACTION_VIEW);
-                Uri pdfUri = FileProvider.getUriForFile(getActivity(), getActivity().getApplicationContext().getPackageName() + ".provider", localFile);
-                intent.setDataAndType(pdfUri, "application/pdf");
-                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                Intent intent1 = Intent.createChooser(intent, "Open With");
-                try {
-                    startActivity(intent1);
-                } catch (ActivityNotFoundException e) {
-                    // Instruct the user to install a PDF reader here, or something
-                    Toast.makeText(getActivity(), "Couldn't find PDF reader", Toast.LENGTH_LONG).show();
+            Log.e("firebase ", "local item file created" + localFile.toString());
 
-                }
+            //if download is successful
+            //open the file
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            Uri pdfUri = FileProvider.getUriForFile(getActivity(), getActivity().getApplicationContext().getPackageName() + ".provider", localFile);
+            intent.setDataAndType(pdfUri, "application/pdf");
+            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            Intent intent1 = Intent.createChooser(intent, "Open With");
+            try {
+                startActivity(intent1);
+            } catch (ActivityNotFoundException e) {
+                // Instruct the user to install a PDF reader here, or something
+                Toast.makeText(getActivity(), "Couldn't find PDF reader", Toast.LENGTH_LONG).show();
 
             }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception exception) {
-                expandImageButton.setVisibility(View.VISIBLE);
-                lottieAnimationView.setVisibility(View.GONE);
-                Log.e("firebase ", ";local tem file not created  created " + exception.toString());
-                Toast.makeText(getActivity(), "Failed to download file", Toast.LENGTH_LONG).show();
-            }
+
+        }).addOnFailureListener(exception -> {
+            expandImageButton.setVisibility(View.VISIBLE);
+            lottieAnimationView.setVisibility(View.GONE);
+            Log.e("firebase ", ";local tem file not created  created " + exception.toString());
+            Toast.makeText(getActivity(), "Failed to download file", Toast.LENGTH_LONG).show();
         });
     }
 }
