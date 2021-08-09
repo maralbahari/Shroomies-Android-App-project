@@ -19,6 +19,7 @@ public class Config {
     public static final String message = "message";
     public static final String cards = "cards";
     public static final String requests = "requests";
+    public static final String user="user";
 
 
 
