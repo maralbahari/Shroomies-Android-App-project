@@ -370,14 +370,13 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
     private void getUserToken(){
         displayProgressView();
         FirebaseUser firebaseUser = mAuth.getCurrentUser();
-        firebaseUser.getIdToken(false).addOnCompleteListener(task -> {
+        firebaseUser.getIdToken(true).addOnCompleteListener(task -> {
             if(task.isSuccessful()) {
                 String token = task.getResult().getToken();
                 String apartmentID = (String) task.getResult().getClaims().get(Config.apartmentID);
                 Log.d("apartment ID" , apartmentID);
                 getApartmentDetails(token, apartmentID);
             }else{
-                //todo handle error
                 String title = "Authentication error";
                 String message = "We encountered a problem while authenticating your account";
                 displayErrorAlert(title, message);
@@ -397,7 +396,6 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
             e.printStackTrace();
             return;
         }
-        //TODO add progress dialog
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_GET_APARTMENT_DETAILS, data, response -> {
 
             final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
@@ -476,7 +474,6 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
             }
             displayErrorAlert("Error" ,message);
         })
-                //todo uncomment when function  is deployed
         {
             @Override
             public Map<String, String> getHeaders() {

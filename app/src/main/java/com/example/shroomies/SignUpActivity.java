@@ -90,23 +90,20 @@ public class SignUpActivity extends AppCompatActivity{
 
         Boolean isEnabled;
 
-        register.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                String txtName = name.getText().toString();
-                String txtEmail = email.getText().toString().trim();
-                String txtPass = password.getText().toString();
-                String txtConfpw = confirmpw.getText().toString();
-                if (TextUtils.isEmpty(txtName) || TextUtils.isEmpty(txtEmail) || TextUtils.isEmpty(txtPass)
-                        || TextUtils.isEmpty(txtConfpw)){
-                    Toast.makeText(SignUpActivity.this, "Empty credentials!", Toast.LENGTH_SHORT).show();
-                }
-                else if (txtPass.length() < 6){
-                    Toast.makeText(SignUpActivity.this, "Password too short!", Toast.LENGTH_SHORT).show();
-                }
-                else {
-                        registerUser(txtName , txtEmail , txtPass, txtConfpw);
-                }
+        register.setOnClickListener(v -> {
+            String txtName = name.getText().toString();
+            String txtEmail = email.getText().toString().trim();
+            String txtPass = password.getText().toString();
+            String txtConfpw = confirmpw.getText().toString();
+            if (TextUtils.isEmpty(txtName) || TextUtils.isEmpty(txtEmail) || TextUtils.isEmpty(txtPass)
+                    || TextUtils.isEmpty(txtConfpw)){
+                Toast.makeText(SignUpActivity.this, "Empty credentials!", Toast.LENGTH_SHORT).show();
+            }
+            else if (txtPass.length() < 6){
+                Toast.makeText(SignUpActivity.this, "Password too short!", Toast.LENGTH_SHORT).show();
+            }
+            else {
+                    registerUser(txtName , txtEmail , txtPass, txtConfpw);
             }
         });
 

@@ -97,7 +97,6 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
         View view = layoutInflater.inflate(R.layout.my_shroomie_expenses_card, parent, false);
         requestQueue = Volley.newRequestQueue(context);
         mAuth = FirebaseAuth.getInstance();
-//        mAuth.useEmulator("10.0.2.2",9099);
 
         return new ExpensesViewHolder(view);
 

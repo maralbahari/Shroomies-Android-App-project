@@ -193,7 +193,7 @@ public class RequestFragment extends Fragment {
 
  void getToken(){
      FirebaseUser firebaseUser = mAuth.getCurrentUser();
-     firebaseUser.getIdToken(false).addOnCompleteListener(task -> {
+     firebaseUser.getIdToken(true).addOnCompleteListener(task -> {
          if (task.isSuccessful()) {
              String token = task.getResult().getToken();
              apartmentID = (String) task.getResult().getClaims().get(Config.apartmentID);

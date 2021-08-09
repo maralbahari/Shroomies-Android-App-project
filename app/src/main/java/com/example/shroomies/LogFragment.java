@@ -113,7 +113,7 @@ public class LogFragment extends Fragment {
 
         FirebaseUser firebaseUser = mAuth
                 .getCurrentUser();
-        firebaseUser.getIdToken(false)
+        firebaseUser.getIdToken(true)
                 .addOnCompleteListener(task -> {
                     if(task.isSuccessful()){
                         String token = task.getResult().getToken();
@@ -132,7 +132,7 @@ public class LogFragment extends Fragment {
                         JsonObjectRequest jsonObjectRequest= new JsonObjectRequest(Request.Method.POST,
                                 Config.FUNCTION_GET_MEMBER_DETAIL,
                                 data,
-                                (Response.Listener<JSONObject>) response -> {
+                                response -> {
                                     try {
                                         JSONObject result = response.getJSONObject(Config.result);
                                         boolean success = result.getBoolean(Config.success);
@@ -142,15 +142,19 @@ public class LogFragment extends Fragment {
                                             JSONArray users = result.getJSONArray(Config.members);
                                             if (users != null) {
                                                 for (int i = 0; i < users.length(); i++) {
+
                                                     User user = mapper.readValue(((JSONObject) users.get(i)).toString(), User.class);
                                                     usersMap.put(user.getUserID(), user);
+
                                                 }
+
                                                 logAdapter = new LogAdapter(getContext(), apartmentLogs, usersMap, getParentFragmentManager(), getTargetFragment());
                                                 logRecycler.setAdapter(logAdapter);
                                                 logAdapter.notifyDataSetChanged();
                                             }
 
                                         } else {
+
                                             String title = "Unexpected error";
                                             String message = "We have encountered an unexpected error, try to check your internet connection and log in again.";
                                             displayErrorAlert(title, null, message);
@@ -160,7 +164,7 @@ public class LogFragment extends Fragment {
                                         e.printStackTrace();
                                     }
 
-                                }, (Response.ErrorListener) error -> {
+                                }, error -> {
 
                                     displayErrorAlert("Error" ,error, null);
                                 })

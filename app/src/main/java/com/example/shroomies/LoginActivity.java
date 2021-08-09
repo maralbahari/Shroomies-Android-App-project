@@ -66,9 +66,7 @@ public class LoginActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         FirebaseApp.initializeApp(getApplicationContext());
         mAuth = FirebaseAuth.getInstance();
-//        FirebaseDatabase.getInstance().useEmulator("10.0.2.2",9000);
         rootRef=FirebaseDatabase.getInstance().getReference();
-//        mAuth.useEmulator("10.0.2.2" , 9099);
 
         setContentView(R.layout.activity_login);
         username=findViewById(R.id.email_login);
@@ -77,42 +75,26 @@ public class LoginActivity extends AppCompatActivity {
         signup=findViewById(R.id.sign_up_button);
         google_sign = findViewById(R.id.google_sign_up);
         forgotPassword=findViewById(R.id.forgot_password_login);
-        google_sign.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                        .requestIdToken(getString(R.string.default_web_client_id))
-                        .requestEmail()
-                        .build();
-                mGoogleSignInClient = GoogleSignIn.getClient(LoginActivity.this,gso);
-                signIn();
-            }
+        google_sign.setOnClickListener(v -> {
+            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                    .requestIdToken(getString(R.string.default_web_client_id))
+                    .requestEmail()
+                    .build();
+            mGoogleSignInClient = GoogleSignIn.getClient(LoginActivity.this,gso);
+            signIn();
         });
-        forgotPassword.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent=new Intent(getApplication(),ResetPassword.class);
-                startActivity(intent);
-                finish();
-            }
+        forgotPassword.setOnClickListener(v -> {
+            Intent intent=new Intent(getApplication(),ResetPassword.class);
+            startActivity(intent);
+            finish();
         });
-        signup.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent=new Intent(getApplication(),SignUpActivity.class);
-                startActivity(intent);
+        signup.setOnClickListener(v -> {
+            Intent intent=new Intent(getApplication(),SignUpActivity.class);
+            startActivity(intent);
 
-            }
         });
 
-        login.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-                loginUser();
-
-            }
-        });
+        login.setOnClickListener(v -> loginUser());
 
     }
     private void loginUser(){

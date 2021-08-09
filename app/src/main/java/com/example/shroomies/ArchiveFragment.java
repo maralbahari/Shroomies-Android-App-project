@@ -194,7 +194,7 @@ public class ArchiveFragment extends Fragment {
             e.printStackTrace();
         }
         FirebaseUser firebaseUser  = mAuth.getCurrentUser();
-        firebaseUser.getIdToken(false).addOnCompleteListener(task -> {
+        firebaseUser.getIdToken(true).addOnCompleteListener(task -> {
             if(task.isSuccessful()){
                 String token = task.getResult().getToken();
 

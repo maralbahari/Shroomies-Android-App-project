@@ -72,7 +72,6 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         LayoutInflater layoutInflater = LayoutInflater.from(context);
         View v = layoutInflater.inflate(R.layout.send_request_card, parent, false);
         mAuth=FirebaseAuth.getInstance();
-//        mAuth.useEmulator("10.0.2.2" , 9099);
         requestQueue = Volley.newRequestQueue(context);
         return new UserViewHolder(v);
     }
@@ -90,13 +89,16 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                 holder.userImage.setPadding(2, 2, 2, 2);
             }
         }
+        if(userList.get(position).getName()!=null){
+            holder.userName.setText(userList.get(position).getName());
+
+        }
         if(!mAuth.getCurrentUser().getUid().equals(apartment.getAdminID())){
             holder.removeMember.setVisibility(View.INVISIBLE);
         }
         if(fromSearchMember){
             holder.msgMember.setVisibility(View.INVISIBLE);
             holder.removeMember.setVisibility(View.INVISIBLE);
-            holder.userName.setText(userList.get(position).getName());
             holder.sendRequest.setVisibility(View.VISIBLE);
 
             if(userList.get(position).requestSent()){
@@ -112,8 +114,11 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                 holder.msgMember.setVisibility(View.INVISIBLE);
                 holder.removeMember.setVisibility(View.INVISIBLE);
                 holder.userName.setText("You");
-
+            }else{
+                holder.msgMember.setVisibility(View.VISIBLE);
+                holder.removeMember.setVisibility(View.VISIBLE);
             }
+
 
         }
 
@@ -160,7 +165,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
 
         private void removeMember(String apartmentID, int position) {
             FirebaseUser firebaseUser = mAuth.getCurrentUser();
-            firebaseUser.getIdToken(false).addOnCompleteListener(task -> {
+            firebaseUser.getIdToken(true).addOnCompleteListener(task -> {
                 if(task.isSuccessful()){
                     String token = task.getResult().getToken();
                     JSONObject jsonObject = new JSONObject();
@@ -219,7 +224,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             }
 
             FirebaseUser firebaseUser = mAuth.getCurrentUser();
-            firebaseUser.getIdToken(false).addOnCompleteListener(task -> {
+            firebaseUser.getIdToken(true).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     String token = task.getResult().getToken();
                     JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_SEND_REQUEST, data, response -> {

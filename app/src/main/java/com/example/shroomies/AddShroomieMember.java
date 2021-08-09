@@ -35,20 +35,16 @@ import com.factor.bouncy.BouncyRecyclerView;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-
-import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.common.net.HttpHeaders;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -67,7 +63,6 @@ public class AddShroomieMember extends DialogFragment {
     //data
     private UserAdapter userRecyclerAdapter;
     private ArrayList<User> suggestedUser;
-    private ArrayList<String> inboxUser;
     private ShroomiesApartment apartment;
 
 
@@ -80,7 +75,7 @@ public class AddShroomieMember extends DialogFragment {
         if(getDialog()!=null) {
             getDialog().getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
             getDialog().getWindow().setBackgroundDrawableResource(R.drawable.create_group_fragment_background);
-            getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+            getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
             getDialog().getWindow().setGravity(Gravity.BOTTOM);
         }
     }
@@ -114,12 +109,8 @@ public class AddShroomieMember extends DialogFragment {
         addShroomieRecycler.setHasFixedSize(true);
         addShroomieRecycler.setLayoutManager(linearLayoutManager);
 
-        closeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dismiss();
-            }
-        });
+        closeButton.setOnClickListener(v -> dismiss());
+
         if (getArguments()!=null){
             Bundle bundle = getArguments();
             apartment=bundle.getParcelable("APARTMENT_DETAILS");
@@ -149,7 +140,7 @@ public class AddShroomieMember extends DialogFragment {
         if(!query.trim().isEmpty()){
             FirebaseUser firebaseUser = mAuth
                     .getCurrentUser();
-            firebaseUser.getIdToken(false)
+            firebaseUser.getIdToken(true)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()){
                             String token = task.getResult().getToken();

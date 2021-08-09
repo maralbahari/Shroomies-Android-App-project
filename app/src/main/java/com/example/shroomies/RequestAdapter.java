@@ -134,7 +134,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
 
 
         private void rejectRequest(final String senderID , int position){
-            mAuth.getCurrentUser().getIdToken(false).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+            mAuth.getCurrentUser().getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
                 @Override
                 public void onComplete(@NonNull Task<GetTokenResult> task) {
                     if(task.isSuccessful()) {
@@ -191,7 +191,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
 
          private void acceptRequest(final String senderID){
 
-            mAuth.getCurrentUser().getIdToken(false).addOnCompleteListener(task -> {
+            mAuth.getCurrentUser().getIdToken(true).addOnCompleteListener(task -> {
                 if(task.isSuccessful()){
                     String token = task.getResult().getToken();
                     String apartmentID = (String) task.getResult().getClaims().get(Config.apartmentID);

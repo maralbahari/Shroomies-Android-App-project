@@ -75,7 +75,6 @@ public class Members extends Fragment {
         v =inflater.inflate(R.layout.fragment_shroomie_members, container, false);
         requestQueue = Volley.newRequestQueue(getActivity());
         mAuth = FirebaseAuth.getInstance();
-        mAuth.useEmulator("10.0.2.2" , 9009);
         return v;
     }
 
@@ -187,7 +186,7 @@ public class Members extends Fragment {
         }
 
         FirebaseUser firebaseUser = mAuth.getCurrentUser();
-        firebaseUser.getIdToken(false).addOnCompleteListener(task -> {
+        firebaseUser.getIdToken(true).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 String token = task.getResult().getToken();
                 JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_LEAVE_APARTMENT, data, response -> {
@@ -232,7 +231,7 @@ public class Members extends Fragment {
     private void getMemberDetail(ShroomiesApartment shroomiesApartment) {
 
         FirebaseUser firebaseUser = mAuth.getCurrentUser();
-        firebaseUser.getIdToken(false).addOnCompleteListener(task -> {
+        firebaseUser.getIdToken(true).addOnCompleteListener(task -> {
             if(task.isSuccessful()){
                 ArrayList<String> members = new ArrayList<>();
                 //add the the admin to the members
