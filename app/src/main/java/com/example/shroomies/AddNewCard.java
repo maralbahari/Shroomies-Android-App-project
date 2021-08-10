@@ -457,7 +457,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                     cardDetails.put("importance", importance);
                     cardDetails.put("date", currentDate);
                     cardDetails.put("cardID", "");
-                    cardDetails.put("done", "false");
+                    cardDetails.put("done", false);
                     cardDetails.put("mention", mMention);
                     cardDetails.put("actor", mAuth.getCurrentUser().getUid());
                     jsonObject.put("cardDetails", cardDetails);
@@ -543,7 +543,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                     cardDetails.put("fileType", fileType);
                     cardDetails.put("date", dateFormat.format(ZonedDateTime.now()));
                     cardDetails.put("cardID", "");
-                    cardDetails.put("done", "false");
+                    cardDetails.put("done", false);
                     if(mMention!=null){
                         if(mMention.length()!=0){
                             cardDetails.put("mention", mMention);

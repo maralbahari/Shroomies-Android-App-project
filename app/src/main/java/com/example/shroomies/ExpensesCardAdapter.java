@@ -297,7 +297,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
         popup.show();
     }
 
-     private void markExpenseCard(String apartmentID,  ExpensesCard expensesCard , boolean checked ,String token , ExpensesViewHolder expensesViewHolder) {
+     private void markExpenseCard( ExpensesCard expensesCard , boolean checked ,String token , ExpensesViewHolder expensesViewHolder) {
          final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
          mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
 
@@ -405,7 +405,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                         deleteExpensesCard(position , expensesCard , token);
                         break;
                     case MARK:
-                        markExpenseCard(expensesCard.getCardID(),expensesCard ,checked ,  token , expensesViewHolder);
+                        markExpenseCard(expensesCard ,checked ,  token , expensesViewHolder);
                         break;
                     case ARCHIVE:
                         archive(position , expensesCard , token);
