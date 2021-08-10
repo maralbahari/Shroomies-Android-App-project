@@ -24,6 +24,9 @@ public class Config {
     public static final String role = "role";
     public static final String receiverApartmentID = "receiverApartmentID";
     public static final String senderID = "senderID";
+    public static final String cardDetails = "cardDetails";
+    public static final String cardID= "cardID";
+
 
 
     public static final String result="result";
@@ -86,9 +89,10 @@ public class Config {
     public static final String URL_SEND_REQUEST = "https://us-central1-shroomies-e34d3.cloudfunctions.net/sendRequest";
     public static final String URL_GET_REQUESTS = "https://us-central1-shroomies-e34d3.cloudfunctions.net/getRequests";
     public static final String URL_CANCEL_OR_REJECT_REQUEST= "https://us-central1-shroomies-e34d3.cloudfunctions.net/cancelOrRejectRequest";
-    public static final String URL_ACCEPT_REQUEST = "http://10.0.2.2:5001/shroomies-e34d3/us-central1/acceptRequest";
+    public static final String URL_ACCEPT_REQUEST = "http://us-central1-shroomies-e34d3.cloudfunctions.net/acceptRequest";
     public static final String URL_GET_USER_DETAILS= "https://us-central1-shroomies-e34d3.cloudfunctions.net/getUserDetails";
     public static final String URL_REGISTER_USER = "https://us-central1-shroomies-e34d3.cloudfunctions.net/registerUser";
     public static final String URL_REMOVE_MEMBER= "https://us-central1-shroomies-e34d3.cloudfunctions.net/removeMember";
+
 
 }

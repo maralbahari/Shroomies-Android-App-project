@@ -10,15 +10,15 @@ import java.util.HashMap;
 public class TasksCard implements Parcelable {
 
     String actor ,description, title,dueDate,
-            importance, cardID,
-            done;
+            importance, cardID;
+    boolean done;
     HashMap<String , String> mention;
     String  date;
 
     public TasksCard() {
     }
 
-    public TasksCard(String description, String taskTitle, String taskDueDate, String taskImportance, String date, String taskCardId,  String done, HashMap<String, String> mention) {
+    public TasksCard(String description, String taskTitle, String taskDueDate, String taskImportance, String date, String taskCardId,  boolean done, HashMap<String, String> mention) {
         this.cardID = taskCardId;
         this.date = date;
         this.description = description;
@@ -38,7 +38,7 @@ public class TasksCard implements Parcelable {
         importance = in.readString();
 
         cardID = in.readString();
-        done = in.readString();
+        done = in.readBoolean();
         date = in.readString();
     }
 
@@ -54,7 +54,7 @@ public class TasksCard implements Parcelable {
         dest.writeString(dueDate);
         dest.writeString(importance);
         dest.writeString(cardID);
-        dest.writeString(done);
+        dest.writeBoolean(done);
         dest.writeString(date);
     }
 
@@ -103,7 +103,7 @@ public class TasksCard implements Parcelable {
         this.cardID = cardID;
     }
 
-    public void setDone(String done) {
+    public void setDone(boolean done) {
         this.done = done;
     }
 
@@ -131,7 +131,7 @@ public class TasksCard implements Parcelable {
         return cardID;
     }
 
-    public String getDone() {
+    public boolean getDone() {
         return done;
     }
 

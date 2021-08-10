@@ -20,7 +20,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkError;
-import com.android.volley.NoConnectionError;
 import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -57,18 +56,14 @@ import java.util.TimeZone;
 public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.TasksCardViewHolder> implements ItemTouchHelperAdapter {
     private final View parentView;
     private final Context context;
-    private View view;
 
     private final ArrayList<TasksCard> tasksCardsList;
     private final FragmentManager fragmentManager;
 
     private final RequestQueue requestQueue;
     private final FirebaseAuth mAuth;
-
     private final Boolean fromArchive;
-    private static final String DELETE = "delete";
-    private static final String ARCHIVE = "archive";
-    private static final String MARK = "mark";
+    private static final String ARCHIVE= "archive", MARK = "mark",  DELETE = "delete";
     private final String apartmentID;
     private final HashMap<String, User> memberHashMap;
 
@@ -89,7 +84,8 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
 
     @Override
     public void onItemSwiped(int position) {
-        getUserToken(DELETE ,position , null ,false , null );
+        TasksCard tasksCard =  tasksCardsList.get(position);
+        getUserToken(DELETE ,position , tasksCard ,false , null );
 
     }
 
@@ -101,7 +97,6 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         private final View taskImportanceView;
         private final TextView titleTextView, descriptionTextView, dueDateTextView;
         private final ChipGroup mentionChipGroup;
-        private final ImageButton cardOptions;
         private final MaterialCheckBox done;
         private final HorizontalScrollView horizontalScrollView;
 
@@ -111,7 +106,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
             titleTextView = v.findViewById(R.id.title_card);
             descriptionTextView = v.findViewById(R.id.card_description);
             dueDateTextView = v.findViewById(R.id.dueDate_card);
-            cardOptions = v.findViewById(R.id.task_card_menu_image_button);
+            ImageButton cardOptions = v.findViewById(R.id.task_card_menu_image_button);
             done = v.findViewById(R.id.task_done);
             mentionChipGroup = v.findViewById(R.id.task_mention_chip_group);
             horizontalScrollView = v.findViewById(R.id.task_mention_et);
@@ -130,12 +125,12 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
 
             done.setOnClickListener(view -> {
                 TasksCard tasksCard = tasksCardsList.get(getAdapterPosition());
-                getUserToken(MARK , getAdapterPosition() , tasksCard , done.isChecked() , TasksCardViewHolder.this);
+                boolean checked = done.isChecked();
+                tasksCard.setDone(checked);
+                getUserToken(MARK , getAdapterPosition() , tasksCard , checked , TasksCardViewHolder.this);
             });
 
-            cardOptions.setOnClickListener(view -> {
-                showPopup(v , getAdapterPosition(), tasksCardsList.get(getAdapterPosition()));
-            });
+            cardOptions.setOnClickListener(view -> showPopup(v , getAdapterPosition(), tasksCardsList.get(getAdapterPosition())));
 
 
         }
@@ -154,7 +149,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         popup.setOnMenuItemClickListener(item -> {
             switch (item.getItemId()) {
                 case R.id.delete_option:
-                    getUserToken(DELETE, position , null , false , null);
+                    getUserToken(DELETE, position , tasksCard , false , null);
                     return true;
                 case R.id.archive_option:
                     getUserToken(ARCHIVE ,position ,tasksCard,false,null);
@@ -185,17 +180,18 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
 
         if(days<0){
             dueDateTextView.setTextColor(context.getColor(R.color.red));
-            dueDateTextView.setText("Due");
+            dueDateTextView.setText(R.string.due);
         }else  if(days==0){
             dueDateTextView.setTextColor(context.getColor(R.color.red));
-            dueDateTextView.setText("Due today");
+            dueDateTextView.setText(R.string.due_today);
         }
         else if(days==1){
             dueDateTextView.setTextColor(context.getColor(R.color.red));
-            dueDateTextView.setText(days +" day left");
+            dueDateTextView.setText((Long.toString(days) +R.string.day_left));
         }else if(days<3){
             dueDateTextView.setTextColor(context.getColor(R.color.red));
-            dueDateTextView.setText(days +" day left");
+
+            dueDateTextView.setText((Long.toString(days) + R.string.days_left));
         }else{
             dueDateTextView.setText(dueDateFromatted);
         }
@@ -206,7 +202,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
     @Override
     public TasksCardAdapter.TasksCardViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(context);
-        view = layoutInflater.inflate(R.layout.my_shroomie_tasks_card, parent, false);
+        View view = layoutInflater.inflate(R.layout.my_shroomie_tasks_card, parent, false);
         return new TasksCardViewHolder(view);
     }
 
@@ -216,7 +212,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         holder.titleTextView.setText(tasksCardsList.get(position).getTitle());
         holder.descriptionTextView.setText(tasksCardsList.get(position).getDescription());
         if (tasksCardsList.get(position).getDueDate()==null) {
-            holder.dueDateTextView.setText("None");
+            holder.dueDateTextView.setText(R.string.no_due_date);
         } else {
             setDate(tasksCardsList.get(position).getDueDate() , holder.dueDateTextView);
         }
@@ -237,14 +233,14 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         }
 
         String importanceView = tasksCardsList.get(position).getImportance();
-        Boolean cardStatus = tasksCardsList.get(position).getDone().equals("true");
+        boolean cardStatus = tasksCardsList.get(position).getDone();
         if (cardStatus) {
-            holder.done.setChecked(cardStatus);
-            holder.done.setText("Done!");
+            holder.done.setText(R.string.done);
         } else {
-            holder.done.setChecked(false);
-            holder.done.setText("Mark as done");
+            holder.done.setText(R.string.mark_card_as_done);
         }
+        holder.done.setChecked(cardStatus);
+
 
         if (fromArchive) {
             holder.done.setVisibility(View.GONE);
@@ -277,16 +273,16 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
                 String token = task.getResult().getToken();
                 switch (method) {
                     case DELETE:
-                        deleteTasksCard(position ,  token);
+                        deleteTasksCard(position, tasksCard ,  token);
                         break;
                     case MARK:
-                        markTaskCard(tasksCard.getCardID(), apartmentID  , checked , tasksCardViewHolder , token);
+                        markTaskCard(tasksCard  , checked , tasksCardViewHolder , token);
                         break;
                     case ARCHIVE:
                         archive(position , tasksCard , token);
                 }
             }else{
-                Snackbar.make(parentView,"We encountered an error while authenticating your account", BaseTransientBottomBar.LENGTH_LONG);
+                Snackbar.make(parentView,context.getString(R.string.authentication_error), BaseTransientBottomBar.LENGTH_LONG);
             }
         });
     }
@@ -296,14 +292,13 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
         mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
 
-        JSONObject cardDetails = new JSONObject(mapper.convertValue(tasksCard, new TypeReference<Map<String, Object>>() {
-        }));
+        JSONObject cardDetails = new JSONObject(mapper.convertValue(tasksCard, new TypeReference<Map<String, Object>>() {}));
         JSONObject data = new JSONObject();
         JSONObject jsonObject = new JSONObject();
         try {
-            jsonObject.put("cardDetails", cardDetails);
-            jsonObject.put("apartmentID", apartmentID);
-            data.put("data", jsonObject);
+            jsonObject.put(Config.cardDetails, cardDetails);
+            jsonObject.put(Config.apartmentID, apartmentID);
+            data.put(Config.data, jsonObject);
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -313,12 +308,12 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
             try {
                 boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
                 if(success){
-                    Snackbar.make(parentView, "Card archived", BaseTransientBottomBar.LENGTH_SHORT)
+                    Snackbar.make(parentView, context.getString(R.string.card_archived), BaseTransientBottomBar.LENGTH_SHORT)
                             .show();
                     tasksCardsList.remove(position);
                     notifyItemRemoved(position);
                 }else{
-                    Snackbar.make(parentView, "We encountered an error while archiving the card ", BaseTransientBottomBar.LENGTH_SHORT)
+                    Snackbar.make(parentView, context.getString(R.string.archving_error), BaseTransientBottomBar.LENGTH_SHORT)
                             .show();
                 }
             } catch (JSONException e) {
@@ -329,7 +324,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         {
             @Override
             public Map<String, String> getHeaders() {
-                Map<String, String> params = new HashMap<String, String>();
+                Map<String, String> params = new HashMap<>();
                 params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
                 params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
                 return params;
@@ -339,14 +334,18 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
 
     }
 
-    public void deleteTasksCard(final int position , String token) {
+    public void deleteTasksCard(final int position , TasksCard tasksCard, String token) {
+        final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
+        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
 
-            JSONObject jsonObject = new JSONObject();
-            JSONObject data = new JSONObject();
-            try {
-                jsonObject.put("apartmentID", apartmentID);
-                jsonObject.put("cardID", tasksCardsList.get(position).getCardID());
-                data.put("data", jsonObject);
+        JSONObject jsonObject = new JSONObject();
+        JSONObject data = new JSONObject();
+        JSONObject cardDetails = new JSONObject(mapper.convertValue(tasksCard, new TypeReference<Map<String, Object>>() {}));
+
+        try {
+                jsonObject.put(Config.cardDetails, cardDetails);
+                jsonObject.put(Config.apartmentID, apartmentID);
+                data.put(Config.data, jsonObject);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -357,12 +356,12 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
                 try {
                     boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
                     if(success) {
-                        Snackbar snack = Snackbar.make(parentView, "Card deleted", BaseTransientBottomBar.LENGTH_SHORT);
+                        Snackbar snack = Snackbar.make(parentView, context.getString(R.string.card_deleted), BaseTransientBottomBar.LENGTH_SHORT);
                         snack.show();
                         tasksCardsList.remove(position);
                         notifyItemRemoved(position);
                     }else{
-                        Snackbar snack = Snackbar.make(parentView, "We encountered an error while deleting the card", BaseTransientBottomBar.LENGTH_SHORT);
+                        Snackbar snack = Snackbar.make(parentView, context.getString(R.string.delete_card_error), BaseTransientBottomBar.LENGTH_SHORT);
                         snack.show();
                     }
 
@@ -374,7 +373,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
             {
                 @Override
                 public Map<String, String> getHeaders() {
-                    Map<String, String> params = new HashMap<String, String>();
+                    Map<String, String> params = new HashMap<>();
                     params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
                     params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
                     return params;
@@ -387,14 +386,18 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
 
 
 
-    private void markTaskCard(String cardID, String apartmentID, boolean checked , TasksCardViewHolder tasksCardViewHolder ,  String token) {
+    private void markTaskCard(TasksCard tasksCard, boolean checked , TasksCardViewHolder tasksCardViewHolder ,  String token) {
+        final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
+        mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+
         JSONObject jsonObject = new JSONObject();
         JSONObject data = new JSONObject();
+        JSONObject cardDetails = new JSONObject(mapper.convertValue(tasksCard, new TypeReference<Map<String, Object>>() {}));
+
         try {
-            jsonObject.put("booleanValue" , checked);
-            jsonObject.put("apartmentID" , apartmentID);
-            jsonObject.put("cardID" ,cardID);
-            data.put("data" , jsonObject);
+            jsonObject.put(Config.cardDetails, cardDetails);
+            jsonObject.put(Config.apartmentID, apartmentID);
+            data.put(Config.data, jsonObject);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -403,15 +406,20 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
             try {
                 boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
                 if(success){
-                    String done = "Done!";
-                    if(!checked){ done = "Mark card as done"; }
-                    Snackbar.make(parentView,"Card marked as"+done, BaseTransientBottomBar.LENGTH_SHORT)
-                            .show();
-                    tasksCardViewHolder.done.setText(done);
+                    if(checked){
+                        Snackbar.make(parentView,context.getString(R.string.card_marked_as_done), BaseTransientBottomBar.LENGTH_SHORT)
+                                .show();
+                        tasksCardViewHolder.done.setText(R.string.done);
+                    }else{
+                        Snackbar.make(parentView,context.getString(R.string.card_marked_as_not_done), BaseTransientBottomBar.LENGTH_SHORT)
+                                .show();
+                        tasksCardViewHolder.done.setText(R.string.mark_card_as_done);
+                    }
+
 
                 }else{
                     tasksCardViewHolder.done.setChecked(!checked);
-                    Snackbar.make(parentView,"Couldn't mark the card",  BaseTransientBottomBar.LENGTH_SHORT)
+                    Snackbar.make(parentView,context.getString(R.string.marking_error),  BaseTransientBottomBar.LENGTH_SHORT)
                             .show();
                 }
             } catch (JSONException e) {
@@ -423,7 +431,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         {
             @Override
             public Map<String, String> getHeaders() {
-                Map<String, String> params = new HashMap<String, String>();
+                Map<String, String> params = new HashMap<>();
                 params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
                 params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
                 return params;
@@ -435,13 +443,15 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
     }
 
     void displayError(VolleyError error){
-        String message = null; // error message, show it in toast or dialog, whatever you want
-        if (error instanceof NetworkError || error instanceof AuthFailureError || error instanceof NoConnectionError || error instanceof TimeoutError) {
-            message = "Cannot connect to Internet";
+        String message; // error message, show it in toast or dialog, whatever you want
+        if (error instanceof NetworkError || error instanceof AuthFailureError || error instanceof TimeoutError) {
+            message = context.getString(R.string.no_internet);
         } else if (error instanceof ServerError) {
-            message = "Server error. Please try again later";
+            message = context.getString(R.string.server_error);
         }  else if (error instanceof ParseError) {
-            message = "Parsing error! Please try again later";
+            message = context.getString(R.string.parsing_error);
+        }else{
+            message = context.getString(R.string.unexpected_error);
         }
         Snackbar.make(parentView,message, BaseTransientBottomBar.LENGTH_SHORT)
                 .show();

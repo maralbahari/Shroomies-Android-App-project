@@ -38,6 +38,25 @@
     <string name="attachment_summary_on">Automatically download attachments for incoming emails
     </string>
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <string name="mark_card_as_done">Mark as done</string>
+    <string name="done">Done!</string>
+    <string name="no_due_date">no due date</string>
+    <string name="due_today">Due today</string>
+    <string name="due">Due</string>
+    <string name="day_left">" day left"</string>
+    <string name="days_left">" days_left"</string>
+    <string name="parsing_error">\"Parsing error! Please try again later\"</string>
+    <string name="server_error">\"Server error. Please try again later\"</string>
+    <string name="no_internet">\"Cannot connect to Internet\"</string>
+    <string name="delete_card_error">\"We encountered an error while deleting the card\"</string>
+    <string name="card_deleted">\"Card deleted\"</string>
+    <string name="authentication_error">\"We encountered an error while authenticating your account\"</string>
+    <string name="archving_error">\"We encountered an error while archiving the card\"</string>
+    <string name="card_archived">\"Card archived\"</string>
+    <string name="marking_error">\"Couldn\'t mark the card\"</string>
+    <string name="card_marked_as_done">Card marked as done</string>
+    <string name="unexpected_error">An unexpected error has occured</string>
+    <string name="card_marked_as_not_done">Card marked as not done</string>
 
 
 

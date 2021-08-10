@@ -27,6 +27,7 @@ import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -56,6 +57,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
@@ -63,6 +66,7 @@ import com.google.common.net.HttpHeaders;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
@@ -473,7 +477,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                         if(success) {
                             String cardID = response.getJSONObject(Config.result).getString(Config.message);
                             if (cardID != null) {
-                                TasksCard taskCard = new TasksCard(mdescription, mtitle, mdueDate, importance, currentDate, cardID, "false", new ObjectMapper().readValue(mMention.toString(), HashMap.class));
+                                TasksCard taskCard = new TasksCard(mdescription, mtitle, mdueDate, importance, currentDate, cardID, false, new ObjectMapper().readValue(mMention.toString(), HashMap.class));
                                 cardUploaded.sendData(taskCard, null);
                                 dismiss();
                             }
@@ -522,6 +526,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
         firebaseUser.getIdToken(true).addOnCompleteListener(task -> {
             if(task.isSuccessful()) {
                 String token = task.getResult().getToken();
+                Toast.makeText(getActivity() , token , Toast.LENGTH_SHORT).show();
                 JSONObject jsonObject = new JSONObject();
                 JSONObject data = new JSONObject();
                 JSONObject cardDetails = new JSONObject();
@@ -557,24 +562,24 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                 }
                 //TODO add progress dialog
                 JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_ADD_EXPENSES_CARDS, data, response -> {
-                   try {
+                    try {
 
-                       boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
-                       String message = response.getJSONObject(Config.result).getString(Config.message);
-                       if(success){
-                           String cardID = response.getJSONObject(Config.result).getString(Config.message);
-                           ExpensesCard expensesCard = new ExpensesCard(attachUrl, description, title, dueDate, importance,fileType, cardID, "false", new ObjectMapper().readValue(mMention.toString(), HashMap.class), shareAmounts);
-                           cardUploaded.sendData(null, expensesCard);
-                           dismiss();
-                       }else{
-                           Snackbar.make(rootLayout,message , BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.my_shroomies_add_text_view).show();
-                           addCardTextView.setText("Add card");
-                           addCardRelativeLayout.setClickable(true);
-                       }
+                        boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
+                        String message = response.getJSONObject(Config.result).getString(Config.message);
+                        if(success){
+                            String cardID = response.getJSONObject(Config.result).getString(Config.message);
+                            ExpensesCard expensesCard = new ExpensesCard(attachUrl, description, title, dueDate, importance,fileType, cardID, false, new ObjectMapper().readValue(mMention.toString(), HashMap.class), shareAmounts);
+                            cardUploaded.sendData(null, expensesCard);
+                            dismiss();
+                        }else{
+                            Snackbar.make(rootLayout,message , BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.my_shroomies_add_text_view).show();
+                            addCardTextView.setText("Add card");
+                            addCardRelativeLayout.setClickable(true);
+                        }
 
-                   } catch (JsonProcessingException | JSONException e) {
-                       e.printStackTrace();
-                   }
+                    } catch (JsonProcessingException | JSONException e) {
+                        e.printStackTrace();
+                    }
                 }, error -> {
                     loadingLottieAnimationView.setVisibility(View.GONE);
                     addCardTextView.setText("Add card");
@@ -585,12 +590,12 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                     @Override
                     public Map<String, String> getHeaders() {
                         Map<String, String> params = new HashMap<>();
-                        params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
+                        params.put(HttpHeaders.CONTENT_TYPE, "application/json");
                         params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
                         return params;
                     }
                 }
-                 ;
+                        ;
                 requestQueue.add(jsonObjectRequest);
             }else{
                 loadingLottieAnimationView.setVisibility(View.GONE);
@@ -623,7 +628,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                     .setContentType(type)
                     .build();
 
-            StorageReference filePath = mStorage.getReference().child(apartment.getApartmentID()).child("Card post image").child(imgUri.getLastPathSegment() + fileExtension);
+            StorageReference filePath = mStorage.getReference().child("expenseImages").child(apartment.getApartmentID()).child("Card post image").child(imgUri.getLastPathSegment() + fileExtension);
             filePath.putFile(imgUri , metadata).addOnCompleteListener(task -> task.getResult().getMetadata().getReference().getDownloadUrl().addOnSuccessListener(uri -> {
                 addExpenseCard(title, description, dueDate, uri.toString()  , fileType, importance, mMention,apartment.getApartmentID(),sharedAmounts);
             })).addOnFailureListener(e -> {

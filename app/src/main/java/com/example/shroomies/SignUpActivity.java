@@ -134,15 +134,7 @@ public class SignUpActivity extends AppCompatActivity{
                                     Toast.makeText(SignUpActivity.this, name+", you are a Shroomie now", Toast.LENGTH_SHORT).show();
                                 }, error -> {
 
-                        })
-                        {
-                            @Override
-                            public Map<String, String> getHeaders() {
-                                Map<String, String> params = new HashMap<>();
-                                params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
-                                return params;
-                            }
-                        };
+                        });
                         requestQueue.add(jsonObjectRequest);
                     }
 
