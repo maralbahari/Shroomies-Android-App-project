@@ -3,10 +3,10 @@ package com.example.shroomies;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-public class apartmentLogs implements Parcelable {
+public class ApartmentLogs implements Parcelable {
     String logID,actor, action,cardTitle,cardType,receivedBy,removedUser,cardID , when;
 
-    public apartmentLogs(String logID, String actor, String action, String when, String cardTitle, String cardType, String receivedBy, String removedUser, String cardID) {
+    public ApartmentLogs(String logID, String actor, String action, String when, String cardTitle, String cardType, String receivedBy, String removedUser, String cardID) {
         this.logID = logID;
         this.actor = actor;
         this.action = action;
@@ -17,7 +17,7 @@ public class apartmentLogs implements Parcelable {
         this.removedUser = removedUser;
         this.cardID=cardID;
     }
-    public apartmentLogs(){
+    public ApartmentLogs(){
 
     }
 
@@ -29,7 +29,7 @@ public class apartmentLogs implements Parcelable {
         this.cardID = cardID;
     }
 
-    protected apartmentLogs(Parcel in) {
+    protected ApartmentLogs(Parcel in) {
         logID = in.readString();
         actor = in.readString();
         action = in.readString();
@@ -42,15 +42,15 @@ public class apartmentLogs implements Parcelable {
     }
 
 
-    public static final Creator<apartmentLogs> CREATOR = new Creator<apartmentLogs>() {
+    public static final Creator<ApartmentLogs> CREATOR = new Creator<ApartmentLogs>() {
         @Override
-        public apartmentLogs createFromParcel(Parcel in) {
-            return new apartmentLogs(in);
+        public ApartmentLogs createFromParcel(Parcel in) {
+            return new ApartmentLogs(in);
         }
 
         @Override
-        public apartmentLogs[] newArray(int size) {
-            return new apartmentLogs[size];
+        public ApartmentLogs[] newArray(int size) {
+            return new ApartmentLogs[size];
         }
     };
 

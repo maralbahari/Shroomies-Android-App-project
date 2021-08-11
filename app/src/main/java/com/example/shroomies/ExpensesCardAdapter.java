@@ -313,7 +313,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
              e.printStackTrace();
          }
 
-         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_MARK_EXPENSES_CARD, data, response -> {
+         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_MARK_EXPENSES_CARD, data, response -> {
              try {
                  boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
                  if(success){
@@ -363,7 +363,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_ARCHIVE_EXPENSES_CARD, data, response -> {
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_ARCHIVE_EXPENSES_CARD, data, response -> {
             try {
                 boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
                 if(success){
@@ -434,7 +434,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
             e.printStackTrace();
         }
 
-        String url = fromArchive ? Config.FUNCTION_DELETE_EXPENSE_CARD_ARCHIVE:Config.FUNCTION_DELETE_EXPENSE_CARD;
+        String url = fromArchive ? Config.URL_DELETE_EXPENSE_CARD_ARCHIVE :Config.URL_DELETE_EXPENSE_CARD;
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url,  data, response -> {
             try {

@@ -68,7 +68,6 @@
             app:lottie_autoPlay="true"
             app:lottie_loop="true"
             app:lottie_rawRes="@raw/loading_jetblack"
-            android:maxHeight="?android:attr/actionBarSize"
             android:layout_gravity="center"
             android:visibility="gone"
             />

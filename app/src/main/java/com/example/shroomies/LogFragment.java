@@ -14,48 +14,59 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkError;
 import com.android.volley.NoConnectionError;
 import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
 import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.factor.bouncy.BouncyRecyclerView;
-import com.factor.bouncy.util.OnOverPullListener;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.common.net.HttpHeaders;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GetTokenResult;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import me.everything.android.ui.overscroll.IOverScrollDecor;
+import me.everything.android.ui.overscroll.IOverScrollStateListener;
 import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
 
 
 public class LogFragment extends Fragment {
     private View v;
-    private ArrayList<apartmentLogs> apartmentLogs;
+    private ArrayList<ApartmentLogs> apartmentLogs;
+    private HashMap<String , User > usersMap;
     private ArrayList<String> membersIDs;
     private RecyclerView logRecycler;
     private TextView noLogsTextView;
     private LogAdapter logAdapter;
     private RequestQueue requestQueue;
     private FirebaseAuth mAuth;
+    private IOverScrollDecor logDecor;
+    private IOverScrollStateListener onOverPullListener;
+    private boolean scrollFromTop;
+    private LottieAnimationView progressbar;
 
     @Nullable
     @Override
@@ -66,21 +77,24 @@ public class LogFragment extends Fragment {
         return v;
     }
 
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         logRecycler=v.findViewById(R.id.log_recycler);
         noLogsTextView = v.findViewById(R.id.no_logs_text_view);
+        Toolbar toolbar = getActivity().findViewById(R.id.my_shroomies_toolbar);
+
+        progressbar  =toolbar.findViewById(R.id.loading_progress_view);
 
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         logRecycler.setHasFixedSize(true);
         logRecycler.setLayoutManager(linearLayoutManager);
-        OverScrollDecoratorHelper.setUpOverScroll(logRecycler, OverScrollDecoratorHelper.ORIENTATION_VERTICAL);
+        logDecor = OverScrollDecoratorHelper.setUpOverScroll(logRecycler, OverScrollDecoratorHelper.ORIENTATION_VERTICAL);
 
         apartmentLogs =new ArrayList<>();
 
-        Toolbar toolbar =getActivity().findViewById(R.id.my_shroomies_toolbar);
         toolbar.setTitle("Logs");
         toolbar.setTitleTextColor(getActivity().getColor(R.color.jetBlack));
         toolbar.setNavigationIcon(R.drawable.ic_back_button);
@@ -105,10 +119,102 @@ public class LogFragment extends Fragment {
             }
         }
 
+        onOverPullListener = (decor, oldState, newState) -> {
+            if(oldState== 1){
+                scrollFromTop=true;
+            }
+
+            if (newState == 0 && scrollFromTop) {
+                //fetch new data when over scrolled from top
+                // remove the listener to prevent the user from over scrolling
+                // again while the data is still being fetched
+                //the listener will be set again when the data has been retrieved
+                logDecor.setOverScrollUpdateListener(null);
+                scrollFromTop=false;
+                getLogs();
+            }
+
+        };
+        logDecor.setOverScrollStateListener(onOverPullListener);
+    }
+
+
+    void getLogs(){
+        progressbar.setVisibility(View.VISIBLE);
+        if(usersMap!=null){
+            FirebaseUser firebaseUser = mAuth
+                    .getCurrentUser();
+            firebaseUser.getIdToken(true).addOnCompleteListener((OnCompleteListener<GetTokenResult>) task -> {
+                if(task.isSuccessful()){
+                    String token = task.getResult().getToken();
+                    String apartmentID = (String) task.getResult().getClaims().get(Config.apartmentID);
+                    JSONObject jsonObject = new JSONObject();
+                    JSONObject data = new JSONObject();
+                    try {
+                        jsonObject.put(Config.apartmentID , apartmentID);
+                        data.put(Config.data , jsonObject);
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_GET_LOGS, data, response -> {
+
+                        try {
+                            JSONObject result = response.getJSONObject(Config.result);
+                            boolean success = result.getBoolean(Config.success);
+
+                            if(success){
+
+                                final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
+                                mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+                                apartmentLogs = new ArrayList<>();
+
+                                JSONArray logsJsonArray = result.getJSONArray(Config.logs);
+                                for(int i =0 ; i<logsJsonArray.length();i++){
+                                    ApartmentLogs updatedLog = mapper.readValue(((JSONObject) logsJsonArray.get(i)).toString(), ApartmentLogs.class);
+                                    apartmentLogs.add(updatedLog);
+                                }
+                                Collections.reverse(apartmentLogs);
+                                logAdapter = new LogAdapter(getActivity() , apartmentLogs ,usersMap ,getParentFragmentManager() , getTargetFragment());
+
+                                logAdapter.notifyDataSetChanged();
+                                logRecycler.setAdapter(logAdapter);
+                            }else{
+                                //todo display error
+
+                            }
+                            logDecor.setOverScrollStateListener(onOverPullListener);
+                            progressbar.setVisibility(View.GONE);
+
+                        } catch (JSONException | JsonProcessingException e) {
+                            e.printStackTrace();
+                        }
+
+                    }, error -> {
+
+                    }
+                    )
+                    {
+                        @Override
+                        public Map<String, String> getHeaders() {
+                            Map<String, String> params = new HashMap<>();
+                            params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
+                            params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
+                            return params;
+                        }
+                    };
+
+
+
+                    requestQueue.add(jsonObjectRequest);
+
+
+                }
+            });
+        }
 
 
     }
-
     private void getMemberDetails(ArrayList<String> members) {
 
         FirebaseUser firebaseUser = mAuth
@@ -128,9 +234,9 @@ public class LogFragment extends Fragment {
                             e.printStackTrace();
                             return;
                         }
-                        HashMap<String , User > usersMap = new HashMap<>();
+                        usersMap = new HashMap<>();
                         JsonObjectRequest jsonObjectRequest= new JsonObjectRequest(Request.Method.POST,
-                                Config.FUNCTION_GET_MEMBER_DETAIL,
+                                Config.URL_GET_MEMBER_DETAIL,
                                 data,
                                 response -> {
                                     try {
@@ -147,7 +253,7 @@ public class LogFragment extends Fragment {
                                                     usersMap.put(user.getUserID(), user);
 
                                                 }
-
+                                                Collections.reverse(apartmentLogs);
                                                 logAdapter = new LogAdapter(getContext(), apartmentLogs, usersMap, getParentFragmentManager(), getTargetFragment());
                                                 logRecycler.setAdapter(logAdapter);
                                                 logAdapter.notifyDataSetChanged();

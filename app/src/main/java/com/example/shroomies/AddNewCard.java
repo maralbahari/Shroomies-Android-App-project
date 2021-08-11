@@ -57,8 +57,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
@@ -66,7 +64,6 @@ import com.google.common.net.HttpHeaders;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
@@ -384,7 +381,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
         firebaseUser.getIdToken(true).addOnCompleteListener(task -> {
             if(task.isSuccessful()){
                 String token = task.getResult().getToken();
-                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_GET_MEMBER_DETAIL, data, response -> {
+                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_GET_MEMBER_DETAIL, data, response -> {
                     final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
 
                     try {

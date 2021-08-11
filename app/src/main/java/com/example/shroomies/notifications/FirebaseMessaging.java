@@ -33,45 +33,45 @@ public class FirebaseMessaging  extends FirebaseMessagingService {
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
 
-        String currentUserID = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        String sent = remoteMessage.getData().get("sent");
-        String user = remoteMessage.getData().get("user");
-        if (sent.equals(currentUserID)) {
-            if (!currentUserID.equals(user)) {
-                sendNormalNotification(remoteMessage);
+//        String currentUserID = FirebaseAuth.getInstance().getCurrentUser().getUid();
+//        String sent = remoteMessage.getData().get("sent");
+//        String user = remoteMessage.getData().get("user");
+//        if (sent.equals(currentUserID)) {
+//            if (!currentUserID.equals(user)) {
+//                sendNormalNotification(remoteMessage);
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     sendOAndAboveNotification(remoteMessage);
                 } else {
                     sendNormalNotification(remoteMessage);
                 }
-            }
-        }
+//            }
+//        }
     }
 
     private void sendNormalNotification(RemoteMessage msg) {
-        String groupID = msg.getData().get("groupID");
-        String user = msg.getData().get("user");
-        String icon = msg.getData().get("icon");
+//        String groupID = msg.getData().get("groupID");
+//        String user = msg.getData().get("user");
+//        String icon = msg.getData().get("icon");
         String title = msg.getData().get("title");
         String body = msg.getData().get("body");
         RemoteMessage.Notification notification = msg.getNotification();
-        int i = Integer.parseInt(user.replaceAll("[\\D]", ""));
-        if (groupID != null) {
-            Intent intent = new Intent(this, GroupChattingActivity.class);
-            intent.putExtra("GROUPID", groupID);
-            intent.addFlags(intent.FLAG_ACTIVITY_CLEAR_TOP);
-            pendingIntent = PendingIntent.getActivity(this, i, intent, PendingIntent.FLAG_ONE_SHOT);
-        } else {
-            Intent intent = new Intent(this, ChattingActivity.class);
-            intent.putExtra("USERID", user);
-            intent.addFlags(intent.FLAG_ACTIVITY_CLEAR_TOP);
-            pendingIntent = PendingIntent.getActivity(this, i, intent, PendingIntent.FLAG_ONE_SHOT);
-        }
+//        int i = Integer.parseInt(user.replaceAll("[\\D]", ""));
+//        if (groupID != null) {
+//            Intent intent = new Intent(this, GroupChattingActivity.class);
+//            intent.putExtra("GROUPID", groupID);
+//            intent.addFlags(intent.FLAG_ACTIVITY_CLEAR_TOP);
+//            pendingIntent = PendingIntent.getActivity(this, i, intent, PendingIntent.FLAG_ONE_SHOT);
+//        } else {
+//            Intent intent = new Intent(this, ChattingActivity.class);
+//            intent.putExtra("USERID", user);
+//            intent.addFlags(intent.FLAG_ACTIVITY_CLEAR_TOP);
+//            pendingIntent = PendingIntent.getActivity(this, i, intent, PendingIntent.FLAG_ONE_SHOT);
+//        }
 
 
         Uri defSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
-                .setSmallIcon(Integer.parseInt(icon))
+//                .setSmallIcon(Integer.parseInt(icon))
                 .setContentText(body)
                 .setContentTitle(title)
                 .setAutoCancel(true)
@@ -80,11 +80,11 @@ public class FirebaseMessaging  extends FirebaseMessagingService {
                 .setContentIntent(pendingIntent);
 
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        int j = 0;
-        if (i > 0) {
-            j = i;
-        }
-        notificationManager.notify(j, builder.build());
+//        int j = 0;
+//        if (i > 0) {
+//            j = i;
+//        }
+        notificationManager.notify(0, builder.build());
     }
 
     private void sendOAndAboveNotification(RemoteMessage msg) {

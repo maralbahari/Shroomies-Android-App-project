@@ -32,11 +32,11 @@
                 android:layout_height="wrap_content"
                 android:text="Name"
                 android:textSize="12sp"
-                android:layout_centerVertical="true"
+                android:layout_alignTop="@id/log_actor_pic"
                 android:textColor="@color/Black"
                 android:layout_toRightOf="@+id/log_actor_pic"
                 android:layout_marginEnd="5dp"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="15dp"
                 android:fontFamily="@font/amiko"
                 android:layout_toLeftOf="@id/log_date"
                 />

@@ -1,4 +1,5 @@
 package com.example.shroomies;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -20,6 +21,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkError;
 import com.android.volley.NoConnectionError;
@@ -58,7 +60,7 @@ public class Members extends Fragment {
     private TextView ownerName;
     private ImageView adminImageView , ghostImageView;
     private RelativeLayout noMembersRelativeLayout , rootLayout;
-
+    private LottieAnimationView progressView;
     //firebase
     private FirebaseAuth mAuth;
     private RequestQueue requestQueue;
@@ -78,8 +80,6 @@ public class Members extends Fragment {
         return v;
     }
 
-
-
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -94,8 +94,9 @@ public class Members extends Fragment {
         ghostImageView = v.findViewById(R.id.ghost_view);
         noMembersRelativeLayout = v.findViewById(R.id.no_members_relative_layout);
         rootLayout = v.findViewById(R.id.relative_layout_member);
-
         Toolbar toolbar = getActivity().findViewById(R.id.my_shroomies_toolbar);
+        progressView = toolbar.findViewById(R.id.loading_progress_view);
+
         toolbar.setTitle("Members");
 
         toolbar.setTitleTextColor(getActivity().getColor(R.color.jetBlack));
@@ -138,7 +139,14 @@ public class Members extends Fragment {
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
             builder.setTitle("Leave group");
             builder.setPositiveButton("Cancel", (dialog, which) -> dialog.dismiss());
-            builder.setNegativeButton("leave", (dialog, which) -> leaveApartment());
+            builder.setNegativeButton("leave", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                    leaveRoomButton.setClickable(false);
+                    leaveApartment();
+                }
+            });
             builder.setMessage("Leaving this group will remove all data and place you in an empty group.");
             builder.setIcon(R.drawable.ic_shroomies_yelllow_black_borders);
             builder.setCancelable(true);
@@ -189,7 +197,7 @@ public class Members extends Fragment {
         firebaseUser.getIdToken(true).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 String token = task.getResult().getToken();
-                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_LEAVE_APARTMENT, data, response -> {
+                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_LEAVE_APARTMENT, data, response -> {
                     try {
                         JSONObject result = (JSONObject) response.get(Config.result);
                         boolean success = result.getBoolean(Config.success);
@@ -256,7 +264,7 @@ public class Members extends Fragment {
                 }
 
                 String token = task.getResult().getToken();
-                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_GET_MEMBER_DETAIL, data, response -> {
+                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_GET_MEMBER_DETAIL, data, response -> {
                     final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
                     try {
                         boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);

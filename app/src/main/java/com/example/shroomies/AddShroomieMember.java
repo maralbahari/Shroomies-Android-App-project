@@ -157,7 +157,7 @@ public class AddShroomieMember extends DialogFragment {
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
-                            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_SEARCH_USERS, data, response -> {
+                            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_SEARCH_USERS, data, response -> {
                                 try {
                                     Log.d("search" , response.toString());
                                     JSONObject result = response.getJSONObject(Config.result);

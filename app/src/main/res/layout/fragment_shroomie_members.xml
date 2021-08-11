@@ -24,9 +24,13 @@
         android:paddingBottom="5dp"
         android:paddingEnd="10dp"
         android:text="Add shroomies"
+        android:textStyle="bold"
         android:textAllCaps="false"
+        app:icon="@drawable/ic_add"
+        app:iconTint="@color/jetBlack"
+        app:iconSize="16dp"
         android:textColor="@color/jetBlack"
-        android:textSize="12sp" />
+         />
 
 
         <RelativeLayout
@@ -45,12 +49,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
 
-                android:layout_margin="5dp"
+                android:layout_margin="10dp"
                 android:adjustViewBounds="true"
                 android:elevation="3dp"
                 android:maxWidth="50dp"
                 android:maxHeight="50dp"
-                android:src="@drawable/ic_user_profile_svgrepo_com" />
+                android:src="@drawable/ic_user_profile_svgrepo_com_40x40" />
 
             <TextView
                 android:id="@+id/admin_name"
@@ -60,7 +64,6 @@
                 android:layout_toStartOf="@id/admin_text_view"
                 android:layout_centerVertical="true"
                 android:lines="1"
-                android:text="Name"
                 android:textColor="@color/jetBlack"/>
             <TextView
                 android:id="@+id/admin_text_view"

@@ -1,6 +1,5 @@
 package com.example.shroomies;
 
-import android.animation.Animator;
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,9 +20,6 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-import androidx.transition.Fade;
-import androidx.transition.Transition;
-import androidx.transition.TransitionManager;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.android.volley.AuthFailureError;
@@ -49,7 +45,6 @@ import com.google.common.net.HttpHeaders;
 import com.google.firebase.auth.FirebaseAuth;
 
 import com.google.firebase.auth.FirebaseUser;
-import com.google.gson.JsonObject;
 import com.skydoves.powerspinner.PowerSpinnerView;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
@@ -89,7 +84,7 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
     //data structures
     private ArrayList<TasksCard> tasksCardsList;
     private ArrayList<ExpensesCard> expensesCardsList;
-    private ArrayList<apartmentLogs> apartmentLogs;
+    private ArrayList<ApartmentLogs> apartmentLogs;
     private HashMap<String,User> membersHashMap;
     private TasksCardAdapter tasksCardAdapter;
     private ExpensesCardAdapter expensesCardAdapter;
@@ -197,8 +192,8 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
                 // remove the listener to prevent the user from over scrolling
                 // again while the data is still being fetched
                 //the listener will be set again when the data has been retrieved
-                expensesDecor.setOverScrollUpdateListener(null);
-                tasksDecor.setOverScrollUpdateListener(null);
+                expensesDecor.setOverScrollStateListener(null);
+                tasksDecor.setOverScrollStateListener(null);
                 scrollFromTop=false;
                 getUserToken();
             }
@@ -693,14 +688,14 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
         }
     }
     private void displayProgressView() {
-      logoImageButton.animate().setDuration(100).alpha(0);
-      progressView.animate().setDuration(100).alpha(1);
+      logoImageButton.setVisibility(View.GONE);
+      progressView.setVisibility(View.VISIBLE);
 
     }
     private void removeProgressView(){
-        progressView.animate().setDuration(100).alpha(0);
+        progressView.setVisibility(View.GONE);
 
-        logoImageButton.animate().setDuration(100).alpha(1);
+        logoImageButton.setVisibility(View.VISIBLE);
 
 
     }

@@ -198,7 +198,7 @@ public class ArchiveFragment extends Fragment {
             if(task.isSuccessful()){
                 String token = task.getResult().getToken();
 
-                    JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_GET_ARCHIVE, data, response -> {
+                    JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_GET_ARCHIVE, data, response -> {
                         final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
                         mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
                         //get the task card

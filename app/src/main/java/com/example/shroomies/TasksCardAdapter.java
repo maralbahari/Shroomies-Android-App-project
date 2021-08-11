@@ -303,7 +303,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_ARCHIVE_TASKS_CARD, data, response -> {
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_ARCHIVE_TASKS_CARD, data, response -> {
 
             try {
                 boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
@@ -349,7 +349,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            String url = fromArchive ? Config.FUNCTION_DELETE_TASK_CARD_ARCHIVE:Config.FUNCTION_DELETE_TASK_CARD;
+            String url = fromArchive ? Config.URL_DELETE_TASK_CARD_ARCHIVE :Config.URL_DELETE_TASK_CARD;
 
             JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, url , data, response -> {
 
@@ -402,7 +402,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
             e.printStackTrace();
         }
 
-        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_MARK_TASK_CARD, data, response -> {
+        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_MARK_TASK_CARD, data, response -> {
             try {
                 boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
                 if(success){

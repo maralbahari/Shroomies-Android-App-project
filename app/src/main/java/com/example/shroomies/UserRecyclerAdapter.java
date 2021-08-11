@@ -66,10 +66,7 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapte
     @Override
     public UserDetailsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(context);
-
-            view  = layoutInflater.inflate(R.layout.suggestion_user_list_,parent,false);
-
-
+        view  = layoutInflater.inflate(R.layout.suggestion_user_list_,parent,false);
         rootRef= FirebaseDatabase.getInstance().getReference();
         return new UserDetailsViewHolder(view);
     }
@@ -149,34 +146,33 @@ public class UserRecyclerAdapter extends RecyclerView.Adapter<UserRecyclerAdapte
             removeUserFromGroupChat = itemView.findViewById(R.id.remove_user_from_group_chat_image_button);
             if(fromWhere.equals("EDIT_GROUP_INFO")) {
 
-                removeUserFromGroupChat.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        final String userId = usersList.get(getAdapterPosition()).getUserID();
-                        rootRef.child("GroupChats").child(groupID).child("groupMembers").addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                if (snapshot.exists()) {
-                                    List<String> groupMemberIds =(ArrayList<String>) snapshot.getValue();
+                removeUserFromGroupChat.setOnClickListener(v -> {
+                    final String userId = usersList.get(getAdapterPosition()).getUserID();
+                    rootRef.child("GroupChats").child(groupID).child("groupMembers").addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            if (snapshot.exists()) {
+                                List<String> groupMemberIds =(ArrayList<String>) snapshot.getValue();
+                                if (groupMemberIds != null) {
                                     groupMemberIds.remove(userId);
-                                    HashMap<String , Object> updateGroupMembers  = new HashMap<>();
-                                    updateGroupMembers.put("groupMembers" , groupMemberIds);
-                                    rootRef.child("GroupChats").child(groupID).updateChildren(updateGroupMembers).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                        @Override
-                                        public void onSuccess(Void aVoid) {
-                                            usersList.remove(getAdapterPosition());
-                                            notifyItemRemoved(getAdapterPosition());
-                                        }
-                                    });
                                 }
+                                HashMap<String , Object> updateGroupMembers  = new HashMap<>();
+                                updateGroupMembers.put("groupMembers" , groupMemberIds);
+                                rootRef.child("GroupChats").child(groupID).updateChildren(updateGroupMembers).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        usersList.remove(getAdapterPosition());
+                                        notifyItemRemoved(getAdapterPosition());
+                                    }
+                                });
                             }
+                        }
 
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
 
-                            }
-                        });
-                    }
+                        }
+                    });
                 });
             }
             addUser.setOnClickListener(new View.OnClickListener() {
