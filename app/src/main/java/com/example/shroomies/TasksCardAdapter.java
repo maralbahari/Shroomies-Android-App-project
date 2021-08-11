@@ -56,10 +56,8 @@ import java.util.TimeZone;
 public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.TasksCardViewHolder> implements ItemTouchHelperAdapter {
     private final View parentView;
     private final Context context;
-
     private final ArrayList<TasksCard> tasksCardsList;
     private final FragmentManager fragmentManager;
-
     private final RequestQueue requestQueue;
     private final FirebaseAuth mAuth;
     private final Boolean fromArchive;

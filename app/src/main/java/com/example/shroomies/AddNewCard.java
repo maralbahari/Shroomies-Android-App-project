@@ -481,6 +481,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                         }else{
                             Snackbar.make(rootLayout,message , BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.my_shroomies_add_text_view).show();
                             addCardTextView.setText("Add card");
+                            loadingLottieAnimationView.setVisibility(View.GONE);
                             addCardRelativeLayout.setClickable(true);
                         }
                     } catch (JSONException | JsonProcessingException e) {
@@ -571,6 +572,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                         }else{
                             Snackbar.make(rootLayout,message , BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.my_shroomies_add_text_view).show();
                             addCardTextView.setText("Add card");
+                            loadingLottieAnimationView.setVisibility(View.GONE);
                             addCardRelativeLayout.setClickable(true);
                         }
 
