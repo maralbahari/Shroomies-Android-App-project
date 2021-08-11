@@ -16,12 +16,11 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.example.shroomies.notifications.Token;
+import com.example.shroomies.notifications.MyFirebaseMessaging;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -29,9 +28,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.FirebaseInstanceIdReceiver;
-import com.google.firebase.messaging.FirebaseMessaging;
 import com.mxn.soul.flowingdrawer_core.ElasticDrawer;
 import com.mxn.soul.flowingdrawer_core.FlowingDrawer;
 import com.mxn.soul.flowingdrawer_core.FlowingMenuLayout;
@@ -54,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
     FirebaseAuth mAuth;
     FirebaseAuth.AuthStateListener authStateListener;
     SessionManager sessionManager;
-    com.example.shroomies.notifications.FirebaseMessaging firebaseMessaging;
+    MyFirebaseMessaging myFirebaseMessaging;
     BadgeDrawable inboxNotificationBadge;
     DatabaseReference rootRef;
     ImageView profilePic;
@@ -160,19 +156,21 @@ public class MainActivity extends AppCompatActivity {
 //                return false;
 //            }
 //        });
-        btm_view.setOnItemSelectedListener(item -> {
-            if(item.getItemId()==R.id.find_roomie_menu){
-                getFragment(new FindRoommate());
-            }if(item.getItemId()==R.id.publish_post_menu){
-                getFragment(new PublishPost());
-            }if(item.getItemId()==R.id.message_inbox_menu){
-                Intent intent= new Intent(getApplicationContext(),MessageInbox.class);
-                startActivity(intent);
-            }if(item.getItemId()==R.id.user_profile_menu){
-                getFragment(new UserProfile());
+        btm_view.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull @NotNull MenuItem item) {
+                if(item.getItemId()==R.id.find_roomie_menu){
+                    getFragment(new FindRoommate());
+                }if(item.getItemId()==R.id.publish_post_menu){
+                    getFragment(new PublishPost());
+                }if(item.getItemId()==R.id.message_inbox_menu){
+                    Intent intent= new Intent(getApplicationContext(),MessageInbox.class);
+                    startActivity(intent);
+                }if(item.getItemId()==R.id.user_profile_menu){
+                    getFragment(new UserProfile());
+                }
+                return true;
             }
-            return true;
-
         });
         myShroomies=findViewById(R.id.logo_toolbar);
         myShroomies.setOnClickListener(v -> startActivity(new Intent( getApplicationContext(), MyShroomiesActivity.class)));

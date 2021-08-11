@@ -62,7 +62,7 @@
             android:value="true" />
 
         <service
-            android:name=".notifications.FirebaseMessaging"
+            android:name=".notifications.MyFirebaseMessaging"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
