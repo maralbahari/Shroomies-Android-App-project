@@ -9,7 +9,6 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -29,20 +28,11 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.example.shroomies.notifications.Data;
-import com.example.shroomies.notifications.Sender;
-import com.example.shroomies.notifications.Token;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -51,21 +41,17 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
-import com.google.gson.Gson;
 import com.virgilsecurity.android.ethree.interaction.EThree;
 import com.virgilsecurity.common.callback.OnResultListener;
 import com.virgilsecurity.sdk.cards.Card;
 
 import org.jetbrains.annotations.NotNull;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -282,60 +268,6 @@ public class ChattingActivity extends AppCompatActivity {
 
            }
        });
-
-    }
-    private void sendNotification(final String receiverID,final String senderName,final String message) {
-        rootRef.child("Token").orderByKey().equalTo(receiverID).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    for (DataSnapshot ds : snapshot.getChildren()) {
-                        Token token = (Token) ds.getValue(Token.class);
-                        Data data = new Data(senderID, senderName + ":" + message, "New Message", receiverID, (R.drawable.ic_notification_icon));
-                        Sender sender = new Sender(data, token.getToken());
-                        try {
-                            JSONObject senderJsonObj = new JSONObject(new Gson().toJson(sender));
-                            JsonObjectRequest jsonObjectRequest=new JsonObjectRequest("https://fcm.googleapis.com/fcm/send", senderJsonObj, new Response.Listener<JSONObject>() {
-                                @Override
-                                public void onResponse(JSONObject response) {
-                                    Toast.makeText(getApplicationContext(),response.toString(),Toast.LENGTH_LONG).show();
-//                                    Log.d("JSON_RESPONSE","onResponse:"+response.toString());
-                                }
-
-                            }, new Response.ErrorListener() {
-                                @Override
-                                public void onErrorResponse(VolleyError error) {
-                                    Toast.makeText(getApplicationContext(),error.toString(),Toast.LENGTH_LONG).show();
-                                    Log.d("JSON_RESPONSE","onResponse:"+error.toString());
-
-                                }
-                            })
-                            {
-                                @Override
-                                public Map<String,String> getHeaders() throws AuthFailureError {
-                                    Map<String,String> headers= new HashMap<>();
-                                    headers.put("Content-type","application/json");
-                                    headers.put("Authorization","Key=AAAAyn_kPyQ:APA91bGLxMB-HGP-qd_EPD3wz_apYs4ZJIB2vyAvH5JbaTVlyLExgYn7ye-076FJxjfrhQ-1HJBmptN3RWHY4FoBdY08YRgplZSAN0Mnj6sLbS6imKa7w0rqPsLtc-aXMaPOhlxnXqPs");
-                                    return headers;
-                                }
-
-                            };
-                            requestQueue.add(jsonObjectRequest);
-                            requestQueue.start();
-                        }catch (JSONException e){
-                            e.printStackTrace();
-                        }
-                    }
-                }
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
     }
     public void retrieveMessages(){
         messagesArrayList = new ArrayList<>();
@@ -530,7 +462,6 @@ public class ChattingActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(),"Error "+message,Toast.LENGTH_SHORT).show();
                     messageBody.setText("");
                 }
-
             }
         });
         //send Notification
@@ -540,7 +471,7 @@ public class ChattingActivity extends AppCompatActivity {
                 if(snapshot.exists()){
                     User user=snapshot.getValue(User.class);
                     if(notify){
-                        sendNotification(receiverID,user.getName(),"Sent you a photo..");
+//                        sendNotification(receiverID,user.getName(),"Sent you a photo..");
 
                     }
                     notify=false;

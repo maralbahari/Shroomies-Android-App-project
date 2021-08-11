@@ -13,6 +13,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
+import com.example.shroomies.Config;
 import com.example.shroomies.MyShroomiesActivity;
 import com.example.shroomies.R;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -52,20 +53,28 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
     }
 
     private void sendNormalNotification(RemoteMessage msg) {
-//        String groupID = msg.getData().get("groupID");
         if (msg.getNotification()!=null) {
             FirebaseUser firebaseUser=mAuth.getCurrentUser();
             if (firebaseUser!=null){
                  userID=firebaseUser.getUid();
+                notiID=buildNotificationId(userID);
             }
             String title = msg.getNotification().getTitle();
             String body = msg.getNotification().getBody();
             String contentType=msg.getData().get("contentType");
             int i = Integer.parseInt(userID.replaceAll("[\\D]", ""));
-            if (contentType.equals("task")) {
-                String cardID=msg.getData().get("task");
+            if (contentType.equals(Config.task)) {
+                String cardID=msg.getData().get(Config.cardID);
                 Intent intent = new Intent(this, MyShroomiesActivity.class);
                 intent.putExtra("CARDID",cardID);
+                intent.putExtra("TAB", Config.task);
+                pendingIntent = PendingIntent.getActivity(this,i,intent, PendingIntent.FLAG_ONE_SHOT);
+            }
+            if (contentType.equals(Config.expenses)) {
+                String cardID=msg.getData().get(Config.cardID);
+                Intent intent = new Intent(this, MyShroomiesActivity.class);
+                intent.putExtra("CARDID",cardID);
+                intent.putExtra("TAB", Config.expenses);
                 pendingIntent = PendingIntent.getActivity(this,i,intent, PendingIntent.FLAG_ONE_SHOT);
             }
             Uri defSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
@@ -78,25 +87,8 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
                     .setContentIntent(pendingIntent);
 
             NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            int j = 0;
-            if (i > 0) {
-                j = i;
-            }
-            notificationManager.notify(j, builder.build());
+            notificationManager.notify(notiID, builder.build());
         }
-
-
-//        if (groupID != null) {
-//            Intent intent = new Intent(this, GroupChattingActivity.class);
-//            intent.putExtra("GROUPID", groupID);
-//            intent.addFlags(intent.FLAG_ACTIVITY_CLEAR_TOP);
-//            pendingIntent = PendingIntent.getActivity(this, i, intent, PendingIntent.FLAG_ONE_SHOT);
-//        } else {
-//            Intent intent = new Intent(this, ChattingActivity.class);
-//            intent.putExtra("USERID", user);
-//            intent.addFlags(intent.FLAG_ACTIVITY_CLEAR_TOP);
-//            pendingIntent = PendingIntent.getActivity(this, i, intent, PendingIntent.FLAG_ONE_SHOT);
-//        }
     }
 
     private void sendOAndAboveNotification(RemoteMessage msg,NotificationChannel channel) {
@@ -129,25 +121,6 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
                     .setContentIntent(pendingIntent);
             notificationManager.notify(notiID, builder.build());
         }
-
-//        if (groupID != null) {
-//
-//            Intent intent = new Intent(this, GroupChattingActivity.class);
-//            intent.putExtra("GROUPID", groupID);
-//            intent.addFlags(intent.FLAG_ACTIVITY_CLEAR_TOP);
-//            pendingIntent = PendingIntent.getActivity(this, i, intent, PendingIntent.FLAG_ONE_SHOT);
-//        } else if (isCardNOtification != null || requestNoti!=null || acceptReqNoti!=null ) {
-//            Intent intent = new Intent(this, MainActivity.class);
-//            intent.addFlags(intent.FLAG_ACTIVITY_CLEAR_TOP);
-//            pendingIntent = PendingIntent.getActivity(this, i, intent, PendingIntent.FLAG_ONE_SHOT);
-//
-//        }
-//        else {
-//            Intent intent = new Intent(this, ChattingActivity.class);
-//            intent.putExtra("USERID", user);
-//            intent.addFlags(intent.FLAG_ACTIVITY_CLEAR_TOP);
-//            pendingIntent = PendingIntent.getActivity(this, i, intent, PendingIntent.FLAG_ONE_SHOT);
-//        }
     }
 
 
@@ -158,7 +131,6 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
         if(firebaseUser!=null) {
             updateToken(s,firebaseUser);
         }
-
     }
     private void updateToken(String tokenReferesh,FirebaseUser firebaseUser){
         rootRef.child("tokens").child(firebaseUser.getUid()).setValue(tokenReferesh).addOnSuccessListener(new OnSuccessListener<Void>() {
