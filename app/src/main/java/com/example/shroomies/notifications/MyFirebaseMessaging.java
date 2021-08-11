@@ -1,5 +1,6 @@
 package com.example.shroomies.notifications;
 
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -14,27 +15,40 @@ import androidx.core.app.NotificationCompat;
 
 import com.example.shroomies.MyShroomiesActivity;
 import com.example.shroomies.R;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
+
+import org.jetbrains.annotations.NotNull;
 
 public class MyFirebaseMessaging extends FirebaseMessagingService {
 
     PendingIntent pendingIntent;
     FirebaseAuth mAuth;
+    DatabaseReference rootRef;
     String userID;
+    String CHANNEL_ID="SOME_ID";
+    String NAME="SOME_NAME";
+    int notiID;
 
     @Override
     public void onMessageReceived(@NonNull RemoteMessage remoteMessage) {
         super.onMessageReceived(remoteMessage);
-
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    sendOAndAboveNotification(remoteMessage);
-                } else {
-                    sendNormalNotification(remoteMessage);
-                }
+        mAuth=FirebaseAuth.getInstance();
+        rootRef= FirebaseDatabase.getInstance().getReference();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            int importance = NotificationManager.IMPORTANCE_DEFAULT;
+            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, NAME, importance);
+            sendOAndAboveNotification(remoteMessage,channel);
+        } else {
+            sendNormalNotification(remoteMessage);
+        }
     }
 
     private void sendNormalNotification(RemoteMessage msg) {
@@ -83,16 +97,15 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
 //            intent.addFlags(intent.FLAG_ACTIVITY_CLEAR_TOP);
 //            pendingIntent = PendingIntent.getActivity(this, i, intent, PendingIntent.FLAG_ONE_SHOT);
 //        }
-
-
-
     }
 
-    private void sendOAndAboveNotification(RemoteMessage msg) {
+    private void sendOAndAboveNotification(RemoteMessage msg,NotificationChannel channel) {
+
         if (msg.getNotification()!=null) {
             FirebaseUser firebaseUser=mAuth.getCurrentUser();
             if (firebaseUser!=null){
                 userID=firebaseUser.getUid();
+                notiID=buildNotificationId(userID);
             }
             String title = msg.getNotification().getTitle();
             String body = msg.getNotification().getBody();
@@ -105,20 +118,16 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
                 pendingIntent = PendingIntent.getActivity(this,i,intent, PendingIntent.FLAG_ONE_SHOT);
             }
             Uri defSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
+            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+            notificationManager.createNotificationChannel(channel);
+            NotificationCompat.Builder builder = new NotificationCompat.Builder(this,CHANNEL_ID)
                     .setSmallIcon(R.drawable.ic_shroomies_full_black_30x28)
                     .setContentText(body)
                     .setContentTitle(title)
                     .setAutoCancel(true)
                     .setSound(defSoundUri)
                     .setContentIntent(pendingIntent);
-
-            NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-            int j = 0;
-            if (i > 0) {
-                j = i;
-            }
-            notificationManager.notify(j, builder.build());
+            notificationManager.notify(notiID, builder.build());
         }
 
 //        if (groupID != null) {
@@ -145,18 +154,36 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
     @Override
     public void onNewToken(@NonNull String s){
         super.onNewToken(s);
-        Log.d("firebase token" , s);
-//        updateToken(s);
+        FirebaseUser firebaseUser=mAuth.getCurrentUser();
+        if(firebaseUser!=null) {
+            updateToken(s,firebaseUser);
+        }
+
     }
-//    private void updateToken(String tokenReferesh){
-//        mAuth=FirebaseAuth.getInstance();
-//        mAuth.useEmulator("10.0.2.2",9099);
-//        database=FirebaseDatabase.getInstance();
-//        database.useEmulator("10.0.2.2",9000);
-//        FirebaseUser user=mAuth.getCurrentUser();
-//        String userID= user.getUid();
-//        DatabaseReference ref= database.getReference("tokens");
-//        Token token= new Token(tokenReferesh);
-//        ref.child(userID).setValue(token);
-//    }
+    private void updateToken(String tokenReferesh,FirebaseUser firebaseUser){
+        rootRef.child("tokens").child(firebaseUser.getUid()).setValue(tokenReferesh).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {
+                Log.d("FCM", "token refreshed successfully success");
+
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull @NotNull Exception e) {
+                Log.d("FCM", "token didnt refresh");
+            }
+        });
+    }
+    private int buildNotificationId(String id){
+        Log.d("FCM", "buildNotificationId: building a notification id.");
+
+        int notificationId = 0;
+        for(int i = 0; i < 9; i++){
+            notificationId = notificationId + id.charAt(0);
+        }
+        Log.d("FCM", "buildNotificationId: id: " + id);
+        Log.d("FCM", "buildNotificationId: notification id:" + notificationId);
+        return notificationId;
+    }
+
 }
