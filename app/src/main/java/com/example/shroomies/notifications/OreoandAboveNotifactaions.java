@@ -39,7 +39,7 @@ private NotificationManager notificationManager;
     }
 
 
-    public NotificationCompat.Builder getONotifications(String title , String body , PendingIntent pendingIntent , Uri soundUri, String icon){
+    public NotificationCompat.Builder getONotifications(String title , String body , PendingIntent pendingIntent , Uri soundUri, int icon){
 
         return new NotificationCompat.Builder(getApplicationContext(),ID)
                 .setContentIntent(pendingIntent)
@@ -47,7 +47,7 @@ private NotificationManager notificationManager;
                 .setContentText(body)
                 .setSound(soundUri)
                 .setAutoCancel(true)
-                .setSmallIcon(Integer.parseInt(icon));
+                .setSmallIcon(icon);
 
     }
 
