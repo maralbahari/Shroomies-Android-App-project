@@ -16,20 +16,22 @@
         android:layout_height="wrap_content"
 
         android:layout_alignParentEnd="true"
-        android:layout_margin="10dp"
-        android:background="@drawable/round_rectangle_yellow"
         android:minHeight="0dp"
         android:paddingStart="10dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="5dp"
         android:paddingTop="5dp"
         android:paddingBottom="5dp"
         android:paddingEnd="10dp"
         android:text="Add shroomies"
         android:textStyle="bold"
         android:textAllCaps="false"
+        android:textSize="12sp"
         app:icon="@drawable/ic_add"
         app:iconTint="@color/jetBlack"
-        app:iconSize="16dp"
+        app:iconSize="12dp"
         android:textColor="@color/jetBlack"
+        app:cornerRadius="40dp"
          />
 
 
@@ -99,6 +101,7 @@
             android:layout_height="wrap_content"
             android:layout_below="@+id/admin_details"
             />
+
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/leave_room_btn"

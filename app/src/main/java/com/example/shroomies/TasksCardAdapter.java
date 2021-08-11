@@ -227,6 +227,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
                     String name = memberHashMap.get(entry.getKey()).getName();
                     Chip chip = new Chip(context);
                     chip.setText("@"+name);
+                    chip.setTextColor(context.getColor(R.color.mentionBlue));
                     holder.mentionChipGroup.addView(chip);
                 }
             }
@@ -259,7 +260,11 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         }
     }
 
-
+    @Override
+    public void onViewRecycled(@NonNull TasksCardViewHolder holder) {
+        super.onViewRecycled(holder);
+        holder.mentionChipGroup.removeAllViews();
+    }
 
     @Override
     public int getItemCount() {

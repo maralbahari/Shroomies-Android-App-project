@@ -16,6 +16,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkError;
 import com.android.volley.ParseError;
@@ -53,6 +54,7 @@ public class ArchiveFragment extends Fragment {
     private RecyclerView tasksRecyclerView;
     private RelativeLayout rootLayout;
     private TextView noArchiveCardsTextView;
+    private LottieAnimationView progressbar;
     //data
     private ArrayList<ExpensesCard> expensesCardsArrayList;
     private ArrayList<TasksCard> tasksCardsArrayList;
@@ -93,6 +95,7 @@ public class ArchiveFragment extends Fragment {
         rootLayout = v.findViewById(R.id.archive_root_layout);
         noArchiveCardsTextView = v.findViewById(R.id.no_archive_text_view);
         Toolbar toolbar =getActivity().findViewById(R.id.my_shroomies_toolbar);
+        progressbar  =toolbar.findViewById(R.id.loading_progress_view);
 
         //get the apartment data
         Bundle bundle = this.getArguments();
@@ -182,6 +185,7 @@ public class ArchiveFragment extends Fragment {
     }
 
     private void getCards(String apartmentID) {
+        progressbar.setVisibility(View.VISIBLE);
         JSONObject data=new JSONObject();
         JSONObject jsonObject = new JSONObject();
         tasksCardsArrayList = new ArrayList<>();
@@ -228,7 +232,6 @@ public class ArchiveFragment extends Fragment {
                                 }else{
                                     noArchiveCardsTextView.setVisibility(View.VISIBLE);
                                 }
-
                                 expensesCardAdapter= new ExpensesCardAdapter(expensesCardsArrayList , getActivity() , true , apartmentID , getChildFragmentManager()  , rootLayout , memberHashMap);
                                 expensesCardAdapter.notifyDataSetChanged();
                                 expensesRecyclerview.setAdapter(expensesCardAdapter);
@@ -252,6 +255,8 @@ public class ArchiveFragment extends Fragment {
                                 tasksCardAdapter.notifyDataSetChanged();
                                 tasksDecor.setOverScrollStateListener(onOverPullListener);
                                 expensesDecor.setOverScrollStateListener(onOverPullListener);
+                                progressbar.setVisibility(View.GONE);
+
 
                             }else{
                                 String message = "We encountered an error while retrieving the archive cards.";
@@ -259,6 +264,8 @@ public class ArchiveFragment extends Fragment {
                             }
                         } catch (JSONException | JsonProcessingException e) {
                             e.printStackTrace();
+                            progressbar.setVisibility(View.GONE);
+
                         }
 
                     }, error -> {
@@ -286,6 +293,8 @@ public class ArchiveFragment extends Fragment {
 
     }
     void displayErrorAlert(String message){
+        progressbar.setVisibility(View.GONE);
+
         tasksDecor.setOverScrollStateListener(onOverPullListener);
         expensesDecor.setOverScrollStateListener(onOverPullListener);
         new AlertDialog.Builder(getActivity())

@@ -57,10 +57,10 @@ public class Members extends Fragment {
     //views
     private View v;
     private RecyclerView membersRecyclerView;
-    private TextView ownerName;
+    private TextView ownerName ;
     private ImageView adminImageView , ghostImageView;
     private RelativeLayout noMembersRelativeLayout , rootLayout;
-    private LottieAnimationView progressView;
+    private CustomLoadingProgressBar customLoadingProgressBar;
     //firebase
     private FirebaseAuth mAuth;
     private RequestQueue requestQueue;
@@ -86,6 +86,7 @@ public class Members extends Fragment {
 
         Button addMemberButton = v.findViewById(R.id.add_shroomie_btn);
         Button leaveRoomButton = v.findViewById(R.id.leave_room_btn);
+
         adminImageView =v.findViewById(R.id.owner_image);
         ownerName=v.findViewById(R.id.admin_name);
         // set visibility to gone if there are members in add members
@@ -95,7 +96,6 @@ public class Members extends Fragment {
         noMembersRelativeLayout = v.findViewById(R.id.no_members_relative_layout);
         rootLayout = v.findViewById(R.id.relative_layout_member);
         Toolbar toolbar = getActivity().findViewById(R.id.my_shroomies_toolbar);
-        progressView = toolbar.findViewById(R.id.loading_progress_view);
 
         toolbar.setTitle("Members");
 
@@ -183,6 +183,10 @@ public class Members extends Fragment {
     }
 
     private void leaveApartment(){
+        customLoadingProgressBar = new CustomLoadingProgressBar(getActivity(),"Leaving..." , R.raw.lf30_editor_igyp9bvy);
+        customLoadingProgressBar.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        customLoadingProgressBar.setCancelable(false);
+        customLoadingProgressBar.show();
         JSONObject jsonObject = new JSONObject();
         JSONObject data = new JSONObject();
         try {
@@ -196,6 +200,7 @@ public class Members extends Fragment {
         FirebaseUser firebaseUser = mAuth.getCurrentUser();
         firebaseUser.getIdToken(true).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
+                customLoadingProgressBar.dismiss();
                 String token = task.getResult().getToken();
                 JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_LEAVE_APARTMENT, data, response -> {
                     try {
@@ -210,6 +215,7 @@ public class Members extends Fragment {
                             String message = "We have encountered an unexpected error, try to check your internet connection and log in again.";
                             displayErrorAlert(title, message , null);
                         }
+
 
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -339,6 +345,7 @@ public class Members extends Fragment {
     }
 
     void displayErrorAlert(String title ,  String errorMessage  , VolleyError error){
+        customLoadingProgressBar.dismiss();
         String message = null; // error message, show it in toast or dialog, whatever you want
         if(error!=null) {
             if (error instanceof NetworkError || error instanceof AuthFailureError || error instanceof NoConnectionError || error instanceof TimeoutError) {

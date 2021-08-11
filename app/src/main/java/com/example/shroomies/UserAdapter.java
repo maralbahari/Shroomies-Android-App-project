@@ -86,7 +86,6 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                         .circleCrop()
                         .transition(DrawableTransitionOptions.withCrossFade()) //Here a fading animation
                         .into(holder.userImage);
-                holder.userImage.setPadding(2, 2, 2, 2);
             }
         }
         if(userList.get(position).getName()!=null){
@@ -164,6 +163,8 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         }
 
         private void removeMember(String apartmentID, int position) {
+            User removedUser = userList.remove(position);
+            notifyItemRemoved(position);
             FirebaseUser firebaseUser = mAuth.getCurrentUser();
             firebaseUser.getIdToken(true).addOnCompleteListener(task -> {
                 if(task.isSuccessful()){
@@ -171,9 +172,9 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                     JSONObject jsonObject = new JSONObject();
                     JSONObject data = new JSONObject();
                     try {
-                        jsonObject.put("apartmentID" , apartmentID);
-                        jsonObject.put("userID" , userList.get(position).getUserID());
-                        data.put("data" , jsonObject);
+                        jsonObject.put(Config.apartmentID , apartmentID);
+                        jsonObject.put(Config.userID , removedUser.getUserID());
+                        data.put(Config.data , jsonObject);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -181,11 +182,12 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                         try {
                             boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
                             if(success){
-                                Snackbar snack=Snackbar.make(parentView,userList.get(getAdapterPosition()).getName()+" has been removed", BaseTransientBottomBar.LENGTH_SHORT);
+                                Snackbar snack=Snackbar.make(parentView,removedUser.getName()+" has been removed", BaseTransientBottomBar.LENGTH_SHORT);
                                 snack.show();
-                                userList.remove(position);
-                                notifyItemRemoved(position);
                             }else{
+                                //return the user back
+                                userList.add(removedUser);
+                                notifyDataSetChanged();
                                 Snackbar snack=Snackbar.make(parentView,"We encountered an error while deleting the user", BaseTransientBottomBar.LENGTH_SHORT);
                                 snack.show();
                             }
@@ -215,10 +217,10 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             JSONObject  data = new JSONObject();
             JSONObject jsonObject = new JSONObject();
             try {
-                jsonObject.put("senderID" , mAuth.getCurrentUser().getUid());
-                jsonObject.put ("receiverID" , id);
-                jsonObject.put("apartmentID" , apartmentID);
-                data.put("data" , jsonObject);
+                jsonObject.put(Config.senderID, mAuth.getCurrentUser().getUid());
+                jsonObject.put (Config.receiverID, id);
+                jsonObject.put(Config.apartmentID , apartmentID);
+                data.put(Config.data , jsonObject);
             } catch (JSONException e) {
                 e.printStackTrace();
             }

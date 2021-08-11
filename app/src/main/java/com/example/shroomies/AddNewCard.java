@@ -205,6 +205,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
             apartment=bundle.getParcelable("APARTMENT_DETAILS");
             if(apartment.apartmentMembers!=null) {
                 apartmentMembersHashMap.putAll(apartment.getApartmentMembers());
+
             }
             getMemberUserNames(apartmentMembersHashMap);
             if (!expensesCardSelected) {
@@ -298,7 +299,6 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                         .withZone(TimeZone.getDefault().toZoneId());
 
 //                        ZonedDateTime zonedDateTime  = new ZonedDateTime(new LocalDateTime());
-                String sDate=dateformat.format(c.toInstant());
                 //set the visibility of the due date to visible
                 dateChip.setVisibility(View.VISIBLE);
                 dateChip.setText(displayFormat.format(c.toInstant()));
@@ -473,7 +473,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                         String message = response.getJSONObject(Config.result).getString(Config.message);
                         if(success) {
                             String cardID = response.getJSONObject(Config.result).getString(Config.message);
-                            if (cardID != null) {
+                            if (!cardID.isEmpty()) {
                                 TasksCard taskCard = new TasksCard(mdescription, mtitle, mdueDate, importance, currentDate, cardID, false, new ObjectMapper().readValue(mMention.toString(), HashMap.class));
                                 cardUploaded.sendData(taskCard, null);
                                 dismiss();
@@ -488,7 +488,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                     }
 
                 }, error -> {
-                    Snackbar.make(getView(), "Couldn't add card , connection error", BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.my_shroomies_add_text_view).show();
+                    Snackbar.make(rootLayout, "Couldn't add card , connection error", BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.my_shroomies_add_text_view).show();
                     loadingLottieAnimationView.setVisibility(View.GONE);
                     addCardTextView.setText("Add card");
                     addCardRelativeLayout.setClickable(true);
@@ -641,7 +641,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
 
     private void showImagePickDialog() {
         String[] options = {"Gallery","PDF","Camera"};
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Choose file from");
         builder.setIcon(R.drawable.ic_shroomies_yelllow_black_borders);
         builder.setCancelable(true);
@@ -758,41 +758,43 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
             if (requestCode == CAMERA_REQUEST_CODE) {
                 File file = new File(Environment.getExternalStorageDirectory(), captureFileName);
                 //check the size of the file
-                if((file.length()/1048576)<= MAX_FILES_SIZE_IN_BYTES){
+                if ((file.length() / 1048576) <= MAX_FILES_SIZE_IN_BYTES) {
                     chosenImageUri = FileProvider.getUriForFile(getActivity(), getActivity().getPackageName() + ".provider", file);
                     fileExtension = ".jpg";
-                    fileType  = "image";
+                    fileType = "image";
                     addSelectedImageToImageView(chosenImageUri, false);
-                }else{
+                } else {
                     Snackbar.make(rootLayout, "This file is too large", BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.my_shroomies_add_text_view).show();
                 }
                 return;
             }
-            if (data.getData() != null) {
-                if (requestCode == IMAGE_PICK_GALLERY_CODE) {
-                    if (fileSizeIsAllowed(data)) {
-                        chosenImageUri = data.getData(); // load image from gallery
-                        fileExtension = ".jpg";
-                        fileType =  "image";
-                        addSelectedImageToImageView(chosenImageUri, false);
-                    } else {
-                        Snackbar.make(rootLayout, "This file is too large", BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.my_shroomies_add_text_view).show();
+            if(data!=null){
+                if (data.getData() != null) {
+                    if (requestCode == IMAGE_PICK_GALLERY_CODE) {
+                        if (fileSizeIsAllowed(data)) {
+                            chosenImageUri = data.getData(); // load image from gallery
+                            fileExtension = ".jpg";
+                            fileType = "image";
+                            addSelectedImageToImageView(chosenImageUri, false);
+                        } else {
+                            Snackbar.make(rootLayout, "This file is too large", BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.my_shroomies_add_text_view).show();
+                        }
                     }
-                }
-                if (requestCode == PDF_PICK_CODE) {
+                    if (requestCode == PDF_PICK_CODE) {
 
-                    if (fileSizeIsAllowed(data)) {
-                        chosenImageUri = data.getData();
-                        fileExtension = ".pdf";
-                        fileType = "pdf";
-                        addSelectedImageToImageView(chosenImageUri, true);
-                    } else {
-                        Snackbar.make(rootLayout, "This file is too large", BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.my_shroomies_add_text_view).show();
+                        if (fileSizeIsAllowed(data)) {
+                            chosenImageUri = data.getData();
+                            fileExtension = ".pdf";
+                            fileType = "pdf";
+                            addSelectedImageToImageView(chosenImageUri, true);
+                        } else {
+                            Snackbar.make(rootLayout, "This file is too large", BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.my_shroomies_add_text_view).show();
 
+                        }
                     }
-                }
 
-            }
+                }
+        }
         }
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -857,7 +859,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
     void displayErrorAlert(String title  , @Nullable VolleyError error ,@Nullable String errorMessage){
         String message = null; // error message, show it in toast or dialog, whatever you want
         if(error!=null) {
-            if (error instanceof NetworkError || error instanceof AuthFailureError || error instanceof NoConnectionError || error instanceof TimeoutError) {
+            if (error instanceof NetworkError || error instanceof AuthFailureError || error instanceof TimeoutError) {
                 message = "Cannot connect to Internet";
             } else if (error instanceof ServerError) {
                 message = "The server could not be found. Please try again later";

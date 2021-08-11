@@ -43,33 +43,37 @@
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
             android:layout_below="@id/text_linear_layout"
-            />
 
-    <TextView
-        android:id="@+id/recommended_text_view"
+            />
+    <androidx.recyclerview.widget.RecyclerView
+        android:overScrollMode="never"
+        android:id="@+id/add_member_recyclerview"
+        android:elevation="5dp"
+        android:background="@android:color/transparent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/search_member"
+        android:layout_marginTop="5dp"
+        android:minHeight="300dp"
+        android:layout_alignParentBottom="true"
+
+        />
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/search_user_progress_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Recently contacted users"
-        android:layout_marginTop="15dp"
-        android:layout_marginLeft="5dp"
-        android:textColor="@color/jetBlack"
-        android:layout_below="@+id/search_member"
+        android:layout_centerInParent="true"
+        app:lottie_rawRes="@raw/loading_jetblack"
+        app:lottie_loop="true"
+        app:lottie_autoPlay="true"
+        android:visibility="gone"
+        android:elevation="6dp"
         />
 
 
 
-        <com.factor.bouncy.BouncyRecyclerView
-            android:id="@+id/add_member_recyclerview"
-            android:elevation="5dp"
-            android:background="@android:color/transparent"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/recommended_text_view"
-            android:layout_marginTop="5dp"
-            android:minHeight="300dp"
-            android:layout_above="@id/information_text_view"
 
-            />
     <TextView
         android:id="@+id/information_text_view"
         android:layout_width="match_parent"
@@ -77,8 +81,10 @@
         android:textColor="@color/lightGrey"
         android:text="Add users to your current group to add cards and manage your unit "
         android:layout_alignParentBottom="true"
-
-        android:layout_marginBottom="10dp"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
         android:gravity="center"
         android:visibility="visible"
 

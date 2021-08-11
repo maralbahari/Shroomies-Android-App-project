@@ -289,10 +289,9 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
                 AddNewCard addNewCard = new AddNewCard();
                 addNewCard.setTargetFragment(this, 0);
                 Bundle bundle = new Bundle();
-
-
                 bundle.putBoolean("Expenses", myShroomiesTablayout.getSelectedTabPosition() == 0);
                 bundle.putParcelable("APARTMENT_DETAILS", apartment);
+
                 addNewCard.setArguments(bundle);
 
                 addNewCard.show(getActivity().getSupportFragmentManager(), "add new card");

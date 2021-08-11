@@ -112,22 +112,6 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
             //get the  dateformat with UTC
             setDate( dueString, holder.dueDate);
         }
-        if(expensesCardArrayList.get(position).getMention()!=null) {
-            //check the ids that have been mentioned
-            //and get the respective name from the user hashmap
-            for(Map.Entry<String,String> entry
-            :expensesCardArrayList.get(position).getMention().entrySet()){
-                if(memberHashMap.get(entry.getKey())!=null){
-
-                    //create a new Chip for each mentioned user
-                    String name = memberHashMap.get(entry.getKey()).getName();
-
-                    Chip chip = new Chip(context);
-                    chip.setText("@"+name);
-                    holder.mentionChipGroup.addView(chip);
-                }
-            }
-        }
         boolean cardStatus = expensesCardArrayList.get(position).getDone();
         if (cardStatus){
             holder.done.setText(R.string.done);
@@ -135,10 +119,23 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
             holder.done.setText(R.string.mark_card_as_done);
         }
         holder.done.setChecked(cardStatus);
-
+        if(expensesCardArrayList.get(position).getMention()!=null) {
+            //check the ids that have been mentioned
+            //and get the respective name from the user hashmap
+            for(Map.Entry<String,String> entry
+                    :expensesCardArrayList.get(position).getMention().entrySet()){
+                if(memberHashMap.get(entry.getKey())!=null){
+                    //create a new Chip for each mentioned user
+                    String name = memberHashMap.get(entry.getKey()).getName();
+                    Chip chip = new Chip(context);
+                    chip.setText("@"+name);
+                    chip.setTextColor(context.getColor(R.color.mentionBlue));
+                    holder.mentionChipGroup.addView(chip);
+                }
+            }
+        }
 
         if (fromArchive){
-//            holder.archive.setVisibility(View.GONE);
             holder.done.setVisibility(View.GONE);
         }
 
@@ -179,6 +176,12 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
             holder.cardImage.setPadding(40,60,40,60);
             holder.noFileAttached.setVisibility(View.VISIBLE);
         }
+    }
+
+    @Override
+    public void onViewRecycled(@NonNull ExpensesViewHolder holder) {
+        super.onViewRecycled(holder);
+        holder.mentionChipGroup.removeAllViews();
     }
 
     private void setDate(String dueString, TextView dueDateTextView) {
@@ -268,6 +271,8 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                 viewCard.setArguments(bundle);
                 viewCard.show(fragmentManager,"VIEWCARD");
             });
+
+
         }
 
 
