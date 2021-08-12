@@ -172,24 +172,23 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
         String currentDateString = dateformat.format(now);
         final LocalDate firstDate = LocalDate.parse(dueString, dateformat);
         final LocalDate secondDate = LocalDate.parse(currentDateString, dateformat);
-        Log.d("current time" , secondDate.getDayOfWeek().toString());
-        Log.d("due date" ,  firstDate.getDayOfWeek().toString());
+
         final long days = ChronoUnit.DAYS.between(secondDate.atStartOfDay(), firstDate.atStartOfDay());
 
         if(days<0){
             dueDateTextView.setTextColor(context.getColor(R.color.red));
-            dueDateTextView.setText(R.string.due);
+            dueDateTextView.setText(context.getString(R.string.due));
         }else  if(days==0){
             dueDateTextView.setTextColor(context.getColor(R.color.red));
-            dueDateTextView.setText(R.string.due_today);
+            dueDateTextView.setText(context.getString(R.string.due_today));
         }
         else if(days==1){
             dueDateTextView.setTextColor(context.getColor(R.color.red));
-            dueDateTextView.setText((Long.toString(days) +R.string.day_left));
+            dueDateTextView.setText((Long.toString(days) +" " +context.getString(R.string.day_left)));
         }else if(days<3){
             dueDateTextView.setTextColor(context.getColor(R.color.red));
 
-            dueDateTextView.setText((Long.toString(days) + R.string.days_left));
+            dueDateTextView.setText((Long.toString(days) +" "+ context.getString(R.string.days_left)));
         }else{
             dueDateTextView.setText(dueDateFromatted);
         }

@@ -12,7 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.example.shroomies.notifications.Data;
 import com.factor.bouncy.BouncyRecyclerView;
 import com.factor.bouncy.util.OnOverPullListener;
 import com.google.firebase.database.DataSnapshot;

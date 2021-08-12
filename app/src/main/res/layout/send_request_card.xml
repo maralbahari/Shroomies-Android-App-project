@@ -45,19 +45,22 @@
                 android:layout_centerVertical="true"
                 android:layout_marginRight="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@drawable/button_rounded_yello"
                 android:minWidth="0dp"
                 android:minHeight="0dp"
+               android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
                 android:text="Request"
                 android:textAllCaps="false"
                 android:textColor="@color/jetBlack"
                 android:visibility="gone"
+                app:cornerRadius="30dp"
                 app:icon="@drawable/ic_request"
                 app:iconGravity="textStart"
                 app:iconPadding="4dp"
                 app:iconSize="15dp"
                 app:iconTint="@color/jetBlack"
-
                 />
 
             <ImageButton

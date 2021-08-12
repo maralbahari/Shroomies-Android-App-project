@@ -34,6 +34,7 @@ public class ExpensesCard implements Parcelable {
         date = in.readString();
     }
 
+
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(attachedFile);
@@ -42,9 +43,9 @@ public class ExpensesCard implements Parcelable {
         dest.writeString(dueDate);
         dest.writeString(importance);
         dest.writeString(cardID);
-        dest.writeBoolean(done);
         dest.writeString(fileType);
         dest.writeString(actor);
+        dest.writeByte((byte) (done ? 1 : 0));
         dest.writeString(date);
     }
 

@@ -84,7 +84,6 @@ public class Members extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        Button addMemberButton = v.findViewById(R.id.add_shroomie_btn);
         Button leaveRoomButton = v.findViewById(R.id.leave_room_btn);
 
         adminImageView =v.findViewById(R.id.owner_image);
@@ -126,13 +125,6 @@ public class Members extends Fragment {
             //this check is if the admin removed a member and that user is in member page so it refreshes
         }
 
-        addMemberButton.setOnClickListener(v -> {
-            AddShroomieMember add=new AddShroomieMember();
-            Bundle bundle1 = new Bundle();
-            bundle1.putParcelable("APARTMENT_DETAILS",apartment);
-            add.setArguments(bundle1);
-            add.show(getParentFragmentManager(),"add member to apartment");
-        });
 
         leaveRoomButton.setOnClickListener(v -> {
 

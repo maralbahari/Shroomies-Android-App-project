@@ -83,12 +83,15 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp"
         android:gravity="center"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        >
 
         <RadioButton
             android:id="@+id/newcard_red_radio_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
             android:buttonTint="@color/red"
             android:checked="true"
             android:layout_marginEnd="30dp"
@@ -98,6 +101,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="30dp"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
             android:buttonTint="@color/orange"
             android:background="@drawable/importance_orange_radio_selector"/>
         <RadioButton
@@ -105,6 +110,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:buttonTint="@color/okGreen"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
             android:background="@drawable/importance_green_radio_selector"
             />
 
@@ -131,7 +138,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/newcard_radio_group"
-        android:layout_marginTop="20dp">
+        android:layout_marginTop="15dp">
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/due_date"
@@ -141,16 +148,15 @@
             android:padding="10dp"
             android:gravity="center"
             android:textColor="@color/jetBlack"
-            android:background="@color/LogoYellow"
-            app:strokeColor="@color/LogoYellow"
-
             android:text="Due date"
             android:textAllCaps="false"
             android:minHeight="0dp"
             android:minWidth="0dp"
-            android:foreground="?android:attr/selectableItemBackground"
             android:textAlignment="center"
             android:stateListAnimator="@null"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            app:cornerRadius="5dp"
 
             />
 
@@ -163,11 +169,13 @@
             android:minHeight="0dp"
             android:minWidth="0dp"
             android:stateListAnimator="@null"
-            android:background="@color/LogoYellow"
             android:padding="10dp"
-            android:text="Attach File"
+            android:text="Attach"
             android:textAllCaps="false"
             android:textColor="@color/jetBlack"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            app:cornerRadius="5dp"
             />
 
         <com.google.android.material.button.MaterialButton
@@ -175,9 +183,8 @@
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:background="@color/LogoYellow"
             android:padding="10dp"
-            android:text="Expenses"
+            android:text="Expense"
             android:button="@android:color/transparent"
             android:minHeight="0dp"
             android:minWidth="0dp"
@@ -186,6 +193,9 @@
             android:textColor="@color/jetBlack"
             android:stateListAnimator="@null"
             android:textAllCaps="false"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            app:cornerRadius="5dp"
             />
 
 
@@ -221,11 +231,13 @@
         android:src="@drawable/ic_icon_material_remove_circle_outline"
         android:layout_alignTop="@id/attachment_image_view"
         android:layout_alignEnd="@id/attachment_image_view"
-        android:background="@android:color/transparent"
+        android:background="@drawable/circle_white_button_small"
         android:layout_marginBottom="10dp"
         android:elevation="3dp"
+        android:padding="3dp"
         android:layout_marginTop="-5dp"
         android:layout_marginEnd="-5dp"
+
         />
     </RelativeLayout>
 
@@ -239,11 +251,12 @@
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
         app:chipIcon="@drawable/ic_calendar_day"
-        app:chipIconSize="20dp"
+        app:chipIconSize="12dp"
         app:chipStartPadding="10dp"
         app:closeIcon="@drawable/ic_icon_material_remove_circle_outline"
         app:closeIconEnabled="true"
-        android:textSize="18sp"
+        app:closeIconSize="14dp"
+        android:textSize="12sp"
         android:visibility="gone"
         />
     <com.google.android.material.chip.Chip
@@ -256,11 +269,13 @@
         android:layout_marginTop="5dp"
         android:layout_toRightOf="@id/image_relative_layout"
         app:chipIcon="@drawable/ic_expense"
-        app:chipIconSize="20dp"
+        app:chipIconSize="12dp"
         app:chipStartPadding="10dp"
         app:closeIcon="@drawable/ic_icon_material_remove_circle_outline"
         app:closeIconEnabled="true"
-        android:textSize="18sp"
+        app:closeIconSize="14dp"
+        android:text="0199"
+        android:textSize="12sp"
         android:visibility="gone"
         android:layout_below="@id/date_chip"
         />

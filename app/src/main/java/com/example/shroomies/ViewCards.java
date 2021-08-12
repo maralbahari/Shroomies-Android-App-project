@@ -250,7 +250,7 @@ public class ViewCards extends DialogFragment {
                             .error(R.drawable.ic_no_file_added)
                             .into(attachedFile);
                 }else{
-                    expandImageButton.setImageDrawable(getActivity().getDrawable(R.drawable.ic_download));
+                    expandImageButton.setBackgroundResource(R.drawable.ic_download);
                     attachedFile.setImageDrawable(getActivity().getDrawable(R.drawable.ic_pdf_icon));
                 }
             }else{

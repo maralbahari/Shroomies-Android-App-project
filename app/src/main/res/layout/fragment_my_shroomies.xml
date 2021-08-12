@@ -11,7 +11,6 @@
     app:umanoDragView="@id/expand_button"
     sothree:umanoOverlay="true"
     app:umanoShadowHeight="0dp"
-
  >
 
     <FrameLayout
@@ -140,6 +139,8 @@
             android:layout_marginRight="3dp"
             android:layout_alignParentBottom="true"
             android:visibility="gone"
+            android:paddingBottom="30dp"
+            android:clipToPadding="false"
            />
 
 
@@ -226,6 +227,8 @@
 
             </LinearLayout>
 
+
+
         <com.google.android.material.button.MaterialButton
             android:layout_width="match_parent"
             android:id="@+id/my_shroomies_log"
@@ -242,6 +245,24 @@
             android:insetBottom="0dp"
             android:insetTop="0dp"
             />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/my_shroomies_add_member_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:padding="20dp"
+                android:text="Add a Shroomie"
+                android:textStyle="bold"
+                android:textColor="@color/jetBlack"
+                android:textAllCaps="false"
+                app:icon="@drawable/ic_add_member_icon"
+                app:iconGravity="start"
+                app:iconTint="@color/jetBlack"
+                android:insetBottom="0dp"
+                android:insetTop="0dp"
+                />
+
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/my_shroomies_archive_btn"
                 android:layout_width="match_parent"

@@ -841,7 +841,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                     selectedImageView.setImageBitmap(bmp);
                     Glide.with(getActivity())
                             .load(bmp)
-                            .transform(new CenterCrop(),new RoundedCorners(5) )
+                            .transform(new CenterCrop(),new RoundedCorners(20) )
                             .error(R.drawable.ic_no_file_added)
                             .into(selectedImageView);
                 }else{
@@ -852,7 +852,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
             } else {
                 Glide.with(getActivity())
                         .load(uri)
-                        .transform(new CenterCrop(),new RoundedCorners(5) )
+                        .transform(new CenterCrop(),new RoundedCorners(20) )
                         .error(R.drawable.ic_no_file_added)
                         .into(selectedImageView);
             }

@@ -21,6 +21,7 @@ import com.android.volley.NoConnectionError;
 import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.Response;
 import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
@@ -102,7 +103,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
 
             if(userList.get(position).requestSent()){
                 holder.sendRequest.setClickable(false);
-                holder.sendRequest.setText("Request sent!");
+                holder.sendRequest.setText("Sent!");
             }
             if(userList.get(position).getUserID().equals(mAuth.getCurrentUser().getUid())){
                 holder.sendRequest.setClickable(false);
@@ -182,6 +183,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                         try {
                             boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
                             if(success){
+
                                 Snackbar snack=Snackbar.make(parentView,removedUser.getName()+" has been removed", BaseTransientBottomBar.LENGTH_SHORT);
                                 snack.show();
                             }else{
@@ -214,6 +216,8 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         }
 
         private void sendRequestToUser( String id , String  apartmentID) {
+            sendRequest.setText("Sending...");
+            sendRequest.setClickable(false);
             JSONObject  data = new JSONObject();
             JSONObject jsonObject = new JSONObject();
             try {
@@ -233,19 +237,31 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
 
                         try {
                             boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
-                            if(success){
-                                sendRequest.setText("Request Sent!");
+                            if (success) {
+                                sendRequest.setText("Sent!");
                                 sendRequest.setClickable(false);
-                            }else{
-                                Snackbar snack=Snackbar.make(parentView,"We encountered an error while sending the request", BaseTransientBottomBar.LENGTH_SHORT);
+                            } else {
+                                sendRequest.setText("Request");
+                                sendRequest.setClickable(true);
+
+                                Snackbar snack = Snackbar.make(parentView, "We encountered an error while sending the request", BaseTransientBottomBar.LENGTH_SHORT);
                                 snack.show();
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
+                            sendRequest.setClickable(true);
+                            sendRequest.setText("Request");
+
                         }
 
-                    }, error -> displayErrorAlert(error , null))
-                    {
+                    }, error -> {
+
+                        sendRequest.setText("Request");
+                        sendRequest.setClickable(true);
+
+                        displayErrorAlert(error , null);
+
+                    }) {
                         @Override
                         public Map<String, String> getHeaders()  {
                             Map<String, String> params = new HashMap<>();

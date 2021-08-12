@@ -38,6 +38,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
@@ -141,9 +142,7 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         myTasksRecyclerView = v.findViewById(R.id.my_tasks_recycler_view);
-        Button memberButton = v.findViewById(R.id.my_shroomies_member_btn);
 
-        Button logButton = v.findViewById(R.id.my_shroomies_log);
         myShroomiesTablayout = v.findViewById(R.id.my_shroomies_tablayout);
         myExpensesRecyclerView = v.findViewById(R.id.my_expenses_recycler_view);
         PowerSpinnerView shroomieSpinnerFilter = v.findViewById(R.id.shroomie_spinner_filter);
@@ -151,9 +150,10 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
         slidingLayout = v.findViewById(R.id.sliding_layout);
         noCardsLayout =  v.findViewById(R.id.no_cards_layout);
 
-
-        Button archiveButton = v.findViewById(R.id.my_shroomies_archive_btn);
-
+        MaterialButton memberButton = v.findViewById(R.id.my_shroomies_member_btn);
+        MaterialButton logButton = v.findViewById(R.id.my_shroomies_log);
+        MaterialButton archiveButton = v.findViewById(R.id.my_shroomies_archive_btn);
+        MaterialButton addMemberButton = v.findViewById(R.id.my_shroomies_add_member_btn);
 
         toolbar = getActivity().findViewById(R.id.my_shroomies_toolbar);
         progressView = toolbar.findViewById(R.id.loading_progress_view);
@@ -224,10 +224,11 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
         myShroomiesTablayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
             @Override
             public void onTabSelected(TabLayout.Tab tab) {
+
                 if(tab.getPosition()==0){
-                    myShroomiesTablayout.setSelectedTabIndicator(R.drawable.tab_indicator_left);
                     myExpensesRecyclerView.setVisibility(View.VISIBLE);
                     myTasksRecyclerView.setVisibility(View.GONE);
+
                     if(expensesCardsList!=null){
                         if(expensesCardsList.isEmpty()){
                             displayNoCards();
@@ -261,6 +262,7 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
 
             }
         });
+
         shroomieSpinnerFilter.setOnSpinnerItemSelectedListener((i, o, i1, t1) -> {
             int selectedTab=  myShroomiesTablayout.getSelectedTabPosition();
             switch (i) {
@@ -298,6 +300,16 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
             }
 
         });
+
+        addMemberButton.setOnClickListener(v -> {
+            slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+            AddShroomieMember add=new AddShroomieMember();
+            Bundle bundle1 = new Bundle();
+            bundle1.putParcelable("APARTMENT_DETAILS",apartment);
+            add.setArguments(bundle1);
+            add.show(getParentFragmentManager(),"add member to apartment");
+        });
+
 
         archiveButton.setOnClickListener(v -> {
             if(apartment!=null){
