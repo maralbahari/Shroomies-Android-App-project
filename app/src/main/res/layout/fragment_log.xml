@@ -41,6 +41,9 @@
     android:layout_height="match_parent"
     android:id="@+id/log_recycler"
     android:background="@color/white"
+    android:layoutAnimation="@anim/recycler_view_anim"
+
+
     />
     <TextView
         android:id="@+id/no_logs_text_view"

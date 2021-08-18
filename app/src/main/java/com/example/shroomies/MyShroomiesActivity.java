@@ -32,6 +32,7 @@ public class MyShroomiesActivity extends AppCompatActivity {
     DatabaseReference rootRef;
     String apartmentID;
     ValueEventListener apartmentListener;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,7 +41,6 @@ public class MyShroomiesActivity extends AppCompatActivity {
         Fragment myshroomiesFragment = new MyShroomiesFragment();
         fm = getSupportFragmentManager();
         ft = fm.beginTransaction();
-        ft.addToBackStack(null);
         ft.replace(R.id.my_shroomies_container, myshroomiesFragment);
         ft.commit();
         mAuth = FirebaseAuth.getInstance();

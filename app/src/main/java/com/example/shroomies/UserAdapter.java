@@ -1,5 +1,6 @@
 package com.example.shroomies;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -110,14 +111,18 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                 holder.sendRequest.setVisibility(View.GONE);
             }
         }else{
-            if (userList.get(position).getUserID().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())){
-                holder.msgMember.setVisibility(View.INVISIBLE);
-                holder.removeMember.setVisibility(View.INVISIBLE);
-                holder.userName.setText("You");
-            }else{
-                holder.msgMember.setVisibility(View.VISIBLE);
+            if(apartment.getAdminID().equals(mAuth.getCurrentUser().getUid())){
                 holder.removeMember.setVisibility(View.VISIBLE);
+            }else{
+                holder.removeMember.setVisibility(View.INVISIBLE);
+                if (userList.get(position).getUserID().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())){
+                    holder.msgMember.setVisibility(View.INVISIBLE);
+                    holder.userName.setText("You");
+                }else{
+                    holder.msgMember.setVisibility(View.VISIBLE);
+                }
             }
+
 
 
         }
@@ -157,7 +162,18 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                 context.startActivity(intent);
             });
 
-            removeMember.setOnClickListener(view -> removeMember(apartment.getApartmentID() , getAdapterPosition()));
+            removeMember.setOnClickListener(v -> new AlertDialog.Builder(context)
+            .setIcon(R.drawable.ic_alert)
+            .setTitle("Remove member")
+            .setMessage("Are you sure you would like to remove this member?")
+            .setCancelable(true)
+            .setNegativeButton("Yes", (dialog, which) -> {
+                dialog.dismiss();
+                removeMember(apartment.getApartmentID() , getAdapterPosition());
+            })
+            .setPositiveButton("Cancel", (dialog, which) -> dialog.dismiss())
+            .create()
+            .show());
 
             sendRequest.setOnClickListener(v -> sendRequestToUser(userList.get(getAdapterPosition()).getUserID() , apartment.getApartmentID()));
 

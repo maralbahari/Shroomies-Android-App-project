@@ -1,23 +1,17 @@
 package com.example.shroomies;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ImageButton;
+import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -30,87 +24,41 @@ import java.util.HashMap;
 import java.util.List;
 
 
-public class MessageInbox extends AppCompatActivity {
-   private ImageButton addgroupButton;
-   private Toolbar inboxToolbar;
-   private RecyclerView inboxListRecyclerView;
-    private FragmentTransaction ft;
-    private FragmentManager fm;
-    private  List<String> usersArrayList=new ArrayList<>();
-    private  List<Group> groupList = new ArrayList<>();
+public class MessageInbox extends Fragment {
+    private View v;
+    private RecyclerView inboxListRecyclerView;
+    private List<String> usersArrayList=new ArrayList<>();
     private LinearLayoutManager linearLayoutManager;
     private PrivateInboxRecycleViewAdapter messageInboxRecycleViewAdapter;
-    private GroupInboxRecyclerViewAdapter groupInboxRecyclerViewAdapter;
-    private String receiverID;
-    private FirebaseAuth mAuth;
     private DatabaseReference rootRef;
-    private TabLayout inboxTabLayout;
+    private FirebaseAuth mAuth;
+
+    @Nullable
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_message_inbox);
-        //database
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        v = inflater.inflate(R.layout.fragment_message_inbox, container, false);
         rootRef= FirebaseDatabase.getInstance().getReference();
-        // find views
-        inboxToolbar=(Toolbar) findViewById(R.id.message_inbox_toolbar);
-        inboxListRecyclerView =findViewById(R.id.inbotx_recycler);
-        addgroupButton=findViewById(R.id.add_chat_group_button);
-        inboxTabLayout = findViewById(R.id.tab_layout_inbox_message);
+        mAuth = FirebaseAuth.getInstance();
 
-        //set Action bar
-        setSupportActionBar(inboxToolbar);
-        ActionBar actionBar=getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setDisplayShowHomeEnabled(true);
-        LayoutInflater inflater= (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View actionbarView=inflater.inflate(R.layout.toolbar_inbox_layout,null);
-        actionBar.setCustomView(actionbarView);
-        getPrivateChatList();
-
-        // add group button
-        addgroupButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-               CreateChatGroupFragment createChatGroupFragment=new CreateChatGroupFragment();
-
-               createChatGroupFragment.show(getSupportFragmentManager(),"create group dialog 1");
-            }
-        });
-
-        // initiate the tabs
-        inboxTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                if(tab.getPosition()==0){
-                    usersArrayList = new ArrayList<>();
-                    getPrivateChatList();
-                }
-                else if(tab.getPosition()==1){
-                    groupList = new ArrayList<>();
-                    getGroupChatList();
-                }
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-
-            }
-        });
-
-
+        return v;
     }
-    public void getPrivateChatList(){
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        inboxListRecyclerView =v.findViewById(R.id.inbox_recycler);
         usersArrayList = new ArrayList<>();
-        messageInboxRecycleViewAdapter=new PrivateInboxRecycleViewAdapter(usersArrayList,getApplicationContext());
-        linearLayoutManager=new LinearLayoutManager(this);
+        messageInboxRecycleViewAdapter=new PrivateInboxRecycleViewAdapter(usersArrayList,getActivity());
+        linearLayoutManager=new LinearLayoutManager(getActivity());
         inboxListRecyclerView.setHasFixedSize(true);
         inboxListRecyclerView.setLayoutManager(linearLayoutManager);
         inboxListRecyclerView.setAdapter(messageInboxRecycleViewAdapter);
+
+        getPrivateChatList();
+
+    }
+
+    public void getPrivateChatList(){
         rootRef.child("PrivateChatList").child(mAuth.getInstance().getCurrentUser().getUid()).orderByChild("receiverID").addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -119,7 +67,7 @@ public class MessageInbox extends AppCompatActivity {
                     for (DataSnapshot ds : snapshot.getChildren()) {
                         HashMap<String,String> recivers= (HashMap) ds.getValue();
                         usersArrayList.add(recivers.get("receiverID"));
-                        Toast.makeText(getApplicationContext(), recivers.toString(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), recivers.toString(), Toast.LENGTH_SHORT).show();
                     }
 
                     messageInboxRecycleViewAdapter.notifyDataSetChanged();
@@ -130,47 +78,6 @@ public class MessageInbox extends AppCompatActivity {
 
             }
         });
-    }
-
-
-    private void getGroupChatList() {
-        groupList = new ArrayList<>();
-        groupInboxRecyclerViewAdapter =new GroupInboxRecyclerViewAdapter(groupList,getApplicationContext());
-        linearLayoutManager=new LinearLayoutManager(this);
-        inboxListRecyclerView.setHasFixedSize(true);
-        inboxListRecyclerView.setLayoutManager(linearLayoutManager);
-        inboxListRecyclerView.setAdapter(groupInboxRecyclerViewAdapter);
-
-        rootRef.child("GroupChatList").child(mAuth.getInstance().getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.exists()){
-                    for (DataSnapshot dataSnapshot:snapshot.getChildren()){
-                        rootRef.child("GroupChats").child(dataSnapshot.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                Group group = snapshot.getValue(Group.class);
-                                groupList.add(group);
-                                groupInboxRecyclerViewAdapter.notifyDataSetChanged();
-                            }
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
-
-                            }
-                        });
-                    }
-
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
-
-
     }
 
 }

@@ -78,6 +78,7 @@ public class LogFragment extends Fragment {
     }
 
 
+
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -86,7 +87,6 @@ public class LogFragment extends Fragment {
         Toolbar toolbar = getActivity().findViewById(R.id.my_shroomies_toolbar);
 
         progressbar  =toolbar.findViewById(R.id.loading_progress_view);
-
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         logRecycler.setHasFixedSize(true);
@@ -144,7 +144,7 @@ public class LogFragment extends Fragment {
         if(usersMap!=null){
             FirebaseUser firebaseUser = mAuth
                     .getCurrentUser();
-            firebaseUser.getIdToken(true).addOnCompleteListener((OnCompleteListener<GetTokenResult>) task -> {
+            firebaseUser.getIdToken(true).addOnCompleteListener(task -> {
                 if(task.isSuccessful()){
                     String token = task.getResult().getToken();
                     String apartmentID = (String) task.getResult().getClaims().get(Config.apartmentID);

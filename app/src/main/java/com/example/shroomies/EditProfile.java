@@ -182,33 +182,33 @@ public class EditProfile extends Fragment {
         deleteAccount.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                LayoutInflater inflater = getLayoutInflater();
-                View alert = inflater.inflate(R.layout.are_you_sure,null);
-                builder.setView(alert);
-                final AlertDialog alertDialog = builder.create();
-                alertDialog.getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
-                alertDialog.getWindow().setBackgroundDrawableResource(R.drawable.dialogfragment_add_member);
-                alertDialog.show();
-                sadShroomie = ((AlertDialog) alertDialog).findViewById(R.id.sad_shroomie);
-                stars = ((AlertDialog) alertDialog).findViewById(R.id.stars);
-                confirmDelete = ((AlertDialog) alertDialog).findViewById(R.id.button_continue);
-                keepAccount = ((AlertDialog) alertDialog).findViewById(R.id.button_no);
-                confirmDelete.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        FirebaseUser firebaseUser=mAuth.getCurrentUser();
-                        if (firebaseUser!=null) {
-                            deleteAccount(firebaseUser);
-                        }
-                    }
-                });
-                keepAccount.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        alertDialog.cancel();
-                    }
-                });
+//                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+//                LayoutInflater inflater = getLayoutInflater();
+//                View alert = inflater.inflate(R.layout.are_you_sure,null);
+//                builder.setView(alert);
+//                final AlertDialog alertDialog = builder.create();
+//                alertDialog.getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
+//                alertDialog.getWindow().setBackgroundDrawableResource(R.drawable.dialogfragment_add_member);
+//                alertDialog.show();
+//                sadShroomie = ((AlertDialog) alertDialog).findViewById(R.id.sad_shroomie);
+//                stars = ((AlertDialog) alertDialog).findViewById(R.id.stars);
+//                confirmDelete = ((AlertDialog) alertDialog).findViewById(R.id.button_continue);
+//                keepAccount = ((AlertDialog) alertDialog).findViewById(R.id.button_no);
+//                confirmDelete.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        FirebaseUser firebaseUser=mAuth.getCurrentUser();
+//                        if (firebaseUser!=null) {
+//                            deleteAccount(firebaseUser);
+//                        }
+//                    }
+//                });
+//                keepAccount.setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        alertDialog.cancel();
+//                    }
+//                });
             }
         });
     }

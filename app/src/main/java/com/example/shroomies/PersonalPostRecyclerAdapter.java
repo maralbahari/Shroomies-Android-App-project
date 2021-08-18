@@ -3,6 +3,7 @@ package com.example.shroomies;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -98,22 +100,22 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
             public void onCancelled(@NonNull DatabaseError error) { }
         });
 //        setting preferences
-        for (String preference
-                :personalPostModelList.get(position).getPreferences()) {
-            switch (preference) {
-                case "male":
-                    holder.IV_male.setVisibility(View.VISIBLE);
-                    break;
-                case "female":
-                    holder.IV_female.setVisibility(View.VISIBLE);
-                    break;
-                case "pet":
-                    holder.IV_pet.setVisibility(View.VISIBLE);
-                    break;
-                case "non_smoking":
-                    holder.IV_smoke.setVisibility(View.VISIBLE);
-            }
-        }
+//        for (String preference
+//                :personalPostModelList.get(position).getPreferences()) {
+//            switch (preference) {
+//                case "male":
+//                    holder.IV_male.setVisibility(View.VISIBLE);
+//                    break;
+//                case "female":
+//                    holder.IV_female.setVisibility(View.VISIBLE);
+//                    break;
+//                case "pet":
+//                    holder.IV_pet.setVisibility(View.VISIBLE);
+//                    break;
+//                case "non_smoking":
+//                    holder.IV_smoke.setVisibility(View.VISIBLE);
+//            }
+//        }
         if(favoriteSet.contains(personalPostModelList.get(position).getPostID())){
             holder.BT_fav.setChecked(true);
         }
@@ -159,10 +161,12 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
                     databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            receiverUser = new User();
-                            receiverUser = snapshot.getValue(User.class);
+//                            receiverUser = new User();
+//                            receiverUser = snapshot.getValue(User.class);
+//                            Log.d("user" , snapshot.toString());
+//                            Toast.makeText(context ,snapshot.toString() ,Toast.LENGTH_SHORT).show();
                             Intent intent = new Intent(context, ChattingActivity.class);
-                            intent.putExtra("USERID", receiverUser.getUserID());
+                            intent.putExtra("USERID", snapshot.getKey());
                             context.startActivity(intent);
                         }
 

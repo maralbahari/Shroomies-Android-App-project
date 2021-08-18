@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -14,16 +13,21 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.common.net.HttpHeaders;
 import com.google.firebase.FirebaseApp;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.AuthResult;
@@ -35,16 +39,18 @@ import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.auth.GoogleAuthProvider;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.functions.FirebaseFunctions;
-import com.google.firebase.functions.HttpsCallableResult;
+import com.google.gson.JsonObject;
 import com.virgilsecurity.android.common.callback.OnGetTokenCallback;
 import com.virgilsecurity.android.ethree.interaction.EThree;
 
 import org.jetbrains.annotations.NotNull;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 public class LoginActivity extends AppCompatActivity {
     protected EditText username;
@@ -53,13 +59,14 @@ public class LoginActivity extends AppCompatActivity {
     TextView signup;
     private final int RC_SIGN_IN = 7;
     GoogleSignInClient mGoogleSignInClient;
+    RequestQueue requestQueue;
     FirebaseAuth mAuth;
     TextView forgotPassword;
     CustomLoadingProgressBar progressBar;
     Button google_sign;
     SessionManager sessionManager;
-    public static EThree eThree;
-    private String token;
+    public  EThree eThree;
+    private String ethreeToken;
     private DatabaseReference rootRef;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +74,7 @@ public class LoginActivity extends AppCompatActivity {
         FirebaseApp.initializeApp(getApplicationContext());
         mAuth = FirebaseAuth.getInstance();
         rootRef=FirebaseDatabase.getInstance().getReference();
+        requestQueue = Volley.newRequestQueue(getApplicationContext());
 
         setContentView(R.layout.activity_login);
         username=findViewById(R.id.email_login);
@@ -119,12 +127,12 @@ public class LoginActivity extends AppCompatActivity {
                             FirebaseUser user =mAuth.getCurrentUser();
                             String userID =user.getUid();
                             String userEmail =user.getEmail();
-//                            getE3Token();
                             Toast.makeText(LoginActivity.this, "Welcome to Shroomies! ", Toast.LENGTH_SHORT).show();
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                             intent.putExtra("ID",userID);
                             intent.putExtra("EMAIL",userEmail);
                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                            getE3Token();
                             startActivity(intent);
                         }
                         if(!(mAuth.getCurrentUser().isEmailVerified())){
@@ -154,29 +162,26 @@ public class LoginActivity extends AppCompatActivity {
                         progressBar.dismiss();
                     }
                 }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    if (e instanceof FirebaseAuthInvalidCredentialsException) {
-                        Toast.makeText(LoginActivity.this, "Invalid password", Toast.LENGTH_SHORT).show();
+            }).addOnFailureListener(e -> {
+                if (e instanceof FirebaseAuthInvalidCredentialsException) {
+                    Toast.makeText(LoginActivity.this, "Invalid password", Toast.LENGTH_SHORT).show();
+                    progressBar.dismiss();
+                } else if (e instanceof FirebaseAuthInvalidUserException) {
+
+                    String errorCode =
+                            ((FirebaseAuthInvalidUserException) e).getErrorCode();
+
+                    if (errorCode.equals("ERROR_USER_NOT_FOUND")) {
+                        Toast.makeText(LoginActivity.this, "The email does not belong to a registered account. Please proceed to Sign Up.", Toast.LENGTH_SHORT).show();
                         progressBar.dismiss();
-                    } else if (e instanceof FirebaseAuthInvalidUserException) {
-
-                        String errorCode =
-                                ((FirebaseAuthInvalidUserException) e).getErrorCode();
-
-                        if (errorCode.equals("ERROR_USER_NOT_FOUND")) {
-                            Toast.makeText(LoginActivity.this, "The email does not belong to a registered account. Please proceed to Sign Up.", Toast.LENGTH_SHORT).show();
-                            progressBar.dismiss();
-                        } else if (errorCode.equals("ERROR_USER_DISABLED")) {
-                            Toast.makeText(LoginActivity.this, "User account has been disabled", Toast.LENGTH_SHORT).show();
-                            progressBar.dismiss();
-                        } else {
-                            Toast.makeText(LoginActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
-                            progressBar.dismiss();
-                        }
-
+                    } else if (errorCode.equals("ERROR_USER_DISABLED")) {
+                        Toast.makeText(LoginActivity.this, "User account has been disabled", Toast.LENGTH_SHORT).show();
+                        progressBar.dismiss();
+                    } else {
+                        Toast.makeText(LoginActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
+                        progressBar.dismiss();
                     }
+
                 }
             });
         }
@@ -260,35 +265,58 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
     private void getE3Token() {
-        com.virgilsecurity.common.callback.OnCompleteListener registerListener = new com.virgilsecurity.common.callback.OnCompleteListener() {
-            @Override
-            public void onSuccess() {
-                Log.d("ethree register ", "success");
+        JSONObject data = new JSONObject();
+        try {
+            data.put(Config.data , "");
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        FirebaseUser firebaseUser = mAuth.getCurrentUser();
+        firebaseUser.getIdToken(true).addOnCompleteListener(task -> {
+            if(task.isSuccessful()){
+                String token = task.getResult().getToken();
+                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_GET_VIRGIL_JWT, data, response -> {
+                    Log.d("ethree register ", response.toString());
+                    try {
+                        JSONObject result = response.getJSONObject(Config.result);
+                        if(!result.isNull(Config.token)){
+                            String ethreeToken  = result.getString(Config.token);
+                            eThree = EthreeSingleton.getInstance(getApplicationContext(),mAuth.getCurrentUser().getUid() , ethreeToken).getEthreeInstance();
+                            eThree.register().addCallback(new com.virgilsecurity.common.callback.OnCompleteListener() {
+                                @Override
+                                public void onSuccess() {
+                                    Toast.makeText(getApplicationContext() , "yayyyy" , Toast.LENGTH_LONG).show();
+                                }
 
-            }
-            @Override
-            public void onError(@NotNull Throwable throwable) {
-                Log.d("ethree register ", throwable.toString());
-            }
-        };
-        /*Map<String, String> data*/
-        FirebaseFunctions.getInstance()
-                .getHttpsCallable("getVirgilJwt")
-                .call()
-                .continueWith(new Continuation<HttpsCallableResult, Object>() {
-                    @Override
-                    public Object then(@NonNull Task<HttpsCallableResult> task) throws Exception {
-                        token = ((Map<String, String>) task.getResult().getData()).get("token");
-                        eThree = new EThree(mAuth.getCurrentUser().getUid()
-                                , (OnGetTokenCallback) () -> getToken()
-                                , getApplicationContext());
-                        return null;
+                                @Override
+                                public void onError(@NotNull Throwable throwable) {
+                                    Log.d( "boooo" , throwable.getMessage());
+                                }
+                            });
 
+                        }else{
+                            //todo handle error
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                        //todo handle error
                     }
-                });
+
+
+                }, error -> Log.d("ethree register ", error.toString()))
+                {
+                    @Override
+                    public Map<String, String> getHeaders() {
+                        Map<String, String> params = new HashMap<>();
+                        params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
+                        params.put(HttpHeaders.AUTHORIZATION,"Bearer "+ token);
+                        return params;
+                    }
+                };
+                requestQueue.add(jsonObjectRequest);
+            }
+        });
     }
-    public String getToken(){
-        return token;
-    }
+
 
 }

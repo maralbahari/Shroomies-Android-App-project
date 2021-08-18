@@ -9,6 +9,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.EditText;
@@ -31,6 +32,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -43,6 +45,7 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.virgilsecurity.android.ethree.interaction.EThree;
 import com.virgilsecurity.common.callback.OnResultListener;
+import com.virgilsecurity.crypto.foundation.Encrypt;
 import com.virgilsecurity.sdk.cards.Card;
 
 import org.jetbrains.annotations.NotNull;
@@ -136,56 +139,46 @@ public class ChattingActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_chatting);
+        initializeViews();
+        eThree = EthreeSingleton.getInstance(getApplicationContext() , null, null).getEthreeInstance();
 
-        receiverUsername=findViewById(R.id.receiver_username);
+
         mAuth=FirebaseAuth.getInstance();
         senderID=mAuth.getCurrentUser().getUid();
         rootRef= FirebaseDatabase.getInstance().getReference();
         Bundle extras = getIntent().getExtras();
-        if(!(extras==null)){
+//        if(!(extras==null)){
             receiverID=extras.getString("USERID");
-            //initialize ethree
-            eThree = LoginActivity.eThree;
-            // get the user pubilc key
+//            //initialize ethree
+//            eThree = LoginActivity.eThree;
+//            // get the user pubilc key
             getRecepientCard(receiverID);
             getSenderCard();
             getUserDetail(receiverID);
-        }
-        initializeViews();
-        sendMessage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sendMessageToUser();
-            }
-        });
+            retrieveMessages();
+
+//        }
+        sendMessage.setOnClickListener(v -> sendMessageToUser());
 
 
-
-       addImage.setOnClickListener(new View.OnClickListener() {
-           @Override
-           public void onClick(View v) {
-                 showImagePickDialog();
-           }
-       });
+       addImage.setOnClickListener(v -> showImagePickDialog());
     }
+
     private void initializeViews(){
         chattingToolbar= findViewById(R.id.chat_toolbar);
         setSupportActionBar(chattingToolbar);
-        ActionBar actionBar=getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setDisplayShowHomeEnabled(true);
-        actionBar.setDisplayShowTitleEnabled(false);
-        LayoutInflater inflater= (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View actionbarView=inflater.inflate(R.layout.toolbar_chatting_layout,null);
+        chattingToolbar.setNavigationIcon(R.drawable.ic_back_button);
+        receiverUsername=chattingToolbar.findViewById(R.id.receiver_username);
+        receiverProfileImage = chattingToolbar.findViewById(R.id.receiver_image_profile);
+
         sendMessage=findViewById(R.id.send_message_button);
         addImage=findViewById(R.id.choose_file_button);
 
         messageBody=findViewById(R.id.messeg_body_edit_text);
         chattingRecycler=findViewById(R.id.recycler_view_group_chatting);
-        receiverProfileImage=findViewById(R.id.receiver_image_profile);
         chattingRecycler=findViewById(R.id.recycler_view_group_chatting);
+
         cameraPermissions=new String[]{Manifest.permission.CAMERA,Manifest.permission.WRITE_EXTERNAL_STORAGE};
         storagePermissions=new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
         linearLayoutManager=new LinearLayoutManager(this);
@@ -236,7 +229,7 @@ public class ChattingActivity extends AppCompatActivity {
                 @Override
                 public void onComplete(@NonNull Task task) {
                     if (task.isSuccessful()) {
-                        chattingRecycler.smoothScrollToPosition(messagesAdapter.getItemCount() - 1);
+                        chattingRecycler.smoothScrollToPosition(messagesAdapter.getItemCount());
                         if (firstChat) {
                             addUserToInbox();
                         }
@@ -270,6 +263,7 @@ public class ChattingActivity extends AppCompatActivity {
        });
     }
     public void retrieveMessages(){
+        Toast.makeText(getApplicationContext(), "snap exists", Toast.LENGTH_LONG).show();
         messagesArrayList = new ArrayList<>();
         messagesAdapter=new MessagesAdapter(messagesArrayList , getApplication() ,recepientVirgilCard , senderVirgilCard);
         chattingRecycler.setAdapter(messagesAdapter);
@@ -277,6 +271,7 @@ public class ChattingActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()) {
+
                     messageStartPosition = messagesArrayList.size();
                     messagesArrayList.clear();
                     for (DataSnapshot dataSnapshot
@@ -296,6 +291,7 @@ public class ChattingActivity extends AppCompatActivity {
                     }
                     messageEndPosition = messagesArrayList.size();
 
+
                     messagesAdapter.notifyItemRangeInserted(messageStartPosition , messageEndPosition);
 
                     chattingRecycler.smoothScrollToPosition(chattingRecycler.getAdapter().getItemCount());
@@ -308,6 +304,7 @@ public class ChattingActivity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(getApplicationContext() , error.getMessage() , Toast.LENGTH_LONG).show();
 
             }
         });
@@ -530,8 +527,14 @@ public class ChattingActivity extends AppCompatActivity {
                         @Override
                         public void onComplete(@NonNull Task<Void> task) {
                             if (task.isSuccessful()) {
+                                Toast.makeText(getApplicationContext() , "success" , Toast.LENGTH_LONG).show();
 
                             }
+                        }
+                    }).addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(getApplicationContext() , e.toString() , Toast.LENGTH_LONG).show();
                         }
                     });
 
@@ -560,8 +563,8 @@ public class ChattingActivity extends AppCompatActivity {
                         }
                     }
 
-                    // once the user  sees the messages
-                    //update the number of unseen messages in the badge
+                // once the user  sees the messages
+                //update the number of unseen messages in the badge
                 MainActivity.setBadgeToNumberOfNotifications(rootRef , mAuth);
                 }
             }
@@ -585,16 +588,19 @@ public class ChattingActivity extends AppCompatActivity {
 //                            com.virgilsecurity.common.model.Data data = new com.virgilsecurity.common.model.Data(messageText.getBytes());
 //                            // Encrypt data using user public keys
 //                            com.virgilsecurity.common.model.Data encryptedData = eThree.authEncrypt(data, findUsersResult);
-                            // Encrypt message using user public key
+////                             Encrypt message using user public key
                             recepientVirgilCard = card;
+                            Log.d("recepientVirgilCard", "yeahhh");
                            //TODO disable send button until cards are recived
+
                         }
                         @Override
                         public void onError(@NotNull Throwable throwable) {
+                            Log.d("recepientVirgilCard", throwable.getMessage());
 
                         }
                     };
-            eThree.findUser(receiverID).addCallback(findUsersListener);
+            eThree.findUser(receiverID , true).addCallback(findUsersListener);
 
     }
     private void getSenderCard(){
@@ -603,17 +609,17 @@ public class ChattingActivity extends AppCompatActivity {
                 new OnResultListener<Card>() {
                     @Override public void onSuccess(Card senderCard) {
                         senderVirgilCard = senderCard;
-
-                        retrieveMessages();
+                        Log.d("senderVirgilCard", "yeahhh");
                     }
 
                     @Override public void onError(@NotNull Throwable throwable) {
                         // Error handling
+                        Log.d("senderVirgilCard", throwable.getMessage());
                     }
                 };
 
-// Lookup destination user public keys
-        eThree.findUser(mAuth.getCurrentUser().getUid()).addCallback(findUsersListener);
+        // Lookup destination user public keys
+        eThree.findUser(mAuth.getCurrentUser().getUid() , true).addCallback(findUsersListener);
 
 
     }

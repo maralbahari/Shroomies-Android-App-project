@@ -62,20 +62,20 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
             String title = msg.getNotification().getTitle();
             String body = msg.getNotification().getBody();
             String contentType=msg.getData().get("contentType");
-            int i = Integer.parseInt(userID.replaceAll("[\\D]", ""));
+//            int i = Integer.parseInt(userID.replaceAll("[\\D]", ""));
             if (contentType.equals(Config.task)) {
                 String cardID=msg.getData().get(Config.cardID);
                 Intent intent = new Intent(this, MyShroomiesActivity.class);
                 intent.putExtra("CARDID",cardID);
                 intent.putExtra("TAB", Config.task);
-                pendingIntent = PendingIntent.getActivity(this,i,intent, PendingIntent.FLAG_ONE_SHOT);
+                pendingIntent = PendingIntent.getActivity(this,0,intent, PendingIntent.FLAG_ONE_SHOT);
             }
             if (contentType.equals(Config.expenses)) {
                 String cardID=msg.getData().get(Config.cardID);
                 Intent intent = new Intent(this, MyShroomiesActivity.class);
                 intent.putExtra("CARDID",cardID);
                 intent.putExtra("TAB", Config.expenses);
-                pendingIntent = PendingIntent.getActivity(this,i,intent, PendingIntent.FLAG_ONE_SHOT);
+                pendingIntent = PendingIntent.getActivity(this,0,intent, PendingIntent.FLAG_ONE_SHOT);
             }
             Uri defSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
@@ -102,13 +102,23 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
             String title = msg.getNotification().getTitle();
             String body = msg.getNotification().getBody();
             String contentType=msg.getData().get("contentType");
-            int i = Integer.parseInt(userID.replaceAll("[\\D]", ""));
-            if (contentType.equals("task")) {
-                String cardID=msg.getData().get("task");
-                Intent intent = new Intent(this, MyShroomiesActivity.class);
-                intent.putExtra("CARDID",cardID);
-                pendingIntent = PendingIntent.getActivity(this,i,intent, PendingIntent.FLAG_ONE_SHOT);
+            int i;
+            String idWithoutLetters = userID.replaceAll("[\\D]", "");
+            if(idWithoutLetters.length()<10){
+                i = Integer.parseInt(idWithoutLetters);
+            }else{
+                i = Integer.parseInt(idWithoutLetters.substring(0,9));
             }
+
+            String cardID;
+            if (contentType.equals(Config.task)) {
+                cardID = msg.getData().get(Config.task);
+            }else{
+                cardID = msg.getData().get(Config.expenses);
+            }
+            Intent intent = new Intent(this, MyShroomiesActivity.class);
+            intent.putExtra("CARDID",cardID);
+            pendingIntent = PendingIntent.getActivity(this,i,intent, PendingIntent.FLAG_ONE_SHOT);
             Uri defSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
             NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.createNotificationChannel(channel);

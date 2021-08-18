@@ -45,12 +45,9 @@
         </provider>
 
 
-        <activity android:name=".EditGroupInfo"
-            android:screenOrientation="portrait"></activity>
+
         <activity android:name=".MyShroomiesActivity"
             android:screenOrientation="portrait"></activity>
-        <activity android:name=".GroupInfoActivity"
-            android:screenOrientation="portrait"/>
         <activity android:name=".ImageViewPage"
             android:screenOrientation="portrait"/>
         <!--
@@ -92,9 +89,7 @@
             android:parentActivityName=".MainActivity"
             android:screenOrientation="portrait">
         </activity>
-        <activity android:name=".MessageInbox"
-            android:parentActivityName=".MainActivity"
-            android:screenOrientation="portrait"/>
+
 
         <activity android:name=".LoginActivity"
             android:screenOrientation="portrait">

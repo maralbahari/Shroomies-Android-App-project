@@ -96,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
+                EthreeSingleton.getInstance(getApplication() , null , null).clearInstance();
             }
         });
 //        mAuth.useEmulator("http://localhost:4000/auth",9099);
@@ -164,8 +165,7 @@ public class MainActivity extends AppCompatActivity {
                 }if(item.getItemId()==R.id.publish_post_menu){
                     getFragment(new PublishPost());
                 }if(item.getItemId()==R.id.message_inbox_menu){
-                    Intent intent= new Intent(getApplicationContext(),MessageInbox.class);
-                    startActivity(intent);
+                    getFragment(new MessageInbox());
                 }if(item.getItemId()==R.id.user_profile_menu){
                     getFragment(new UserProfile());
                 }

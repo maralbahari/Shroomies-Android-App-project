@@ -82,13 +82,15 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
 
     @Override
     public void onItemSwiped(int position) {
-        TasksCard tasksCard =  tasksCardsList.get(position);
-        getUserToken(DELETE ,position , tasksCard ,false , null );
+        try {
+            TasksCard tasksCard =  this.tasksCardsList.get(position);
+            getUserToken(DELETE ,position , tasksCard ,false , null);
+        }catch (IndexOutOfBoundsException e){
+            notifyDataSetChanged();
+        }
 
     }
 
-    public void setItemTouchHelper(ItemTouchHelper itemTouchHelper) {
-    }
 
     public class TasksCardViewHolder extends RecyclerView.ViewHolder {
 
@@ -269,6 +271,10 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
     }
 
     private void getUserToken(String method , int position , TasksCard tasksCard , boolean checked ,  TasksCardViewHolder tasksCardViewHolder){
+        if(method.equals(DELETE)||method.equals(ARCHIVE)){
+            tasksCardsList.remove(position);
+            notifyItemRemoved(position);
+        }
         FirebaseUser firebaseUser = mAuth.getCurrentUser();
         firebaseUser.getIdToken(true).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
@@ -312,8 +318,6 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
                 if(success){
                     Snackbar.make(parentView, context.getString(R.string.card_archived), BaseTransientBottomBar.LENGTH_SHORT)
                             .show();
-                    tasksCardsList.remove(position);
-                    notifyItemRemoved(position);
                 }else{
                     Snackbar.make(parentView, context.getString(R.string.archving_error), BaseTransientBottomBar.LENGTH_SHORT)
                             .show();
@@ -357,15 +361,13 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
 
                 try {
                     boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
+                    Snackbar snack;
                     if(success) {
-                        Snackbar snack = Snackbar.make(parentView, context.getString(R.string.card_deleted), BaseTransientBottomBar.LENGTH_SHORT);
-                        snack.show();
-                        tasksCardsList.remove(position);
-                        notifyItemRemoved(position);
+                        snack = Snackbar.make(parentView, context.getString(R.string.card_deleted), BaseTransientBottomBar.LENGTH_SHORT);
                     }else{
-                        Snackbar snack = Snackbar.make(parentView, context.getString(R.string.delete_card_error), BaseTransientBottomBar.LENGTH_SHORT);
-                        snack.show();
+                        snack = Snackbar.make(parentView, context.getString(R.string.delete_card_error), BaseTransientBottomBar.LENGTH_SHORT);
                     }
+                    snack.show();
 
                 } catch (JSONException e) {
                 e.printStackTrace();

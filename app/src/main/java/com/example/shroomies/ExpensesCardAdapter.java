@@ -79,15 +79,17 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
         this.memberHashMap = memberHashMap;
     }
 
-    public void setItemTouchHelper(ItemTouchHelper itemTouchHelper){
-        this.setItemTouchHelper(itemTouchHelper);
-    }
-
 
     @Override
     public void onItemSwiped(int position) {
-        ExpensesCard expensesCard = expensesCardArrayList.get(position);
-        getUserToken(DELETE, position , expensesCard , false , null);
+        try{
+            ExpensesCard expensesCard = this.expensesCardArrayList.get(position);
+            getUserToken(DELETE, position , expensesCard , false , null);
+        }catch (IndexOutOfBoundsException e){
+            notifyDataSetChanged();
+            Log.d("itemSwiped" ,  e.toString());
+        }
+
     }
 
     @NonNull
@@ -373,8 +375,6 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                 if(success){
                     Snackbar.make(parentView,context.getString(R.string.card_archived), BaseTransientBottomBar.LENGTH_SHORT)
                             .show();
-                    expensesCardArrayList.remove(position);
-                    notifyItemRemoved(position);
                 }else{
                     Snackbar.make(parentView,context.getString(R.string.archving_error), BaseTransientBottomBar.LENGTH_SHORT)
                             .show();
@@ -400,6 +400,10 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
 
     }
     void getUserToken(String method , int position ,  ExpensesCard expensesCard , boolean checked , ExpensesViewHolder expensesViewHolder){
+        if(method.equals(DELETE)||method.equals(ARCHIVE)){
+            expensesCardArrayList.remove(position);
+            notifyItemRemoved(position);
+        }
         FirebaseUser firebaseUser = mAuth.getCurrentUser();
         firebaseUser.getIdToken(true).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
@@ -444,8 +448,6 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
             try {
                 boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
                 if(success){
-                    expensesCardArrayList.remove(position);
-                    notifyItemRemoved(position);
                     Snackbar.make(parentView, context.getString(R.string.card_deleted), BaseTransientBottomBar.LENGTH_SHORT).show();
 
                 }else{
