@@ -1,5 +1,4 @@
 package com.example.shroomies;
-
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
@@ -25,7 +24,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -33,6 +31,10 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager.widget.ViewPager;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.firebase.geofire.GeoFireUtils;
 import com.firebase.geofire.GeoLocation;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -43,20 +45,23 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
+import com.google.common.net.HttpHeaders;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.ServerTimestamp;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.make.dots.dotsindicator.DotsIndicator;
+
+import org.jetbrains.annotations.NotNull;
+import org.json.JSONObject;
 
 import java.io.IOException;
 
@@ -66,39 +71,39 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+
+
 public class PublishPost extends Fragment  implements PreferencesDialogFragment.OnPreferencesSet , MapsFragment.OnLocationSet {
     public static final int DIALOG_FRAGMENT_REQUEST_CODE = 1;
     public static final int MAPS_FRAGMENT_REQUEST_CODE = 2;
     public  static final int NUMBER_OF_IMAGES_ALLOWED = 5;
-    View v;
-    FragmentManager fm;
-    FragmentTransaction ft;
-    String address,locality,subLocality , locationName;
-    LatLng selectedLatLng;
+    private View v;
+    private FragmentManager fm;
+    private FragmentTransaction ft;
+    private String address,locality,subLocality , locationName;
+    private LatLng selectedLatLng;
     private static final int PICK_IMAGE_MULTIPLE= 1;
-    List<Uri> imageUri;
+    private List<Uri> imageUri;
     private TextView locationTextView , preferencesTextView;
-    Geocoder geocoder;
-    FirebaseFirestore mDocRef = FirebaseFirestore.getInstance();
-
-    ImageView maleImage,femaleImage,petImage,smokingImage, userImageView;
-    Button publishPostButton ,addImageButton,locationImageButton , preferencesImageButton;
-    ViewPager viewPager;
+    private Geocoder geocoder;
+    private ImageView maleImage,femaleImage,petImage,smokingImage, userImageView;
+    private Button publishPostButton ,addImageButton,locationImageButton , preferencesImageButton;
+    private ViewPager viewPager;
     private DotsIndicator dotsIndicator;
-    ImageView deleteImageButton;
-    ViewPagerAdapter viewPagerAdapter;
-    int currentViewPagerPosition;
+    private ImageView deleteImageButton;
+    private ViewPagerAdapter viewPagerAdapter;
+    private int currentViewPagerPosition;
     private TabLayout postTabLayout;
-    EditText descriptionEditText;
-    StorageReference filePath;
-//    String postUniqueName;
+    private EditText descriptionEditText;
+    private StorageReference filePath;
+    private RequestQueue requestQueue;
+    //    String postUniqueName;
     TextView budgetTextView, numberOfRoomMatesTextView ,addImageWarning;
     int budget , numberOfRoommates;
     List<String> preferences ;
     Validate validate;
-
-
-
+    private FirebaseAuth mAuth;
     // override the interface method "sendNewLocation" to get the preferances
     @Override
     public void sendNewLocation(LatLng selectedLatLng, String selectedAddress , String selectedLocationName) {
@@ -215,16 +220,14 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         v = inflater.inflate(R.layout.fragment_publish_post, container, false);
-
+        mAuth=FirebaseAuth.getInstance();
+        requestQueue= Volley.newRequestQueue(getActivity());
         return v;
     }
-
-
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         locationTextView = v.findViewById(R.id.location_text_view);
         preferencesImageButton= v.findViewById(R.id.preferences_image_button);
         publishPostButton =  v.findViewById(R.id.publish_post_button);
@@ -423,6 +426,7 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
         MainActivity.btm_view.setVisibility(View.INVISIBLE);
     }
 
+
     private  void getLocation() {
         new CurrentLocationAsync(getActivity()).execute();
     }
@@ -587,7 +591,7 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
                         IMAGE_URLS.add(task.getResult().getMetadata().getReference().getPath().toString());
                         // once all the pictures are added to the Storage add the rest of the posts using the urls to the database
                         if(IMAGE_URLS.size() == imageUri.size()){
-                            addToRealTimeDatabase(locationLtLng ,  description ,  numberRoomMate ,  price , property ,IMAGE_URLS  ,  locality  , subLocality);
+                            publishApartmentPost(locationLtLng ,  description ,  numberRoomMate ,  price , property ,IMAGE_URLS  ,  locality  , subLocality);
                         }
                     }
                 }
@@ -619,71 +623,175 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
         return  saveCurrentDate+saveCurrentTime;
     }
 
-    void addToRealTimeDatabase(LatLng locationLtLng , String description , int numberRoomMate , int price , List<String> property ,List<String> IMAGE_URL , String locality , String subLocality){
-        String hash = GeoFireUtils.getGeoHashForLocation(new GeoLocation(locationLtLng.latitude, locationLtLng.longitude));
-        String userUid =  FirebaseAuth.getInstance().getCurrentUser().getUid();
-        HashMap<String ,Object> post = new HashMap<>();
-        post.put("description" , description);
-        post.put("userID" , userUid);
-        post.put("price", price);
-        post.put("numberOfRoommates" , numberRoomMate);
-        post.put("latitude", locationLtLng.latitude);
-        post.put("longitude",locationLtLng.longitude);
-        post.put("preferences" , property);
-        post.put("image_url" , IMAGE_URL );
-        post.put("locality" , locality);
-        post.put("sub_locality" , subLocality);
-        post.put("time_stamp", FieldValue.serverTimestamp());
-        post.put("geoHash" , hash);
-
-        mDocRef.collection("postApartment").add(post).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+    void publishApartmentPost(LatLng locationLtLng , String description , int numberRoomMate , int price , List<String> property , List<String> IMAGE_URL , String locality , String subLocality){
+        FirebaseUser firebaseUser = mAuth.getCurrentUser();
+        firebaseUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
             @Override
-            public void onComplete(@NonNull Task<DocumentReference> task) {
-                PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
-                postPublishedDialog.show(getParentFragmentManager() , null);
+            public void onComplete(@NonNull @NotNull Task<GetTokenResult> task) {
+                if (task.isSuccessful()) {
+                    String token = task.getResult().getToken();
+                    JSONObject jsonObject = new JSONObject();
+                    JSONObject data = new JSONObject();
+                    JSONObject postDetails = new JSONObject();
+                    try {
+                        String hash = GeoFireUtils.getGeoHashForLocation(new GeoLocation(locationLtLng.latitude, locationLtLng.longitude));
+                        postDetails.put("description" , description);
+                        postDetails.put("userID" , firebaseUser.getUid());
+                        postDetails.put("price", price);
+                        postDetails.put("numberOfRoommates" , numberRoomMate);
+                        postDetails.put("latitude", locationLtLng.latitude);
+                        postDetails.put("longitude",locationLtLng.longitude);
+                        postDetails.put("preferences" , property);
+                        postDetails.put("image_url" , IMAGE_URL );
+                        postDetails.put("locality" , locality);
+                        postDetails.put("sub_locality" , subLocality);
+                        postDetails.put("time_stamp", FieldValue.serverTimestamp());
+                        postDetails.put("geoHash" , hash);
+                        jsonObject.put("postDetails", postDetails);
+                        jsonObject.put("postType", "postApartment");
+                        data.put("data", jsonObject);
+                    }catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_PUBLISH_POST, data, response ->{
+                        try {
+                            boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
+                            String message = response.getJSONObject(Config.result).getString(Config.message);
+                            if (success) {
+                                PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
+                                postPublishedDialog.setMessageText(message);
+                                postPublishedDialog.show(getParentFragmentManager() , null);
+                            }
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }, error -> {
+                        PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
+                        postPublishedDialog.setMessageText("an error occured while publishing your post");
+                        postPublishedDialog.warningMessage(true);
+                    })
+                    {
+                        @Override
+                        public Map<String, String> getHeaders() {
+                            Map<String, String> params = new HashMap<>();
+                            params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
+                            params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
+                            return params;
+                        }
+                    };
+                    requestQueue.add(jsonObjectRequest);
+                } else {
+//                    todo handle error
+                }
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
-            public void onFailure(@NonNull Exception e) {
-                PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
-                postPublishedDialog.setMessageText("an error occured while publishing your post");
-                postPublishedDialog.warningMessage(true);
+            public void onFailure(@NonNull @NotNull Exception e) {
+//                todo when token is null
             }
         });
+
+//        mDocRef.collection("postApartment").add(post).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+//            @Override
+//            public void onComplete(@NonNull Task<DocumentReference> task) {
+//                PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
+//                postPublishedDialog.show(getParentFragmentManager() , null);
+//            }
+//        }).addOnFailureListener(new OnFailureListener() {
+//            @Override
+//            public void onFailure(@NonNull Exception e) {
+//                PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
+//                postPublishedDialog.setMessageText("an error occured while publishing your post");
+//                postPublishedDialog.warningMessage(true);
+//            }
+//        });
 
     }
 
     void publishPersonalPost(String description , int price , List<String> property ){
-        String userUid =  FirebaseAuth.getInstance().getCurrentUser().getUid();
+        FirebaseUser firebaseUser  =  mAuth.getCurrentUser();
         //move to the publish post page while the data is being posted
         getFragment(new PublishPost());
         publishPostButton.setVisibility(View.INVISIBLE);
-
-
-        final HashMap<String ,Object> post = new HashMap<>();
-
-        post.put("description" , description);
-        post.put("userID" , userUid);
-        post.put("price", price);
-        post.put("preferences" , property);
-        // add the time of the post
-        post.put("time_stamp",FieldValue.serverTimestamp());
-
-        mDocRef.collection("postPersonal").add(post).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+        firebaseUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
             @Override
-            public void onComplete(@NonNull Task<DocumentReference> task) {
-                PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
-                postPublishedDialog.show(getParentFragmentManager() , null);
-            }
+            public void onComplete(@NonNull @NotNull Task<GetTokenResult> task) {
+                if (task.isSuccessful()) {
+                    String token = task.getResult().getToken();
+                    JSONObject jsonObject = new JSONObject();
+                    JSONObject data = new JSONObject();
+                    JSONObject postDetails = new JSONObject();
+                    try {
+                        postDetails.put("description" , description);
+                        postDetails.put("userID" , firebaseUser.getUid());
+                        postDetails.put("price", price);
+                        postDetails.put("preferences" , property);
+                        // add the time of the post
+                        postDetails.put("time_stamp",FieldValue.serverTimestamp());
+                        jsonObject.put("postDetails", postDetails);
+                        jsonObject.put("postType", "postPersonal");
+                        data.put("data", jsonObject);
+
+                    }catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_PUBLISH_POST, data, response ->{
+                        try {
+                            boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
+                            String message = response.getJSONObject(Config.result).getString(Config.message);
+                            if (success) {
+                                PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
+                                postPublishedDialog.setMessageText(message);
+                                postPublishedDialog.show(getParentFragmentManager() , null);
+                            }
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }, error -> {
+//  todo later change this dialog thingy to snack bar or something similar
+                        PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
+                        postPublishedDialog.setMessageText("an error occured while publishing your post");
+                        postPublishedDialog.warningMessage(true);
+                    })
+                    {
+                        @Override
+                        public Map<String, String> getHeaders() {
+                            Map<String, String> params = new HashMap<>();
+                            params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
+                            params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
+                            return params;
+                        }
+                    };
+                    requestQueue.add(jsonObjectRequest);
+                } else {
+//                    todo handle error
+                }
+                }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
-            public void onFailure(@NonNull Exception e) {
-                PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
-                postPublishedDialog.setMessageText("An error occurred while publishing your post");
-                postPublishedDialog.warningMessage(true);
+            public void onFailure(@NonNull @NotNull Exception e) {
+//                todo when token is null
             }
         });
-        getFragment(new FindRoommate());
+
+//        mDocRef.collection("postPersonal").add(post).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+//            @Override
+//            public void onComplete(@NonNull Task<DocumentReference> task) {
+//                PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
+//                postPublishedDialog.show(getParentFragmentManager() , null);
+//            }
+//        }).addOnFailureListener(new OnFailureListener() {
+//            @Override
+//            public void onFailure(@NonNull Exception e) {
+//                PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
+//                postPublishedDialog.setMessageText("An error occurred while publishing your post");
+//                postPublishedDialog.warningMessage(true);
+//            }
+//        });
+//        idk why this get fragment is here
+//        getFragment(new FindRoommate());
 
 
     }
@@ -706,16 +814,12 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
     }
 
     void deleteFromView(){
-
-
         if(imageUri.size()<=1){
             imageUri.remove(0);
         }else {
             imageUri.remove(currentViewPagerPosition);
         }
-
         validate.notifyDataChanged();
-
         //initalize adapter with the list of uri
         viewPagerAdapter = new ViewPagerAdapter(getActivity(), imageUri);
         // set the view pager to the adapter
@@ -740,19 +844,17 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
         ft.commit();
 
     }
-
-
     private void getUserImage(){
+
         DatabaseReference rootRef= FirebaseDatabase.getInstance().getReference();
-        String currUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        rootRef.child("Users").child(currUser).addListenerForSingleValueEvent(new ValueEventListener() {
+        FirebaseUser firebaseUser= mAuth.getCurrentUser();
+        rootRef.child("Users").child(firebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
-
                     String url = snapshot.child("image").getValue(String.class);
                     if(!url.isEmpty()){
-                        GlideApp.with(getActivity())
+                        GlideApp.with(getContext())
                                 .load(url)
                                 .centerCrop()
                                 .circleCrop()
@@ -762,19 +864,13 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
 
                 }
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
 
             }
         });
     }
-
-
-
-
 }
-
 class Validate{
     Context context;
     DataChangedEvent listener;
@@ -834,10 +930,7 @@ static class OnDataChangedListener implements DataChangedEvent {
             warningTextView.setVisibility(View.GONE);
         }
     }
-
-
 }
-
 }
 
 

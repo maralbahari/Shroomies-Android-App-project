@@ -42,10 +42,6 @@ public class Config {
     public static final String left = "left";
     public static final String joined = "joined";
     public static final String removed = "removed";
-    public static final String expenseImages = "expensesImage";
-    public static final String token= "token";
-
-
 
 
 
@@ -116,5 +112,7 @@ public class Config {
     public static final String URL_REGISTER_USER = "https://us-central1-shroomies-e34d3.cloudfunctions.net/registerUser";
     public static final String URL_REMOVE_MEMBER= "https://us-central1-shroomies-e34d3.cloudfunctions.net/removeMember";
     public static final String URL_GET_LOGS = "https://us-central1-shroomies-e34d3.cloudfunctions.net/getLogs";
-    public static final String URL_GET_VIRGIL_JWT = "https://us-central1-shroomies-e34d3.cloudfunctions.net/getVirgilJwt";
+    public static final String URL_PUBLISH_POST="https://us-central1-shroomies-e34d3.cloudfunctions.net/publishPost";
+
+
 }

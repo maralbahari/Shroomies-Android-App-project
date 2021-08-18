@@ -31,9 +31,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.mxn.soul.flowingdrawer_core.ElasticDrawer;
 import com.mxn.soul.flowingdrawer_core.FlowingDrawer;
 import com.mxn.soul.flowingdrawer_core.FlowingMenuLayout;
-
 import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
 import java.util.List;
 
