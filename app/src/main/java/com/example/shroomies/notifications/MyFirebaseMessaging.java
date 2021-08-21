@@ -111,7 +111,14 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
             String title = msg.getNotification().getTitle();
             String body = msg.getNotification().getBody();
             String contentType=msg.getData().get("contentType");
-            int i = Integer.parseInt(userID.replaceAll("[\\D]", ""));
+            int i;
+            String idWithoutLetters = userID.replaceAll("[\\D]", "");
+            if(idWithoutLetters.length()<10){
+                i = Integer.parseInt(idWithoutLetters);
+            }else{
+                i = Integer.parseInt(idWithoutLetters.substring(0,9));
+            }
+
             if (contentType.equals("task")) {
                 String cardID=msg.getData().get("task");
                 Intent intent = new Intent(this, MyShroomiesActivity.class);
