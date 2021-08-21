@@ -26,6 +26,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.ChildEventListener;
@@ -131,8 +132,7 @@ public class ChattingActivity extends AppCompatActivity {
             getRecepientCard(receiverID);
             getSenderCard();
             getUserDetail(receiverID);
-            retrieveMessages();
-            listenForNewMessages();
+
         } else {
             //todo handle error
         }
@@ -244,6 +244,7 @@ public class ChattingActivity extends AppCompatActivity {
                 .limitToLast(MESSAGE_PAGINATION_AMOUNT)
                 .get().addOnCompleteListener(task -> {
                     if(task.isSuccessful()){
+                        Log.d("retrieveMessages" , "message retrieved");
                         messageStartPosition = messagesArrayList.size();
                         messagesArrayList.clear();
                         for (DataSnapshot dataSnapshot
@@ -264,7 +265,13 @@ public class ChattingActivity extends AppCompatActivity {
                         messagesAdapter.notifyItemRangeInserted(messageStartPosition, messageEndPosition);
                         chattingRecycler.smoothScrollToPosition(chattingRecycler.getAdapter().getItemCount());
                     }
-                });
+                }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Log.d("retrieveMessages" , e.getMessage());
+
+            }
+        });
     }
     void listenForNewMessages(){
         rootRef.child(Config.messages)
@@ -531,8 +538,17 @@ public class ChattingActivity extends AppCompatActivity {
 //                            // Encrypt data using user public keys
 //                            com.virgilsecurity.common.model.Data encryptedData = eThree.authEncrypt(data, findUsersResult);
 ////                             Encrypt message using user public key
-                        recepientVirgilCard = card;
-                        Log.d("recepientVirgilCard", "yeahhh");
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                recepientVirgilCard = card;
+                                if(senderVirgilCard!=null){
+                                    retrieveMessages();
+                                    listenForNewMessages();
+                                }
+                            }
+                        });
+
                         //TODO disable send button until cards are recived
 
                     }
@@ -553,8 +569,16 @@ public class ChattingActivity extends AppCompatActivity {
                 new OnResultListener<Card>() {
                     @Override
                     public void onSuccess(Card senderCard) {
-                        senderVirgilCard = senderCard;
-                        Log.d("senderVirgilCard", "yeahhh");
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                senderVirgilCard = senderCard;
+                                if(recepientVirgilCard!=null){
+                                    retrieveMessages();
+                                    listenForNewMessages();
+                                }
+                            }
+                        });
                     }
 
                     @Override
@@ -597,5 +621,7 @@ public class ChattingActivity extends AppCompatActivity {
         }
         return byteBuffer.toByteArray();
     }
+
+
 
 }
