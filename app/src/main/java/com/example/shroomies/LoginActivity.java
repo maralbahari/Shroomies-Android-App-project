@@ -64,9 +64,7 @@ public class LoginActivity extends AppCompatActivity {
     TextView forgotPassword;
     CustomLoadingProgressBar progressBar;
     Button google_sign;
-    SessionManager sessionManager;
     public  EThree eThree;
-    private String ethreeToken;
     private DatabaseReference rootRef;
     @Override
     protected void onCreate(Bundle savedInstanceState) {

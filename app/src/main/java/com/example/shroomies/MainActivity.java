@@ -200,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
                         for (DataSnapshot dataSnapshot1:
                                 dataSnapshot.getChildren()){
                             Messages message= dataSnapshot1.getValue(Messages.class);
-                            if (!message.getIsSeen().equals("true")){
+                            if (!message.getIsSeen()){
                                 unSeenMessageList.add(message);
                             }
 

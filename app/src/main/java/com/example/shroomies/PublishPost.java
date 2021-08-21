@@ -559,9 +559,7 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
                     addToViewPager(selectedImageUri);
                 } else {
 
-
                 }
-
             }
             }
         }
