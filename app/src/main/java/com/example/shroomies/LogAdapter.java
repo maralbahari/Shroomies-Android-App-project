@@ -53,7 +53,6 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
         this.usersMap = usersMap;
         this.fm = fm;
 
-
     }
 
     @NonNull
@@ -78,6 +77,7 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
                             .fitCenter()
                             .circleCrop()
                             .error(R.drawable.ic_user_profile_svgrepo_com)
+
                             .transition(DrawableTransitionOptions.withCrossFade()) //Here a fading animation
                             .into(holder.userPic);
                 }
@@ -238,10 +238,8 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
                    }
               break;
           case Config.removed:
-              holder.logMessage.setText(removedUser);
               holder.logMessage.append(" removed ");
-              //the actor id will be the name only in case of removing and leaving
-              holder.logMessage.append(actorID);
+              holder.logMessage.append(removedUser);
               break;
           case Config.left:
               holder.logMessage.setText(actorID);

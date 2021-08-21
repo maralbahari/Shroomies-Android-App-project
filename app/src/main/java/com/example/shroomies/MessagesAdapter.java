@@ -40,8 +40,8 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
 
     public MessagesAdapter(List<Messages> userMessagesList, Context context, Card recipientVirgilCard, Card senderVirgilCard) {
         this.userMessagesList = userMessagesList;
+        ethree = EthreeSingleton.getInstance(context , null , null).getEthreeInstance();
         this.context = context;
-        this.ethree = LoginActivity.eThree;
         this.recipientVirgilCard = recipientVirgilCard;
         this.senderVirgilCard = senderVirgilCard;
     }

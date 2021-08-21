@@ -177,7 +177,6 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
                                 return params;
                             }
                         };
-
                         requestQueue.add(jsonObjectRequest);
                     }else{
                         displayErrorAlert(null, "An unexpected error occured");
@@ -190,7 +189,6 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
         }
 
          private void acceptRequest(final String senderID){
-
             mAuth.getCurrentUser().getIdToken(true).addOnCompleteListener(task -> {
                 if(task.isSuccessful()){
                     String token = task.getResult().getToken();
@@ -200,12 +198,11 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
                     JSONObject jsonObject = new JSONObject();
                     JSONObject data = new JSONObject();
                     try {
-                        data.put(Config.data , jsonObject);
                         jsonObject.put(Config.receiverID  , mAuth.getCurrentUser().getUid());
                         jsonObject.put(Config.receiverApartmentID  ,apartmentID );
                         jsonObject.put(Config.senderID , senderID);
                         jsonObject.put(Config.role , role);
-
+                        data.put(Config.data , jsonObject);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }

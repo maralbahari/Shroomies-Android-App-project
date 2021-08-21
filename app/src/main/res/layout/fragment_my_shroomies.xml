@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:gravity="bottom"
-    sothree:umanoPanelHeight="24dp"
+    sothree:umanoPanelHeight="28dp"
     app:umanoDragView="@id/expand_button"
     sothree:umanoOverlay="true"
     app:umanoShadowHeight="0dp"
@@ -126,7 +126,9 @@
             android:layout_marginRight="3dp"
             android:paddingBottom="30dp"
             android:clipToPadding="false"
-          />
+            android:layoutAnimation="@anim/recycler_view_anim"
+
+            />
 
 
         <androidx.recyclerview.widget.RecyclerView
@@ -141,7 +143,9 @@
             android:visibility="gone"
             android:paddingBottom="30dp"
             android:clipToPadding="false"
-           />
+            android:layoutAnimation="@anim/recycler_view_anim"
+
+            />
 
 
 
@@ -161,7 +165,7 @@
 
             <ImageButton
                 android:id="@+id/expand_button"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:background="@android:color/transparent"

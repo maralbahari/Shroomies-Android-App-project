@@ -34,7 +34,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_toEndOf="@+id/owner_image"
-                android:layout_toStartOf="@id/admin_text_view"
+                android:layout_toStartOf="@id/msg_admin"
+                android:layout_marginStart="5dp"
                 android:layout_centerVertical="true"
                 android:lines="1"
                 android:textColor="@color/jetBlack"/>
@@ -43,11 +44,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="15dp"
-                android:layout_marginEnd="15dp"
+                android:layout_marginEnd="17dp"
                 android:textSize="12sp"
                 android:layout_centerVertical="true"
                 android:layout_alignBottom="@id/admin_name"
-                android:layout_toStartOf="@id/msg_admin"
+                android:layout_alignParentEnd="true"
                 android:text="Admin" />
 
             <ImageButton
@@ -55,8 +56,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:layout_alignParentEnd="true"
                 android:layout_marginEnd="20dp"
+                android:layout_marginStart="10dp"
+                android:layout_toStartOf="@id/admin_text_view"
                 android:layout_gravity="center"
                 android:background="@color/white"
                 android:src="@drawable/ic_message"
@@ -71,6 +73,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/admin_details"
+            android:layout_above="@id/leave_room_btn"
+            android:overScrollMode="never"
+            android:layoutAnimation="@anim/recycler_view_anim"
+
             />
 
 

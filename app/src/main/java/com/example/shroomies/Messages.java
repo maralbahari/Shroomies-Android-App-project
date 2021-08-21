@@ -2,25 +2,20 @@ package com.example.shroomies;
 
 public class Messages {
 
-    public String date;
-    public String time;
-    public String type;
-    public String message;
-    public String from;
-    public String streamKeyData;
+    public String date, time, type, message,from, streamKeyData;
+    public boolean isSeen;
 
 
-    public String getIsSeen() {
+    public boolean getIsSeen() {
         return isSeen;
     }
 
-    public String isSeen;
 
     public Messages() {
 
     }
 
-    public Messages(String date, String time, String type, String message, String from, String isSeen) {
+    public Messages(String date, String time, String type, String message, String from, boolean isSeen) {
         this.date = date;
         this.time = time;
         this.type = type;

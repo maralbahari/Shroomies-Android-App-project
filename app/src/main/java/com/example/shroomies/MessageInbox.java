@@ -1,128 +1,94 @@
 package com.example.shroomies;
 
-import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.ImageButton;
-import android.widget.Toast;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.material.tabs.TabLayout;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.google.common.net.HttpHeaders;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
 
 
-public class MessageInbox extends AppCompatActivity {
-   private ImageButton addgroupButton;
-   private Toolbar inboxToolbar;
-   private RecyclerView inboxListRecyclerView;
-    private FragmentTransaction ft;
-    private FragmentManager fm;
-    private  List<String> usersArrayList=new ArrayList<>();
-    private  List<Group> groupList = new ArrayList<>();
+public class MessageInbox extends Fragment {
+    private View v;
+    private RecyclerView inboxListRecyclerView;
+    private ArrayList<RecieverInbox> recieverInboxArrayList;
     private LinearLayoutManager linearLayoutManager;
     private PrivateInboxRecycleViewAdapter messageInboxRecycleViewAdapter;
-    private GroupInboxRecyclerViewAdapter groupInboxRecyclerViewAdapter;
-    private String receiverID;
-    private FirebaseAuth mAuth;
     private DatabaseReference rootRef;
-    private TabLayout inboxTabLayout;
-    @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_message_inbox);
-        //database
-        rootRef= FirebaseDatabase.getInstance().getReference();
-        // find views
-        inboxToolbar=(Toolbar) findViewById(R.id.message_inbox_toolbar);
-        inboxListRecyclerView =findViewById(R.id.inbotx_recycler);
-        addgroupButton=findViewById(R.id.add_chat_group_button);
-        inboxTabLayout = findViewById(R.id.tab_layout_inbox_message);
+    private FirebaseAuth mAuth;
+    private HashMap<String , User>userHashMap;
+    private ArrayList<String> inboxUserIDs;
+    private RequestQueue requestQueue;
 
-        //set Action bar
-        setSupportActionBar(inboxToolbar);
-        ActionBar actionBar=getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setDisplayShowHomeEnabled(true);
-        LayoutInflater inflater= (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        View actionbarView=inflater.inflate(R.layout.toolbar_inbox_layout,null);
-        actionBar.setCustomView(actionbarView);
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        v = inflater.inflate(R.layout.fragment_message_inbox, container, false);
+        rootRef= FirebaseDatabase.getInstance().getReference();
+        requestQueue = Volley.newRequestQueue(getActivity());
+        mAuth = FirebaseAuth.getInstance();
+        return v;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        inboxListRecyclerView =v.findViewById(R.id.inbox_recycler);
+        linearLayoutManager=new LinearLayoutManager(getActivity());
+        inboxListRecyclerView.setHasFixedSize(true);
+        inboxListRecyclerView.setLayoutManager(linearLayoutManager);
+
         getPrivateChatList();
 
-        // add group button
-        addgroupButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-               CreateChatGroupFragment createChatGroupFragment=new CreateChatGroupFragment();
-
-               createChatGroupFragment.show(getSupportFragmentManager(),"create group dialog 1");
-            }
-        });
-
-        // initiate the tabs
-        inboxTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                if(tab.getPosition()==0){
-                    usersArrayList = new ArrayList<>();
-                    getPrivateChatList();
-                }
-                else if(tab.getPosition()==1){
-                    groupList = new ArrayList<>();
-                    getGroupChatList();
-                }
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-
-            }
-        });
-
-
     }
+
     public void getPrivateChatList(){
-        usersArrayList = new ArrayList<>();
-        messageInboxRecycleViewAdapter=new PrivateInboxRecycleViewAdapter(usersArrayList,getApplicationContext());
-        linearLayoutManager=new LinearLayoutManager(this);
-        inboxListRecyclerView.setHasFixedSize(true);
-        inboxListRecyclerView.setLayoutManager(linearLayoutManager);
-        inboxListRecyclerView.setAdapter(messageInboxRecycleViewAdapter);
-        rootRef.child("PrivateChatList").child(mAuth.getInstance().getCurrentUser().getUid()).orderByChild("receiverID").addValueEventListener(new ValueEventListener() {
+        recieverInboxArrayList = new ArrayList<>();
+        inboxUserIDs = new ArrayList<>();
+        userHashMap = new HashMap<>();
+        rootRef.child(Config.inboxes).child(mAuth.getInstance().getCurrentUser().getUid()).orderByChild(Config.receiverID).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                usersArrayList.clear();
                 if (snapshot.exists()) {
+                    Log.d("messege recived" ,snapshot.toString());
                     for (DataSnapshot ds : snapshot.getChildren()) {
-                        HashMap<String,String> recivers= (HashMap) ds.getValue();
-                        usersArrayList.add(recivers.get("receiverID"));
-                        Toast.makeText(getApplicationContext(), recivers.toString(), Toast.LENGTH_SHORT).show();
-                    }
+                        RecieverInbox recieverInbox = ds.getValue(RecieverInbox.class);
+                        recieverInboxArrayList.add(recieverInbox);
+                        inboxUserIDs.add(recieverInbox.getReceiverID());
+                        //todo check if the same users are already in the map already in the map
+//                        Toast.makeText(getActivity(), recivers.toString(), Toast.LENGTH_SHORT).show();
 
-                    messageInboxRecycleViewAdapter.notifyDataSetChanged();
+                    }
+                    getMemberData(inboxUserIDs , recieverInboxArrayList);
                 }
             }
             @Override
@@ -132,45 +98,59 @@ public class MessageInbox extends AppCompatActivity {
         });
     }
 
-
-    private void getGroupChatList() {
-        groupList = new ArrayList<>();
-        groupInboxRecyclerViewAdapter =new GroupInboxRecyclerViewAdapter(groupList,getApplicationContext());
-        linearLayoutManager=new LinearLayoutManager(this);
-        inboxListRecyclerView.setHasFixedSize(true);
-        inboxListRecyclerView.setLayoutManager(linearLayoutManager);
-        inboxListRecyclerView.setAdapter(groupInboxRecyclerViewAdapter);
-
-        rootRef.child("GroupChatList").child(mAuth.getInstance().getCurrentUser().getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.exists()){
-                    for (DataSnapshot dataSnapshot:snapshot.getChildren()){
-                        rootRef.child("GroupChats").child(dataSnapshot.getKey()).addListenerForSingleValueEvent(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                Group group = snapshot.getValue(Group.class);
-                                groupList.add(group);
-                                groupInboxRecyclerViewAdapter.notifyDataSetChanged();
-                            }
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
-
-                            }
-                        });
+    void getMemberData(ArrayList<String> inboxIDs , ArrayList<RecieverInbox> recieverInboxArrayList){
+        if(inboxIDs!=null) {
+            FirebaseUser firebaseUser = mAuth
+                    .getCurrentUser();
+            firebaseUser.getIdToken(true).addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    String token= task.getResult().getToken();
+                    JSONObject jsonObject = new JSONObject();
+                    JSONObject data = new JSONObject();
+                    JSONArray usersJSONArray = new JSONArray(inboxIDs);
+                    try {
+                        jsonObject.put(Config.membersID , usersJSONArray);
+                        data.put(Config.data ,  jsonObject);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
                     }
+                    JsonObjectRequest jsonObjectRequest  = new JsonObjectRequest(Request.Method.POST, Config.URL_GET_MEMBER_DETAIL, data, response -> {
+                        try {
+                            JSONObject result = response.getJSONObject(Config.result);
+                            boolean success = result.getBoolean(Config.success);
+                            if(success){
+                                final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
+                                mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
+                                JSONArray users1 = result.getJSONArray(Config.members);
+                                for (int i = 0; i < users1.length(); i++) {
+                                    User user = mapper.readValue(users1.get(i).toString(), User.class);
+                                    userHashMap.put(user.getUserID(), user);
+                                }
+                                messageInboxRecycleViewAdapter=new PrivateInboxRecycleViewAdapter(recieverInboxArrayList,userHashMap,getActivity());
+                                inboxListRecyclerView.setAdapter(messageInboxRecycleViewAdapter);
 
+                            }
+                        } catch (JSONException | JsonProcessingException e) {
+                            e.printStackTrace();
+                        }
+
+                    }, error -> {
+                        //todo handle the error
+                    }) {
+                        @Override
+                        public Map<String, String> getHeaders() {
+                            Map<String, String> params = new HashMap<>();
+                            params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
+                            params.put(HttpHeaders.AUTHORIZATION, "Bearer " + token);
+                            return params;
+                        }
+                    };
+                    requestQueue.add(jsonObjectRequest);
                 }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
-
+            });
+        }
 
     }
+
 
 }

@@ -128,7 +128,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
     //variables
     private ShroomiesApartment apartment;
     private boolean  expensesCardSelected;
-    private String fileExtension,captureFileName , fileType , dueDate;
+    private String fileExtension,captureFileName , fileType , dueDate ;
     private Uri chosenImageUri = null;
     //interface
     private CardUploaded cardUploaded;
@@ -517,7 +517,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
         });
     }
 
-    public void addExpenseCard(String title, String description, String dueDate, String attachUrl , String fileType, String importance, JSONObject mMention, String apartmentID, HashMap<String, Integer> shareAmounts) {
+    public void addExpenseCard(String title, String description, String dueDate, String attachUrl , String fileType, String importance, JSONObject mMention, String apartmentID, HashMap<String, Integer> shareAmounts , String fileName) {
        //get the authorization token
         //if authorization token is recived then proceed
         FirebaseUser firebaseUser = mAuth.getCurrentUser();
@@ -538,6 +538,8 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                     cardDetails.put("dueDate", dueDate);
                     cardDetails.put("importance", importance);
                     cardDetails.put("attachedFile", attachUrl);
+
+                    cardDetails.put("fileName", fileName);
                     cardDetails.put("fileType", fileType);
                     cardDetails.put("date", dateFormat.format(ZonedDateTime.now()));
                     cardDetails.put("cardID", "");
@@ -610,9 +612,21 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
 
     public void uploadImgToFirebaseStorage( String title,  String description,  String dueDate,  String importance, Uri imgUri , JSONObject mMention, HashMap<String, Integer> sharedAmounts) {
 
+
+
         if (imgUri == null) {
-            addExpenseCard(title, description, dueDate, "" , "", importance, mMention,apartment.getApartmentID(),sharedAmounts);
+            addExpenseCard(title, description, dueDate, "" , "", importance, mMention,apartment.getApartmentID(),sharedAmounts , null);
         } else {
+
+            //add the date to make the filename unique in the database
+            Date date = new Date();
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyMMddhhmmssMs");
+            String datetime = simpleDateFormat.format(date);
+
+            //get the file name
+            String fileNameWithoutExtension = new File(chosenImageUri.getPath()).getName();
+            //add the extension of the file name
+            String fileName = datetime+fileNameWithoutExtension +fileExtension;
 
             String type =  null;
             switch (fileType){
@@ -623,13 +637,14 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                      type = "application/pdf";
                     break;
             }
+
             StorageMetadata metadata = new StorageMetadata.Builder()
                     .setContentType(type)
                     .build();
 
-            StorageReference filePath = mStorage.getReference().child("expenseImages").child(apartment.getApartmentID()).child("Card post image").child(imgUri.getLastPathSegment() + fileExtension);
+            StorageReference filePath = mStorage.getReference().child(Config.expenseImages).child(apartment.getApartmentID()).child(fileName);
             filePath.putFile(imgUri , metadata).addOnCompleteListener(task -> task.getResult().getMetadata().getReference().getDownloadUrl().addOnSuccessListener(uri -> {
-                addExpenseCard(title, description, dueDate, uri.toString()  , fileType, importance, mMention,apartment.getApartmentID(),sharedAmounts);
+                addExpenseCard(title, description, dueDate, uri.toString()  , fileType, importance, mMention,apartment.getApartmentID(),sharedAmounts  ,fileName );
             })).addOnFailureListener(e -> {
                 loadingLottieAnimationView.setVisibility(View.GONE);
                 addCardTextView.setText("Add card");
@@ -735,7 +750,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                         Date date = new Date();
                         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyMMddhhmmssMs");
                         String datetime = simpleDateFormat.format(date);
-                        captureFileName = datetime+ "newPhoto.jpg";
+                        captureFileName = datetime+ "newPhoto";
                         //TODO test
                         File file = new File(Environment.getExternalStorageDirectory(), captureFileName );
                         Uri uri = FileProvider.getUriForFile(getActivity(), getActivity().getPackageName() + ".provider", file);
@@ -778,6 +793,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                             fileExtension = ".jpg";
                             fileType = "image";
                             addSelectedImageToImageView(chosenImageUri, false);
+
                         } else {
                             Snackbar.make(rootLayout, "This file is too large", BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.my_shroomies_add_text_view).show();
                         }

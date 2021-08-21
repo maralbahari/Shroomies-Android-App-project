@@ -117,8 +117,8 @@ public class RequestFragment extends Fragment {
         JSONObject jsonObject = new JSONObject();
         JSONObject data = new JSONObject();
         try {
-            jsonObject.put("userID" , mAuth.getCurrentUser().getUid());
-            data.put("data" , jsonObject);
+            jsonObject.put(Config.userID , mAuth.getCurrentUser().getUid());
+            data.put(Config.data , jsonObject);
         } catch (JSONException e) {
             e.printStackTrace();
         }

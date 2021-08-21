@@ -11,9 +11,24 @@ import java.util.HashMap;
 
 public class ExpensesCard implements Parcelable {
 
-    String attachedFile, description, title,
-            dueDate,importance,cardID,
-             fileType,actor;
+    String attachedFile;
+    String description;
+    String title;
+    String dueDate;
+    String importance;
+    String cardID;
+    String fileType;
+    String actor;
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    String fileName;
     boolean done;
     HashMap<String, String> mention;
 

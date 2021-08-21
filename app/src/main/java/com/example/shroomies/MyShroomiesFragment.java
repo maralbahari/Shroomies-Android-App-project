@@ -6,7 +6,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
@@ -18,6 +17,7 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -48,6 +48,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.skydoves.powerspinner.PowerSpinnerView;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
+import com.virgilsecurity.crypto.foundation.Hash;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -81,7 +82,6 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
     private IOverScrollStateListener onOverPullListener;
     private RelativeLayout noCardsLayout;
     private Toolbar toolbar;
-
     //data structures
     private ArrayList<TasksCard> tasksCardsList;
     private ArrayList<ExpensesCard> expensesCardsList;
@@ -101,6 +101,7 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
     private FragmentManager fm;
     //values
     private String selectedCardID , selectedCardType;
+    private static final String TASK_CARD_LIST = "TASK_CARD_LIST" ,EXPENSE_CARD_LIST = "EXPENSE_CARD_LIST";
     private boolean cardFound =false;
     private int recyclerPosition=0;
     boolean scrollFromTop;
@@ -136,11 +137,10 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
         return v;
     }
 
-
-
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
         myTasksRecyclerView = v.findViewById(R.id.my_tasks_recycler_view);
 
         myShroomiesTablayout = v.findViewById(R.id.my_shroomies_tablayout);
@@ -164,6 +164,11 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
         toolbar.setElevation(0);
         toolbar.findViewById(R.id.myshroomies_toolbar_logo).setVisibility(View.VISIBLE);
         toolbar.findViewById(R.id.my_shroomies_add_card_btn).setVisibility(View.VISIBLE);
+        toolbar.setNavigationIcon(R.drawable.ic_back_button);
+        toolbar.setNavigationOnClickListener(view1 -> {
+            getActivity().onBackPressed();
+        });
+
 
         ImageButton addCardButton = toolbar.findViewById(R.id.my_shroomies_add_card_btn);
         addCardButton.setVisibility(View.VISIBLE);
@@ -182,11 +187,9 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
         expensesDecor = OverScrollDecoratorHelper.setUpOverScroll(myExpensesRecyclerView, OverScrollDecoratorHelper.ORIENTATION_VERTICAL);
         tasksDecor = OverScrollDecoratorHelper.setUpOverScroll(myTasksRecyclerView, OverScrollDecoratorHelper.ORIENTATION_VERTICAL);
         onOverPullListener = (decor, oldState, newState) -> {
-
             if(oldState== 1){
                 scrollFromTop=true;
             }
-
             if (newState == 0 && scrollFromTop) {
                 //fetch new data when over scrolled from top
                 // remove the listener to prevent the user from over scrolling
@@ -302,12 +305,17 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
         });
 
         addMemberButton.setOnClickListener(v -> {
-            slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-            AddShroomieMember add=new AddShroomieMember();
-            Bundle bundle1 = new Bundle();
-            bundle1.putParcelable("APARTMENT_DETAILS",apartment);
-            add.setArguments(bundle1);
-            add.show(getParentFragmentManager(),"add member to apartment");
+            if(apartment!=null){
+                slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
+                AddShroomieMember add=new AddShroomieMember();
+                Bundle bundle1 = new Bundle();
+                bundle1.putParcelable("APARTMENT_DETAILS",apartment);
+                add.setArguments(bundle1);
+                add.show(getParentFragmentManager(),"add member to apartment");
+            }else{
+                Toast.makeText(getActivity() , "apartment null", Toast.LENGTH_SHORT).show();
+            }
+
         });
 
 
@@ -343,6 +351,7 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
             }
         });
         logButton.setOnClickListener(view12 -> {
+            slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
             if(apartment!=null) {
                 LogFragment logFragment = new LogFragment();
                 Bundle bundle = new Bundle();
@@ -360,14 +369,15 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
                 logFragment.setTargetFragment(MyShroomiesFragment.this, RESULT_CODE);
                 fm = getParentFragmentManager();
                 ft = fm.beginTransaction();
-                ft.addToBackStack(null);
+                ft.addToBackStack("null");
                 ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
                 ft.replace(R.id.my_shroomies_container, logFragment);
                 ft.commit();
             }
         });
+
         getUserToken();
-        scroll();
+
 
     }
 
@@ -432,8 +442,15 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
                         expensesCardsList = new ArrayList<>(apartment.getExpensesCard().values());
                     }
                 }
+
+
                 expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList, getActivity(), false, apartment.getApartmentID(), getChildFragmentManager(), slidingLayout , membersHashMap);
                 myExpensesRecyclerView.setAdapter(expensesCardAdapter);
+                ItemTouchHelper.Callback expenseCalback =
+                        new CardsTouchHelper(expensesCardAdapter);
+                ItemTouchHelper expenseTouchHelper = new ItemTouchHelper(expenseCalback);
+                expenseTouchHelper.attachToRecyclerView(myExpensesRecyclerView);
+
 
                 tasksCardsList = new ArrayList<>();
                 if (apartment.getTaskCard() != null) {
@@ -441,8 +458,15 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
                         tasksCardsList = new ArrayList<>(apartment.getTaskCard().values());
                     }
                 }
+
+
+
                 tasksCardAdapter = new TasksCardAdapter(tasksCardsList, getActivity(), false, apartment.getApartmentID(), getChildFragmentManager(), slidingLayout , membersHashMap);
                 myTasksRecyclerView.setAdapter(tasksCardAdapter);
+                ItemTouchHelper.Callback callback =
+                        new CardsTouchHelper(tasksCardAdapter);
+                ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
+                touchHelper.attachToRecyclerView(myTasksRecyclerView);
 
                 if (apartment.getLogs() != null) {
                     if (!apartment.getLogs().isEmpty()) {
@@ -455,6 +479,9 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
                 setListenersForemptyLists();
 
                 removeProgressView();
+
+                scroll();
+
             } else {
                 String title = "Unexpected error";
                 String message = "We have encountered an unexpected error ,try to check your internet connection and log in again.";
@@ -531,25 +558,28 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
 
     private void scroll(){
     if(selectedCardID!=null){
-        if(selectedCardType.equals("tasks")){
+        if(selectedCardType.equals(Config.task)){
             if(cardFound){
                 myShroomiesTablayout.getTabAt(1).select();
                 myShroomiesTablayout.setSelectedTabIndicator(R.drawable.tab_indicator_right);
                 myTasksRecyclerView.setVisibility(View.VISIBLE);
                 myExpensesRecyclerView.setVisibility(View.GONE);
-                myTasksRecyclerView.scrollToPosition(recyclerPosition);
+                myTasksRecyclerView.post(() -> myTasksRecyclerView.smoothScrollToPosition(recyclerPosition));
             }else{
                 Snackbar snack=Snackbar.make(slidingLayout,"This card doesn't exist anymore", BaseTransientBottomBar.LENGTH_SHORT);
                 snack.show();
             }
         }
-        if(selectedCardType.equals("expenses")){
+        if(selectedCardType.equals(Config.expenses)){
+
             if(cardFound){
                 myShroomiesTablayout.getTabAt(0).select();
                 myShroomiesTablayout.setSelectedTabIndicator(R.drawable.tab_indicator_left);
                 myTasksRecyclerView.setVisibility(View.GONE);
                 myExpensesRecyclerView.setVisibility(View.VISIBLE);
-                myExpensesRecyclerView.scrollToPosition(recyclerPosition);
+                myExpensesRecyclerView.smoothScrollToPosition(recyclerPosition);
+                myExpensesRecyclerView.post(() -> myExpensesRecyclerView.smoothScrollToPosition(recyclerPosition));
+
             }else{
                 Snackbar snack=Snackbar.make(slidingLayout,"This card doesn't exist anymore", BaseTransientBottomBar.LENGTH_SHORT);
                 snack.show();
@@ -666,7 +696,7 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
    public void sendInput(String cardID, String cardType) {
         this.selectedCardID = cardID;
         this.selectedCardType=cardType;
-        if(selectedCardType.equals("tasks")){
+        if(selectedCardType.equals(Config.task)){
             for (TasksCard card:tasksCardsList){
                 if(card.getCardID().equals(selectedCardID)){
                     final int position=tasksCardsList.indexOf(card);
@@ -679,7 +709,7 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
                 }
             }
 
-        }if(selectedCardType.equals("expenses")){
+        }if(selectedCardType.equals(Config.expenses)){
 
             for(ExpensesCard card:expensesCardsList){
                 if(card.getCardID().equals(selectedCardID)){
