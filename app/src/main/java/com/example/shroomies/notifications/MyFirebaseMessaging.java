@@ -13,6 +13,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
+import com.example.shroomies.ChattingActivity;
 import com.example.shroomies.Config;
 import com.example.shroomies.MyShroomiesActivity;
 import com.example.shroomies.R;
@@ -77,6 +78,14 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
                 intent.putExtra("TAB", Config.expenses);
                 pendingIntent = PendingIntent.getActivity(this,i,intent, PendingIntent.FLAG_ONE_SHOT);
             }
+            if (contentType.equals("privateMessage")) {
+                String messageID=msg.getData().get("messageID");
+                String receiverID=msg.getData().get("receiverID");
+                Intent intent = new Intent(this, ChattingActivity.class);
+                intent.putExtra("USERID",receiverID);
+                intent.putExtra("messageID",messageID);
+                pendingIntent=PendingIntent.getActivity(this,i,intent,PendingIntent.FLAG_ONE_SHOT);
+            }
             Uri defSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                     .setSmallIcon(R.drawable.ic_shroomies_full_black_30x28)
@@ -108,6 +117,21 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
                 Intent intent = new Intent(this, MyShroomiesActivity.class);
                 intent.putExtra("CARDID",cardID);
                 pendingIntent = PendingIntent.getActivity(this,i,intent, PendingIntent.FLAG_ONE_SHOT);
+            }
+            if (contentType.equals(Config.expenses)) {
+                String cardID=msg.getData().get(Config.cardID);
+                Intent intent = new Intent(this, MyShroomiesActivity.class);
+                intent.putExtra("CARDID",cardID);
+                intent.putExtra("TAB", Config.expenses);
+                pendingIntent = PendingIntent.getActivity(this,i,intent, PendingIntent.FLAG_ONE_SHOT);
+            }
+            if (contentType.equals("privateMessage")) {
+                String messageID=msg.getData().get("messageID");
+                String receiverID=msg.getData().get("receiverID");
+                Intent intent = new Intent(this, ChattingActivity.class);
+                intent.putExtra("USERID",receiverID);
+                intent.putExtra("messageID",messageID);
+                pendingIntent=PendingIntent.getActivity(this,i,intent,PendingIntent.FLAG_ONE_SHOT);
             }
             Uri defSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
             NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);

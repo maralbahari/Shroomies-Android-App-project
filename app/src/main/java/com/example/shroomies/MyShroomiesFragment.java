@@ -376,7 +376,7 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
     private void getUserToken(){
         displayProgressView();
         FirebaseUser firebaseUser = mAuth.getCurrentUser();
-        firebaseUser.getIdToken(true).addOnCompleteListener(task -> {
+        firebaseUser.getIdToken(false).addOnCompleteListener(task -> {
             if(task.isSuccessful()) {
                 String token = task.getResult().getToken();
                 String apartmentID = (String) task.getResult().getClaims().get(Config.apartmentID);
