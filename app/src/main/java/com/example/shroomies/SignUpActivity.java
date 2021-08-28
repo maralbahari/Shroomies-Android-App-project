@@ -125,18 +125,19 @@ public class SignUpActivity extends AppCompatActivity{
             e.printStackTrace();
         }
 
-                        JsonObjectRequest jsonObjectRequest =
-                                new JsonObjectRequest(Request.Method.POST, Config.URL_REGISTER_USER, data, response -> {
-                                    pd.dismiss();
-    //                              sendEmailVerification();
-                                    Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
-                                    startActivity(intent);
-                                    Toast.makeText(SignUpActivity.this, name+", you are a Shroomie now", Toast.LENGTH_SHORT).show();
-                                }, error -> {
+            JsonObjectRequest jsonObjectRequest =
+                    new JsonObjectRequest(Request.Method.POST, Config.URL_REGISTER_USER, data, response -> {
+                        Toast.makeText(SignUpActivity.this, name+", you are a Shroomie now", Toast.LENGTH_SHORT).show();
+                        pd.dismiss();
+                        //                              sendEmailVerification();
+                        Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
+                        startActivity(intent);
 
-                        });
-                        requestQueue.add(jsonObjectRequest);
-                    }
+                    }, error -> {
+
+            });
+            requestQueue.add(jsonObjectRequest);
+        }
 
 
     private void sendEmailVerification(){

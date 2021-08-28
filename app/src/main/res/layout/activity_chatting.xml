@@ -31,7 +31,6 @@
             android:background="@drawable/background_text_white"
             android:elevation="1dp"
             android:inputType="textMultiLine"
-
             android:padding="5dp"
             android:scrollbars="vertical" />
 
@@ -46,7 +45,27 @@
             android:layout_marginRight="10dp"
             android:layout_marginBottom="5dp"
             android:background="@null"
-            android:src="@drawable/ic_photo_camera" />
+            android:src="@drawable/ic_photo_camera"
+            />
+        <TextView
+            android:id="@+id/image_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@id/selected_image_view"
+            android:layout_margin="10dp"
+            android:text="Image"
+            android:visibility="gone"
+            />
+        <ImageView
+            android:layout_centerVertical="true"
+            android:id="@+id/selected_image_view"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:scaleType="centerCrop"
+            android:adjustViewBounds="true"
+            android:visibility="gone"
+            />
 
         <ImageButton
             android:id="@+id/send_message_button"
@@ -59,7 +78,6 @@
             android:elevation="3dp"
             android:padding="5dp"
             android:src="@drawable/ic_send" />
-
 
     </RelativeLayout>
 

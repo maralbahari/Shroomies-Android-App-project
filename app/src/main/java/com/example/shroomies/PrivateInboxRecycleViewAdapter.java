@@ -10,10 +10,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.FirebaseDatabase;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 
 import java.util.HashMap;
 import java.util.List;
@@ -42,14 +42,18 @@ public class PrivateInboxRecycleViewAdapter extends RecyclerView.Adapter<Private
 
                 //get the user data from the user hashmap
                 User user=userHashMap.get(recieverInboxList.get(position).getReceiverID());
+                holder.newMessagesCardView.setVisibility(View.VISIBLE);
+                holder.newMessages.setText(Integer.toString(recieverInboxList.get(position).getUnSeenmessageCount()));
 
                 holder.receiverName.setText(user.getName());
                 if(!user.getImage().isEmpty()) {
                     holder.receiverImageView.setPadding(0, 0, 0, 0);
+                    //todo add error image
                     GlideApp.with(context)
                             .load(user.getImage())
                             .fitCenter()
                             .circleCrop()
+                            .transition(DrawableTransitionOptions.withCrossFade())
                             .into(holder.receiverImageView);
                 }
                 // set the last message
@@ -65,6 +69,7 @@ public class PrivateInboxRecycleViewAdapter extends RecyclerView.Adapter<Private
 
     public class UsersListViewHolder extends RecyclerView.ViewHolder{
         TextView lastMessage,receiverName , newMessages;
+        CardView newMessagesCardView;
         ImageView receiverImageView;
         RelativeLayout messageInboxViewHolderLayout;
         public UsersListViewHolder(@NonNull View itemView) {
@@ -74,6 +79,7 @@ public class PrivateInboxRecycleViewAdapter extends RecyclerView.Adapter<Private
             receiverName=itemView.findViewById(R.id.inbox_chat_item_name);
             newMessages = itemView.findViewById(R.id.new_messages);
             messageInboxViewHolderLayout=itemView.findViewById(R.id.message_inbox_users_view_layout);
+            newMessagesCardView= itemView.findViewById(R.id.new_messages_card_view);
             messageInboxViewHolderLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

@@ -76,7 +76,6 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
     private SlidingUpPanelLayout slidingLayout;
     private LottieAnimationView progressView;
     private ImageButton logoImageButton;
-//    private CustomLoadingProgressBar customLoadingProgressBar;
     private IOverScrollDecor expensesDecor;
     private IOverScrollDecor tasksDecor;
     private IOverScrollStateListener onOverPullListener;

@@ -40,7 +40,7 @@ android {
 
 dependencies {
     implementation 'com.google.android.material:material:1.5.0-alpha01'
-    implementation 'com.google.firebase:firebase-database:19.5.1'
+    implementation 'com.google.firebase:firebase-database:20.0.1'
     implementation 'androidx.wear:wear:1.0.0'
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
     implementation 'com.google.firebase:firebase-storage:20.0.0'
@@ -109,10 +109,7 @@ dependencies {
     implementation 'com.firebaseui:firebase-ui-auth:4.3.1'
     implementation 'com.google.android.gms:play-services-auth:19.2.0'
     implementation 'io.github.everythingme:overscroll-decor-android:1.1.1'
-
-
-
-
+    implementation 'id.zelory:compressor:2.1.1'
 
 
 }

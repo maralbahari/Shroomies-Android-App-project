@@ -79,15 +79,9 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
             // load the image and decrypt it
             StorageReference storageReference = FirebaseStorage.getInstance().getReference();
             //TODO fix max download size bytes
-            storageReference.child(messages.getText()).getBytes(1000000000).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-                @Override
-                public void onSuccess(byte[] bytes) {
-
-                    DecodeImageAsyncTask decodeImageAsyncTask = new DecodeImageAsyncTask(ethree , senderVirgilCard  , recipientVirgilCard ,holder , messages  ,mAuth.getCurrentUser().getUid() , bytes);
-                    decodeImageAsyncTask.execute();
-
-
-                }
+            storageReference.child(messages.getText()).getBytes(1000000000).addOnSuccessListener(bytes -> {
+                DecodeImageAsyncTask decodeImageAsyncTask = new DecodeImageAsyncTask(ethree , senderVirgilCard  , recipientVirgilCard ,holder , messages  ,mAuth.getCurrentUser().getUid() , bytes);
+                decodeImageAsyncTask.execute();
             });
 
             if (fromUserID.equals(senderID)) {
