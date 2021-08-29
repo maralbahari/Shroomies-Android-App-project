@@ -40,7 +40,7 @@ android {
 
 dependencies {
     implementation 'com.google.android.material:material:1.5.0-alpha01'
-    implementation 'com.google.firebase:firebase-database:19.5.1'
+    implementation 'com.google.firebase:firebase-database:20.0.1'
     implementation 'androidx.wear:wear:1.0.0'
     implementation 'com.google.android.gms:play-services-maps:17.0.0'
     implementation 'com.google.firebase:firebase-storage:20.0.0'
@@ -97,7 +97,7 @@ dependencies {
     implementation 'com.xw.repo:bubbleseekbar:3.20'
     implementation 'com.karumi:dexter:6.2.2'
     implementation "com.github.abhishekti7:UnicornFilePicker:1.0.1"
-    implementation 'com.virgilsecurity:ethree:2.0.8'
+    implementation 'com.virgilsecurity:ethree:2.0.10'
     implementation 'com.google.firebase:firebase-functions:7.22.1'
     implementation 'com.sothree.slidinguppanel:library:3.4.0'
     implementation "com.github.skydoves:powerspinner:1.1.7"
@@ -109,10 +109,7 @@ dependencies {
     implementation 'com.firebaseui:firebase-ui-auth:4.3.1'
     implementation 'com.google.android.gms:play-services-auth:19.2.0'
     implementation 'io.github.everythingme:overscroll-decor-android:1.1.1'
-
-
-
-
+    implementation 'id.zelory:compressor:2.1.1'
 
 
 }

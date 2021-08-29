@@ -47,6 +47,9 @@ public class Config {
     public static final String messages="messages";
     public static final String users = "users";
     public static final String inboxes="inboxes";
+    //chat
+    public static final String privateChatImages = "privateChatImages";
+
 
 
 
@@ -121,8 +124,6 @@ public class Config {
     public static final String URL_GET_LOGS = "https://us-central1-shroomies-e34d3.cloudfunctions.net/getLogs";
     public static final String URL_PUBLISH_POST="https://us-central1-shroomies-e34d3.cloudfunctions.net/publishPost";
     public static final String URL_GET_VIRGIL_JWT = "https://us-central1-shroomies-e34d3.cloudfunctions.net/getVirgilJwt";
-
-
 
 
 }

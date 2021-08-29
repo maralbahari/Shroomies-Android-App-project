@@ -82,10 +82,19 @@ public class MessageInbox extends Fragment {
                     Log.d("messege recived" ,snapshot.toString());
                     for (DataSnapshot ds : snapshot.getChildren()) {
                         RecieverInbox recieverInbox = ds.getValue(RecieverInbox.class);
-                        recieverInboxArrayList.add(recieverInbox);
-                        inboxUserIDs.add(recieverInbox.getReceiverID());
-                        //todo check if the same users are already in the map already in the map
-//                        Toast.makeText(getActivity(), recivers.toString(), Toast.LENGTH_SHORT).show();
+                        //if the same users are already in the map
+                        //don't add them
+                        if(!userHashMap.containsKey(recieverInbox.getReceiverID())) {
+                            recieverInboxArrayList.add(recieverInbox);
+                            inboxUserIDs.add(recieverInbox.getReceiverID());
+                        }else{
+                            //find the inbox user and replace the old data with the updated data
+                            for (int i = 0; i<recieverInboxArrayList.size();i++){
+                                if(recieverInboxArrayList.get(i).getReceiverID().equals(recieverInbox.receiverID)){
+                                    recieverInboxArrayList.set(i , recieverInbox);
+                                }
+                            }
+                        }
 
                     }
                     getMemberData(inboxUserIDs , recieverInboxArrayList);

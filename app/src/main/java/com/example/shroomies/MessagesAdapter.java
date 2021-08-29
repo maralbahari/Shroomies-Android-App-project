@@ -15,6 +15,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
@@ -79,15 +82,9 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
             // load the image and decrypt it
             StorageReference storageReference = FirebaseStorage.getInstance().getReference();
             //TODO fix max download size bytes
-            storageReference.child(messages.getText()).getBytes(1000000000).addOnSuccessListener(new OnSuccessListener<byte[]>() {
-                @Override
-                public void onSuccess(byte[] bytes) {
-
-                    DecodeImageAsyncTask decodeImageAsyncTask = new DecodeImageAsyncTask(ethree , senderVirgilCard  , recipientVirgilCard ,holder , messages  ,mAuth.getCurrentUser().getUid() , bytes);
-                    decodeImageAsyncTask.execute();
-
-
-                }
+            storageReference.child(messages.getText()).getBytes(1000000000).addOnSuccessListener(bytes -> {
+                DecodeImageAsyncTask decodeImageAsyncTask = new DecodeImageAsyncTask(context, ethree , senderVirgilCard  , recipientVirgilCard ,holder , messages  ,mAuth.getCurrentUser().getUid() , bytes);
+                decodeImageAsyncTask.execute();
             });
 
             if (fromUserID.equals(senderID)) {
@@ -102,13 +99,6 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
             }
         }
 
-    }
-    static void setImage(Bitmap bitmap , Messages messages , MessageViewHolder messageViewHolder , String uID){
-        if (messages.getFrom().equals(uID)) {
-            messageViewHolder.senderImageView.setImageDrawable(new BitmapDrawable(context.getResources() , bitmap));
-        }else{
-            messageViewHolder.receiverImageView.setImageDrawable(new BitmapDrawable(context.getResources() , bitmap));
-        }
     }
 
 
@@ -145,7 +135,8 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
     }
 }
 
-    class DecodeImageAsyncTask extends AsyncTask<String , String ,Bitmap > {
+    class DecodeImageAsyncTask extends AsyncTask<String , String ,byte[] > {
+        private Context context;
         private EThree ethree;
         private Card senderCard;
         private Card recieverCard;
@@ -154,7 +145,7 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
         private String uID;
         private byte[] encryptedData;
 
-        public DecodeImageAsyncTask(EThree ethree, Card senderCard,Card recieverCard, MessagesAdapter.MessageViewHolder messageViewHolder, Messages messages ,String uID ,byte[] encryptedData) {
+        public DecodeImageAsyncTask(Context context , EThree ethree, Card senderCard,Card recieverCard, MessagesAdapter.MessageViewHolder messageViewHolder, Messages messages ,String uID ,byte[] encryptedData) {
             this.ethree = ethree;
             this.senderCard = senderCard;
             this.messageViewHolder = messageViewHolder;
@@ -162,10 +153,11 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
             this.recieverCard = recieverCard;
             this.uID = uID;
             this.encryptedData = encryptedData;
+            this.context = context;
         }
 
         @Override
-        protected Bitmap doInBackground(String... strings) {
+        protected byte[] doInBackground(String... strings) {
 
             ByteArrayOutputStream decryptedOutputStream = new ByteArrayOutputStream();
 
@@ -177,24 +169,40 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
 
             if (messages.getFrom().equals(uID)) {
                 p2pDecryptedStreamKeyData = ethree.authDecrypt(new Data(decodedStreamKeyData), senderCard).getValue();
+                ethree.decryptShared(encryptedInputStream, decryptedOutputStream, p2pDecryptedStreamKeyData, senderCard);
             } else {
                 p2pDecryptedStreamKeyData = ethree.authDecrypt(new Data(decodedStreamKeyData), recieverCard).getValue();
+                ethree.decryptShared(encryptedInputStream, decryptedOutputStream, p2pDecryptedStreamKeyData, recieverCard);
             }
 
-            ethree.decryptShared(encryptedInputStream, decryptedOutputStream, p2pDecryptedStreamKeyData, senderCard);
 
             byte[] decryptedImage  = decryptedOutputStream.toByteArray();
+//
+//            Bitmap bitmap = BitmapFactory.decodeByteArray(decryptedImage , 0, decryptedImage.length);
 
-            Bitmap bitmap = BitmapFactory.decodeByteArray(decryptedImage , 0, decryptedImage.length);
-
-          return  bitmap;
+          return decryptedImage;
 
         }
 
         @Override
-        protected void onPostExecute(Bitmap bitmap) {
-            super.onPostExecute(bitmap);
-            MessagesAdapter.setImage(bitmap , messages , messageViewHolder , uID);
+        protected void onPostExecute(byte[] bytes) {
+            super.onPostExecute(bytes);
+
+//            MessagesAdapter.setImage(bitmap , messages , messageViewHolder , uID);
+            if (messages.getFrom().equals(uID)) {
+                GlideApp.with(context)
+                        .load(bytes)
+                        .transition(DrawableTransitionOptions.withCrossFade())
+                        .transform(new RoundedCorners(25))
+                        .into(messageViewHolder.senderImageView);
+            }else{
+                GlideApp.with(context)
+                        .load(bytes)
+                        .transition(DrawableTransitionOptions.withCrossFade())
+                        .transform(new RoundedCorners(25))
+                        .into(messageViewHolder.receiverImageView);
+            }
+
 
         }
     }

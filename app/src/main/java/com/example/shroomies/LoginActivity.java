@@ -42,6 +42,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.functions.FirebaseFunctions;
 import com.google.gson.JsonObject;
 import com.virgilsecurity.android.common.callback.OnGetTokenCallback;
+import com.virgilsecurity.android.common.model.EThreeParams;
 import com.virgilsecurity.android.ethree.interaction.EThree;
 
 import org.jetbrains.annotations.NotNull;
@@ -269,15 +270,17 @@ public class LoginActivity extends AppCompatActivity {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        FirebaseUser firebaseUser = mAuth.getCurrentUser();
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         firebaseUser.getIdToken(true).addOnCompleteListener(task -> {
             if(task.isSuccessful()){
+
                 String token = task.getResult().getToken();
                 JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_GET_VIRGIL_JWT, data, response -> {
-                    Log.d("ethree register ", response.toString());
                     try {
                         JSONObject result = response.getJSONObject(Config.result);
                         if(!result.isNull(Config.token)){
+                            Log.d("ethree register ", response.toString());
+
                             String ethreeToken  = result.getString(Config.token);
                             eThree = EthreeSingleton.getInstance(getApplicationContext(),mAuth.getCurrentUser().getUid() , ethreeToken).getEthreeInstance();
                             eThree.register().addCallback(new com.virgilsecurity.common.callback.OnCompleteListener() {
@@ -294,14 +297,14 @@ public class LoginActivity extends AppCompatActivity {
 
                         }else{
                             //todo handle error
+                            Log.d("ethree register ", "error");
+
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
                         //todo handle error
                     }
-
-
-                }, error -> Log.d("ethree register ", error.toString()))
+                }, error -> Log.d("ethree register  server error ", error.toString()))
                 {
                     @Override
                     public Map<String, String> getHeaders() {
