@@ -273,8 +273,8 @@ public class LoginActivity extends AppCompatActivity {
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
         firebaseUser.getIdToken(true).addOnCompleteListener(task -> {
             if(task.isSuccessful()){
-                String token = task.getResult().getToken();
 
+                String token = task.getResult().getToken();
                 JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_GET_VIRGIL_JWT, data, response -> {
                     try {
                         JSONObject result = response.getJSONObject(Config.result);
@@ -304,8 +304,6 @@ public class LoginActivity extends AppCompatActivity {
                         e.printStackTrace();
                         //todo handle error
                     }
-
-
                 }, error -> Log.d("ethree register  server error ", error.toString()))
                 {
                     @Override
