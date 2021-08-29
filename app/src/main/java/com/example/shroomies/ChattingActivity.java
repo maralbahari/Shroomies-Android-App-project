@@ -366,7 +366,7 @@ public class ChattingActivity extends AppCompatActivity {
                 .child(receiverID)
                 .orderByKey()
                 .limitToLast(1)
-//                .startAfter(lastMessageID)
+                .startAfter(lastMessageID)
                 .addChildEventListener(new ChildEventListener() {
                     @Override
                     public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
