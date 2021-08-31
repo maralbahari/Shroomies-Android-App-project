@@ -86,7 +86,6 @@ public class ViewProfile extends Fragment {
         profileTab = v.findViewById(R.id.user_profile_tab_layout);
         apartmentTab = v.findViewById(R.id.user_profile_tab_button_apartment);
         personalTab = v.findViewById(R.id.user_profile_tab_button_personal);
-        sendMessage = v.findViewById(R.id.send_user_message);
         numberPosts = v.findViewById(R.id.number_posts);
 
         recyclerView = v.findViewById(R.id.recycler_view);

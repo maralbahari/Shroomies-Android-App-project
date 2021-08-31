@@ -3,15 +3,51 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".EditProfile"
-    android:background="@drawable/gradient_yellow_background"
-    >
+    tools:context=".EditProfile">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+        <RelativeLayout
+            android:id="@+id/upper_edit_profile_page"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/LogoYellow"
+            >
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/edit_profile_cancel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@android:color/transparent"
+                android:text="cancel"
+                android:textColor="@android:color/darker_gray" />
+
+            <TextView
+                android:id="@+id/edit_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Edite Profile"
+                android:textAllCaps="false"
+                android:textColor="@color/jetBlack"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_margin="10dp"
+                android:layout_centerHorizontal="true"
+                />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/edit_profile_done"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:background="@android:color/transparent"
+                android:text="Done"
+                android:textColor="@color/white"
+                android:textStyle="bold" />
+        </RelativeLayout>
         <ImageView
+            android:layout_below="@+id/upper_edit_profile_page"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/edit_profile_image_view"
@@ -20,160 +56,163 @@
             android:background="@color/white"
             android:layout_marginTop="5dp"
             android:scaleType="fitXY"
-            android:minHeight="280dp"
-            android:minWidth="300dp"
+            android:minHeight="100dp"
+            android:minWidth="100dp"
+            android:layout_margin="20dp"
             >
-
         </ImageView>
-
-
         <ImageButton
             android:id="@+id/change_profile_picture"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/edit_profile_image_view"
-            android:layout_marginLeft="-72dp"
-            android:layout_marginTop="-32dp"
+            android:layout_marginLeft="-52dp"
+            android:layout_marginTop="-50dp"
             android:layout_toRightOf="@+id/edit_profile_image_view"
             android:background="@drawable/button_round"
             android:elevation="5dp"
-            android:padding="10dp"
-            android:src="@drawable/ic_icon_edit">
-
-        </ImageButton>
-
-        <Button
-            android:id="@+id/edit_bio"
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_below="@id/change_profile_picture"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="5dp"
-            android:alpha="0.8"
-            android:background="@drawable/textbox_rectangle"
-            android:drawableEnd="@drawable/ic_icon_ionic_ios_arrow_back"
-            android:drawablePadding="8dp"
-            android:elevation="5dp"
-            android:paddingLeft="10dp"
-            android:paddingTop="15dp"
-            android:paddingRight="10dp"
-            android:paddingBottom="10dp"
-            android:text="Bio"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-            android:gravity="left"
+            android:padding="5dp"
+            android:src="@drawable/ic_pen_edit_"
             >
-        </Button>
-
-        <TextView
-            android:id="@+id/edit_profile_security"
-            android:layout_width="wrap_content"
+        </ImageButton>
+        <View
+            android:id="@+id/line_below_image"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@id/change_profile_picture"
+            android:layout_marginTop="20dp"
+            android:alpha="0.8"
+            android:background="@color/lowerGradientColorForLoginBackground"/>
+        <LinearLayout
+            android:id="@+id/bio_linear"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/edit_bio"
-            android:padding="10dp"
-            android:shadowColor="#08020C"
-            android:shadowDx="2"
-            android:shadowDy="2"
-            android:shadowRadius="8"
-            android:text="Login and Security"
-            android:textColor="#FFFFFF"
-            android:textSize="25sp"
-            android:textStyle="bold">
+            android:layout_below="@id/line_below_image"
+            android:orientation="horizontal"
+            android:layout_margin="10dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Bio"
+                android:minWidth="50dp"
+                android:textSize="15sp"
+                android:layout_gravity="center"/>
 
-        </TextView>
-
-
-        <Button
-            android:id="@+id/edit_username"
+            <TextView
+                android:id="@+id/edit_bio"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="50dp"
+                android:layout_gravity="center_horizontal"
+                android:text="Bio"
+                android:textSize="14sp"
+                android:lines="1"
+                />
+        </LinearLayout>
+        <View
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_below="@id/edit_profile_security"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="3dp"
-            android:layout_marginBottom="3dp"
-            android:alpha="0.8"
-            android:background="@drawable/textbox_rectangle"
-            android:drawableEnd="@drawable/ic_icon_ionic_ios_arrow_back"
-            android:elevation="5dp"
-            android:gravity="left"
-            android:paddingLeft="10dp"
-            android:paddingTop="15dp"
-            android:paddingRight="10dp"
-            android:paddingBottom="10dp"
-            android:text="Change Username"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-            android:typeface="normal">
-
-        </Button>
-
-        <Button
-            android:id="@+id/edit_email"
+            android:layout_height="0.5dp"
+            android:background="@color/lowerGradientColorForLoginBackground"
+            android:layout_below="@id/bio_linear"
+            android:layout_marginLeft="100dp"/>
+        <LinearLayout
+            android:id="@+id/name_linear"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_below="@id/edit_username"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="3dp"
-            android:layout_marginBottom="3dp"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/bio_linear"
+            android:orientation="horizontal"
+            android:layout_margin="10dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:minWidth="50dp"
+                android:layout_height="wrap_content"
+                android:text="Name"
+                android:textColor="@color/jetBlack"
+                android:textSize="15sp"/>
+            <TextView
+                android:id="@+id/edit_username"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="50dp"
+                android:layout_gravity="center_horizontal"
+                android:text="Name"
+                android:textSize="14sp"
+                android:lines="1"
+                />
+        </LinearLayout>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@color/lowerGradientColorForLoginBackground"
+            android:layout_below="@id/name_linear"
+            android:layout_marginLeft="100dp"/>
+        <LinearLayout
+            android:layout_below="@id/name_linear"
+            android:id="@+id/email_linear"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="50dp"
+                android:text="Email"
+                android:textSize="15sp"
+                android:textColor="@color/jetBlack"/>
+            <TextView
+                android:id="@+id/edit_email"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="50dp"
+                android:layout_gravity="center_horizontal"
+                android:text="Email"
+                android:textSize="14sp"
+                android:lines="1"
+                />
+        </LinearLayout>
+        <View
+            android:id="@+id/line_below_email"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@id/email_linear"
+            android:layout_marginTop="10dp"
             android:alpha="0.8"
-            android:background="@drawable/textbox_rectangle"
-            android:drawableEnd="@drawable/ic_icon_ionic_ios_arrow_back"
-            android:elevation="5dp"
-            android:gravity="left"
-            android:paddingLeft="10dp"
-            android:paddingTop="15dp"
-            android:paddingRight="10dp"
-            android:paddingBottom="10dp"
-            android:text="Change Email"
-            android:textAllCaps="false"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body2">
-
-        </Button>
-
-        <Button
+            android:background="@color/lowerGradientColorForLoginBackground"/>
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/change_password"
             android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:layout_below="@id/edit_email"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="3dp"
-            android:alpha="0.8"
-            android:background="@drawable/textbox_rectangle"
-            android:drawableEnd="@drawable/ic_icon_ionic_ios_arrow_back"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/line_below_email"
             android:elevation="5dp"
             android:gravity="left"
-            android:paddingLeft="10dp"
-            android:paddingTop="15dp"
-            android:paddingRight="10dp"
-            android:paddingBottom="10dp"
             android:text="Change Password"
+            android:background="@android:color/transparent"
+            android:textColor="@color/LogoYellow"
+            android:textStyle="bold"
             android:textAllCaps="false">
 
-        </Button>
-
-        <Button
+        </com.google.android.material.button.MaterialButton>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_below="@id/change_password"
+            android:layout_marginTop="2dp"
+            android:alpha="0.5"
+            android:background="@color/lowerGradientColorForLoginBackground"/>
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/delete_account_button"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_below="@id/change_password"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="25dp"
-            android:layout_marginBottom="5dp"
-            android:alpha="0.8"
-            android:background="@drawable/textbox_rectangle"
-            android:drawableEnd="@drawable/ic_icon_ionic_ios_arrow_back"
-            android:elevation="5dp"
             android:gravity="left"
-            android:paddingLeft="10dp"
-            android:paddingTop="15dp"
-            android:paddingRight="10dp"
-            android:paddingBottom="10dp"
             android:text="Delete Account"
+            android:background="@android:color/transparent"
+            android:textStyle="bold"
+            android:textColor="@color/LogoYellow"
             android:textAllCaps="false"
             android:textSize="14sp"
             android:typeface="normal">
-
-        </Button>
-
+        </com.google.android.material.button.MaterialButton>
     </RelativeLayout>
-
 </androidx.core.widget.NestedScrollView>
