@@ -43,6 +43,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
@@ -108,7 +109,6 @@ public class ChattingActivity extends AppCompatActivity {
     private EThree eThree;
     private Card recepientVirgilCard, senderVirgilCard;
     private FindUsersResult findUsersResult;
-
 
 //    @Override
 //    protected void onStop() {
@@ -215,7 +215,7 @@ public class ChattingActivity extends AppCompatActivity {
             }
         });
 
-        }
+    }
 
     private void initializeViews() {
         Toolbar chattingToolbar = findViewById(R.id.chat_toolbar);
@@ -230,6 +230,7 @@ public class ChattingActivity extends AppCompatActivity {
 
         setSupportActionBar(chattingToolbar);
         chattingToolbar.setNavigationIcon(R.drawable.ic_back_button);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setStackFromEnd(true);
@@ -351,7 +352,9 @@ public class ChattingActivity extends AppCompatActivity {
                             count++;
                         }
                         messagesAdapter.notifyDataSetChanged();
+
                         chattingRecycler.smoothScrollToPosition(chattingRecycler.getAdapter().getItemCount());
+
                         chattingRecyclerViewDecor.setOverScrollStateListener(onOverPullListener);
                         //todo handle error if last message id is null
                         listenForNewMessages(lastMessageID);
@@ -361,13 +364,15 @@ public class ChattingActivity extends AppCompatActivity {
     }
 
     private void listenForNewMessages(String lastMessageID){
-        rootRef.child(Config.messages)
+        Query query = rootRef.child(Config.messages)
                 .child(senderID)
                 .child(receiverID)
                 .orderByKey()
-                .limitToLast(1)
-                .startAfter(lastMessageID)
-                .addChildEventListener(new ChildEventListener() {
+                .limitToLast(1);
+        if(lastMessageID!=null){
+            query = query.startAfter(lastMessageID);
+        }
+        query.addChildEventListener(new ChildEventListener() {
                     @Override
                     public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
                         if(snapshot.exists()){
@@ -584,7 +589,6 @@ public class ChattingActivity extends AppCompatActivity {
                                 .circleCrop()
                                 .into(receiverProfileImage);
                         receiverProfileImage.setPadding(0, 0, 0, 0);
-
                     }
                     receiverUsername.setText(recieverUser.getName());
                     messageSeen(recieverID);
@@ -618,7 +622,7 @@ public class ChattingActivity extends AppCompatActivity {
 
                     // once the user  sees the messages
                     //update the number of unseen messages in the badge
-                    MainActivity.setBadgeToNumberOfNotifications(rootRef, mAuth);
+//                    MainActivity.setBadgeToNumberOfNotifications(rootRef, mAuth);
                 }
             }
 

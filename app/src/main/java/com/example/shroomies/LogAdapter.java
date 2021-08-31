@@ -96,8 +96,9 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
         ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.SECONDS);
         String currentDateString = formatter.format(now);
 
-        final LocalDateTime secondDate = LocalDateTime.parse(apartmentLogsList.get(position).getWhen(), formatter);
         final LocalDateTime firstDate = LocalDateTime.parse(currentDateString  , formatter);
+        final LocalDateTime secondDate = LocalDateTime.parse(apartmentLogsList.get(position).getWhen(), formatter);
+
 
 
         final long days = ChronoUnit.DAYS.between(secondDate, firstDate);

@@ -13,11 +13,7 @@ android:title="@null"
 
         android:icon="@drawable/ic_publish_post_"
          />
-    <item
-        android:id="@+id/message_inbox_menu"
-        android:title="@null"
-        android:icon="@drawable/ic_message_inbox_"
-/>
+
 
 
     <item

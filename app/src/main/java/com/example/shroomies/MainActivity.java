@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -44,6 +45,8 @@ public class MainActivity extends AppCompatActivity {
     FragmentTransaction ft;
     FragmentManager fm;
     ImageView myShroomies;
+    ImageButton inboxButton;
+
     TextView usernameDrawer;
     FirebaseAuth mAuth;
     FirebaseAuth.AuthStateListener authStateListener;
@@ -77,6 +80,8 @@ public class MainActivity extends AppCompatActivity {
         drawerLayout =  findViewById(R.id.drawerLayout);
         toolbar =  findViewById(R.id.toolbar);
         navigationView = findViewById(R.id.navigationView);
+        myShroomies=findViewById(R.id.logo_toolbar);
+        inboxButton = findViewById(R.id.inbox_button);
 
         drawerLayout.setTouchMode(ElasticDrawer.TOUCH_MODE_BEZEL);
 
@@ -155,26 +160,23 @@ public class MainActivity extends AppCompatActivity {
 //                return false;
 //            }
 //        });
-        btm_view.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull @NotNull MenuItem item) {
-                if(item.getItemId()==R.id.find_roomie_menu){
-                    getFragment(new FindRoommate());
-                }if(item.getItemId()==R.id.publish_post_menu){
-                    getFragment(new PublishPost());
-                }if(item.getItemId()==R.id.message_inbox_menu){
-                    getFragment(new MessageInbox());
-                }if(item.getItemId()==R.id.user_profile_menu){
-                    getFragment(new UserProfile());
-                }
-                return true;
+        btm_view.setOnItemSelectedListener(item -> {
+            if(item.getItemId()==R.id.find_roomie_menu){
+                getFragment(new FindRoommate());
+            }if(item.getItemId()==R.id.publish_post_menu){
+                getFragment(new PublishPost());
+            }if(item.getItemId()==R.id.user_profile_menu){
+                getFragment(new UserProfile());
             }
+            return true;
         });
-        myShroomies=findViewById(R.id.logo_toolbar);
+
+
+
         myShroomies.setOnClickListener(v -> startActivity(new Intent( getApplicationContext(), MyShroomiesActivity.class)));
 //        setBadgeToNumberOfNotifications(rootRef,mAuth);
 
-
+        inboxButton.setOnClickListener(v -> startActivity(new Intent(getApplicationContext() , MessageInbox.class)));
 
     }
 
@@ -187,85 +189,85 @@ public class MainActivity extends AppCompatActivity {
         ft.commit();
     }
 
-    static void setBadgeToNumberOfNotifications(final DatabaseReference rootRef , final FirebaseAuth mAuth){
-        // get the number of unseen
-        // private messages
-        final List<Messages> unSeenMessageList = new ArrayList<>();
-        rootRef.child("Messages").child(mAuth.getInstance().getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.exists()){
-                    for (DataSnapshot dataSnapshot
-                            :snapshot.getChildren()){
-                        for (DataSnapshot dataSnapshot1:
-                                dataSnapshot.getChildren()){
-                            Messages message= dataSnapshot1.getValue(Messages.class);
-                            if (!message.getIsSeen()){
-                                unSeenMessageList.add(message);
-                            }
+//    static void setBadgeToNumberOfNotifications(final DatabaseReference rootRef , final FirebaseAuth mAuth){
+//        // get the number of unseen
+//        // private messages
+//        final List<Messages> unSeenMessageList = new ArrayList<>();
+//        rootRef.child("Messages").child(mAuth.getInstance().getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                if(snapshot.exists()){
+//                    for (DataSnapshot dataSnapshot
+//                            :snapshot.getChildren()){
+//                        for (DataSnapshot dataSnapshot1:
+//                                dataSnapshot.getChildren()){
+//                            Messages message= dataSnapshot1.getValue(Messages.class);
+//                            if (!message.getIsSeen()){
+//                                unSeenMessageList.add(message);
+//                            }
+//
+//                        }
+//                    }
+//
+//
+//                }
+////                getUnseenGroupMessages(rootRef, mAuth,unSeenMessageList.size());
+//                unSeenMessageList.clear();
+//
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//
+//            }
+//        });
+//    }
+//    private static  void getUnseenGroupMessages(final DatabaseReference  rootRef , final FirebaseAuth mAuth, final int unseenPrivetMsgs ){
+//        //get the number of unseen group messages
+//        final ArrayList<String> unseenGroupMessages  = new ArrayList<>();
+//        rootRef.child("GroupChatList").child(mAuth.getInstance().getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                if (snapshot.exists()){
+//                    for (final DataSnapshot ds:
+//                            snapshot.getChildren()) {
+//                        rootRef.child("GroupChats").child(ds.getKey()).child("Messages").addValueEventListener(new ValueEventListener() {
+//                            @Override
+//                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+//                                if (snapshot.exists()){
+//                                    unseenGroupMessages.clear();
+//                                    for (DataSnapshot dataSnapshot
+//                                            :snapshot.getChildren()){
+//                                        for (DataSnapshot snapshot1
+//                                                :dataSnapshot.child("seenBy").getChildren()){
+//                                            if(snapshot1.getKey().equals(mAuth.getInstance().getCurrentUser().getUid())&&snapshot1.getValue().equals("false")){
+//                                                unseenGroupMessages.add(snapshot1.getValue().toString());
+//                                            }
+//                                        }
+//                                    }
+//
+////                                    btm_view.getOrCreateBadge(R.id.message_inbox_menu).setNumber(unseenGroupMessages.size()+unseenPrivetMsgs);
+//
+//                                }
+//                            }
+//
+//                            @Override
+//                            public void onCancelled(@NonNull DatabaseError error) {
+//
+//                            }
+//                        });
+//                    }
+//
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError error) {
+//
+//            }
+//        });
 
-                        }
-                    }
-
-
-                }
-                getUnseenGroupMessages(rootRef, mAuth,unSeenMessageList.size());
-                unSeenMessageList.clear();
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-    }
-    private static  void getUnseenGroupMessages(final DatabaseReference  rootRef , final FirebaseAuth mAuth, final int unseenPrivetMsgs ){
-        //get the number of unseen group messages
-        final ArrayList<String> unseenGroupMessages  = new ArrayList<>();
-        rootRef.child("GroupChatList").child(mAuth.getInstance().getCurrentUser().getUid()).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()){
-                    for (final DataSnapshot ds:
-                            snapshot.getChildren()) {
-                        rootRef.child("GroupChats").child(ds.getKey()).child("Messages").addValueEventListener(new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                if (snapshot.exists()){
-                                    unseenGroupMessages.clear();
-                                    for (DataSnapshot dataSnapshot
-                                            :snapshot.getChildren()){
-                                        for (DataSnapshot snapshot1
-                                                :dataSnapshot.child("seenBy").getChildren()){
-                                            if(snapshot1.getKey().equals(mAuth.getInstance().getCurrentUser().getUid())&&snapshot1.getValue().equals("false")){
-                                                unseenGroupMessages.add(snapshot1.getValue().toString());
-                                            }
-                                        }
-                                    }
-
-                                    btm_view.getOrCreateBadge(R.id.message_inbox_menu).setNumber(unseenGroupMessages.size()+unseenPrivetMsgs);
-
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
-
-                            }
-                        });
-                    }
-
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
-    }
+//    }
 //    public void updateNavHead(){
 //        usernameDrawer= headerView.findViewById(R.id.drawer_nav_profile_name);
 //        profilePic = headerView.findViewById(R.id.drawer_nav_profile_pic);

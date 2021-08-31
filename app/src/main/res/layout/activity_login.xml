@@ -31,7 +31,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/shroomies_text_logo_white_black"
+        app:srcCompat="@drawable/ic_shroomies_text"
         tools:layout_editor_absoluteY="190dp" />
 
 

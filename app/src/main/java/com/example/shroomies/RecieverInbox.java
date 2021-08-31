@@ -1,11 +1,18 @@
 package com.example.shroomies;
 
 public class RecieverInbox {
-    String receiverID , lastMessage  , lastMessageTime;
-    int unSeenmessageCount;
 
+    private String receiverID, lastMessage, lastMessageTime,  from;
+    int unSeenMessageCount;
     RecieverInbox(){
 
+    }
+    public String getFrom() {
+        return from;
+    }
+
+    public void setFrom(String from) {
+        this.from = from;
     }
 
     public String getReceiverID() {
@@ -32,11 +39,11 @@ public class RecieverInbox {
         this.lastMessageTime = lastMessageTime;
     }
 
-    public int getUnSeenmessageCount() {
-        return unSeenmessageCount;
+    public int getUnSeenMessageCount() {
+        return unSeenMessageCount;
     }
 
-    public void setUnSeenmessageCount(int unSeenmessageCount) {
-        this.unSeenmessageCount = unSeenmessageCount;
+    public void setUnSeenMessageCount(int unSeenMessageCount) {
+        this.unSeenMessageCount = unSeenMessageCount;
     }
 }

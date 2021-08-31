@@ -56,7 +56,6 @@
             android:padding="10dp"
             android:background="@android:color/transparent"
             android:foreground="?android:attr/selectableItemBackground"
-
             android:src="@drawable/ic_add"
             android:elevation="5dp"/>
     </androidx.cardview.widget.CardView>

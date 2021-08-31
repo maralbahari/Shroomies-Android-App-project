@@ -24,7 +24,7 @@
         android:layout_height="60dp"
         android:layout_below="@id/become"
         android:layout_marginLeft="30dp"
-        android:src="@drawable/shroomies_text_logo_white_black"
+        android:src="@drawable/ic_shroomies_text"
         />
     <TextView
         android:layout_width="wrap_content"

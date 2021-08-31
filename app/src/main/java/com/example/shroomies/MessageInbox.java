@@ -2,13 +2,11 @@ package com.example.shroomies;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -36,9 +34,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
 
-public class MessageInbox extends Fragment {
-    private View v;
+
+public class MessageInbox extends AppCompatActivity {
+    private Toolbar toolbar;
     private RecyclerView inboxListRecyclerView;
     private ArrayList<RecieverInbox> recieverInboxArrayList;
     private LinearLayoutManager linearLayoutManager;
@@ -48,24 +48,40 @@ public class MessageInbox extends Fragment {
     private HashMap<String , User>userHashMap;
     private ArrayList<String> inboxUserIDs;
     private RequestQueue requestQueue;
+    private ValueEventListener valueEventListener;
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        v = inflater.inflate(R.layout.fragment_message_inbox, container, false);
-        rootRef= FirebaseDatabase.getInstance().getReference();
-        requestQueue = Volley.newRequestQueue(getActivity());
-        mAuth = FirebaseAuth.getInstance();
-        return v;
+    protected void onDestroy() {
+        super.onDestroy();
+        if(rootRef!=null && valueEventListener!=null){
+            rootRef.removeEventListener(valueEventListener);
+        }
     }
 
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        inboxListRecyclerView =v.findViewById(R.id.inbox_recycler);
-        linearLayoutManager=new LinearLayoutManager(getActivity());
+    protected void onStop() {
+        super.onStop();
+        if(rootRef!=null && valueEventListener!=null){
+            rootRef.removeEventListener(valueEventListener);
+        }
+    }
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.fragment_message_inbox);
+        rootRef= FirebaseDatabase.getInstance().getReference();
+        requestQueue = Volley.newRequestQueue(getApplication());
+        mAuth = FirebaseAuth.getInstance();
+        inboxListRecyclerView = findViewById(R.id.inbox_recycler);
+        toolbar = findViewById(R.id.message_inbox_tool_bar);
+        linearLayoutManager=new LinearLayoutManager(getApplication());
         inboxListRecyclerView.setHasFixedSize(true);
         inboxListRecyclerView.setLayoutManager(linearLayoutManager);
+
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        OverScrollDecoratorHelper.setUpOverScroll(inboxListRecyclerView, OverScrollDecoratorHelper.ORIENTATION_VERTICAL);
 
         getPrivateChatList();
 
@@ -75,7 +91,7 @@ public class MessageInbox extends Fragment {
         recieverInboxArrayList = new ArrayList<>();
         inboxUserIDs = new ArrayList<>();
         userHashMap = new HashMap<>();
-        rootRef.child(Config.inboxes).child(mAuth.getInstance().getCurrentUser().getUid()).orderByChild(Config.receiverID).addValueEventListener(new ValueEventListener() {
+        valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
@@ -90,7 +106,7 @@ public class MessageInbox extends Fragment {
                         }else{
                             //find the inbox user and replace the old data with the updated data
                             for (int i = 0; i<recieverInboxArrayList.size();i++){
-                                if(recieverInboxArrayList.get(i).getReceiverID().equals(recieverInbox.receiverID)){
+                                if(recieverInboxArrayList.get(i).getReceiverID().equals(recieverInbox.getReceiverID())){
                                     recieverInboxArrayList.set(i , recieverInbox);
                                 }
                             }
@@ -104,7 +120,12 @@ public class MessageInbox extends Fragment {
             public void onCancelled(@NonNull DatabaseError error) {
 
             }
-        });
+        };
+        rootRef.child(Config.inboxes)
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .orderByChild(Config.receiverID)
+                .addValueEventListener(valueEventListener);
+
     }
 
     void getMemberData(ArrayList<String> inboxIDs , ArrayList<RecieverInbox> recieverInboxArrayList){
@@ -127,17 +148,18 @@ public class MessageInbox extends Fragment {
                         try {
                             JSONObject result = response.getJSONObject(Config.result);
                             boolean success = result.getBoolean(Config.success);
+                            Log.d("members",result.toString());
                             if(success){
                                 final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
                                 mapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
                                 JSONArray users1 = result.getJSONArray(Config.members);
+
                                 for (int i = 0; i < users1.length(); i++) {
                                     User user = mapper.readValue(users1.get(i).toString(), User.class);
                                     userHashMap.put(user.getUserID(), user);
                                 }
-                                messageInboxRecycleViewAdapter=new PrivateInboxRecycleViewAdapter(recieverInboxArrayList,userHashMap,getActivity());
+                                messageInboxRecycleViewAdapter=new PrivateInboxRecycleViewAdapter(recieverInboxArrayList,userHashMap,MessageInbox.this , getApplicationContext());
                                 inboxListRecyclerView.setAdapter(messageInboxRecycleViewAdapter);
-
                             }
                         } catch (JSONException | JsonProcessingException e) {
                             e.printStackTrace();

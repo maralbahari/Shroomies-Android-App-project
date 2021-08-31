@@ -13,6 +13,7 @@
         app:contentInsetLeft="0dp"
         android:theme="@style/ThemeOverlay.AppCompat.Light"
         android:background="@color/LogoYellow"
+        android:elevation="3dp"
         >
 
 <androidx.constraintlayout.widget.ConstraintLayout
