@@ -2,6 +2,8 @@ package com.example.shroomies;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -49,6 +51,7 @@ public class MessageInbox extends AppCompatActivity {
     private ArrayList<String> inboxUserIDs;
     private RequestQueue requestQueue;
     private ValueEventListener valueEventListener;
+    private ImageButton newChatButton;
 
     @Override
     protected void onDestroy() {
@@ -72,8 +75,11 @@ public class MessageInbox extends AppCompatActivity {
         rootRef= FirebaseDatabase.getInstance().getReference();
         requestQueue = Volley.newRequestQueue(getApplication());
         mAuth = FirebaseAuth.getInstance();
+
         inboxListRecyclerView = findViewById(R.id.inbox_recycler);
+        newChatButton = findViewById(R.id.find_user_button);
         toolbar = findViewById(R.id.message_inbox_tool_bar);
+
         linearLayoutManager=new LinearLayoutManager(getApplication());
         inboxListRecyclerView.setHasFixedSize(true);
         inboxListRecyclerView.setLayoutManager(linearLayoutManager);
@@ -84,6 +90,10 @@ public class MessageInbox extends AppCompatActivity {
         OverScrollDecoratorHelper.setUpOverScroll(inboxListRecyclerView, OverScrollDecoratorHelper.ORIENTATION_VERTICAL);
 
         getPrivateChatList();
+        newChatButton.setOnClickListener(v -> {
+            NewChatFragment  newChatFragment  =  new NewChatFragment();
+            newChatFragment.show(getSupportFragmentManager() ,null);
+        });
 
     }
 
@@ -106,8 +116,10 @@ public class MessageInbox extends AppCompatActivity {
                         }else{
                             //find the inbox user and replace the old data with the updated data
                             for (int i = 0; i<recieverInboxArrayList.size();i++){
-                                if(recieverInboxArrayList.get(i).getReceiverID().equals(recieverInbox.getReceiverID())){
-                                    recieverInboxArrayList.set(i , recieverInbox);
+                                if(recieverInboxArrayList.get(i).getReceiverID()!=null){
+                                    if(recieverInboxArrayList.get(i).getReceiverID().equals(recieverInbox.getReceiverID())){
+                                        recieverInboxArrayList.set(i , recieverInbox);
+                                    }
                                 }
                             }
                         }

@@ -10,7 +10,6 @@ import android.graphics.ImageDecoder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.FileUtils;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.util.Log;
@@ -34,7 +33,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
-import com.google.android.gms.common.util.IOUtils;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -47,7 +45,6 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.google.firebase.storage.UploadTask;
 import com.virgilsecurity.android.common.model.FindUsersResult;
 import com.virgilsecurity.android.ethree.interaction.EThree;
 import com.virgilsecurity.common.callback.OnResultListener;
@@ -57,11 +54,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -69,9 +62,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.zip.DeflaterOutputStream;
 
-import id.zelory.compressor.Compressor;
 import me.everything.android.ui.overscroll.IOverScrollDecor;
 import me.everything.android.ui.overscroll.IOverScrollStateListener;
 import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
@@ -154,11 +145,12 @@ public class ChattingActivity extends AppCompatActivity {
         rootRef = FirebaseDatabase.getInstance().getReference();
         Bundle extras = getIntent().getExtras();
         if (!(extras == null)) {
-            receiverID = extras.getString("USERID");
+            User reciever =extras.getParcelable("USER");
+            receiverID = reciever.getUserID();
             getSenderReceiverCards(senderID , receiverID);
             getRecepientCard(receiverID);
             getSenderCard();
-            getUserDetail(receiverID);
+            setUserDetails(reciever);
 
         } else {
             //todo handle error
@@ -230,7 +222,9 @@ public class ChattingActivity extends AppCompatActivity {
 
         setSupportActionBar(chattingToolbar);
         chattingToolbar.setNavigationIcon(R.drawable.ic_back_button);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        chattingToolbar.setNavigationOnClickListener(view1 -> {
+            onBackPressed();
+        });
 
         linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setStackFromEnd(true);
@@ -576,32 +570,17 @@ public class ChattingActivity extends AppCompatActivity {
 
     }
 
-    private void getUserDetail(final String recieverID) {
-        rootRef.child(Config.users).child(recieverID).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    User recieverUser = snapshot.getValue(User.class);
-                    if (!recieverUser.getImage().isEmpty()) {
-                        GlideApp.with(getApplicationContext())
-                                .load(recieverUser.getImage())
-                                .fitCenter()
-                                .circleCrop()
-                                .into(receiverProfileImage);
-                        receiverProfileImage.setPadding(0, 0, 0, 0);
-                    }
-                    receiverUsername.setText(recieverUser.getName());
-                    messageSeen(recieverID);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
-
+    private void setUserDetails(final User reciever) {
+        if (!reciever.getImage().isEmpty()) {
+            GlideApp.with(getApplicationContext())
+                    .load(reciever.getImage())
+                    .fitCenter()
+                    .circleCrop()
+                    .into(receiverProfileImage);
+            receiverProfileImage.setPadding(0, 0, 0, 0);
+        }
+        receiverUsername.setText(reciever.getName());
+        messageSeen(reciever.getUserID());
     }
 
     private void messageSeen(final String receiverID) {

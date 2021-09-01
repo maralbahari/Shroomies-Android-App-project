@@ -12,8 +12,10 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.google.android.material.button.MaterialButton;
 import com.virgilsecurity.common.callback.OnResultListener;
@@ -115,6 +117,8 @@ public class PrivateInboxRecycleViewAdapter extends RecyclerView.Adapter<Private
 
                         ((AppCompatActivity) context).runOnUiThread(() -> {
                             usersListViewHolder.lastMessage.setText(decryptMessage);
+                            usersListViewHolder.skeletonLoader.pauseAnimation();
+                            usersListViewHolder.skeletonFrame.setVisibility(View.GONE);
                         });
                     }
 
@@ -137,6 +141,8 @@ public class PrivateInboxRecycleViewAdapter extends RecyclerView.Adapter<Private
         MaterialButton newMessages;
         ImageView receiverImageView;
         RelativeLayout messageInboxViewHolderLayout;
+        LottieAnimationView skeletonLoader;
+        CardView skeletonFrame;
         public UsersListViewHolder(@NonNull View itemView) {
             super(itemView);
             lastMessage=itemView.findViewById(R.id.inbox_last_message);
@@ -144,10 +150,14 @@ public class PrivateInboxRecycleViewAdapter extends RecyclerView.Adapter<Private
             receiverName=itemView.findViewById(R.id.inbox_chat_item_name);
             messageDate = itemView.findViewById(R.id.message_date);
             newMessages = itemView.findViewById(R.id.new_messages);
+            skeletonLoader = itemView.findViewById(R.id.skeleton_loader);
+            skeletonFrame = itemView.findViewById(R.id.skeleton_frame);
             messageInboxViewHolderLayout=itemView.findViewById(R.id.message_inbox_users_view_layout);
             messageInboxViewHolderLayout.setOnClickListener(v -> {
                 Intent intent=new Intent(applicationContext, ChattingActivity.class);
-                intent.putExtra("USERID", recieverInboxList.get(getAdapterPosition()).getReceiverID());
+
+                User user = userHashMap.get(recieverInboxList.get(getAdapterPosition()).getReceiverID());
+                intent.putExtra("USER"  ,user);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 applicationContext.startActivity(intent);
             });
