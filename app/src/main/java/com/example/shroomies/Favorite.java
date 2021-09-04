@@ -146,11 +146,6 @@ public class Favorite extends Fragment {
                     personalPostRecyclerAdapter.notifyDataSetChanged();
                 }
             });
-
         }
-
     }
-
-
-
 }

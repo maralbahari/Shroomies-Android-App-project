@@ -48,7 +48,7 @@ public class ChangeUsernameDialog extends DialogFragment {
         super.onStart();
         if(getDialog()!=null) {
             getDialog().getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
-            getDialog().getWindow().setGravity(Gravity.FILL_HORIZONTAL);
+            getDialog().getWindow().setGravity(Gravity.LEFT);
             getDialog().getWindow().setBackgroundDrawableResource(R.drawable.create_group_fragment_background);
             showKeyboard();
         }
@@ -63,7 +63,7 @@ public class ChangeUsernameDialog extends DialogFragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        getDialog().getWindow().setWindowAnimations(R.style.DialogAnimation);
+        getDialog().getWindow().setWindowAnimations(R.style.EditProfileOptionsAnimation);
     }
     public interface name{
         void sendNameBack(String nameTxt);
@@ -95,6 +95,7 @@ public class ChangeUsernameDialog extends DialogFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         username = v.findViewById(R.id.enter_new_username);
+        username.requestFocus();
         ImageButton backButton = v.findViewById(R.id.change_name_back_button);
         Button doneButton = v.findViewById(R.id.change_name_done_button);
         TextView nameLimit=v.findViewById(R.id.name_char_limit);
@@ -102,6 +103,7 @@ public class ChangeUsernameDialog extends DialogFragment {
         if (bundle!=null) {
             user=bundle.getParcelable("USER");
             username.setText(user.getName());
+            username.setSelection(username.getText().length());
             if (!user.getName().equals("")) {
                 int currentChar=user.getName().length();
                 nameLimit.setText(String.valueOf(maxChar -currentChar));
@@ -143,18 +145,21 @@ public class ChangeUsernameDialog extends DialogFragment {
         doneButton.setOnClickListener(v -> {
             FirebaseUser firebaseUser=mAuth.getCurrentUser();
             if (firebaseUser!=null) {
-                String txtName = username.getText().toString().toLowerCase();
+                String txtName = username.getText().toString().toLowerCase().trim();
                 if (txtName.length()>username.getMaxWidth()) {
                     Toast.makeText(getContext(),"your choosen name is too long",Toast.LENGTH_LONG).show();
                 } else {
-                    updateUsername(txtName);
+                    if (txtName.equals(user.getName())) {
+                        Toast.makeText(getContext(),"No changes have been made",Toast.LENGTH_SHORT).show();
+                    }else {
+                        updateUsername(txtName);
+                    }
                 }
             } else {
 //                    todo error handling when user is null
                 dismiss();
             }
         });
-
         backButton.setOnClickListener(v -> {
             closeKeyboard();
             if (!user.getName().equals(username.getText().toString())) {

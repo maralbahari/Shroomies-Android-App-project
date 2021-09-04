@@ -53,10 +53,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
     RequestQueue requestQueue;
     RelativeLayout rootLayout;
 
-
-
-
-    public RequestAdapter(Context context, RelativeLayout rootLayout , ArrayList<User> usersList, Boolean receiverUsers, String apartment) {
+    public RequestAdapter(Context context, RelativeLayout rootLayout , ArrayList<User> usersList, Boolean receiverUsers) {
         this.context = context;
         this.usersList=usersList;
         this.receiverUsers=receiverUsers;
@@ -147,7 +144,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
 
                         try {
                             jsonObject.put("senderID", senderID);
-                            jsonObject.put("receiverID", mAuth.getCurrentUser().getUid());
+                            jsonObject.put("receiverID", firebaseUser.getUid());
                             data.put("data", jsonObject);
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -200,7 +197,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
                         JSONObject jsonObject = new JSONObject();
                         JSONObject data = new JSONObject();
                         try {
-                            jsonObject.put(Config.receiverID  , mAuth.getCurrentUser().getUid());
+                            jsonObject.put(Config.receiverID  , firebaseUser.getUid());
                             jsonObject.put(Config.receiverApartmentID  ,apartmentID );
                             jsonObject.put(Config.senderID , senderID);
                             jsonObject.put(Config.role , role);
@@ -228,9 +225,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
                                 e.printStackTrace();
                             }
 
-                        }, error -> {
-                            displayErrorAlert(error , null);
-                        })
+                        }, error -> displayErrorAlert(error , null))
                         {
                             @Override
                             public Map<String, String> getHeaders()  {
@@ -242,7 +237,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
                         };
                         requestQueue.add(jsonObjectRequest);
                     }else{
-                        //todo handle error;
+                        displayErrorAlert(null,"Something went wrong!");
                     }
                 });
             }

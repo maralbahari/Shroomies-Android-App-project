@@ -21,8 +21,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
                 android:text="cancel"
-                android:textColor="@android:color/darker_gray" />
-
+                android:textColor="@android:color/black" />
             <TextView
                 android:id="@+id/edit_title"
                 android:layout_width="wrap_content"
@@ -48,17 +47,16 @@
         </RelativeLayout>
         <ImageView
             android:layout_below="@+id/upper_edit_profile_page"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
             android:id="@+id/edit_profile_image_view"
             android:src="@drawable/ic_user_profile_svgrepo_com"
             android:layout_centerHorizontal="true"
             android:background="@color/white"
             android:layout_marginTop="5dp"
             android:scaleType="fitXY"
-            android:minHeight="100dp"
-            android:minWidth="100dp"
             android:layout_margin="20dp"
+            android:adjustViewBounds="true"
             >
         </ImageView>
         <ImageButton

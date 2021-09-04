@@ -61,7 +61,7 @@
         android:maxLines="1"
         android:layout_margin="10dp"
         android:drawablePadding="5dp"
-        android:drawableEnd="@drawable/ic_close_light_grey"
+        android:drawableEnd="@drawable/ic_close_logo_color"
         ></EditText>
     <View
         android:layout_below="@+id/enter_new_username"

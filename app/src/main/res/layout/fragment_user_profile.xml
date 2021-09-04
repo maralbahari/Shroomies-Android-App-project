@@ -15,22 +15,16 @@
 
             <ImageView
                 android:id="@+id/user_profile_image_view"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:minWidth="80dp"
-                android:minHeight="80dp"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
                 android:layout_alignParentLeft="true"
                 android:layout_marginLeft="12dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginRight="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@drawable/circle_white_button"
-                android:elevation="3dp"
-                android:padding="10dp"
+                android:adjustViewBounds="true"
                 android:src="@drawable/ic_user_profile_svgrepo_com">
-
             </ImageView>
-
             <TextView
                 android:id="@+id/user_profile_view_username"
                 android:layout_width="wrap_content"
@@ -43,7 +37,7 @@
                 android:shadowRadius="1.5"
                 android:text="Username"
                 android:textColor="@color/jetBlack"
-                android:textSize="20sp">
+                android:textSize="15sp">
 
             </TextView>
 
@@ -57,7 +51,7 @@
                 android:maxLength="150"
                 android:text="Bio"
                 android:textColor="@color/lightGrey"
-                android:textSize="15sp"></TextView>
+                android:textSize="12sp"></TextView>
 
 
             <ImageView
@@ -93,7 +87,7 @@
                 android:layout_alignStart="@id/user_profile_post_icon"
                 android:text="Posts"
                 android:textColor="@color/jetBlack"
-                android:textSize="15sp"
+                android:textSize="13sp"
                 android:textStyle="bold" />
 
             <com.google.android.material.button.MaterialButton

@@ -26,6 +26,8 @@ import android.widget.LinearLayout;
 
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -42,6 +44,7 @@ import com.google.firebase.storage.UploadTask;
 
 
 import java.util.HashMap;
+import java.util.Objects;
 
 public class EditProfile extends DialogFragment implements ChangeBioDialog.bio, ChangeEmailDialog.email, ChangeUsernameDialog.name{
 
@@ -71,9 +74,8 @@ public class EditProfile extends DialogFragment implements ChangeBioDialog.bio, 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        getDialog().getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+        getDialog().getWindow().setWindowAnimations(R.style.DialogAnimation);
     }
-
     @Override
     public void onStart() {
         super.onStart();
@@ -81,7 +83,6 @@ public class EditProfile extends DialogFragment implements ChangeBioDialog.bio, 
             getDialog().getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
             getDialog().getWindow().setBackgroundDrawableResource(R.drawable.create_group_fragment_background);
             getDialog().getWindow().setGravity(Gravity.BOTTOM);
-
         }
     }
 
@@ -185,6 +186,7 @@ public class EditProfile extends DialogFragment implements ChangeBioDialog.bio, 
                         customLoadingProgressBar.dismiss();
                         GlideApp.with(getActivity().getApplicationContext())
                                 .load(R.drawable.ic_user_profile_svgrepo_com)
+                                .transform(new CircleCrop())
                                 .into(profileImage);
                     }
                 }).addOnFailureListener(e -> Toast.makeText(getContext(),e.getMessage(),Toast.LENGTH_LONG).show());
@@ -205,7 +207,7 @@ public class EditProfile extends DialogFragment implements ChangeBioDialog.bio, 
             uploadTask = fileRef.putFile(imageUri);
             uploadTask.continueWithTask((Continuation<UploadTask.TaskSnapshot, Task<Uri>>) task -> {
                 if(!task.isSuccessful()){
-                    throw task.getException();
+                    throw Objects.requireNonNull(task.getException());
                 }
                 return fileRef.getDownloadUrl();
             }).addOnCompleteListener((OnCompleteListener<Uri>) task -> {
@@ -216,6 +218,12 @@ public class EditProfile extends DialogFragment implements ChangeBioDialog.bio, 
                     imageDetails.put("image", mUrl);
                     rootRef.child(Config.users).child(user.getUserID()).updateChildren(imageDetails).addOnCompleteListener(task1 -> {
                         if (task1.isSuccessful()) {
+                            GlideApp.with(getActivity().getApplicationContext())
+                                    .load(mUrl)
+                                    .transform(new CircleCrop())
+                                    .placeholder(R.drawable.ic_user_profile_svgrepo_com)
+                                    .into(profileImage);
+                            customLoadingProgressBar.dismiss();
                             Toast.makeText(getActivity(), "Uploaded successfully", Toast.LENGTH_SHORT).show();
                         }
                     });
@@ -247,9 +255,9 @@ public class EditProfile extends DialogFragment implements ChangeBioDialog.bio, 
                             GlideApp.with(getActivity().getApplicationContext())
                                     .load(user.getImage())
                                     .fitCenter()
+                                    .transform(new CircleCrop())
                                     .placeholder(R.drawable.ic_user_profile_svgrepo_com)
                                     .into(profileImage);
-                            profileImage.setPadding(3,3,3,3);
                         }
                     }
 

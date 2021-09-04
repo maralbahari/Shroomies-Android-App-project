@@ -13,6 +13,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -181,10 +183,9 @@ public class UserProfile extends Fragment {
                          if (user.getImage() != null) {
                              GlideApp.with(getActivity().getApplicationContext())
                                      .load(user.getImage())
-                                     .fitCenter()
+                                     .transform(new CircleCrop())
                                      .placeholder(R.drawable.ic_user_profile_svgrepo_com)
                                      .into(profileImage);
-                             profileImage.setPadding(3, 3, 3, 3);
                          }
                      }
                 }

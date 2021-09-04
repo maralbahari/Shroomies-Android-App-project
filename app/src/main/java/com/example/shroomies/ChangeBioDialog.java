@@ -31,6 +31,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
+import java.util.Objects;
 
 public class ChangeBioDialog extends DialogFragment {
 
@@ -48,16 +49,16 @@ public class ChangeBioDialog extends DialogFragment {
         super.onStart();
         if(getDialog()!=null) {
             getDialog().getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
-            getDialog().getWindow().setGravity(Gravity.CLIP_HORIZONTAL);
+            getDialog().getWindow().setGravity(Gravity.VERTICAL_GRAVITY_MASK);
             getDialog().getWindow().setBackgroundDrawableResource(R.drawable.create_group_fragment_background);
-            showKeyboard();
+
         }
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        getDialog().getWindow().setWindowAnimations(R.style.DialogAnimation);
+        Objects.requireNonNull(getDialog()).getWindow().setWindowAnimations(R.style.EditProfileOptionsAnimation);
     }
 
     @Override
@@ -88,7 +89,8 @@ public class ChangeBioDialog extends DialogFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         newBio = v.findViewById(R.id.enter_new_bio);
-        newBio.setFocusedByDefault(true);
+        newBio.requestFocus();
+        showKeyboard();
         Button doneButton = v.findViewById(R.id.change_bio_done_button);
         ImageButton backButton = v.findViewById(R.id.change_bio_back_button);
         bioLimit=v.findViewById(R.id.bio_char_limit);
@@ -97,6 +99,7 @@ public class ChangeBioDialog extends DialogFragment {
             user=bundle.getParcelable("USER");
             if (!user.getBio().equals("")) {
                 newBio.setText(user.getBio());
+                newBio.setSelection(newBio.getText().length());
                 int currentChar=user.getBio().length();
                 bioLimit.setText(String.valueOf(maxChar -currentChar));
             } else {
@@ -139,11 +142,15 @@ public class ChangeBioDialog extends DialogFragment {
         doneButton.setOnClickListener(v -> {
             FirebaseUser firebaseUser= mAuth.getCurrentUser();
             if (firebaseUser!=null) {
-                String txtBio = newBio.getText().toString();
+                String txtBio = newBio.getText().toString().trim();
                 if (txtBio.length()>maxChar) {
                     Toast.makeText(getContext(),"Your bio needs to be less than 150 character",Toast.LENGTH_LONG).show();
                 } else {
-                    updateBio(txtBio);
+                    if (txtBio.equals(user.getBio())) {
+                        Toast.makeText(getContext(),"No changes have been made",Toast.LENGTH_SHORT).show();
+                    } else {
+                        updateBio(txtBio);
+                    }
                 }
             }
         });

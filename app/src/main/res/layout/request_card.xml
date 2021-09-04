@@ -56,11 +56,11 @@
                android:layout_width="wrap_content"
                android:layout_height="wrap_content"
                android:layout_centerVertical="true"
-               android:background="@drawable/ic_cancel_filled"
+               android:background="@drawable/reject_background_button"
                android:layout_toLeftOf="@+id/accept_button"
                android:layout_marginLeft="5dp"
                />
-           <com.google.android.material.button.MaterialButton
+           <Button
                android:id="@+id/cancel_request"
                android:layout_width="wrap_content"
                android:layout_height="wrap_content"
@@ -71,8 +71,8 @@
                android:layout_centerVertical="true"
                android:layout_margin="10dp"
                android:layout_toEndOf="@+id/user_name"
-               android:backgroundTint="@color/veryLightGrey"
-               android:visibility="gone"
+               android:visibility="visible"
+               android:backgroundTint="@color/lightGrey"
                />
 
     </RelativeLayout>

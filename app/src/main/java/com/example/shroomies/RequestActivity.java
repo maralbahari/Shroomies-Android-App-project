@@ -3,7 +3,6 @@ package com.example.shroomies;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.PersistableBundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.RelativeLayout;
@@ -66,10 +65,7 @@ public class RequestActivity extends AppCompatActivity {
    private ArrayList<User> senderUsers;
    private ArrayList<User> receiverUsers;
    private TabLayout tabLayout;
-   private Toolbar reqToolbar;
 
-    //variables
-   private String apartmentID;
 
 
     @Override
@@ -86,9 +82,9 @@ public class RequestActivity extends AppCompatActivity {
         catAnimationView = findViewById(R.id.empty_animation_req);
         MaterialButton goToMyShroomiesButton = findViewById(R.id.go_to_shroomies_button);
 //        Todo add go to publish post
-        reqToolbar=findViewById(R.id.request_toolbar);
+        Toolbar reqToolbar = findViewById(R.id.request_toolbar);
         setSupportActionBar(reqToolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("");
         noReceivedRequestsLayout = findViewById(R.id.no_received_request_Layout);
         goToMyShroomiesButton.setOnClickListener(v -> startActivity(new Intent(this, MyShroomiesActivity.class)));
@@ -100,7 +96,8 @@ public class RequestActivity extends AppCompatActivity {
         LinearLayoutManager linearLayoutManager1 = new LinearLayoutManager(getApplicationContext(), RecyclerView.VERTICAL , false);
         invitationRecyclerView.setLayoutManager(linearLayoutManager1);
         invitationRecyclerView.setHasFixedSize(true);
-
+        senderUsers=new ArrayList<>();
+        receiverUsers=new ArrayList<>();
         OverScrollDecoratorHelper.setUpOverScroll(invitationRecyclerView, OverScrollDecoratorHelper.ORIENTATION_VERTICAL);
         OverScrollDecoratorHelper.setUpOverScroll(requestRecyclerView, OverScrollDecoratorHelper.ORIENTATION_VERTICAL);
         getToken();
@@ -191,7 +188,7 @@ public class RequestActivity extends AppCompatActivity {
                                 User user = mapper.readValue(receivedJsonArray.get(i).toString(), User.class);
                                 senderUsers.add(user);
                             }
-                            invitationAdapter = new RequestAdapter(getApplicationContext(), rootLayout, senderUsers, false, apartmentID);
+                            invitationAdapter = new RequestAdapter(getApplicationContext(), rootLayout, senderUsers, false);
                             invitationAdapter.notifyDataSetChanged();
                             invitationRecyclerView.setAdapter(invitationAdapter);
                         }else{
@@ -211,7 +208,7 @@ public class RequestActivity extends AppCompatActivity {
                                 User user = mapper.readValue(sentJsonArray.get(i).toString(), User.class);
                                 receiverUsers.add(user);
                             }
-                            requestAdapter = new RequestAdapter(getApplicationContext(), rootLayout, receiverUsers, true, apartmentID);
+                            requestAdapter = new RequestAdapter(getApplicationContext(), rootLayout, receiverUsers, true);
                             requestAdapter.notifyDataSetChanged();
                             requestRecyclerView.setAdapter(requestAdapter);
 
@@ -254,16 +251,13 @@ public class RequestActivity extends AppCompatActivity {
          firebaseUser.getIdToken(true).addOnCompleteListener(task -> {
              if (task.isSuccessful()) {
                  String token = task.getResult().getToken();
-                 apartmentID = (String) task.getResult().getClaims().get(Config.apartmentID);
                  getRequests(token,firebaseUser.getUid());
 
              }else{
-                 // todo display error
+                 displayErrorAlert(null,"Something went wrong!");
              }
          });
      }
-
-
  }
     void displayErrorAlert(@Nullable VolleyError error , String errorMessage){
         String message = null; // error message, show it in toast or dialog, whatever you want
@@ -291,10 +285,5 @@ public class RequestActivity extends AppCompatActivity {
                 .create()
                 .show();
 
-    }
-    @Override
-    protected void onStart() {
-        super.onStart();
-        getToken();
     }
 }
