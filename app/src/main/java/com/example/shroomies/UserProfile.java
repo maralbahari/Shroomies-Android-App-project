@@ -13,6 +13,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -134,7 +136,7 @@ public class UserProfile extends Fragment {
 
     private void getApartmentPosts(String userUid) {
         apartmentPostList = new ArrayList<>();
-        apartmentAdapter = new RecycleViewAdapterApartments(apartmentPostList , getContext(), userUid,false);
+        apartmentAdapter = new RecycleViewAdapterApartments(apartmentPostList , getContext(), userUid,false,true);
         recyclerView.setAdapter(apartmentAdapter);
         Query query = mDocRef.collection("postApartment").orderBy("time_stamp", Query.Direction.DESCENDING).whereEqualTo("userID", userUid).limit(APARTMENT_PER_PAGINATION);
         query.get().addOnCompleteListener(task -> {
@@ -152,7 +154,7 @@ public class UserProfile extends Fragment {
     private void getPersonalPosts(String userUid) {
 
         personalPostList = new ArrayList<>();
-        personalPostRecyclerAdapter = new PersonalPostRecyclerAdapter(personalPostList, getActivity(), userUid, false);
+        personalPostRecyclerAdapter = new PersonalPostRecyclerAdapter(personalPostList, getActivity(), userUid, false,true);
         recyclerView.setAdapter(personalPostRecyclerAdapter);
         Query query = mDocRef.collection("postPersonal").orderBy("time_stamp", Query.Direction.DESCENDING).whereEqualTo("userID", userUid).limit(APARTMENT_PER_PAGINATION);
         query.get().addOnCompleteListener(task -> {
@@ -181,10 +183,9 @@ public class UserProfile extends Fragment {
                          if (user.getImage() != null) {
                              GlideApp.with(getActivity().getApplicationContext())
                                      .load(user.getImage())
-                                     .fitCenter()
+                                     .transform(new CircleCrop())
                                      .placeholder(R.drawable.ic_user_profile_svgrepo_com)
                                      .into(profileImage);
-                             profileImage.setPadding(3, 3, 3, 3);
                          }
                      }
                 }

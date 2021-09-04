@@ -548,6 +548,7 @@ public class ChattingActivity extends AppCompatActivity {
         SimpleDateFormat currentTime = new SimpleDateFormat("HH:mm aa");
         saveCurrentTime = currentTime.format(calendarTime.getTime());
         Map messageTextBody = new HashMap();
+        messageTextBody.put("messageId", messagePushId);
         messageTextBody.put("streamKeyData", Base64.getEncoder().encodeToString(streamKeyData));
         messageTextBody.put("message", url);
         messageTextBody.put("time", saveCurrentTime);
@@ -556,6 +557,7 @@ public class ChattingActivity extends AppCompatActivity {
         messageTextBody.put("from", senderID);
         messageTextBody.put("isSeen", false);
         Map messageBodyDetails = new HashMap();
+        Log.i("this is message ", messageBodyDetails.toString());
         messageBodyDetails.put(messageSenderRef + "/" + messagePushId, messageTextBody);
         messageBodyDetails.put(messageReceiverRef + "/" + messagePushId, messageTextBody);
         rootRef.updateChildren(messageBodyDetails).addOnCompleteListener(new OnCompleteListener() {

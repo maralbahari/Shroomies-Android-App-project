@@ -8,8 +8,6 @@
     android:background="@drawable/apartment_post_background"
     android:elevation="3dp"
     xmlns:app="http://schemas.android.com/apk/res-auto">
-
-
     <com.make.dots.dotsindicator.DotsIndicator
         android:id="@+id/dotsIndicator_apartment_card"
         android:layout_width="wrap_content"
@@ -30,25 +28,21 @@
         android:id="@+id/apartment_card_view_pager"
         android:layout_width="match_parent"
         android:layout_height="200dp"
-
         android:scaleType="centerCrop"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
         android:layout_marginTop="5dp"
         android:layout_marginBottom="5dp"
-
         />
-
-
     <TextView
         android:id="@+id/price_text_view_apartment_card"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/address_text_view"
-        android:layout_marginLeft="19dp"
-        android:layout_marginTop="3dp"
-        android:fontFamily="@font/amiko"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="5dp"
         android:text="1000"
+        android:layout_alignParentLeft="true"
         android:textColor="@color/jetBlack"
         android:textSize="16sp" />
     <TextView
@@ -56,173 +50,142 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="RM"
-        android:fontFamily="@font/amiko"
         android:layout_toRightOf="@id/price_text_view_apartment_card"
         android:layout_alignBottom="@id/price_text_view_apartment_card"
         android:textSize="16sp"
         android:textStyle="bold"
         android:textColor="@color/jetBlack"/>
+    <TextView
+        android:id="@+id/address_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/apartment_card_view_pager"
+        android:textColor="@color/jetBlack"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="5dp"
+        android:text="Jeddah"
+        android:layout_toLeftOf="@id/start_chat_button_apartment_card"
+        android:textSize="19sp"
+        android:layout_alignParentLeft="true"
+        android:drawableStart="@drawable/ic_location_icon_25dp"/>
 
-
-
-
-            <TextView
-                android:id="@+id/address_text_view"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/apartment_card_view_pager"
-                android:textColor="@color/jetBlack"
-                android:layout_marginLeft="5dp"
-                android:layout_marginTop="5dp"
-                android:text="Jeddah"
-                android:textSize="19sp"
-                android:fontFamily="@font/amiko"
-                android:drawableStart="@drawable/ic_location_icon_25dp"/>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignTop="@+id/apartment_card_view_pager"
-                android:layout_alignEnd="@+id/apartment_card_view_pager"
-                android:layout_marginTop="10dp"
-                android:layout_marginRight="5dp"
-                android:padding="3dp"
-                android:background="@drawable/text_low_alpha_background"
-                android:elevation="3dp">
-            <androidx.appcompat.widget.AppCompatCheckBox
-                android:id="@+id/favorite_check_box_apartment"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:button="@android:color/transparent"
-                android:background="@drawable/start_check_button"
-                android:outlineProvider="background"
-                />
-            </LinearLayout>
-
-
-            <TextView
-                android:id="@+id/Room_mate_num"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-
-                android:layout_toRightOf="@+id/RM_text_view"
-                android:layout_alignBottom="@id/price_text_view_apartment_card"
-
-                android:text=" • 1 roommate"
-                android:textSize="16sp"
-                android:fontFamily="@font/amiko"
-                android:textColor="@color/jetBlack"/>
-
-            <ImageButton
-
-                android:id="@+id/start_chat_button_apartment_card"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/apartment_card_view_pager"
-                android:layout_alignParentRight="true"
-                android:layout_marginTop="10dp"
-                android:layout_marginRight="20dp"
-                android:layout_marginBottom="15dp"
-               android:background="@drawable/ic_message"
-
-                android:minHeight="0dp"
-                android:padding="7dp"
-
-
-                />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/apartment_card_view_pager"
+        android:layout_alignEnd="@+id/apartment_card_view_pager"
+        android:layout_marginTop="10dp"
+        android:layout_marginRight="5dp"
+        android:padding="3dp"
+        android:background="@drawable/text_low_alpha_background"
+        android:elevation="3dp">
+        <com.google.android.material.checkbox.MaterialCheckBox
+            android:id="@+id/favorite_check_box_apartment"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:button="@android:color/transparent"
+            android:background="@drawable/start_check_button"
+            android:outlineProvider="background"
+            />
+    </LinearLayout>
+    <TextView
+        android:id="@+id/Room_mate_num"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/RM_text_view"
+        android:layout_alignBottom="@id/price_text_view_apartment_card"
+        android:text=" • 1 roommate"
+        android:textSize="16sp"
+        android:textColor="@color/jetBlack"/>
+        <ImageButton
+            android:id="@+id/start_chat_button_apartment_card"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/apartment_card_view_pager"
+            android:layout_alignParentRight="true"
+            android:layout_marginTop="10dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginBottom="15dp"
+            android:background="@drawable/ic_message"
+            android:minHeight="0dp"
+            android:padding="7dp"
+            />
     <TextView
         android:id="@+id/apartment_description"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_toLeftOf="@+id/apartment_post_delete_button"
         android:lines="1"
+        android:layout_marginTop="5dp"
         android:text="hello im looking for a new apartment akfjhnmdoskdjf mskodj fnmdsokdjfn vfsjd bnmskowjdif ndm s jo dinfjmdojin"
         android:layout_below="@id/price_text_view_apartment_card"
         android:layout_alignStart="@id/price_text_view_apartment_card"
         android:layout_marginRight="10dp"
         android:fontFamily="@font/amiko"
         android:textSize="14dp"
-
         />
 
-        <LinearLayout
-            android:padding="4dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignTop="@id/apartment_card_view_pager"
-            android:layout_marginLeft="15dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="3dp"
-            android:elevation="3dp"
-            android:orientation="vertical"
-            android:background="@drawable/text_low_alpha_background">
-
-
-                <ImageView
-                    android:id="@+id/male_image_apartment_card"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="3dp"
-
-                    android:elevation="3dp"
-
-                    android:src="@drawable/male_icon_15dp"
-                    android:visibility="gone"/>
-
-
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="1dp"
-                    android:layout_weight="1" />
-
-                <ImageView
-                    android:id="@+id/female_image_apartment_card"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                   android:layout_marginTop="3dp"
-
-                    android:visibility="gone"
-
-                    android:elevation="3dp"
-
-                    android:src="@drawable/female_icon_15dp" />
-
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="1dp"
-                    android:layout_weight="1" />
-
-                <ImageView
-                    android:id="@+id/pets_allowed_image_apartment_card"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="3dp"
-                    android:elevation="3dp"
-                    android:visibility="gone"
-
-                    android:src="@drawable/pet_icon_15dp" />
-
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="1dp"
-                    android:layout_weight="1" />
-
-                <ImageView
-                    android:id="@+id/non_smoking_image_apartment_card"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="3dp"
-                    android:elevation="3dp"
-                    android:visibility="gone"
-                    android:src="@drawable/smoking_icon_15dp"
-                    />
-
-        </LinearLayout>
-
-
-
+    <LinearLayout
+        android:padding="4dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@id/apartment_card_view_pager"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="3dp"
+        android:elevation="3dp"
+        android:orientation="vertical"
+        android:background="@drawable/post_icon_background">
+            <ImageView
+                android:id="@+id/male_image_apartment_card"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
+                android:elevation="3dp"
+                android:src="@drawable/male_icon_15dp"
+                android:visibility="visible"/>
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+            <ImageView
+                android:id="@+id/female_image_apartment_card"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+               android:layout_marginTop="3dp"
+                android:visibility="visible"
+                android:elevation="3dp"
+                android:src="@drawable/female_icon_15dp" />
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+            <ImageView
+                android:id="@+id/pets_allowed_image_apartment_card"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="3dp"
+                android:elevation="3dp"
+                android:visibility="visible"
+                android:src="@drawable/pet_icon_15dp" />
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:layout_weight="1" />
+            <ImageView
+                android:id="@+id/non_smoking_image_apartment_card"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="3dp"
+                android:elevation="3dp"
+                android:visibility="visible"
+                android:src="@drawable/smoking_icon_15dp"
+                />
+    </LinearLayout>
     <ImageButton
         android:id="@+id/apartment_post_delete_button"
         android:layout_width="wrap_content"
@@ -233,10 +196,6 @@
         android:layout_marginRight="20dp"
         android:layout_marginBottom="15dp"
         android:background="@drawable/ic_delete"
+        android:visibility="gone"
         />
-
-
-
-
-
 </RelativeLayout>

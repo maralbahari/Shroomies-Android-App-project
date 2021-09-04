@@ -79,7 +79,7 @@ public class PersonalPostFragment extends Fragment {
 
 
         personalPostModelList = new ArrayList<>();
-        personalPostRecyclerAdapter = new PersonalPostRecyclerAdapter(personalPostModelList, getContext(), mAuth.getCurrentUser().getUid() , false);
+        personalPostRecyclerAdapter = new PersonalPostRecyclerAdapter(personalPostModelList, getContext(), mAuth.getCurrentUser().getUid() , false,false);
         personalRecyclerView.setAdapter(personalPostRecyclerAdapter);
 
         if (bun != null) {

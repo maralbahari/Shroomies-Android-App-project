@@ -7,8 +7,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
+
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -27,13 +29,12 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.common.net.HttpHeaders;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.GetTokenResult;
+import com.google.firebase.auth.FirebaseUser;
+
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -50,12 +51,9 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
     private final ArrayList<User> usersList;
     Boolean receiverUsers;
     RequestQueue requestQueue;
-    LinearLayout rootLayout;
+    RelativeLayout rootLayout;
 
-
-
-
-    public RequestAdapter(Context context, LinearLayout rootLayout , ArrayList<User> usersList, Boolean receiverUsers, String apartment) {
+    public RequestAdapter(Context context, RelativeLayout rootLayout , ArrayList<User> usersList, Boolean receiverUsers) {
         this.context = context;
         this.usersList=usersList;
         this.receiverUsers=receiverUsers;
@@ -108,7 +106,8 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
     }
 
     public class RequestViewHolder extends RecyclerView.ViewHolder {
-        Button accept,reject,cancel;
+        ImageButton accept,reject;
+        Button cancel;
         ImageView senderImage;
         TextView senderName,requetsTv;
         public RequestViewHolder(@NonNull View itemView) {
@@ -134,9 +133,9 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
 
 
         private void rejectRequest(final String senderID , int position){
-            mAuth.getCurrentUser().getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
-                @Override
-                public void onComplete(@NonNull Task<GetTokenResult> task) {
+            FirebaseUser firebaseUser= mAuth.getCurrentUser();
+            if (firebaseUser!=null) {
+                firebaseUser.getIdToken(true).addOnCompleteListener(task -> {
                     if(task.isSuccessful()) {
                         String token = task.getResult().getToken();
 
@@ -145,7 +144,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
 
                         try {
                             jsonObject.put("senderID", senderID);
-                            jsonObject.put("receiverID", mAuth.getCurrentUser().getUid());
+                            jsonObject.put("receiverID", firebaseUser.getUid());
                             data.put("data", jsonObject);
                         } catch (JSONException e) {
                             e.printStackTrace();
@@ -181,69 +180,67 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
                     }else{
                         displayErrorAlert(null, "An unexpected error occured");
                     }
-                }
-            });
-
-
+                });
+            }
 
         }
 
          private void acceptRequest(final String senderID){
-            mAuth.getCurrentUser().getIdToken(true).addOnCompleteListener(task -> {
-                if(task.isSuccessful()){
-                    String token = task.getResult().getToken();
-                    String apartmentID = (String) task.getResult().getClaims().get(Config.apartmentID);
-                    String role  = (String) task.getResult().getClaims().get(Config.role);
+            FirebaseUser firebaseUser=mAuth.getCurrentUser();
+            if (firebaseUser!=null) {
+                firebaseUser.getIdToken(true).addOnCompleteListener(task -> {
+                    if(task.isSuccessful()){
+                        String token = task.getResult().getToken();
+                        String apartmentID = (String) task.getResult().getClaims().get(Config.apartmentID);
+                        String role  = (String) task.getResult().getClaims().get(Config.role);
 
-                    JSONObject jsonObject = new JSONObject();
-                    JSONObject data = new JSONObject();
-                    try {
-                        jsonObject.put(Config.receiverID  , mAuth.getCurrentUser().getUid());
-                        jsonObject.put(Config.receiverApartmentID  ,apartmentID );
-                        jsonObject.put(Config.senderID , senderID);
-                        jsonObject.put(Config.role , role);
-                        data.put(Config.data , jsonObject);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_ACCEPT_REQUEST, data, response -> {
+                        JSONObject jsonObject = new JSONObject();
+                        JSONObject data = new JSONObject();
                         try {
-                            boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
-                            String message = response.getJSONObject(Config.result).getString(Config.message);
-                            if(success){
-                                //todo remove ffrom adapter
-                                Snackbar.make(rootLayout,message, BaseTransientBottomBar.LENGTH_LONG).show();
-                            }else{
-                                String title = "Maximum members";
-                                new AlertDialog.Builder(context)
-                                        .setTitle(title)
-                                        .setMessage(message)
-                                        .setIcon(R.drawable.ic_alert)
-                                        .setPositiveButton("ok", (dialog, which) -> dialog.dismiss()).create().show();
-                            }
-
+                            jsonObject.put(Config.receiverID  , firebaseUser.getUid());
+                            jsonObject.put(Config.receiverApartmentID  ,apartmentID );
+                            jsonObject.put(Config.senderID , senderID);
+                            jsonObject.put(Config.role , role);
+                            data.put(Config.data , jsonObject);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
+                        JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_ACCEPT_REQUEST, data, response -> {
+                            try {
+                                boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
+                                String message = response.getJSONObject(Config.result).getString(Config.message);
+                                if(success){
+                                    //todo remove ffrom adapter
+                                    Snackbar.make(rootLayout,message, BaseTransientBottomBar.LENGTH_LONG).show();
+                                }else{
+                                    String title = "Maximum members";
+                                    new AlertDialog.Builder(context)
+                                            .setTitle(title)
+                                            .setMessage(message)
+                                            .setIcon(R.drawable.ic_alert)
+                                            .setPositiveButton("ok", (dialog, which) -> dialog.dismiss()).create().show();
+                                }
 
-                    }, error -> {
-                        displayErrorAlert(error , null);
-                    })
-                    {
-                        @Override
-                        public Map<String, String> getHeaders()  {
-                            Map<String, String> params = new HashMap<>();
-                            params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
-                            params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
-                            return params;
-                        }
-                    };
-                    requestQueue.add(jsonObjectRequest);
-                }else{
-                    //todo handle error;
-                }
-            });
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
 
+                        }, error -> displayErrorAlert(error , null))
+                        {
+                            @Override
+                            public Map<String, String> getHeaders()  {
+                                Map<String, String> params = new HashMap<>();
+                                params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
+                                params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
+                                return params;
+                            }
+                        };
+                        requestQueue.add(jsonObjectRequest);
+                    }else{
+                        displayErrorAlert(null,"Something went wrong!");
+                    }
+                });
+            }
 
         }
         private void showAcceptDialog(String userID , String title , String message) {
@@ -252,12 +249,8 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
                     .setTitle(title)
                     .setMessage(message)
                     .setCancelable(false)
-                    .setNegativeButton("Cancel", (dialog, which) -> {
-                        dialog.dismiss();
-                    })
-                    .setPositiveButton("Accept", (dialog, which) -> {
-                        acceptRequest(userID);
-                    })
+                    .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
+                    .setPositiveButton("Accept", (dialog, which) -> acceptRequest(userID))
                     .create()
                     .show();
 

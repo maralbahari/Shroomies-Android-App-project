@@ -2,9 +2,11 @@ package com.example.shroomies;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.ContentResolver;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.ImageDecoder;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -18,7 +20,6 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.MimeTypeMap;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -26,6 +27,8 @@ import android.widget.LinearLayout;
 
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -40,8 +43,10 @@ import com.google.firebase.storage.StorageTask;
 import com.google.firebase.storage.UploadTask;
 
 
-
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.Objects;
 
 public class EditProfile extends DialogFragment implements ChangeBioDialog.bio, ChangeEmailDialog.email, ChangeUsernameDialog.name{
 
@@ -51,7 +56,6 @@ public class EditProfile extends DialogFragment implements ChangeBioDialog.bio, 
     private FirebaseAuth mAuth;
     private DatabaseReference rootRef;
     private StorageReference storageRef;
-    private Uri imageUri;
     private StorageTask uploadTask;
     private CustomLoadingProgressBar customLoadingProgressBar;
     private User user;
@@ -71,9 +75,8 @@ public class EditProfile extends DialogFragment implements ChangeBioDialog.bio, 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        getDialog().getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
+        getDialog().getWindow().setWindowAnimations(R.style.DialogAnimation);
     }
-
     @Override
     public void onStart() {
         super.onStart();
@@ -81,7 +84,6 @@ public class EditProfile extends DialogFragment implements ChangeBioDialog.bio, 
             getDialog().getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
             getDialog().getWindow().setBackgroundDrawableResource(R.drawable.create_group_fragment_background);
             getDialog().getWindow().setGravity(Gravity.BOTTOM);
-
         }
     }
 
@@ -162,12 +164,12 @@ public class EditProfile extends DialogFragment implements ChangeBioDialog.bio, 
         super.onActivityResult(requestCode, resultCode, data);
         getActivity();
         if (requestCode == IMAGE_REQUEST && resultCode == Activity.RESULT_OK && data !=null) {
-            imageUri = data.getData();
+            Uri imageUri = data.getData();
             if (uploadTask !=null && uploadTask.isInProgress()){
                 customLoadingProgressBar.show();
-                Toast.makeText(getContext(), "Upload is in progress", Toast.LENGTH_SHORT).show();
+                customLoadingProgressBar.setLoadingText("Uploading...");
             } else {
-                uploadImage();
+                uploadImage(imageUri);
             }
         }
     }
@@ -180,31 +182,48 @@ public class EditProfile extends DialogFragment implements ChangeBioDialog.bio, 
                 Intent pickPicture = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(pickPicture, IMAGE_REQUEST);
             } else if (pictureOptions[item].equals("Remove Profile Picture")){
-                storageRef.child("profile pictures").child(user.getUserID()).child(user.getImage()).delete().addOnCompleteListener(task -> {
+                StorageReference storageReference =FirebaseStorage.getInstance().getReferenceFromUrl(user.getImage());
+                storageReference.delete().addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
-                        GlideApp.with(getActivity().getApplicationContext())
+                        GlideApp.with(getContext())
                                 .load(R.drawable.ic_user_profile_svgrepo_com)
+                                .transform(new CircleCrop())
                                 .into(profileImage);
+                        customLoadingProgressBar.dismiss();
+                        Toast.makeText(getContext(),"Image deleted successfully.",Toast.LENGTH_SHORT).show();
+
                     }
                 }).addOnFailureListener(e -> Toast.makeText(getContext(),e.getMessage(),Toast.LENGTH_LONG).show());
             }
         });
         builder.show();
     }
-    private String getFileExtension(Uri uri){
-            ContentResolver contentResolver = getContext().getContentResolver();
-            MimeTypeMap mimeTypeMap = MimeTypeMap.getSingleton();
-            return mimeTypeMap.getExtensionFromMimeType(contentResolver.getType(uri));
-    }
-
-    private void uploadImage(){
+    private void uploadImage(Uri imageUri){
+        Bitmap bitmap=null;
+        if (Build.VERSION.SDK_INT >= 29) {
+            ImageDecoder.Source source = ImageDecoder.createSource(getContext().getContentResolver(), imageUri);
+            try {
+                bitmap = ImageDecoder.decodeBitmap(source);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                bitmap = MediaStore.Images.Media.getBitmap(getContext().getContentResolver(), imageUri);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 50, stream);
+        byte[] byteArray = stream.toByteArray();
         customLoadingProgressBar.show();
         if (imageUri !=null){
-            final StorageReference fileRef = storageRef.child("profile pictures").child(user.getUserID()).child(getFileExtension(imageUri));
-            uploadTask = fileRef.putFile(imageUri);
+            final StorageReference fileRef = storageRef.child("profile pictures").child(user.getUserID()).child(imageUri.getLastPathSegment());
+            uploadTask = fileRef.putBytes(byteArray);
             uploadTask.continueWithTask((Continuation<UploadTask.TaskSnapshot, Task<Uri>>) task -> {
                 if(!task.isSuccessful()){
-                    throw task.getException();
+                    throw Objects.requireNonNull(task.getException());
                 }
                 return fileRef.getDownloadUrl();
             }).addOnCompleteListener((OnCompleteListener<Uri>) task -> {
@@ -215,7 +234,12 @@ public class EditProfile extends DialogFragment implements ChangeBioDialog.bio, 
                     imageDetails.put("image", mUrl);
                     rootRef.child(Config.users).child(user.getUserID()).updateChildren(imageDetails).addOnCompleteListener(task1 -> {
                         if (task1.isSuccessful()) {
-                            Toast.makeText(getActivity(), "Uploaded successfully", Toast.LENGTH_SHORT).show();
+                            GlideApp.with(getContext())
+                                    .load(mUrl)
+                                    .transform(new CircleCrop())
+                                    .placeholder(R.drawable.ic_user_profile_svgrepo_com)
+                                    .into(profileImage);
+                            customLoadingProgressBar.dismiss();
                         }
                     });
                 }
@@ -246,9 +270,9 @@ public class EditProfile extends DialogFragment implements ChangeBioDialog.bio, 
                             GlideApp.with(getActivity().getApplicationContext())
                                     .load(user.getImage())
                                     .fitCenter()
+                                    .transform(new CircleCrop())
                                     .placeholder(R.drawable.ic_user_profile_svgrepo_com)
                                     .into(profileImage);
-                            profileImage.setPadding(3,3,3,3);
                         }
                     }
 

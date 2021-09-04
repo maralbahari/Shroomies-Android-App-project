@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         requestsButton.setOnClickListener(v -> {
-            getFragment(new RequestFragment());
+            startActivity(new Intent(this,RequestActivity.class));
             drawerLayout.closeMenu(true);
 
         });
@@ -240,7 +240,6 @@ public class MainActivity extends AppCompatActivity {
 //    }
 
     private void loadUserDetails(){
-
         rootRef.child(Config.users).child(mAuth.getCurrentUser().getUid()).get().addOnCompleteListener(task -> {
             if(task.isSuccessful()){
                 user = task.getResult().getValue(User.class);

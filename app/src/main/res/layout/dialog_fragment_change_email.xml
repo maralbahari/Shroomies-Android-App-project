@@ -52,7 +52,7 @@
         android:background="@android:color/transparent"
         android:layout_margin="10dp"
         android:drawablePadding="5dp"
-        android:drawableEnd="@drawable/ic_close_light_grey"
+        android:drawableEnd="@drawable/ic_close_logo_color"
         >
     </EditText>
     <View

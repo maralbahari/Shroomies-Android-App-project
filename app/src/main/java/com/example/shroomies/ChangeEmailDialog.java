@@ -45,7 +45,7 @@ public class ChangeEmailDialog extends DialogFragment {
         super.onStart();
         if(getDialog()!=null) {
             getDialog().getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
-            getDialog().getWindow().setGravity(Gravity.END);
+            getDialog().getWindow().setGravity(Gravity.BOTTOM);
             getDialog().getWindow().setBackgroundDrawableResource(R.drawable.create_group_fragment_background);
             showKeyboard();
         }
@@ -54,7 +54,7 @@ public class ChangeEmailDialog extends DialogFragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        getDialog().getWindow().setWindowAnimations(R.style.DialogAnimation);
+        getDialog().getWindow().setWindowAnimations(R.style.EditProfileOptionsAnimation);
     }
 
     @Override
@@ -92,12 +92,14 @@ public class ChangeEmailDialog extends DialogFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         newEmail = v.findViewById(R.id.enter_new_email);
+        newEmail.requestFocus();
         Button doneButton = v.findViewById(R.id.change_email_done_button);
         ImageButton backButton = v.findViewById(R.id.change_email_back_button);
         Bundle bundle=this.getArguments();
         if (bundle!=null) {
             user=bundle.getParcelable("USER");
             newEmail.setText(user.getEmail());
+            newEmail.setSelection(newEmail.getText().length());
         } else {
 //            todo error handling when bundle is null
             dismiss();
@@ -117,11 +119,14 @@ public class ChangeEmailDialog extends DialogFragment {
         doneButton.setOnClickListener(v -> {
             FirebaseUser firebaseUser=mAuth.getCurrentUser();
             if (firebaseUser!=null) {
-                String txtEmail = newEmail.getText().toString();
-                updateEmail(txtEmail);
+                String txtEmail = newEmail.getText().toString().trim();
+                if (user.getEmail().equals(txtEmail)) {
+                    Toast.makeText(getContext(),"No changes have been made",Toast.LENGTH_SHORT).show();
+                } else {
+                    updateEmail(txtEmail);
+                }
             } else{
                 //            todo error handling when user is null or signed out
-
             }
         });
 
