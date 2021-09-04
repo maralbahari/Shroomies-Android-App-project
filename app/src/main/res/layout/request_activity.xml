@@ -34,7 +34,8 @@
                     app:tabBackground="@drawable/tab_backgorund_style"
                     app:tabSelectedTextColor="@color/jetBlack"
                     app:tabTextColor="@color/jetBlack"
-                    app:tabMinWidth="80dp"
+                    app:tabMinWidth="100dp"
+                    app:tabMaxWidth="100dp"
                     app:tabIndicator="@android:color/transparent"
                     app:tabTextAppearance="@android:style/TextAppearance.Widget.TabWidget"
                     app:tabIndicatorAnimationMode="elastic">
