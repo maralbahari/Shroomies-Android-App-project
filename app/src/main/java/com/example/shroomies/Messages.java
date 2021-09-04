@@ -2,7 +2,7 @@ package com.example.shroomies;
 
 public class Messages {
 
-    public String date, time, type, message,from, streamKeyData;
+    public String date, time, type, message,from, streamKeyData, messageId;
     public boolean isSeen;
 
 
@@ -15,13 +15,22 @@ public class Messages {
 
     }
 
-    public Messages(String date, String time, String type, String message, String from, boolean isSeen) {
+    public Messages(String messageId, String date, String time, String type, String message, String from, boolean isSeen) {
+        this.messageId = messageId;
         this.date = date;
         this.time = time;
         this.type = type;
         this.message = message;
         this.from = from;
         this.isSeen = isSeen;
+    }
+
+    public String getMessageId() {
+        return messageId;
+    }
+
+    public void setMessageId(String messageId) {
+        this.messageId = messageId;
     }
 
     public void setDate(String date) {
