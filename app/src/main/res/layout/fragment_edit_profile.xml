@@ -20,7 +20,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@android:color/transparent"
-                android:text="cancel"
+                android:text="Cancel"
+                android:textAllCaps="false"
+                android:textSize="13sp"
                 android:textColor="@android:color/black" />
             <TextView
                 android:id="@+id/edit_title"
@@ -42,6 +44,8 @@
                 android:layout_alignParentRight="true"
                 android:background="@android:color/transparent"
                 android:text="Done"
+                android:textAllCaps="false"
+                android:textSize="13sp"
                 android:textColor="@color/white"
                 android:textStyle="bold" />
         </RelativeLayout>

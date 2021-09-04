@@ -13,6 +13,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -23,8 +24,10 @@ import com.bumptech.glide.load.MultiTransformation;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -34,6 +37,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.make.dots.dotsindicator.DotsIndicator;
+
+import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.time.ZoneId;
@@ -53,14 +58,15 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
     boolean isFromAptFav;
     Set<String> favoriteSet;
     private String userId;
+    private boolean isFromUserProfile;
 
 
-    public RecycleViewAdapterApartments(List<Apartment> apartmentList, Context context, String userId , boolean isFromAptFav){
+    public RecycleViewAdapterApartments(List<Apartment> apartmentList, Context context, String userId , boolean isFromAptFav, boolean isFromUserProfile){
         this.isFromAptFav = isFromAptFav;
         this.apartmentList = apartmentList;
         this.context = context;
-        this.isFromAptFav = isFromAptFav;
         this.userId = userId;
+        this.isFromUserProfile=isFromUserProfile;
         // retrieve the users favorite post ids from shared prefs
         favoriteSet = context.getSharedPreferences(userId , Context.MODE_PRIVATE).getStringSet(APARTMENT_FAVOURITES, null);
         if(favoriteSet==null){
@@ -147,7 +153,6 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
         ImageView maleButton, femaleButton, petsAllowedButton, smokeFreeButton;
         ViewPager apartmentViewPager;
         ImageButton sendMessageButton, deletePostButton;
-        ;
         CheckBox favoriteCheckBox;
         DotsIndicator dotsIndicator;
         RelativeLayout apartmentCardRelativeLayout;
@@ -168,6 +173,10 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
             descriptionTV = itemView.findViewById(R.id.apartment_description);
             apartmentCardRelativeLayout = itemView.findViewById(R.id.apartment_card_layout);
             deletePostButton = itemView.findViewById(R.id.apartment_post_delete_button);
+            if (isFromUserProfile) {
+                deletePostButton.setVisibility(View.VISIBLE);
+                sendMessageButton.setVisibility(View.GONE);
+            }
             sendMessageButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
@@ -230,6 +239,7 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
         }
 
         private void deletePost() {
+            FirebaseStorage storage=FirebaseStorage.getInstance();
             FirebaseFirestore
                     .getInstance()
                     .collection("postApartment")
@@ -238,36 +248,41 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            apartmentList.remove(getAdapterPosition());
-                            notifyItemRemoved(getAdapterPosition());
+                            storage.getReferenceFromUrl(apartmentList.get(getAdapterPosition()).getImage_url().get(0)).getParent().delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull @NotNull Task<Void> task) {
+                                    apartmentList.remove(getAdapterPosition());
+                                    notifyItemRemoved(getAdapterPosition());
+                                }
+                            }).addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull @NotNull Exception e) {
+                                    Toast.makeText(context,"Something went wrong!",Toast.LENGTH_SHORT).show();
+                                }
+                            });
+//                            for (String url:apartmentList.get(getAdapterPosition()).getImage_url()){
+//                                storage.getReferenceFromUrl(url).getParent().delete().addOnCompleteListener(new OnCompleteListener<Void>() {
+//                                    @Override
+//                                    public void onComplete(@NonNull @NotNull Task<Void> task) {
+//
+//                                    }
+//                                });
+//                            }
                         }
                     }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
                     //TODO disaplay a dialog
-
                 }
             });
 
-
-//                    // Remove Images From Firebase Storage
-//             StorageReference filepath = storageRef.getInstance().getReference().child("apartment post image");
-//                     filepath.delete().addOnSuccessListener(new OnSuccessListener<Void>() {​​
-//                        @Override
-//                        public void onSuccess(Void aVoid) {​​
-//                            // deleted image
-//                        }​​
-//                    }​​);
-
         }
     }
-
         private void goToApartmentViewPage(int position) {
             Intent intent = new Intent(context, ApartmentViewPage.class);
             // add the parcelable apartment object to the intent and use it's values to
             //update the apartment view class
             intent.putExtra("apartment",apartmentList.get(position));
-
             ZoneId currentZoneID = ZonedDateTime.now(ZoneId.systemDefault()).getZone();
             DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("dd-MM-yyyy");
             intent.putExtra("POST_DATE"  , apartmentList.get(position).getTime_stamp().toDate().toInstant().atZone(currentZoneID).format(myFormatObj));
@@ -275,11 +290,6 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
         }
 
 }
-
-
-
-
-
 
     class ViewPagerPostAdapter extends PagerAdapter {
         Context context;
@@ -317,7 +327,6 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
                     .load(storageReference)
                     .transform(multiLeft)
                     .into(imageView);
-
                 container.addView(imageView);
                 return imageView;
 

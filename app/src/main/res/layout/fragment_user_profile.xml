@@ -75,8 +75,6 @@
                 android:textColor="@color/jetBlack"
                 android:textSize="15sp"
                 android:textStyle="bold"
-
-
                 ></TextView>
 
             <TextView
@@ -97,7 +95,8 @@
                 android:layout_below="@+id/user_profile_view_bio"
                 android:layout_marginTop="10dp"
                 android:elevation="5dp"
-                android:text="edit profile"
+                android:text="Edit Profile"
+                android:textAllCaps="false"
                 android:textColor="@color/jetBlack"
                 android:textSize="13sp"></com.google.android.material.button.MaterialButton>
 
@@ -110,22 +109,19 @@
             android:layout_height="wrap_content"
             app:layout_constraintTop_toBottomOf="@id/user_profile_info"
             android:layout_marginBottom="10dp"
+            app:tabTextAppearance="@android:style/TextAppearance.Widget.TabWidget"
             android:elevation="5dp">
 
             <com.google.android.material.tabs.TabItem
                 android:id="@+id/user_profile_tab_button_apartment"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="apartment" />
-
-
+                android:text="Apartment" />
             <com.google.android.material.tabs.TabItem
                 android:id="@+id/user_profile_tab_button_personal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="personal" />
-
-
+                android:text="Personal" />
         </com.google.android.material.tabs.TabLayout>
 
         <androidx.recyclerview.widget.RecyclerView

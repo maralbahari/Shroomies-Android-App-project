@@ -6,209 +6,175 @@
     android:elevation="3dp"
     android:background="@drawable/apartment_post_background"
     android:layout_marginTop="0.2dp"
-    android:padding="10dp"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-
-                <TextView
-                    android:id="@+id/personal_post_date_text_view"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="11dp"
-                    android:textColor="@color/jetBlack"
-                    android:fontFamily="@font/amiko"
-                    android:layout_below="@id/personal_post_budget_text_view"
-                    android:layout_marginLeft="5dp"
-                    android:layout_toRightOf="@id/user_image_personal_card"
-
-                    android:lines="1"/>
-
-                <TextView
-                    android:id="@+id/personal_post_budget_text_view"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                   android:layout_toRightOf="@id/user_image_personal_card"
-                    android:layout_below="@id/user_name_personal_card"
-                    android:layout_marginLeft="5dp"
-                    android:textSize="11sp"
-                    android:layout_marginBottom="3dp"
-
-                    android:fontFamily="@font/amiko"
-                    android:textColor="@color/jetBlack"
-                    >
-
-                </TextView>
-                <ImageButton
-                    android:id="@+id/IB_deletePost"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:src="@drawable/cross"
-                    android:layout_marginRight="6dp"
-                    android:visibility="gone"
-                    android:background="@drawable/personal_post_linear_layout"
-
-                    />
-
-
-
-
-            <ImageView
-                android:id="@+id/user_image_personal_card"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginRight="5dp"
-                android:background="@drawable/circle_white_button"
-                android:elevation="3dp"
-               android:minHeight="70dp"
-                android:minWidth="70dp"
-                android:padding="15dp"
-
-                android:src="@drawable/ic_user_profile_small" />
-
-            <TextView
-                android:id="@+id/personal_card_text_view"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_toRightOf="@+id/user_image_personal_card"
-                android:layout_below="@id/personal_post_date_text_view"
-                android:elevation="5dp"
-                android:padding="5dp"
-
-                android:fontFamily="@font/amiko"/>
-
+    android:padding="10dp">
+    <TextView
+        android:id="@+id/personal_post_date_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="11sp"
+        android:textColor="@color/jetBlack"
+        android:layout_below="@id/personal_post_budget_text_view"
+        android:layout_marginLeft="10dp"
+        android:layout_toRightOf="@id/user_image_personal_card"
+        android:text="date"
+        android:layout_toLeftOf="@id/favorite_check_button"
+        android:layout_marginTop="5dp"
+        android:lines="1"/>
+    <TextView
+        android:id="@+id/personal_post_budget_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+       android:layout_toRightOf="@id/user_image_personal_card"
+        android:layout_toLeftOf="@id/favorite_check_button"
+        android:layout_below="@id/user_name_personal_card"
+        android:layout_marginLeft="10dp"
+        android:textSize="13sp"
+        android:text="10000"
+        android:maxLength="6"
+        android:textStyle="bold"
+        android:layout_marginTop="5dp"
+        android:textColor="@color/jetBlack"/>
+    <ImageView
+        android:id="@+id/user_image_personal_card"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:adjustViewBounds="true"
+        android:src="@drawable/ic_user_profile_svgrepo_com" />
+    <TextView
+        android:id="@+id/personal_card_text_view"
+        android:layout_width="match_parent"
+        android:layout_marginRight="30dp"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/user_image_personal_card"
+        android:layout_below="@id/personal_post_date_text_view"
+        android:elevation="5dp"
+        android:padding="5dp"
+        android:maxLength="200"
+        android:lines="3"
+        android:minLines="4"
+       />
     <TextView
         android:id="@+id/user_name_personal_card"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="5dp"
-        android:layout_toLeftOf="@id/properties_linear_layout"
-        android:layout_toEndOf="@id/user_image_personal_card"
+        android:layout_marginLeft="10dp"
+        android:layout_toLeftOf="@id/favorite_check_button"
+        android:layout_toRightOf="@id/user_image_personal_card"
         android:fontFamily="@font/amiko"
         android:lines="1"
+        android:layout_marginRight="5dp"
+        android:text="Name"
         android:textColor="@color/jetBlack"
-
         android:textStyle="bold" />
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="0.3dp"
+        android:layout_below="@id/personal_card_text_view"
+        android:layout_marginTop="10dp"
+        android:background="@color/veryLightGrey"
+        />
 
-
-            <LinearLayout
-                android:id="@+id/properties_linear_layout"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_alignParentRight="true"
-                android:layout_marginLeft="5dp"
-
-                android:layout_marginBottom="20dp"
-                android:orientation="horizontal"
-                android:elevation="3dp"
-                android:background="@drawable/text_low_alpha_background"
-                android:padding="5dp">
-
-                <ImageView
-                    android:id="@+id/male_image_view_apartment"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-
-                    android:layout_marginLeft="3dp"
-                    android:layout_marginRight="3dp"
-                    android:elevation="3dp"
-
-                    android:src="@drawable/male_icon_15dp"
-                    android:visibility="visible" />
-
-
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="1dp"
-                    android:layout_weight="1" />
-
-                <ImageView
-                    android:id="@+id/female_image_view_apartment"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginRight="3dp"
-                    android:layout_marginLeft="3dp"
-
-                    android:visibility="visible"
-
-                    android:elevation="3dp"
-
-                    android:src="@drawable/female_icon_15dp" />
-
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="1dp"
-                    android:layout_weight="1" />
-
-                <ImageView
-                    android:id="@+id/pets_allowed_image_view_apartment"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginLeft="3dp"
-                    android:layout_marginRight="3dp"
-                    android:elevation="3dp"
-                    android:src="@drawable/pet_icon_15dp"
-
-                    android:visibility="visible" />
-
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="1dp"
-                    android:layout_weight="1" />
-
-                <ImageView
-                    android:id="@+id/non_smoking_image_view_apartment"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginRight="3dp"
-                    android:layout_marginLeft="3dp"
-                    android:elevation="3dp"
-                    android:visibility="visible"
-                    android:src="@drawable/smoking_icon_15dp"
-                    />
-
-            </LinearLayout>
-
-            <ImageButton
-
-                android:id="@+id/start_chat_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-               android:layout_below="@id/user_image_personal_card"
-
-                android:layout_marginTop="10dp"
-
-                android:background="@android:color/transparent"
-                android:src="@drawable/ic_message"
-                />
-
-    <CheckBox
-        android:id="@+id/favorite_check_button"
+    <LinearLayout
+        android:id="@+id/properties_linear_layout"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/user_image_personal_card"
-        android:layout_toLeftOf="@id/personal_card_text_view"
-        android:layout_marginTop="10dp"
-        android:layout_marginRight="5dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="5dp"
+        android:orientation="horizontal"
+        android:elevation="3dp"
+        android:layout_below="@id/divider"
+        android:layout_alignParentRight="true"
+        android:background="@drawable/post_icon_background"
+        android:padding="5dp">
+        <ImageView
+            android:id="@+id/male_image_view_apartment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginLeft="3dp"
+            android:layout_marginRight="3dp"
+            android:elevation="3dp"
+            android:src="@drawable/male_icon_15dp"
+            android:visibility="visible" />
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+        <ImageView
+            android:id="@+id/female_image_view_apartment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginRight="3dp"
+            android:layout_marginLeft="3dp"
+            android:visibility="visible"
+            android:elevation="3dp"
+            android:src="@drawable/female_icon_15dp" />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <ImageView
+            android:id="@+id/pets_allowed_image_view_apartment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginLeft="3dp"
+            android:layout_marginRight="3dp"
+            android:elevation="3dp"
+            android:src="@drawable/pet_icon_15dp"
+            android:visibility="visible" />
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_weight="1" />
+
+        <ImageView
+            android:id="@+id/non_smoking_image_view_apartment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginRight="3dp"
+            android:layout_marginLeft="3dp"
+            android:elevation="3dp"
+            android:visibility="visible"
+            android:src="@drawable/smoking_icon_15dp"
+            />
+    </LinearLayout>
+
+    <ImageButton
+        android:layout_alignParentLeft="true"
+        android:id="@+id/start_chat_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@android:color/transparent"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/ic_message"
+        android:layout_margin="5dp"
+        android:layout_below="@id/divider"
+        />
+    <com.google.android.material.checkbox.MaterialCheckBox
+        android:id="@+id/favorite_check_button"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:padding="5dp"
+        android:layout_alignParentRight="true"
+        android:layout_margin="5dp"
         android:button="@android:color/transparent"
         android:background="@drawable/start_check_button" />
-
-
     <ImageButton
         android:id="@+id/personal_post_delete_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/user_image_personal_card"
-        android:layout_alignParentRight="true"
-        android:layout_toLeftOf="@id/personal_card_text_view"
-        android:layout_marginTop="10dp"
-        android:layout_marginRight="5dp"
+        android:layout_below="@id/divider"
+        android:layout_alignParentLeft="true"
+        android:layout_centerHorizontal="true"
         android:background="@android:color/transparent"
+        android:layout_margin="10dp"
+        android:visibility="gone"
         android:src="@drawable/ic_delete" />
-
-
 </RelativeLayout>

@@ -3,7 +3,6 @@ package com.example.shroomies;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +12,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -43,13 +41,15 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
     private Boolean isFromfav;
     private Set<String> favoriteSet;
     private String userId;
+    private boolean isFromUserProfile;
 
 
-    public PersonalPostRecyclerAdapter(List<PersonalPostModel> personalPostModelList, Context context,String userId, Boolean isFromfav) {
+    public PersonalPostRecyclerAdapter(List<PersonalPostModel> personalPostModelList, Context context,String userId, Boolean isFromfav,boolean isFromUserProfile) {
         this.personalPostModelList = personalPostModelList;
         this.context = context;
         this.isFromfav = isFromfav;
         this.userId = userId;
+        this.isFromUserProfile=isFromUserProfile;
         favoriteSet = context.getSharedPreferences(userId , Context.MODE_PRIVATE).getStringSet(PERSONAL_FAVOURITES, null);
         if(favoriteSet==null){
             favoriteSet = new HashSet<>();
@@ -70,12 +70,12 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
     public void onBindViewHolder(@NonNull final PersonalPostViewHolder holder, final int position) {
         String description = personalPostModelList.get(position).getDescription();
         if(description.isEmpty()){
-            holder.TV_userDescription.setText("no description added");
+            holder.userDescription.setText("no description added");
         }else{
-            holder.TV_userDescription.setText(description);
+            holder.userDescription.setText(description);
         }
 //        holder.TV_DatePosted.setText(personalPostModelList.get(position).getDate().split(" ")[0]);
-        holder.TV_userBudget.setText("Budget: " + personalPostModelList.get(position).getPrice());
+        holder.userBudget.setText("Budget: " + personalPostModelList.get(position).getPrice());
         String id = personalPostModelList.get(position).getUserID();
         // getting data from user id
          myRef = FirebaseDatabase.getInstance().getReference().child("Users").child(id);
@@ -85,14 +85,14 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()){
                     User user = snapshot.getValue(User.class);
-                    holder.TV_userName.setText(user.getName());
+                    holder.userName.setText(user.getName());
 //                    holder.TV_userOccupation.setText(user.getBio());
                     if (user.getImage()!=null){
                     Glide.with(context).
                             load(user.getImage())
                             .transform(new CenterCrop() , new CircleCrop())
-                            .into(holder.IV_userPic);
-                    holder.IV_userPic.setPadding(3,3,3,3);
+                            .into(holder.userPic);
+                    holder.userPic.setPadding(3,3,3,3);
                     }
                 }
             }
@@ -117,7 +117,7 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
 //            }
 //        }
         if(favoriteSet.contains(personalPostModelList.get(position).getPostID())){
-            holder.BT_fav.setChecked(true);
+            holder.favButton.setChecked(true);
         }
 
     }
@@ -128,32 +128,33 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
     // Viewholder class
     class PersonalPostViewHolder extends RecyclerView.ViewHolder{
         //initializing
-        ImageView IV_userPic;
-        TextView TV_userName,TV_userBudget, TV_DatePosted,TV_userDescription;
-        RelativeLayout Lay_card;
-        ImageButton  BT_message , deletPostButton;
-        ImageView IV_male, IV_female, IV_pet, IV_smoke;
-        CheckBox BT_fav;
+        ImageView userPic;
+        TextView userName, userBudget, datePosted, userDescription;
+        RelativeLayout relativeLayout;
+        ImageButton messageButton, deletPostButton;
+        ImageView maleIC, femaleIC, petIC, smokeIC;
+        CheckBox favButton;
 
         public PersonalPostViewHolder(@NonNull View itemView) {
             super(itemView);
-
-            IV_userPic = itemView.findViewById(R.id.user_image_personal_card);
-            TV_userName = itemView.findViewById(R.id.user_name_personal_card);
-
-            TV_userBudget = itemView.findViewById(R.id.personal_post_budget_text_view);
-            TV_DatePosted = itemView.findViewById(R.id.personal_post_date_text_view);
-            TV_userDescription = itemView.findViewById(R.id.personal_card_text_view);
-            Lay_card = itemView.findViewById(R.id.relative_layout_personal_card);
-            IV_male = itemView.findViewById(R.id.male_image_view_apartment);
-            IV_female = itemView.findViewById(R.id.female_image_view_apartment);
-            IV_pet = itemView.findViewById(R.id.pets_allowed_image_view_apartment);
-            IV_smoke = itemView.findViewById(R.id.non_smoking_image_view_apartment);
-            BT_message = itemView.findViewById(R.id.start_chat_button);
-            BT_fav = itemView.findViewById(R.id.favorite_check_button);
+            userPic = itemView.findViewById(R.id.user_image_personal_card);
+            userName = itemView.findViewById(R.id.user_name_personal_card);
+            userBudget = itemView.findViewById(R.id.personal_post_budget_text_view);
+            datePosted = itemView.findViewById(R.id.personal_post_date_text_view);
+            userDescription = itemView.findViewById(R.id.personal_card_text_view);
+            relativeLayout = itemView.findViewById(R.id.relative_layout_personal_card);
+            maleIC = itemView.findViewById(R.id.male_image_view_apartment);
+            femaleIC = itemView.findViewById(R.id.female_image_view_apartment);
+            petIC = itemView.findViewById(R.id.pets_allowed_image_view_apartment);
+            smokeIC = itemView.findViewById(R.id.non_smoking_image_view_apartment);
+            messageButton = itemView.findViewById(R.id.start_chat_button);
+            favButton = itemView.findViewById(R.id.favorite_check_button);
             deletPostButton = itemView.findViewById(R.id.personal_post_delete_button);
-
-            BT_message.setOnClickListener(new View.OnClickListener() {
+            if (isFromUserProfile){
+                deletPostButton.setVisibility(View.VISIBLE);
+                messageButton.setVisibility(View.GONE);
+            }
+            messageButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(personalPostModelList.get(getAdapterPosition()).getUserID());
@@ -183,7 +184,7 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
                     deletPersonalPost();
                 }
             });
-            BT_fav.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            favButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     SharedPreferences prefs = context.getSharedPreferences(userId, Context.MODE_PRIVATE);
@@ -204,11 +205,7 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
 
                 }
             });
-
-
-
 }
-
         private void deletPersonalPost() {
             FirebaseFirestore
                     .getInstance()
