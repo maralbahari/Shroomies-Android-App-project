@@ -219,7 +219,7 @@
                 android:background="@drawable/transparent_background_solid_borders">
 
                 <TextView
-                    android:id="@+id/location_text_view"
+                    android:id="@+id/location_chip_view"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
 
@@ -236,7 +236,7 @@
                     android:id="@+id/location_address_text_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_below="@id/location_text_view"
+                    android:layout_below="@id/location_chip_view"
                     android:layout_marginLeft="15dp"
                     android:layout_marginTop="15dp"
                     android:layout_marginRight="15dp"

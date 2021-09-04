@@ -125,11 +125,9 @@ public class LoginActivity extends AppCompatActivity {
                         if(mAuth.getCurrentUser().isEmailVerified()){
                             FirebaseUser user =mAuth.getCurrentUser();
                             String userID =user.getUid();
-                            String userEmail =user.getEmail();
                             Toast.makeText(LoginActivity.this, "Welcome to Shroomies! ", Toast.LENGTH_SHORT).show();
                             Intent intent = new Intent(LoginActivity.this, MainActivity.class);
                             intent.putExtra("ID",userID);
-                            intent.putExtra("EMAIL",userEmail);
                             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                             getE3Token();
                             startActivity(intent);

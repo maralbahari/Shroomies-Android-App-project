@@ -32,9 +32,16 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
 
@@ -48,7 +55,7 @@ public class MessageInbox extends AppCompatActivity {
     private DatabaseReference rootRef;
     private FirebaseAuth mAuth;
     private HashMap<String , User>userHashMap;
-    private ArrayList<String> inboxUserIDs;
+    private HashSet<String> inboxUserIDs;
     private RequestQueue requestQueue;
     private ValueEventListener valueEventListener;
     private ImageButton newChatButton;
@@ -61,13 +68,6 @@ public class MessageInbox extends AppCompatActivity {
         }
     }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if(rootRef!=null && valueEventListener!=null){
-            rootRef.removeEventListener(valueEventListener);
-        }
-    }
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -98,34 +98,34 @@ public class MessageInbox extends AppCompatActivity {
     }
 
     public void getPrivateChatList(){
-        recieverInboxArrayList = new ArrayList<>();
-        inboxUserIDs = new ArrayList<>();
         userHashMap = new HashMap<>();
+
         valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
-                    Log.d("messege recived" ,snapshot.toString());
+                    inboxUserIDs = new HashSet();
+                    recieverInboxArrayList = new ArrayList<>();
                     for (DataSnapshot ds : snapshot.getChildren()) {
                         RecieverInbox recieverInbox = ds.getValue(RecieverInbox.class);
-                        //if the same users are already in the map
-                        //don't add them
-                        if(!userHashMap.containsKey(recieverInbox.getReceiverID())) {
-                            recieverInboxArrayList.add(recieverInbox);
-                            inboxUserIDs.add(recieverInbox.getReceiverID());
-                        }else{
-                            //find the inbox user and replace the old data with the updated data
-                            for (int i = 0; i<recieverInboxArrayList.size();i++){
-                                if(recieverInboxArrayList.get(i).getReceiverID()!=null){
-                                    if(recieverInboxArrayList.get(i).getReceiverID().equals(recieverInbox.getReceiverID())){
-                                        recieverInboxArrayList.set(i , recieverInbox);
-                                    }
-                                }
-                            }
-                        }
+                        recieverInboxArrayList.add(recieverInbox);
 
+                        if(!userHashMap.containsKey(recieverInbox.getReceiverID())) {
+                            inboxUserIDs.add(recieverInbox.getReceiverID());
+                        }
                     }
+                    sortAcoordingToDate(recieverInboxArrayList);
+                    if(messageInboxRecycleViewAdapter!=null){
+                        messageInboxRecycleViewAdapter.updateInbox(recieverInboxArrayList);
+                    }else{
+                        messageInboxRecycleViewAdapter=new PrivateInboxRecycleViewAdapter(recieverInboxArrayList,null,MessageInbox.this , getApplicationContext());
+                        messageInboxRecycleViewAdapter.setHasStableIds(true);
+                        inboxListRecyclerView.setAdapter(messageInboxRecycleViewAdapter);
+                    }
+
+
                     getMemberData(inboxUserIDs , recieverInboxArrayList);
+
                 }
             }
             @Override
@@ -140,7 +140,15 @@ public class MessageInbox extends AppCompatActivity {
 
     }
 
-    void getMemberData(ArrayList<String> inboxIDs , ArrayList<RecieverInbox> recieverInboxArrayList){
+    private void sortAcoordingToDate(ArrayList<RecieverInbox> recieverInboxArrayList) {
+        recieverInboxArrayList.sort((o1, o2) -> {
+            Instant o1Instant = DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(o1.getLastMessageTime(), Instant::from);
+            Instant o2Instant = DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(o2.getLastMessageTime(), Instant::from);
+            return o2Instant.compareTo(o1Instant);
+        });
+    }
+
+    void getMemberData(HashSet inboxIDs , ArrayList<RecieverInbox> recieverInboxArrayList){
         if(inboxIDs!=null) {
             FirebaseUser firebaseUser = mAuth
                     .getCurrentUser();
@@ -170,8 +178,8 @@ public class MessageInbox extends AppCompatActivity {
                                     User user = mapper.readValue(users1.get(i).toString(), User.class);
                                     userHashMap.put(user.getUserID(), user);
                                 }
-                                messageInboxRecycleViewAdapter=new PrivateInboxRecycleViewAdapter(recieverInboxArrayList,userHashMap,MessageInbox.this , getApplicationContext());
-                                inboxListRecyclerView.setAdapter(messageInboxRecycleViewAdapter);
+                                messageInboxRecycleViewAdapter.setUserHashMap(userHashMap);
+                                messageInboxRecycleViewAdapter.notifyDataSetChanged();
                             }
                         } catch (JSONException | JsonProcessingException e) {
                             e.printStackTrace();

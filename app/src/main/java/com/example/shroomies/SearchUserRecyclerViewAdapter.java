@@ -90,6 +90,7 @@ public class SearchUserRecyclerViewAdapter extends RecyclerView.Adapter<SearchUs
             userCard.setOnClickListener(v -> {
                 Intent intent = new Intent(context, ChattingActivity.class);
                 intent.putExtra("USER", userList.get(getAdapterPosition()));
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 context.startActivity(intent);
             });
         }
