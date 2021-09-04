@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".PublishPostPreferances">
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar_publish_post_prefs"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:navigationIcon="@drawable/ic_back_button"
+        android:background="@color/LogoYellow"
+        android:elevation="3dp"
+        app:contentInsetStart="0dp"
+        app:contentInsetStartWithNavigation="0dp"
+        app:title="Add post"
+        >
+
+
+    </androidx.appcompat.widget.Toolbar>
+
+    <LinearLayout
+        android:layout_below="@+id/add_preferences_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:id="@+id/linearLayout"
+
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:paddingTop="10dp"
+
+        android:background="@drawable/rectangle_with_border"
+        >
+        <LinearLayout
+            android:id="@+id/number_of_roommates_linear_layout"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            >
+
+            <TextView
+                android:id="@+id/number_of_room_mates_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Roommates"
+                android:drawableStart="@drawable/ic_members_icon"
+                android:drawablePadding="3dp"
+                android:fontFamily="@font/amiko"
+                />
+            <NumberPicker
+                android:id="@+id/roommate_number_picker"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:selectionDividerHeight="0.0000000000001dp"
+                android:minHeight="0dp"
+                >
+
+            </NumberPicker>
+        </LinearLayout>
+
+
+        <LinearLayout
+
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="center"
+            >
+            <TextView
+                android:id="@+id/budget_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Budget"
+                android:fontFamily="@font/amiko"
+                android:drawableStart="@drawable/ic_expense"
+                android:drawablePadding="3dp"
+                />
+            <NumberPicker
+                android:id="@+id/budget_number_picker"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:selectionDividerHeight="0.0000000000001dp"
+                />
+
+        </LinearLayout>
+
+    </LinearLayout>
+    <TextView
+        android:id="@+id/add_preferences_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add some preferences to your post"
+        android:layout_below="@id/toolbar_publish_post_prefs"
+        android:layout_marginStart="10dp"
+        android:padding="5dp"
+        />
+
+    <com.google.android.material.checkbox.MaterialCheckBox
+        android:id="@+id/male_checkbox"
+        android:layout_below="@+id/linearLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="I'm looking for males"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:drawableEnd="@drawable/male_icon_15dp"
+        android:drawablePadding="10dp"
+        android:gravity="left|center_vertical"
+        android:layoutDirection="rtl"
+        app:buttonTint="@color/LogoYellow"
+        />
+    <com.google.android.material.checkbox.MaterialCheckBox
+        android:id="@+id/female_checkbox"
+    android:layout_below="@+id/male_checkbox"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:text="I'm looking for females"
+    android:drawableEnd="@drawable/female_icon_15dp"
+    android:drawablePadding="10dp"
+    android:paddingStart="10dp"
+    android:paddingEnd="10dp"
+    android:gravity="left|center_vertical"
+    android:layoutDirection="rtl"
+        app:buttonTint="@color/LogoYellow"
+
+        />
+    <com.google.android.material.checkbox.MaterialCheckBox
+        android:id="@+id/smoking_checkbox"
+        android:layout_below="@+id/female_checkbox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="I'm looking for non-smokers"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:drawableEnd="@drawable/smoking_icon_15dp"
+        android:drawablePadding="10dp"
+        android:gravity="left|center_vertical"
+        android:layoutDirection="rtl"
+        app:buttonTint="@color/LogoYellow"
+
+        />
+    <com.google.android.material.checkbox.MaterialCheckBox
+        android:id="@+id/pet_friendly_checkbox"
+        android:layout_below="@+id/smoking_checkbox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="I'm pet friendly"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:drawableEnd="@drawable/pet_icon_15dp"
+        android:drawablePadding="10dp"
+        android:gravity="left|center_vertical"
+        android:layoutDirection="rtl"
+        app:buttonTint="@color/LogoYellow"
+
+        />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/publish_post_next_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Next"
+        android:textAllCaps="false"
+        android:textStyle="bold"
+        android:layout_alignParentBottom="true"
+        android:textColor="@color/jetBlack"
+        android:background="@color/LogoYellow"
+        />
+
+
+
+
+
+
+
+</RelativeLayout>

@@ -773,6 +773,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
         getActivity();
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == CAMERA_REQUEST_CODE) {
+                //todo change deprecated method
                 File file = new File(Environment.getExternalStorageDirectory(), captureFileName);
                 //check the size of the file
                 if ((file.length() / 1048576) <= MAX_FILES_SIZE_IN_BYTES) {

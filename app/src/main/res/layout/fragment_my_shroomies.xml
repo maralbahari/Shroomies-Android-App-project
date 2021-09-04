@@ -49,10 +49,11 @@
                 android:text="No cards to show, drag for updates or add some cards."
                 android:layout_below="@id/empty_animation"
                 android:textColor="@color/lightGrey"
-                android:textSize="16sp"
-                android:layout_marginTop="-200dp"
                 android:layout_marginEnd="20dp"
                 android:layout_marginStart="20dp"
+                android:textSize="16sp"
+                android:layout_marginTop="-200dp"
+
                 android:gravity="center"
                 />
 

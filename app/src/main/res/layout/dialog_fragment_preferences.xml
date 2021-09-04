@@ -76,13 +76,10 @@
             android:id="@+id/roommate_number_picker"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-
+            android:selectionDividerHeight="0dp"
             >
 
         </NumberPicker>
-
-
-
     </LinearLayout>
 
 

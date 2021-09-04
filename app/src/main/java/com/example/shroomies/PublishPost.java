@@ -44,6 +44,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.chip.ChipGroup;
 import com.google.common.net.HttpHeaders;
 import com.google.firebase.auth.FirebaseAuth;
@@ -85,6 +86,7 @@ public class PublishPost extends Fragment  implements MapsFragment.OnLocationSet
     private ImageView userImageView;
     private ChipGroup postTypeChipGroup;
     private EditText descriptionEditText;
+    private MaterialButton nextButton;
 //
 //    private int currentViewPagerPosition;
     private String address,locality,subLocality;
@@ -181,13 +183,12 @@ public class PublishPost extends Fragment  implements MapsFragment.OnLocationSet
         locationTextView = v.findViewById(R.id.location_chip_view);
 
         postTypeChipGroup = v.findViewById(R.id.chip_group);
+        nextButton = v.findViewById(R.id.publish_post_next_button);
 
         descriptionEditText = v.findViewById(R.id.post_description);
-//        budgetTextView = v.findViewById(R.id.price_text_view_apartment_card);
-//        numberOfRoomMatesTextView = v.findViewById(R.id.number_of_room_mates_text_view);
+
 
         userImageView = v.findViewById(R.id.user_image_publish_post);
-//        preferencesTextView = v.findViewById(R.id.preferences_text_view);
 
 
 
@@ -198,6 +199,33 @@ public class PublishPost extends Fragment  implements MapsFragment.OnLocationSet
         }
 
         getUserImage();
+        nextButton.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity() , PublishPostPreferances.class);
+            String postType;
+            Toast.makeText(getActivity(),postTypeChipGroup.getCheckedChipId()+" "+R.id.apartment_post_chip, Toast.LENGTH_LONG).show();
+            if(postTypeChipGroup.getCheckedChipId()==R.id.apartment_post_chip){
+                postType = Config.APARTMENT_POST;
+            }else{
+                postType = Config.PERSONAL_POST;
+            }
+            if(postType.equals(Config.APARTMENT_POST)&&locality!=null&&subLocality!=null&& descriptionEditText.getText().toString().trim()!=null){
+                intent.putExtra(Config.LOCALITY,  locality);
+                intent.putExtra(Config.SUB_LOCALITY , subLocality);
+                intent.putExtra(Config.SELECTED_LAT_LNG,  selectedLatLng);
+                intent.putExtra(Config.DESCRIPTION , descriptionEditText.getText().toString().trim());
+                intent.putExtra(Config.POST_TYPE ,postType);
+                startActivity(intent);
+            }else if( descriptionEditText.getText().toString().trim()!=null){
+                intent.putExtra(Config.DESCRIPTION , descriptionEditText.getText().toString().trim());
+                intent.putExtra(Config.POST_TYPE ,postType);
+                startActivity(intent);
+
+
+            }else{
+                //todo handle
+            }
+
+        });
 
 
         // sets focus to the edit text as soon as the page is open
@@ -653,6 +681,7 @@ public class PublishPost extends Fragment  implements MapsFragment.OnLocationSet
 //                        }
 //                    }, error -> {
 ////  todo later change this dialog thingy to snack bar or something similar
+
 //                        PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
 //                        postPublishedDialog.setMessageText("an error occured while publishing your post");
 //                        postPublishedDialog.warningMessage(true);
@@ -750,7 +779,7 @@ public class PublishPost extends Fragment  implements MapsFragment.OnLocationSet
 
         DatabaseReference rootRef= FirebaseDatabase.getInstance().getReference();
         FirebaseUser firebaseUser= mAuth.getCurrentUser();
-        rootRef.child("users").child(firebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+        rootRef.child(Config.users).child(firebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {

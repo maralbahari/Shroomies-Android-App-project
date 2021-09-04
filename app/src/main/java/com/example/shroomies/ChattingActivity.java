@@ -513,6 +513,7 @@ public class ChattingActivity extends AppCompatActivity {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         bitmap.compress(Bitmap.CompressFormat.JPEG, 50, stream);
         byte[] byteArray = stream.toByteArray();
+
         StorageReference filePathName = storageReference.child(Config.privateChatImages).child(image.getLastPathSegment()
                 + System.currentTimeMillis());
 

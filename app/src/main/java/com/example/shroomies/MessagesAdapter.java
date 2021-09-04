@@ -58,6 +58,11 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
     }
 
     @Override
+    public void onViewRecycled(@NonNull MessageViewHolder holder) {
+        super.onViewRecycled(holder);
+    }
+
+    @Override
     public void onBindViewHolder(@NonNull MessagesAdapter.MessageViewHolder holder, int position) {
         String senderID = mAuth.getCurrentUser().getUid();
         Messages messages = userMessagesList.get(position);

@@ -125,5 +125,22 @@ public class Config {
     public static final String URL_PUBLISH_POST="https://us-central1-shroomies-e34d3.cloudfunctions.net/publishPost";
     public static final String URL_GET_VIRGIL_JWT = "https://us-central1-shroomies-e34d3.cloudfunctions.net/getVirgilJwt";
 
+    //publish post
+    public static final String LOCALITY ="LOCALITY" ;
+    public static final String SUB_LOCALITY ="SUB_LOCALITY" ;
+    public static final String SELECTED_LAT_LNG ="SELECTED_LAT_LNG" ;
+    public static final String DESCRIPTION ="DESCRIPTION" ;
 
+    public static final String POST_TYPE = "POST_TYPE";
+    public static final String PERSONAL_POST = "PERSONAL_POST";
+    public static final String APARTMENT_POST = "APARTMENT_POST";
+
+    public static final String BUDGET ="BUDGET";
+
+    public static final String NUMBER_OF_ROOMMATES = "NUMBER_OF_ROOMMATES";
+    public static final String PREFERENCES ="PREFERENCES" ;
+    public static final String MALE ="male" ;
+    public static final String FEMALE  = "female";
+    public static final String NON_SMOKING  ="non_smoking";
+    public static final String PET_FRIENDLY = "pet";
 }

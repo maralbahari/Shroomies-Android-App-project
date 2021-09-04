@@ -22,9 +22,11 @@
         app:singleLine="true"
         android:paddingStart="5dp"
         android:paddingEnd="5dp"
+        app:singleSelection="true"
         app:selectionRequired="true"
         >
         <com.google.android.material.chip.Chip
+            android:id="@+id/apartment_post_chip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="I'm looking to join someone else's place"
@@ -40,6 +42,8 @@
             app:chipStrokeWidth="1dp"
             />
         <com.google.android.material.chip.Chip
+            android:id="@+id/personal_post_chip"
+
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="I want to share my place with someone"
@@ -310,14 +314,22 @@
                 />
 
             <com.google.android.material.button.MaterialButton
+                android:id="@+id/publish_post_next_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentEnd="true"
                 android:text="Next"
                 android:textAllCaps="false"
                 android:layout_margin="10dp"
+                app:icon="@drawable/ic_next_arraow_yellow"
+                app:iconTint="@color/LogoYellow"
+                app:iconSize="15dp"
+                app:iconGravity="end"
+                android:textStyle="bold"
                 android:layout_alignParentBottom="true"
-                android:textColor="@color/jetBlack"
+                android:textColor="@color/LogoYellow"
+
+                android:background="@android:color/transparent"
                 app:cornerRadius="100dp"
                 android:minWidth="0dp"
                 />

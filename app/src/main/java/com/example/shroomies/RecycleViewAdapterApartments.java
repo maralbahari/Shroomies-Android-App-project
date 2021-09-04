@@ -270,7 +270,7 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
 
             ZoneId currentZoneID = ZonedDateTime.now(ZoneId.systemDefault()).getZone();
             DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-            intent.putExtra("POST_DATE"  , apartmentList.get(position).getTime_stamp().toDate().toInstant().atZone(currentZoneID).format(myFormatObj));
+//            intent.putExtra("POST_DATE"  , apartmentList.get(position).getTime_stamp().toDate().toInstant().atZone(currentZoneID).format(myFormatObj));
             context.startActivity(intent);
         }
 
