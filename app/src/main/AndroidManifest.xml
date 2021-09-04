@@ -46,12 +46,9 @@
 
 
 
-        <activity android:name=".EditGroupInfo"
-            android:screenOrientation="portrait"></activity>
         <activity android:name=".MyShroomiesActivity"
             android:screenOrientation="portrait"></activity>
-        <activity android:name=".GroupInfoActivity"
-            android:screenOrientation="portrait"/>
+
         <activity android:name=".ImageViewPage"
             android:screenOrientation="portrait"/>
         <!--
@@ -80,6 +77,9 @@
 
         <activity android:name=".ChattingActivity"
             android:parentActivityName=".MessageInbox"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".RequestActivity"
+            android:parentActivityName=".MainActivity"
             android:screenOrientation="portrait"/>
 
         <activity android:name=".ResetPassword"

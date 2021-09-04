@@ -48,7 +48,7 @@ public class ChangeUsernameDialog extends DialogFragment {
         super.onStart();
         if(getDialog()!=null) {
             getDialog().getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
-            getDialog().getWindow().setGravity(Gravity.END);
+            getDialog().getWindow().setGravity(Gravity.FILL_HORIZONTAL);
             getDialog().getWindow().setBackgroundDrawableResource(R.drawable.create_group_fragment_background);
             showKeyboard();
         }

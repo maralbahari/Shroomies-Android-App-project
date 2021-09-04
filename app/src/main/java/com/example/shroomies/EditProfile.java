@@ -182,6 +182,7 @@ public class EditProfile extends DialogFragment implements ChangeBioDialog.bio, 
             } else if (pictureOptions[item].equals("Remove Profile Picture")){
                 storageRef.child("profile pictures").child(user.getUserID()).child(user.getImage()).delete().addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
+                        customLoadingProgressBar.dismiss();
                         GlideApp.with(getActivity().getApplicationContext())
                                 .load(R.drawable.ic_user_profile_svgrepo_com)
                                 .into(profileImage);
