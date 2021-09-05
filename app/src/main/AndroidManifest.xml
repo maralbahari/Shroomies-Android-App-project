@@ -6,6 +6,7 @@
 
 
 
+
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <!--
          The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
@@ -45,14 +46,18 @@
         </provider>
 
 
-        <activity android:name=".EditGroupInfo"
-            android:screenOrientation="portrait"></activity>
+
         <activity android:name=".MyShroomiesActivity"
             android:screenOrientation="portrait"></activity>
-        <activity android:name=".GroupInfoActivity"
-            android:screenOrientation="portrait"/>
+
         <activity android:name=".ImageViewPage"
             android:screenOrientation="portrait"/>
+        <activity
+            android:name=".PublishPostActivity"
+            android:screenOrientation="portrait"
+
+            ></activity>
+
         <!--
                Set to true if your app is Standalone, that is, it does not require the handheld
                app to run.
@@ -62,7 +67,7 @@
             android:value="true" />
 
         <service
-            android:name=".notifications.FirebaseMessaging"
+            android:name=".notifications.MyFirebaseMessaging"
             android:enabled="true"
             android:exported="true">
             <intent-filter>
