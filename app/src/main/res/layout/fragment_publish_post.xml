@@ -4,7 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-
     android:background="@color/white"
     tools:context=".PublishPost">
 
@@ -29,30 +28,34 @@
             android:id="@+id/apartment_post_chip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="I'm looking to join someone else's place"
+            android:text="I want to share my place with someone"
             android:padding="0dp"
             android:checkable="true"
             android:checked="true"
-            app:chipBackgroundColor="@color/white"
+            app:chipBackgroundColor="@color/LogoYellow"
+            android:elevation="3dp"
             app:checkedIcon="@drawable/ic_check"
             app:chipStrokeColor="@color/LogoYellow"
-            android:textColor="@color/LogoYellow"
-
+            android:textColor="@color/jetBlack"
             android:textSize="12sp"
             app:chipStrokeWidth="1dp"
+            app:checkedIconTint="@color/jetBlack"
+
             />
         <com.google.android.material.chip.Chip
             android:id="@+id/personal_post_chip"
 
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="I want to share my place with someone"
+            android:text="I'm looking to join someone else's place"
             android:textSize="12sp"
             android:checkable="true"
             app:chipBackgroundColor="@color/white"
-            app:chipStrokeColor="@color/LogoYellow"
+            android:elevation="3dp"
             app:checkedIcon="@drawable/ic_check"
-
+            app:chipStrokeColor="@color/LogoYellow"
+            android:textColor="@color/jetBlack"
+            app:checkedIconTint="@color/jetBlack"
             app:chipStrokeWidth="1dp"/>
 
     </com.google.android.material.chip.ChipGroup>
@@ -74,7 +77,7 @@
                 android:elevation="3dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginStart="5dp"
-                android:src="@drawable/ic_user_profile_small"
+                android:src="@drawable/ic_user_profile_svgrepo_com_40x40"
 
                 android:visibility="visible"
 

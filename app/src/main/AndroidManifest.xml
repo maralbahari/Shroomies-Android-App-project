@@ -2,7 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.shroomies">
 
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+
     <!--
          The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
          Google Maps Android API v2, but you must specify either coarse or fine
@@ -26,7 +27,16 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".PublishPostImage"></activity>
+
+
+
+        <activity
+            android:name=".PublishPostActivity"
+            android:screenOrientation="portrait"
+
+            ></activity>
+
+
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -39,21 +49,11 @@
         </provider>
 
         <activity
-            android:name=".PublishPostPreferances"
-            android:screenOrientation="portrait" />
-        <activity
             android:name=".MyShroomiesActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ImageViewPage"
             android:screenOrientation="portrait" />
-        <!--
-               Set to true if your app is Standalone, that is, it does not require the handheld
-               app to run.
-        -->
-        <meta-data
-            android:name="com.google.android.wearable.standalone"
-            android:value="true" />
 
         <service
             android:name=".notifications.MyFirebaseMessaging"
@@ -68,9 +68,10 @@
             android:name=".GroupChattingActivity"
             android:parentActivityName=".MessageInbox"
             android:screenOrientation="portrait" />
-        <activity android:name=".RequestActivity"
+        <activity
+            android:name=".RequestActivity"
             android:parentActivityName=".MainActivity"
-            android:screenOrientation="portrait"/>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ChattingActivity"
             android:parentActivityName=".MessageInbox"
@@ -87,7 +88,7 @@
         <activity
             android:name=".ApartmentViewPage"
             android:parentActivityName=".MainActivity"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
         <activity
             android:name=".MessageInbox"
             android:parentActivityName=".MainActivity"

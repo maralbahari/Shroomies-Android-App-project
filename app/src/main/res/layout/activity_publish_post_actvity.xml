@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="@dimen/box_inset_layout_padding"
+    tools:context=".PublishPostActivity"
+    >
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/publish_post_tool_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/LogoYellow"
+        app:title="Add a post"
+        app:navigationIcon="@drawable/ic_back_button"
+        app:contentInsetStartWithNavigation="0dp"
+        app:contentInsetStart="0dp"
+        android:elevation="3dp"
+        />
+
+    <FrameLayout
+        android:id="@+id/publish_post_container"
+        android:layout_width="match_parent"
+        android:layout_below="@+id/publish_post_tool_bar"
+        android:layout_height="match_parent"
+
+      >
+
+
+
+    </FrameLayout>
+</RelativeLayout>

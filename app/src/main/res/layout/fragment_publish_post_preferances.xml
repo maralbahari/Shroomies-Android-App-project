@@ -6,20 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".PublishPostPreferances">
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar_publish_post_prefs"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:navigationIcon="@drawable/ic_back_button"
-        android:background="@color/LogoYellow"
-        android:elevation="3dp"
-        app:contentInsetStart="0dp"
-        app:contentInsetStartWithNavigation="0dp"
-        app:title="Add post"
-        >
 
-
-    </androidx.appcompat.widget.Toolbar>
 
     <LinearLayout
         android:layout_below="@+id/add_preferences_text_view"
@@ -96,7 +83,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Add some preferences to your post"
-        android:layout_below="@id/toolbar_publish_post_prefs"
         android:layout_marginStart="10dp"
         android:padding="5dp"
         />
@@ -169,7 +155,9 @@
         android:textStyle="bold"
         android:layout_alignParentBottom="true"
         android:textColor="@color/jetBlack"
-        android:background="@color/LogoYellow"
+        android:backgroundTint="@color/LogoYellow"
+        android:insetBottom="0dp"
+
         />
 
 
