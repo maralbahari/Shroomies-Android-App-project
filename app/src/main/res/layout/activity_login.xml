@@ -32,19 +32,6 @@
         tools:layout_editor_absoluteY="44dp"
         android:contentDescription="@string/app_logo" />
 
-    <!--    <ImageView-->
-    <!--        android:id="@+id/shroomie_logo"-->
-    <!--        android:layout_width="0dp"-->
-    <!--        android:layout_height="46dp"-->
-    <!--        android:layout_marginStart="109dp"-->
-    <!--        android:layout_marginEnd="109dp"-->
-    <!--        app:layout_constraintEnd_toEndOf="parent"-->
-    <!--        app:layout_constraintHorizontal_bias="1.0"-->
-    <!--        app:layout_constraintStart_toStartOf="parent"-->
-    <!--        app:srcCompat="@drawable/shroomies_text_logo_white_black"-->
-    <!--        tools:layout_editor_absoluteY="190dp" />-->
-
-
 
     <TextView
         android:id="@+id/enter_email_login"
