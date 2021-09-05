@@ -13,6 +13,7 @@
     android:layout_height="wrap_content"
     android:background="@color/white"
     android:elevation="3dp">
+
     <TextView
         android:id="@+id/new_card_tv"
         android:layout_width="wrap_content"
@@ -41,7 +42,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Title:"
-        android:layout_marginTop="10dp"
         android:background="@drawable/add_new_card_text_background"
         android:padding="10dp"
         android:layout_below="@+id/relative_layout_add_new_card"
@@ -53,7 +53,7 @@
         android:id="@+id/new_card_description"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="150dp"
+        android:minHeight="130dp"
         android:maxLength="200"
         android:hint="Description:"
         android:background="@drawable/add_new_card_text_background"
@@ -78,34 +78,41 @@
         />
     <RadioGroup
         android:id="@+id/newcard_radio_group"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/new_card_important"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp"
-        android:orientation="horizontal">
+        android:gravity="center"
+        android:orientation="horizontal"
+        >
 
         <RadioButton
             android:id="@+id/newcard_red_radio_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-
+            android:minHeight="0dp"
+            android:minWidth="0dp"
             android:buttonTint="@color/red"
             android:checked="true"
+            android:layout_marginEnd="30dp"
             android:background="@drawable/importance_red_radio_selector"/>
         <RadioButton
             android:id="@+id/newcard_orange_radio_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
+            android:layout_marginEnd="30dp"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
             android:buttonTint="@color/orange"
             android:background="@drawable/importance_orange_radio_selector"/>
         <RadioButton
             android:id="@+id/newcard_green_radio_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
             android:buttonTint="@color/okGreen"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
             android:background="@drawable/importance_green_radio_selector"
             />
 
@@ -132,28 +139,28 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/newcard_radio_group"
-        android:layout_marginTop="20dp">
+        android:layout_marginTop="15dp">
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/due_date"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:padding="10dp"
             android:gravity="center"
-            android:textColor="@color/white"
-            android:background="@color/LogoYellow"
+            android:textColor="@color/jetBlack"
             android:text="Due date"
             android:textAllCaps="false"
             android:minHeight="0dp"
             android:minWidth="0dp"
-            android:foreground="?android:attr/selectableItemBackground"
             android:textAlignment="center"
-            android:stateListAnimator="@null"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            app:cornerRadius="5dp"
 
             />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/my_shroomies_attach_button"
             android:layout_height="wrap_content"
             android:gravity="center"
@@ -161,33 +168,32 @@
             android:layout_weight="1"
             android:minHeight="0dp"
             android:minWidth="0dp"
-            android:stateListAnimator="@null"
-            android:background="@color/LogoYellow"
             android:padding="10dp"
-            android:text="Attach File"
+            android:text="Attach"
             android:textAllCaps="false"
-            android:textColor="@color/white"
-            android:foreground="?android:attr/selectableItemBackground"
-
-
+            android:textColor="@color/jetBlack"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            app:cornerRadius="5dp"
             />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/split_expenses"
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:background="@color/LogoYellow"
             android:padding="10dp"
-            android:text="Expenses"
+            android:text="Expense"
             android:button="@android:color/transparent"
             android:minHeight="0dp"
+            android:minWidth="0dp"
             android:gravity="center"
             android:checked="false"
-            android:textColor="@color/white"
-            android:stateListAnimator="@null"
+            android:textColor="@color/jetBlack"
             android:textAllCaps="false"
-            android:foreground="?android:attr/selectableItemBackground"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            app:cornerRadius="5dp"
             />
 
 
@@ -200,7 +206,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@id/my_shroomies_linear_layout"
         android:layout_marginTop="10dp"
-        android:layout_marginLeft="10dp"
+        android:layout_marginStart="10dp"
         android:layout_marginEnd="5dp"
         android:visibility="gone"
 
@@ -223,80 +229,56 @@
         android:src="@drawable/ic_icon_material_remove_circle_outline"
         android:layout_alignTop="@id/attachment_image_view"
         android:layout_alignEnd="@id/attachment_image_view"
-        android:layout_marginBottom="10dp"
         android:background="@drawable/circle_white_button_small"
+        android:layout_marginBottom="10dp"
         android:elevation="3dp"
+        android:padding="3dp"
         android:layout_marginTop="-5dp"
         android:layout_marginEnd="-5dp"
+
         />
     </RelativeLayout>
-    <RelativeLayout
-        android:id="@+id/date_relative_layout"
+
+    <com.google.android.material.chip.Chip
+        android:id="@+id/date_chip"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/my_shroomies_linear_layout"
         android:layout_toRightOf="@id/image_relative_layout"
         android:layout_marginTop="15dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        app:chipIcon="@drawable/ic_calendar_day"
+        app:chipIconSize="12dp"
+        app:chipStartPadding="10dp"
+        app:closeIcon="@drawable/ic_icon_material_remove_circle_outline"
+        app:closeIconEnabled="true"
+        app:closeIconSize="14dp"
+        android:textSize="12sp"
+        android:visibility="gone"
+        />
+    <com.google.android.material.chip.Chip
+        android:id="@+id/expense_chip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginBottom="10dp"
         android:layout_marginLeft="5dp"
         android:layout_marginRight="5dp"
-        android:background="@drawable/text_low_alpha_background"
-        android:elevation="3dp"
-        android:padding="3dp"
-        android:visibility="gone">
-
-    <TextView
-        android:id="@+id/date_text_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:drawableStart="@drawable/ic_calendar_day"
-        android:drawablePadding="5dp"/>
-
-        <ImageButton
-            android:id="@+id/remove_date_image_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/date_text_view"
-            android:src="@drawable/ic_icon_material_remove_circle_outline"
-            android:background="@android:color/transparent"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="5dp"/>
-    </RelativeLayout>
-
-    <RelativeLayout
-        android:id="@+id/expenses_relative_layout"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/date_relative_layout"
+        android:layout_marginTop="5dp"
         android:layout_toRightOf="@id/image_relative_layout"
-        android:layout_marginLeft="5dp"
-        android:background="@drawable/text_low_alpha_background"
-        android:elevation="3dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginBottom="10dp"
-        android:layout_marginRight="5dp"
-        android:padding="3dp"
-        android:visibility="gone">
-
-    <TextView
-        android:id="@+id/expenses_text_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:drawableStart="@drawable/ic_expense"
-        android:drawablePadding="5dp"
+        app:chipIcon="@drawable/ic_expense"
+        app:chipIconSize="12dp"
+        app:chipStartPadding="10dp"
+        app:closeIcon="@drawable/ic_icon_material_remove_circle_outline"
+        app:closeIconEnabled="true"
+        app:closeIconSize="14dp"
+        android:text="0199"
+        android:textSize="12sp"
+        android:visibility="gone"
+        android:layout_below="@id/date_chip"
         />
 
-        <ImageButton
-            android:id="@+id/remove_expense_image_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@id/expenses_text_view"
-            android:src="@drawable/ic_icon_material_remove_circle_outline"
-            android:background="@android:color/transparent"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="5dp"/>
 
-    </RelativeLayout>
 
     <RelativeLayout
         android:id="@+id/my_shroomies_add_card_layout"
@@ -314,9 +296,8 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:text="Add card"
-            android:textColor="@color/white"
+            android:textColor="@color/jetBlack"
             android:layout_centerInParent="true"
-            android:textStyle="bold"
             android:layout_marginTop="15dp"
             android:layout_marginBottom="15dp"
             />

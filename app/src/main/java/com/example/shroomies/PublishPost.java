@@ -1,5 +1,4 @@
 package com.example.shroomies;
-
 import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
@@ -25,7 +24,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -33,6 +31,10 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager.widget.ViewPager;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.firebase.geofire.GeoFireUtils;
 import com.firebase.geofire.GeoLocation;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -42,21 +44,25 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.chip.ChipGroup;
+import com.google.common.net.HttpHeaders;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.ServerTimestamp;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 import com.make.dots.dotsindicator.DotsIndicator;
+
+import org.jetbrains.annotations.NotNull;
+import org.json.JSONObject;
 
 import java.io.IOException;
 
@@ -66,45 +72,49 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-public class PublishPost extends Fragment  implements PreferencesDialogFragment.OnPreferencesSet , MapsFragment.OnLocationSet {
+import java.util.Map;
+
+
+public class PublishPost extends Fragment  implements MapsFragment.OnLocationSet {
     public static final int DIALOG_FRAGMENT_REQUEST_CODE = 1;
     public static final int MAPS_FRAGMENT_REQUEST_CODE = 2;
     public  static final int NUMBER_OF_IMAGES_ALLOWED = 5;
-    View v;
-    FragmentManager fm;
-    FragmentTransaction ft;
-    String address,locality,subLocality , locationName;
-    LatLng selectedLatLng;
     private static final int PICK_IMAGE_MULTIPLE= 1;
-    List<Uri> imageUri;
-    private TextView locationTextView , preferencesTextView;
-    Geocoder geocoder;
-    FirebaseFirestore mDocRef = FirebaseFirestore.getInstance();
 
-    ImageView maleImage,femaleImage,petImage,smokingImage, userImageView;
-    Button publishPostButton ,addImageButton,locationImageButton , preferencesImageButton;
-    ViewPager viewPager;
-    private DotsIndicator dotsIndicator;
-    ImageView deleteImageButton;
-    ViewPagerAdapter viewPagerAdapter;
-    int currentViewPagerPosition;
-    private TabLayout postTabLayout;
-    EditText descriptionEditText;
-    StorageReference filePath;
-//    String postUniqueName;
-    TextView budgetTextView, numberOfRoomMatesTextView ,addImageWarning;
-    int budget , numberOfRoommates;
-    List<String> preferences ;
-    Validate validate;
+    private View v;
+    private TextView locationTextView ;
+    private ImageView userImageView;
+    private ChipGroup postTypeChipGroup;
+    private EditText descriptionEditText;
+    private MaterialButton nextButton;
+//
+//    private int currentViewPagerPosition;
+    private String address,locality,subLocality;
+    private LatLng selectedLatLng;
+    private Geocoder geocoder;
 
 
+//    private List<Uri> imageUri;
+//    private List<String> preferences ;
+//    private ViewPagerAdapter viewPagerAdapter;
+
+    private FragmentManager fm;
+    private FragmentTransaction ft;
+
+
+    private RequestQueue requestQueue;
+    //    String postUniqueName;
+
+    private FirebaseAuth mAuth;
+    private StorageReference filePath;
+//
+//    private Validate validate;
 
     // override the interface method "sendNewLocation" to get the preferances
     @Override
     public void sendNewLocation(LatLng selectedLatLng, String selectedAddress , String selectedLocationName) {
         this.selectedLatLng = selectedLatLng;
         this.address = selectedAddress;
-        this.locationName = selectedLocationName;
         this.address = selectedAddress;
         locationTextView.setText(selectedLocationName +" "+ selectedAddress);
         geocoder = new Geocoder(getActivity());
@@ -125,88 +135,35 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
 
 
     }
-    // override the interface method "sendInput" to get the preferances
-    @Override
-    public void sendInput(int budget, int numberRoomMates, List<String> preferences) {
-        //store the data from the dialog fragment
-        this.budget = budget;
-        this.preferences= preferences;
-        this.numberOfRoommates=numberRoomMates;
-        // display the data
-        budgetTextView.setVisibility(View.VISIBLE);
-        if(numberRoomMates!=0) {
-            numberOfRoomMatesTextView.setVisibility(View.VISIBLE);
-            numberOfRoomMatesTextView.setText(numberRoomMates + " roommates");
-        }else{
-            numberOfRoomMatesTextView.setVisibility(View.GONE);
-        }
-//      format the number and add commas
-        NumberFormat numberFormat = NumberFormat.getInstance();
-        numberFormat.setGroupingUsed(true);
-        budgetTextView.setText(numberFormat.format(budget) + " RM");
-
-            if(preferences.contains("male")){
-                maleImage.setVisibility(View.VISIBLE);
-                preferencesTextView.setVisibility(View.VISIBLE);
-            }else{
-                maleImage.setVisibility(View.GONE);
-            }
-            if(preferences.contains("female")){
-                femaleImage.setVisibility(View.VISIBLE);
-                preferencesTextView.setVisibility(View.VISIBLE);
-            }else{
-                femaleImage.setVisibility(View.GONE);
-            }
-            if(preferences.contains("pet")){
-                petImage.setVisibility(View.VISIBLE);
-                preferencesTextView.setVisibility(View.VISIBLE);
-            }else{
-                petImage.setVisibility(View.GONE);
-            }
-            if(preferences.contains("non_smoking")){
-                smokingImage.setVisibility(View.VISIBLE);
-                preferencesTextView.setVisibility(View.VISIBLE);
-            }else{
-                smokingImage.setVisibility(View.GONE);
-            }
-
-        //check if the user didn't set any preferences
-        //and remove the preferences text view
-        if(preferences.size()==0){
-            preferencesTextView.setVisibility(View.GONE);
-        }
-
-    }
-
     @Override
     public void onStart() {
         super.onStart();
-        MainActivity.btm_view.setVisibility(View.INVISIBLE);
+//        MainActivity.btm_view.setVisibility(View.INVISIBLE);
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        MainActivity.btm_view.setVisibility(View.VISIBLE);
+//        MainActivity.btm_view.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-        MainActivity.btm_view.setVisibility(View.VISIBLE);
+//        MainActivity.btm_view.setVisibility(View.VISIBLE);
     }
 
     @Override
     public void onDetach() {
         super.onDetach();
-        MainActivity.btm_view.setVisibility(View.VISIBLE);
+//        MainActivity.btm_view.setVisibility(View.VISIBLE);
     }
 
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        MainActivity.btm_view.setVisibility(View.VISIBLE);
+//        MainActivity.btm_view.setVisibility(View.VISIBLE);
     }
 
 
@@ -215,63 +172,23 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         v = inflater.inflate(R.layout.fragment_publish_post, container, false);
-
+        mAuth=FirebaseAuth.getInstance();
+        requestQueue= Volley.newRequestQueue(getActivity());
         return v;
     }
-
-
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        locationTextView = v.findViewById(R.id.location_chip_view);
 
-        locationTextView = v.findViewById(R.id.location_text_view);
-        preferencesImageButton= v.findViewById(R.id.preferences_image_button);
-        publishPostButton =  v.findViewById(R.id.publish_post_button);
-        viewPager = v.findViewById(R.id.view_pager);
-        dotsIndicator = v.findViewById(R.id.dotsIndicator);
-        deleteImageButton = v.findViewById(R.id.delete_image_post);
-        postTabLayout = v.findViewById(R.id.tab_layout_publish_post);
-        maleImage = v.findViewById(R.id.male_image_view_publish_post);
-        femaleImage = v.findViewById(R.id.female_image_view_publish_post);
-        smokingImage = v.findViewById(R.id.non_smoking_image_view_publish_post);
-        petImage = v.findViewById(R.id.pets_allowd_image_view_publish_post);
+        postTypeChipGroup = v.findViewById(R.id.chip_group);
+        nextButton = v.findViewById(R.id.publish_post_next_button);
+
         descriptionEditText = v.findViewById(R.id.post_description);
-        locationImageButton = v.findViewById(R.id.location_image_button);
-        budgetTextView = v.findViewById(R.id.price_text_view_apartment_card);
-        numberOfRoomMatesTextView = v.findViewById(R.id.number_of_room_mates_text_view);
-        addImageButton= v.findViewById(R.id.add_image_button);
-        addImageWarning = v.findViewById(R.id.add_image_warning);
+
+
         userImageView = v.findViewById(R.id.user_image_publish_post);
-        preferencesTextView = v.findViewById(R.id.preferences_text_view);
-        imageUri = new ArrayList<>();
-
-        // validate class will keep a check
-        // of all submitted entries at the same time
-        validate = new Validate(getActivity() , new Validate.OnDataChangedListener() ,selectedLatLng, descriptionEditText , numberOfRoomMatesTextView , budgetTextView , locationTextView , imageUri  , publishPostButton,  addImageWarning , postTabLayout);
-
-//        create a text watcher to check for non empty editTexts
-//         to prevent submitting empty data
-        TextWatcher postTextWatcher = new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                validate.notifyDataChanged();
-            }
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                validate.notifyDataChanged();
-            }
-            @Override
-            public void afterTextChanged(Editable s) {
-                validate.notifyDataChanged();
-            }
-        };
-
-        descriptionEditText.addTextChangedListener(postTextWatcher);
-        numberOfRoomMatesTextView.addTextChangedListener(postTextWatcher);
-        budgetTextView.addTextChangedListener(postTextWatcher);
-        locationTextView.addTextChangedListener(postTextWatcher);
-
 
 
 
@@ -282,6 +199,33 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
         }
 
         getUserImage();
+        nextButton.setOnClickListener(v -> {
+            Intent intent = new Intent(getActivity() , PublishPostPreferances.class);
+            String postType;
+            Toast.makeText(getActivity(),postTypeChipGroup.getCheckedChipId()+" "+R.id.apartment_post_chip, Toast.LENGTH_LONG).show();
+            if(postTypeChipGroup.getCheckedChipId()==R.id.apartment_post_chip){
+                postType = Config.APARTMENT_POST;
+            }else{
+                postType = Config.PERSONAL_POST;
+            }
+            if(postType.equals(Config.APARTMENT_POST)&&locality!=null&&subLocality!=null&& descriptionEditText.getText().toString().trim()!=null){
+                intent.putExtra(Config.LOCALITY,  locality);
+                intent.putExtra(Config.SUB_LOCALITY , subLocality);
+                intent.putExtra(Config.SELECTED_LAT_LNG,  selectedLatLng);
+                intent.putExtra(Config.DESCRIPTION , descriptionEditText.getText().toString().trim());
+                intent.putExtra(Config.POST_TYPE ,postType);
+                startActivity(intent);
+            }else if( descriptionEditText.getText().toString().trim()!=null){
+                intent.putExtra(Config.DESCRIPTION , descriptionEditText.getText().toString().trim());
+                intent.putExtra(Config.POST_TYPE ,postType);
+                startActivity(intent);
+
+
+            }else{
+                //todo handle
+            }
+
+        });
 
 
         // sets focus to the edit text as soon as the page is open
@@ -289,16 +233,16 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
         InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         imm.showSoftInput(descriptionEditText, InputMethodManager.SHOW_IMPLICIT);
 
-        addImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // get the photo chosen
-                openGallery();
-            }
-        });
+//        addImageButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                // get the photo chosen
+//                openGallery();
+//            }
+//        });
 
         //when location button is pressed open the map fragement
-        locationImageButton.setOnClickListener(new View.OnClickListener() {
+        locationTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 MapsFragment mapsFragment = new MapsFragment();
@@ -307,121 +251,113 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
             }
         });
 
-        publishPostButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // list to hold all selected values from properties
-                if(postTabLayout.getSelectedTabPosition()==0) {
-                    //check if the latlng , locality have been added correctly
-                    // the rest of the  data is checked using the validate class
-                    // this is done to display to the user that  the location is
-                    //erroneous and must be changed
-                    if(locality !=null && selectedLatLng!=null){
-                        postImagesAddToDatabase(selectedLatLng
-                                , descriptionEditText.getText().toString()
-                                , numberOfRoommates
-                                , budget
-                                , preferences
-                                , imageUri
-                                , locality
-                                , subLocality);
-                    }else{
-                        PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
-                        postPublishedDialog.warningMessage(true);
-                        postPublishedDialog.setMessageText("the location entered is invalid");
-                        postPublishedDialog.show(getParentFragmentManager() , null);
-                    }
-                }else{
-                    publishPersonalPost(descriptionEditText.getText().toString()
-                            , budget
-                            , preferences);
-                }
+//        publishPostButton.setOnClickListener(v -> {
+//            // list to hold all selected values from properties
+//            if(postTypeChipGroup.getCheckedChipId()==0) {
+//                //check if the latlng , locality have been added correctly
+//                // the rest of the  data is checked using the validate class
+//                // this is done to display to the user that  the location is
+//                //erroneous and must be changed
+//                if(locality !=null && selectedLatLng!=null){
+//                    postImagesAddToDatabase(selectedLatLng
+//                            , descriptionEditText.getText().toString()
+//                            , numberOfRoommates
+//                            , budget
+//                            , preferences
+//                            , imageUri
+//                            , locality
+//                            , subLocality);
+//                }else{
+//                    PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
+//                    postPublishedDialog.warningMessage(true);
+//                    postPublishedDialog.setMessageText("the location entered is invalid");
+//                    postPublishedDialog.show(getParentFragmentManager() , null);
+//                }
+//            }else{
+//                publishPersonalPost(descriptionEditText.getText().toString()
+//                        , budget
+//                        , preferences);
+//            }
+//
+//        });
+
+//        deleteImageButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                deleteFromView();
+//            }
+//        });
+
+//        preferencesImageButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                //open a preference dialog fragment
+//                PreferencesDialogFragment preferencesDialogFragment = new PreferencesDialogFragment(postTypeChipGroup.getCheckedChipId());
+//                preferencesDialogFragment.setTargetFragment(PublishPost.this , DIALOG_FRAGMENT_REQUEST_CODE);
+//                preferencesDialogFragment.show(getParentFragmentManager() ,null);
+//            }
+//        });
+//
+//        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+//            @Override
+//            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) { }
+//            @Override
+//            public void onPageSelected(int position) {
+//                //set the index of the current image
+//                currentViewPagerPosition = position;
+//            }
+//            @Override
+//            public void onPageScrollStateChanged(int state) { }
+//        });
+
+//        postTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+//            @Override
+//            public void onTabSelected(TabLayout.Tab tab) {
+//
+//            }
+//
+//            @Override
+//            public void onTabUnselected(TabLayout.Tab tab) {
+//
+//            }
+//
+//            @Override
+//            public void onTabReselected(TabLayout.Tab tab) {
+//
+//            }
+//        });
+        postTypeChipGroup.setOnCheckedChangeListener((group, checkedId) -> {
+            if(checkedId==1){
+                //if user selects personal post remove some of the options
+//                viewPager.setVisibility(View.GONE);
+//                dotsIndicator.setVisibility(View.GONE);
+//                deleteImageButton.setVisibility(View.GONE);
+//                numberOfRoomMatesTextView.setVisibility(View.INVISIBLE);
+//                addImageButton.setVisibility(View.GONE);
+//                locationImageButton.setVisibility(View.GONE);
+                locationTextView.setVisibility(View.GONE);
+            }else{
+//                if(imageUri!=null){
+//                    if(imageUri.size()!=0){
+//                        viewPager.setVisibility(View.VISIBLE);
+//                        dotsIndicator.setVisibility(View.VISIBLE);
+//                        deleteImageButton.setVisibility(View.VISIBLE);
+//                    }
+//                }
+//
+//                numberOfRoomMatesTextView.setVisibility(View.VISIBLE);
+//                addImageButton.setVisibility(View.VISIBLE);
+//                locationImageButton.setVisibility(View.VISIBLE);
+                locationTextView.setVisibility(View.VISIBLE);
 
             }
-        });
 
-        deleteImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                deleteFromView();
-            }
-        });
-
-        preferencesImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //open a preference dialog fragment
-                PreferencesDialogFragment preferencesDialogFragment = new PreferencesDialogFragment(postTabLayout.getSelectedTabPosition());
-                preferencesDialogFragment.setTargetFragment(PublishPost.this , DIALOG_FRAGMENT_REQUEST_CODE);
-                preferencesDialogFragment.show(getParentFragmentManager() ,null);
-            }
-        });
-
-        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) { }
-            @Override
-            public void onPageSelected(int position) {
-                //set the index of the current image
-                currentViewPagerPosition = position;
-            }
-            @Override
-            public void onPageScrollStateChanged(int state) { }
-        });
-
-        postTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                if(tab.getPosition()==1){
-                    //if user selects personal post remove some of the options
-                    viewPager.setVisibility(View.GONE);
-                    dotsIndicator.setVisibility(View.GONE);
-                    deleteImageButton.setVisibility(View.GONE);
-                    numberOfRoomMatesTextView.setVisibility(View.INVISIBLE);
-                    addImageButton.setVisibility(View.GONE);
-                    locationImageButton.setVisibility(View.GONE);
-                    locationTextView.setVisibility(View.GONE);
-                }else{
-                    if(imageUri!=null){
-                        if(imageUri.size()!=0){
-                            viewPager.setVisibility(View.VISIBLE);
-                            dotsIndicator.setVisibility(View.VISIBLE);
-                            deleteImageButton.setVisibility(View.VISIBLE);
-                        }
-                    }
-
-                    numberOfRoomMatesTextView.setVisibility(View.VISIBLE);
-                    addImageButton.setVisibility(View.VISIBLE);
-                    locationImageButton.setVisibility(View.VISIBLE);
-                    locationTextView.setVisibility(View.VISIBLE);
-
-                }
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-
-            }
         });
 
 
 
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        //locks the screen to portarait mode
-        if(getActivity()!=null) {
-            getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        }
-        MainActivity.btm_view.setVisibility(View.INVISIBLE);
-    }
 
     private  void getLocation() {
         new CurrentLocationAsync(getActivity()).execute();
@@ -503,234 +439,333 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
 
 
 
-    private void openGallery() {
-        //add permisision denied handlers
-        Intent image = new Intent();
-        image.setAction(Intent.ACTION_GET_CONTENT);
-        image.setType("image/*");
-        image.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
-        startActivityForResult(image, PICK_IMAGE_MULTIPLE);
+//    private void openGallery() {
+//        //add permisision denied handlers
+//        Intent image = new Intent();
+//        image.setAction(Intent.ACTION_GET_CONTENT);
+//        image.setType("image/*");
+//        image.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
+//        startActivityForResult(image, PICK_IMAGE_MULTIPLE);
+//
+//    }
+//    @Override
+//    public void onActivityResult(int requestCode, int resultCode, Intent data){
+//        super.onActivityResult(requestCode, resultCode, data);
+//        boolean duplicateFound = false;
+//        Uri selectedImageUri;
+//
+//
+//        if(imageUri.size()>NUMBER_OF_IMAGES_ALLOWED){
+//            Toast.makeText(getActivity(), "too many photos" , Toast.LENGTH_SHORT).show();
+//        }else {
+//            if (resultCode == getActivity().RESULT_OK && requestCode == PICK_IMAGE_MULTIPLE) {
+//                // if more than one image is selected
+//                if (data.getClipData()!=null){
+//                    int count = data.getClipData().getItemCount(); //evaluate the count before the for loop
+//                    // get the remaining amount of space left from the pictures that have already been
+//                    //uploaded if any exist
+//                    int spaceAvailable = NUMBER_OF_IMAGES_ALLOWED-imageUri.size();
+//                    if(count>spaceAvailable){
+//                        count-= spaceAvailable;
+//                    }
+//                    for(int i = 0; i < count; i++) {
+//                        selectedImageUri = data.getClipData().getItemAt(i).getUri();
+//                        if (!imageUri.contains(selectedImageUri)) {
+//                            addToViewPager(selectedImageUri);
+//                        }
+//                    }
+//
+//                }
+//                 // if one image is selected
+//               else  if (data.getData() != null){
+//                    selectedImageUri = data.getData();
+//                    //check if the selected uri already exists in tge list
+//                    for (Uri uri : imageUri) {
+//                        //if duplicate found break
+//                        if (data.getData().equals(uri)) {
+//                            duplicateFound = true;
+//                            break;
+//                        }
+//                    }
+//                if (!duplicateFound) {
+//                    addToViewPager(selectedImageUri);
+//                } else {
+//
+//                }
+//            }
+//            }
+//        }
+//    }
 
-    }
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data){
-        super.onActivityResult(requestCode, resultCode, data);
-        boolean duplicateFound = false;
-        Uri selectedImageUri;
 
+//    void postImagesAddToDatabase(final LatLng locationLtLng , final  String description , final int numberRoomMate , final int price , final  List<String> property , final List<Uri> imageUri  , final String locality , final String subLocality) {
+//        getFragment(new FindRoommate());
+//        publishPostButton.setVisibility(View.INVISIBLE);
+//
+//        // get the referance of the database
+//        StorageReference storageReference = FirebaseStorage.getInstance().getReference();
+//
+//        //create a storage referance
+//
+//        UploadTask uploadTask;
+//
+//        final List<String> IMAGE_URLS = new ArrayList<>();
+//        for (Uri uri:
+//                imageUri ) {
+//            filePath = storageReference.child("apartment post image").child(uri.getLastPathSegment()
+//                    +getUniqueName()+".jpg");
+//            filePath.putFile(uri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
+//                @Override
+//                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+//                    if(task.isSuccessful()) {
+//                        IMAGE_URLS.add(task.getResult().getMetadata().getReference().getPath().toString());
+//                        // once all the pictures are added to the Storage add the rest of the posts using the urls to the database
+//                        if(IMAGE_URLS.size() == imageUri.size()){
+//                            publishApartmentPost(locationLtLng ,  description ,  numberRoomMate ,  price , property ,IMAGE_URLS  ,  locality  , subLocality);
+//                        }
+//                    }
+//                }
+//            }).addOnFailureListener(new OnFailureListener() {
+//                @Override
+//                public void onFailure(@NonNull Exception e) {
+//                    PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
+//                    postPublishedDialog.setMessageText("an error occured while publishing your post");
+//                    postPublishedDialog.warningMessage(true);
+//                }
+//            });
+//        }
+//
+//    }
+//    private String getUniqueName(){
+//        //create a unique id for the post by combining the date with uuid
+//        //get the date first
+//        Calendar calendarDate = Calendar.getInstance();
+//        SimpleDateFormat  currentDate = new SimpleDateFormat("dd-MMMM-yyyy");
+//        String saveCurrentDate = currentDate.format(calendarDate.getTime());
+//
+//        //get the time in hours and minutes
+//        Calendar calendarTime = Calendar.getInstance();
+//        SimpleDateFormat currentTime = new SimpleDateFormat("HH:mm:ss.SSS");
+//        String saveCurrentTime = currentTime.format(calendarTime.getTime());
+//
+//        //add the two string together
+//
+//        return  saveCurrentDate+saveCurrentTime;
+//    }
 
-        if(imageUri.size()>NUMBER_OF_IMAGES_ALLOWED){
-            Toast.makeText(getActivity(), "too many photos" , Toast.LENGTH_SHORT).show();
-        }else {
-            if (resultCode == getActivity().RESULT_OK && requestCode == PICK_IMAGE_MULTIPLE) {
-                // if more than one image is selected
-                if (data.getClipData()!=null){
-                    int count = data.getClipData().getItemCount(); //evaluate the count before the for loop
-                    // get the remaining amount of space left from the pictures that have already been
-                    //uploaded if any exist
-                    int spaceAvailable = NUMBER_OF_IMAGES_ALLOWED-imageUri.size();
-                    if(count>spaceAvailable){
-                        count-= spaceAvailable;
+    void publishApartmentPost(LatLng locationLtLng , String description , int numberRoomMate , int price , List<String> property , List<String> IMAGE_URL , String locality , String subLocality){
+        FirebaseUser firebaseUser = mAuth.getCurrentUser();
+        firebaseUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+            @Override
+            public void onComplete(@NonNull @NotNull Task<GetTokenResult> task) {
+                if (task.isSuccessful()) {
+                    String token = task.getResult().getToken();
+                    JSONObject jsonObject = new JSONObject();
+                    JSONObject data = new JSONObject();
+                    JSONObject postDetails = new JSONObject();
+                    try {
+                        String hash = GeoFireUtils.getGeoHashForLocation(new GeoLocation(locationLtLng.latitude, locationLtLng.longitude));
+                        postDetails.put("description" , description);
+                        postDetails.put("userID" , firebaseUser.getUid());
+                        postDetails.put("price", price);
+                        postDetails.put("numberOfRoommates" , numberRoomMate);
+                        postDetails.put("latitude", locationLtLng.latitude);
+                        postDetails.put("longitude",locationLtLng.longitude);
+                        postDetails.put("preferences" , property);
+                        postDetails.put("image_url" , IMAGE_URL );
+                        postDetails.put("locality" , locality);
+                        postDetails.put("sub_locality" , subLocality);
+                        postDetails.put("time_stamp", FieldValue.serverTimestamp());
+                        postDetails.put("geoHash" , hash);
+                        jsonObject.put("postDetails", postDetails);
+                        jsonObject.put("postType", "postApartment");
+                        data.put("data", jsonObject);
+                    }catch (Exception e) {
+                        e.printStackTrace();
                     }
-                    for(int i = 0; i < count; i++) {
-                        selectedImageUri = data.getClipData().getItemAt(i).getUri();
-                        if (!imageUri.contains(selectedImageUri)) {
-                            addToViewPager(selectedImageUri);
+                    JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_PUBLISH_POST, data, response ->{
+                        try {
+                            boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
+                            String message = response.getJSONObject(Config.result).getString(Config.message);
+                            if (success) {
+                                PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
+                                postPublishedDialog.setMessageText(message);
+                                postPublishedDialog.show(getParentFragmentManager() , null);
+                            }
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
-                    }
-
-                }
-                 // if one image is selected
-               else  if (data.getData() != null){
-                    selectedImageUri = data.getData();
-                    //check if the selected uri already exists in tge list
-                    for (Uri uri : imageUri) {
-                        //if duplicate found break
-                        if (data.getData().equals(uri)) {
-                            duplicateFound = true;
-                            break;
+                    }, error -> {
+                        PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
+                        postPublishedDialog.setMessageText("an error occured while publishing your post");
+                        postPublishedDialog.warningMessage(true);
+                    })
+                    {
+                        @Override
+                        public Map<String, String> getHeaders() {
+                            Map<String, String> params = new HashMap<>();
+                            params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
+                            params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
+                            return params;
                         }
-                    }
-                if (!duplicateFound) {
-                    addToViewPager(selectedImageUri);
+                    };
+                    requestQueue.add(jsonObjectRequest);
                 } else {
-
-
+//                    todo handle error
                 }
-
-            }
-            }
-        }
-    }
-
-
-    void postImagesAddToDatabase(final LatLng locationLtLng , final  String description , final int numberRoomMate , final int price , final  List<String> property , final List<Uri> imageUri  , final String locality , final String subLocality) {
-        getFragment(new FindRoommate());
-        publishPostButton.setVisibility(View.INVISIBLE);
-
-        // get the referance of the database
-        StorageReference storageReference = FirebaseStorage.getInstance().getReference();
-
-        //create a storage referance
-
-        UploadTask uploadTask;
-
-        final List<String> IMAGE_URLS = new ArrayList<>();
-        for (Uri uri:
-                imageUri ) {
-            filePath = storageReference.child("apartment post image").child(uri.getLastPathSegment()
-                    +getUniqueName()+".jpg");
-            filePath.putFile(uri).addOnCompleteListener(new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                    if(task.isSuccessful()) {
-                        IMAGE_URLS.add(task.getResult().getMetadata().getReference().getPath().toString());
-                        // once all the pictures are added to the Storage add the rest of the posts using the urls to the database
-                        if(IMAGE_URLS.size() == imageUri.size()){
-                            addToRealTimeDatabase(locationLtLng ,  description ,  numberRoomMate ,  price , property ,IMAGE_URLS  ,  locality  , subLocality);
-                        }
-                    }
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
-                    postPublishedDialog.setMessageText("an error occured while publishing your post");
-                    postPublishedDialog.warningMessage(true);
-                }
-            });
-        }
-
-    }
-    private String getUniqueName(){
-        //create a unique id for the post by combining the date with uuid
-        //get the date first
-        Calendar calendarDate = Calendar.getInstance();
-        SimpleDateFormat  currentDate = new SimpleDateFormat("dd-MMMM-yyyy");
-        String saveCurrentDate = currentDate.format(calendarDate.getTime());
-
-        //get the time in hours and minutes
-        Calendar calendarTime = Calendar.getInstance();
-        SimpleDateFormat currentTime = new SimpleDateFormat("HH:mm:ss.SSS");
-        String saveCurrentTime = currentTime.format(calendarTime.getTime());
-
-        //add the two string together
-
-        return  saveCurrentDate+saveCurrentTime;
-    }
-
-    void addToRealTimeDatabase(LatLng locationLtLng , String description , int numberRoomMate , int price , List<String> property ,List<String> IMAGE_URL , String locality , String subLocality){
-        String hash = GeoFireUtils.getGeoHashForLocation(new GeoLocation(locationLtLng.latitude, locationLtLng.longitude));
-        String userUid =  FirebaseAuth.getInstance().getCurrentUser().getUid();
-        HashMap<String ,Object> post = new HashMap<>();
-        post.put("description" , description);
-        post.put("userID" , userUid);
-        post.put("price", price);
-        post.put("numberOfRoommates" , numberRoomMate);
-        post.put("latitude", locationLtLng.latitude);
-        post.put("longitude",locationLtLng.longitude);
-        post.put("preferences" , property);
-        post.put("image_url" , IMAGE_URL );
-        post.put("locality" , locality);
-        post.put("sub_locality" , subLocality);
-        post.put("time_stamp", FieldValue.serverTimestamp());
-        post.put("geoHash" , hash);
-
-        mDocRef.collection("postApartment").add(post).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentReference> task) {
-                PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
-                postPublishedDialog.show(getParentFragmentManager() , null);
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override
-            public void onFailure(@NonNull Exception e) {
-                PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
-                postPublishedDialog.setMessageText("an error occured while publishing your post");
-                postPublishedDialog.warningMessage(true);
+            public void onFailure(@NonNull @NotNull Exception e) {
+//                todo when token is null
             }
         });
 
-    }
-
-    void publishPersonalPost(String description , int price , List<String> property ){
-        String userUid =  FirebaseAuth.getInstance().getCurrentUser().getUid();
-        //move to the publish post page while the data is being posted
-        getFragment(new PublishPost());
-        publishPostButton.setVisibility(View.INVISIBLE);
-
-
-        final HashMap<String ,Object> post = new HashMap<>();
-
-        post.put("description" , description);
-        post.put("userID" , userUid);
-        post.put("price", price);
-        post.put("preferences" , property);
-        // add the time of the post
-        post.put("time_stamp",FieldValue.serverTimestamp());
-
-        mDocRef.collection("postPersonal").add(post).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentReference> task) {
-                PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
-                postPublishedDialog.show(getParentFragmentManager() , null);
-            }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull Exception e) {
-                PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
-                postPublishedDialog.setMessageText("An error occurred while publishing your post");
-                postPublishedDialog.warningMessage(true);
-            }
-        });
-        getFragment(new FindRoommate());
-
+//        mDocRef.collection("postApartment").add(post).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+//            @Override
+//            public void onComplete(@NonNull Task<DocumentReference> task) {
+//                PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
+//                postPublishedDialog.show(getParentFragmentManager() , null);
+//            }
+//        }).addOnFailureListener(new OnFailureListener() {
+//            @Override
+//            public void onFailure(@NonNull Exception e) {
+//                PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
+//                postPublishedDialog.setMessageText("an error occured while publishing your post");
+//                postPublishedDialog.warningMessage(true);
+//            }
+//        });
 
     }
 
-    void addToViewPager(Uri newImageUri){
+//    void publishPersonalPost(String description , int price , List<String> property ){
+//        FirebaseUser firebaseUser  =  mAuth.getCurrentUser();
+//        //move to the publish post page while the data is being posted
+//        getFragment(new PublishPost());
+//        publishPostButton.setVisibility(View.INVISIBLE);
+//        firebaseUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
+//            @Override
+//            public void onComplete(@NonNull @NotNull Task<GetTokenResult> task) {
+//                if (task.isSuccessful()) {
+//                    String token = task.getResult().getToken();
+//                    JSONObject jsonObject = new JSONObject();
+//                    JSONObject data = new JSONObject();
+//                    JSONObject postDetails = new JSONObject();
+//                    try {
+//                        postDetails.put("description" , description);
+//                        postDetails.put("userID" , firebaseUser.getUid());
+//                        postDetails.put("price", price);
+//                        postDetails.put("preferences" , property);
+//                        // add the time of the post
+//                        postDetails.put("time_stamp",FieldValue.serverTimestamp());
+//                        jsonObject.put("postDetails", postDetails);
+//                        jsonObject.put("postType", "postPersonal");
+//                        data.put("data", jsonObject);
+//
+//                    }catch (Exception e) {
+//                        e.printStackTrace();
+//                    }
+//                    JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_PUBLISH_POST, data, response ->{
+//                        try {
+//                            boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
+//                            String message = response.getJSONObject(Config.result).getString(Config.message);
+//                            if (success) {
+//                                PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
+//                                postPublishedDialog.setMessageText(message);
+//                                postPublishedDialog.show(getParentFragmentManager() , null);
+//                            }
+//
+//                        } catch (Exception e) {
+//                            e.printStackTrace();
+//                        }
+//                    }, error -> {
+////  todo later change this dialog thingy to snack bar or something similar
 
-        viewPager.setVisibility(View.VISIBLE);
-        dotsIndicator.setVisibility(View.VISIBLE);
-        deleteImageButton.setVisibility(View.VISIBLE);
-        //if no duplicate found  store the image
-        imageUri.add(newImageUri);
-        validate.notifyDataChanged();
-        //initalize adapter with the list of uri
-        viewPagerAdapter = new ViewPagerAdapter(getActivity(), imageUri);
-        // set the view pager to the adapter
-        viewPager.setAdapter(viewPagerAdapter);
-        // add the indicator to the view pager and set to update on chage od dataset
-        dotsIndicator.setViewPager(viewPager);
-        viewPager.getAdapter().registerDataSetObserver(dotsIndicator.getDataSetObserver());
-    }
+//                        PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
+//                        postPublishedDialog.setMessageText("an error occured while publishing your post");
+//                        postPublishedDialog.warningMessage(true);
+//                    })
+//                    {
+//                        @Override
+//                        public Map<String, String> getHeaders() {
+//                            Map<String, String> params = new HashMap<>();
+//                            params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
+//                            params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
+//                            return params;
+//                        }
+//                    };
+//                    requestQueue.add(jsonObjectRequest);
+//                } else {
+////                    todo handle error
+//                }
+//                }
+//        }).addOnFailureListener(new OnFailureListener() {
+//            @Override
+//            public void onFailure(@NonNull @NotNull Exception e) {
+////                todo when token is null
+//            }
+//        });
+//
+////        mDocRef.collection("postPersonal").add(post).addOnCompleteListener(new OnCompleteListener<DocumentReference>() {
+////            @Override
+////            public void onComplete(@NonNull Task<DocumentReference> task) {
+////                PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
+////                postPublishedDialog.show(getParentFragmentManager() , null);
+////            }
+////        }).addOnFailureListener(new OnFailureListener() {
+////            @Override
+////            public void onFailure(@NonNull Exception e) {
+////                PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
+////                postPublishedDialog.setMessageText("An error occurred while publishing your post");
+////                postPublishedDialog.warningMessage(true);
+////            }
+////        });
+////        idk why this get fragment is here
+////        getFragment(new FindRoommate());
+//
+//
+//    }
 
-    void deleteFromView(){
-
-
-        if(imageUri.size()<=1){
-            imageUri.remove(0);
-        }else {
-            imageUri.remove(currentViewPagerPosition);
-        }
-
-        validate.notifyDataChanged();
-
-        //initalize adapter with the list of uri
-        viewPagerAdapter = new ViewPagerAdapter(getActivity(), imageUri);
-        // set the view pager to the adapter
-        viewPager.setAdapter(viewPagerAdapter);
-        // add the indicator to the view pager and set to update on chage od dataset
-        dotsIndicator.setViewPager(viewPager);
-        viewPager.getAdapter().registerDataSetObserver(dotsIndicator.getDataSetObserver());
-        if (imageUri.size() == 0) {
-            viewPager.setVisibility(View.GONE);
-            dotsIndicator.setVisibility(View.GONE);
-            deleteImageButton.setVisibility(View.GONE);
-        }
-        viewPager.setCurrentItem(currentViewPagerPosition);
-
-    }
+//    void addToViewPager(Uri newImageUri){
+//
+//        viewPager.setVisibility(View.VISIBLE);
+//        dotsIndicator.setVisibility(View.VISIBLE);
+//        deleteImageButton.setVisibility(View.VISIBLE);
+//        //if no duplicate found  store the image
+//        imageUri.add(newImageUri);
+//        validate.notifyDataChanged();
+//        //initalize adapter with the list of uri
+//        viewPagerAdapter = new ViewPagerAdapter(getActivity(), imageUri);
+//        // set the view pager to the adapter
+//        viewPager.setAdapter(viewPagerAdapter);
+//        // add the indicator to the view pager and set to update on chage od dataset
+//        dotsIndicator.setViewPager(viewPager);
+//        viewPager.getAdapter().registerDataSetObserver(dotsIndicator.getDataSetObserver());
+//    }
+//
+//    void deleteFromView(){
+//        if(imageUri.size()<=1){
+//            imageUri.remove(0);
+//        }else {
+//            imageUri.remove(currentViewPagerPosition);
+//        }
+//        validate.notifyDataChanged();
+//        //initalize adapter with the list of uri
+//        viewPagerAdapter = new ViewPagerAdapter(getActivity(), imageUri);
+//        // set the view pager to the adapter
+//        viewPager.setAdapter(viewPagerAdapter);
+//        // add the indicator to the view pager and set to update on chage od dataset
+//        dotsIndicator.setViewPager(viewPager);
+//        viewPager.getAdapter().registerDataSetObserver(dotsIndicator.getDataSetObserver());
+//        if (imageUri.size() == 0) {
+//            viewPager.setVisibility(View.GONE);
+//            dotsIndicator.setVisibility(View.GONE);
+//            deleteImageButton.setVisibility(View.GONE);
+//        }
+//        viewPager.setCurrentItem(currentViewPagerPosition);
+//
+//    }
     private void getFragment (Fragment fragment) {
 
         fm = getActivity().getSupportFragmentManager();
@@ -740,19 +775,17 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
         ft.commit();
 
     }
-
-
     private void getUserImage(){
+
         DatabaseReference rootRef= FirebaseDatabase.getInstance().getReference();
-        String currUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        rootRef.child("Users").child(currUser).addListenerForSingleValueEvent(new ValueEventListener() {
+        FirebaseUser firebaseUser= mAuth.getCurrentUser();
+        rootRef.child(Config.users).child(firebaseUser.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
-
                     String url = snapshot.child("image").getValue(String.class);
                     if(!url.isEmpty()){
-                        GlideApp.with(getActivity())
+                        GlideApp.with(getContext())
                                 .load(url)
                                 .centerCrop()
                                 .circleCrop()
@@ -762,83 +795,74 @@ public class PublishPost extends Fragment  implements PreferencesDialogFragment.
 
                 }
             }
-
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
 
             }
         });
     }
-
-
-
-
 }
-
-class Validate{
-    Context context;
-    DataChangedEvent listener;
-    EditText description;
-    TextView numberOfRoommates , budgetTextView , locationTextView, warningTextView;
-    List<Uri> imageUri;
-    Button publishPostButton;
-    TabLayout tabLayout;
-    LatLng selectedLatLng;
-
-
-    public Validate(Context context , DataChangedEvent listener,  LatLng  selectedLatLng,EditText description, TextView numberOfRoommates, TextView budgetTextView, TextView locationTextView, List<Uri> imageUri ,Button  publishPostButton , TextView warningTextView , TabLayout tabLayout) {
-        this.context = context;
-        this.listener = listener;
-        this.description = description;
-        this.numberOfRoommates = numberOfRoommates;
-        this.budgetTextView = budgetTextView;
-        this.locationTextView = locationTextView;
-        this.imageUri = imageUri;
-        this.publishPostButton = publishPostButton;
-        this.warningTextView = warningTextView;
-        this.tabLayout = tabLayout;
-        this.selectedLatLng = selectedLatLng;
-    }
-
-    void notifyDataChanged(){
-        boolean dataIsComplete = false;
-                if(tabLayout.getSelectedTabPosition()==0) {
-                  dataIsComplete= !locationTextView.getText().toString().trim().isEmpty()
-                            && !budgetTextView.getText().toString().trim().isEmpty()
-                            && !numberOfRoommates.getText().toString().trim().isEmpty()
-                            && !description.getText().toString().trim().isEmpty()
-                            && !imageUri.isEmpty()
-                            ;
-                }else{
-                    dataIsComplete= !budgetTextView.getText().toString().trim().isEmpty()
-                            && !description.getText().toString().trim().isEmpty();
-                }
-                listener.onDataComplete(context , dataIsComplete , publishPostButton , warningTextView);
-    }
-
-
-static class OnDataChangedListener implements DataChangedEvent {
-    @Override
-    public void onDataComplete(Context context , boolean dataIsComplete , Button publishPostButton , TextView warningTextView) {
-        if(!dataIsComplete){
-            //removes the shadow
-            publishPostButton.setOutlineProvider(null);
-            publishPostButton.setClickable(false);
-            publishPostButton.setBackground(context.getDrawable(R.drawable.button_round_greyish_timber_wolf));
-            warningTextView.setVisibility(View.VISIBLE);
-        }else{
-            //adds the shadow
-            publishPostButton.setOutlineProvider(ViewOutlineProvider.BACKGROUND);
-            publishPostButton.setBackground(context.getDrawable(R.drawable.button_round_alabaster));
-            publishPostButton.setClickable(true);
-            warningTextView.setVisibility(View.GONE);
-        }
-    }
-
-
-}
-
-}
+//class Validate{
+//    Context context;
+//    DataChangedEvent listener;
+//    EditText description;
+//    TextView numberOfRoommates , budgetTextView , locationTextView, warningTextView;
+//    List<Uri> imageUri;
+//    Button publishPostButton;
+//    ChipGroup chipGroup;
+//    LatLng selectedLatLng;
+//
+//
+//    public Validate(Context context , DataChangedEvent listener,  LatLng  selectedLatLng,EditText description, TextView numberOfRoommates, TextView budgetTextView, TextView locationTextView, List<Uri> imageUri ,Button  publishPostButton , TextView warningTextView , ChipGroup chipGroup) {
+//        this.context = context;
+//        this.listener = listener;
+//        this.description = description;
+//        this.numberOfRoommates = numberOfRoommates;
+//        this.budgetTextView = budgetTextView;
+//        this.locationTextView = locationTextView;
+//        this.imageUri = imageUri;
+//        this.publishPostButton = publishPostButton;
+//        this.warningTextView = warningTextView;
+//        this.chipGroup = chipGroup;
+//        this.selectedLatLng = selectedLatLng;
+//    }
+//
+//    void notifyDataChanged(){
+//        boolean dataIsComplete = false;
+//                if(chipGroup.getCheckedChipId()==0) {
+//                  dataIsComplete= !locationTextView.getText().toString().trim().isEmpty()
+//                            && !budgetTextView.getText().toString().trim().isEmpty()
+//                            && !numberOfRoommates.getText().toString().trim().isEmpty()
+//                            && !description.getText().toString().trim().isEmpty()
+//                            && !imageUri.isEmpty()
+//                            ;
+//                }else{
+//                    dataIsComplete= !budgetTextView.getText().toString().trim().isEmpty()
+//                            && !description.getText().toString().trim().isEmpty();
+//                }
+//                listener.onDataComplete(context , dataIsComplete , publishPostButton , warningTextView);
+//    }
+//
+//
+//static class OnDataChangedListener implements DataChangedEvent {
+//    @Override
+//    public void onDataComplete(Context context , boolean dataIsComplete , Button publishPostButton , TextView warningTextView) {
+//        if(!dataIsComplete){
+//            //removes the shadow
+//            publishPostButton.setOutlineProvider(null);
+//            publishPostButton.setClickable(false);
+//            publishPostButton.setBackground(context.getDrawable(R.drawable.button_round_greyish_timber_wolf));
+//            warningTextView.setVisibility(View.VISIBLE);
+//        }else{
+//            //adds the shadow
+//            publishPostButton.setOutlineProvider(ViewOutlineProvider.BACKGROUND);
+//            publishPostButton.setBackground(context.getDrawable(R.drawable.button_round_alabaster));
+//            publishPostButton.setClickable(true);
+//            warningTextView.setVisibility(View.GONE);
+//        }
+//    }
+//}
+//}
 
 
 

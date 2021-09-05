@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class UserAdapterSplitExpenses extends RecyclerView.Adapter<UserAdapterSplitExpenses.UserViewHolderSplit> {
-   private View v;
    private Context context;
    private Fragment targetedFragment;
 
@@ -29,7 +28,7 @@ public class UserAdapterSplitExpenses extends RecyclerView.Adapter<UserAdapterSp
    private String amount="";
 
    private ArrayList<User> shroomieList;
-   private HashMap<String, Integer> sharesHashmap=new HashMap<String, Integer>();
+   private final HashMap<String, Integer> sharesHashmap=new HashMap<>();
 
    ShroomiesShares shares;
 
@@ -55,7 +54,7 @@ public class UserAdapterSplitExpenses extends RecyclerView.Adapter<UserAdapterSp
     @Override
     public UserViewHolderSplit onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(context);
-        v = layoutInflater.inflate(R.layout.shroomies_split_card,parent,false);
+        View v = layoutInflater.inflate(R.layout.shroomies_split_card, parent, false);
         return new UserViewHolderSplit(v);
     }
 
@@ -102,10 +101,10 @@ public class UserAdapterSplitExpenses extends RecyclerView.Adapter<UserAdapterSp
 
 
     public class UserViewHolderSplit extends RecyclerView.ViewHolder {
-        private ImageView profilePicImageView;
-        private EditText sharedAmountEditText;
-        private TextView userNameTextView;
-        private FloatSeekBar amountSeekBar;
+        private final ImageView profilePicImageView;
+        private final EditText sharedAmountEditText;
+        private final TextView userNameTextView;
+        private final FloatSeekBar amountSeekBar;
 
         public UserViewHolderSplit(@NonNull View itemView) {
             super(itemView);

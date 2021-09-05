@@ -9,17 +9,52 @@
     android:background="@color/y">
 
 
-<com.factor.bouncy.BouncyRecyclerView
+    <LinearLayout
+        android:id="@+id/drag_down_layout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        >
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:lottie_rawRes="@raw/drag_down"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true"
+            android:layout_gravity="center"
+            android:layout_marginTop="-20dp"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="drag for updates"
+            android:layout_marginTop="-30dp"
+            />
+
+    </LinearLayout>
+
+<androidx.recyclerview.widget.RecyclerView
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-
     android:id="@+id/log_recycler"
-    app:recyclerview_fling_animation_size=".5"
-    app:recyclerview_overscroll_animation_size=".5"
-    app:recyclerview_damping_ratio="DAMPING_RATIO_LOW_BOUNCY"
-    app:recyclerview_stiffness="STIFFNESS_MEDIUM"
-    app:allow_drag_reorder="true"
-    app:allow_item_swipe="false"
+    android:background="@color/white"
+    android:layoutAnimation="@anim/recycler_view_anim"
+
 
     />
+    <TextView
+        android:id="@+id/no_logs_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:text="No recent activity to display"
+        android:layout_margin="20dp"
+        android:textColor="@color/lightGrey"
+        android:textSize="20sp"
+        android:visibility="gone"
+
+        />
 </RelativeLayout>

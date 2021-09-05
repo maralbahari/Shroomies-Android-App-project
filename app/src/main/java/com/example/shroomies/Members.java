@@ -1,4 +1,6 @@
 package com.example.shroomies;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -11,7 +13,9 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
@@ -20,6 +24,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkError;
 import com.android.volley.NoConnectionError;
@@ -55,10 +60,10 @@ public class Members extends Fragment {
     //views
     private View v;
     private RecyclerView membersRecyclerView;
-    private TextView ownerName;
+    private TextView ownerName ;
     private ImageView adminImageView , ghostImageView;
     private RelativeLayout noMembersRelativeLayout , rootLayout;
-
+    private CustomLoadingProgressBar customLoadingProgressBar;
     //firebase
     private FirebaseAuth mAuth;
     private RequestQueue requestQueue;
@@ -75,7 +80,6 @@ public class Members extends Fragment {
         v =inflater.inflate(R.layout.fragment_shroomie_members, container, false);
         requestQueue = Volley.newRequestQueue(getActivity());
         mAuth = FirebaseAuth.getInstance();
-        mAuth.useEmulator("10.0.2.2" , 9009);
         return v;
     }
 
@@ -85,8 +89,8 @@ public class Members extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        Button addMemberButton = v.findViewById(R.id.add_shroomie_btn);
         Button leaveRoomButton = v.findViewById(R.id.leave_room_btn);
+
         adminImageView =v.findViewById(R.id.owner_image);
         ownerName=v.findViewById(R.id.admin_name);
         // set visibility to gone if there are members in add members
@@ -95,13 +99,15 @@ public class Members extends Fragment {
         ghostImageView = v.findViewById(R.id.ghost_view);
         noMembersRelativeLayout = v.findViewById(R.id.no_members_relative_layout);
         rootLayout = v.findViewById(R.id.relative_layout_member);
-
         Toolbar toolbar = getActivity().findViewById(R.id.my_shroomies_toolbar);
+
         toolbar.setTitle("Members");
 
         toolbar.setTitleTextColor(getActivity().getColor(R.color.jetBlack));
         toolbar.setNavigationIcon(R.drawable.ic_back_button);
         toolbar.setElevation(5);
+        toolbar.findViewById(R.id.myshroomies_toolbar_logo).setVisibility(View.GONE);
+        toolbar.findViewById(R.id.my_shroomies_add_card_btn).setVisibility(View.GONE);
         toolbar.setNavigationOnClickListener(view1 -> {
             toolbar.setTitle(null);
             toolbar.setNavigationIcon(null);
@@ -124,20 +130,20 @@ public class Members extends Fragment {
             //this check is if the admin removed a member and that user is in member page so it refreshes
         }
 
-        addMemberButton.setOnClickListener(v -> {
-            AddShroomieMember add=new AddShroomieMember();
-            Bundle bundle1 = new Bundle();
-            bundle1.putParcelable("APARTMENT_DETAILS",apartment);
-            add.setArguments(bundle1);
-            add.show(getParentFragmentManager(),"add member to apartment");
-        });
 
         leaveRoomButton.setOnClickListener(v -> {
 
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
             builder.setTitle("Leave group");
             builder.setPositiveButton("Cancel", (dialog, which) -> dialog.dismiss());
-            builder.setNegativeButton("leave", (dialog, which) -> leaveApartment());
+            builder.setNegativeButton("leave", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    dialog.dismiss();
+                    leaveRoomButton.setClickable(false);
+                    leaveApartment();
+                }
+            });
             builder.setMessage("Leaving this group will remove all data and place you in an empty group.");
             builder.setIcon(R.drawable.ic_shroomies_yelllow_black_borders);
             builder.setCancelable(true);
@@ -174,6 +180,10 @@ public class Members extends Fragment {
     }
 
     private void leaveApartment(){
+        customLoadingProgressBar = new CustomLoadingProgressBar(getActivity(),"Leaving..." , R.raw.lf30_editor_igyp9bvy);
+        customLoadingProgressBar.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        customLoadingProgressBar.setCancelable(false);
+        customLoadingProgressBar.show();
         JSONObject jsonObject = new JSONObject();
         JSONObject data = new JSONObject();
         try {
@@ -185,10 +195,11 @@ public class Members extends Fragment {
         }
 
         FirebaseUser firebaseUser = mAuth.getCurrentUser();
-        firebaseUser.getIdToken(false).addOnCompleteListener(task -> {
+        firebaseUser.getIdToken(true).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
+                customLoadingProgressBar.dismiss();
                 String token = task.getResult().getToken();
-                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_LEAVE_APARTMENT, data, response -> {
+                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_LEAVE_APARTMENT, data, response -> {
                     try {
                         JSONObject result = (JSONObject) response.get(Config.result);
                         boolean success = result.getBoolean(Config.success);
@@ -201,6 +212,7 @@ public class Members extends Fragment {
                             String message = "We have encountered an unexpected error, try to check your internet connection and log in again.";
                             displayErrorAlert(title, message , null);
                         }
+
 
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -230,7 +242,7 @@ public class Members extends Fragment {
     private void getMemberDetail(ShroomiesApartment shroomiesApartment) {
 
         FirebaseUser firebaseUser = mAuth.getCurrentUser();
-        firebaseUser.getIdToken(false).addOnCompleteListener(task -> {
+        firebaseUser.getIdToken(true).addOnCompleteListener(task -> {
             if(task.isSuccessful()){
                 ArrayList<String> members = new ArrayList<>();
                 //add the the admin to the members
@@ -255,7 +267,7 @@ public class Members extends Fragment {
                 }
 
                 String token = task.getResult().getToken();
-                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_GET_MEMBER_DETAIL, data, response -> {
+                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_GET_MEMBER_DETAIL, data, response -> {
                     final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
                     try {
                         boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
@@ -330,6 +342,7 @@ public class Members extends Fragment {
     }
 
     void displayErrorAlert(String title ,  String errorMessage  , VolleyError error){
+        customLoadingProgressBar.dismiss();
         String message = null; // error message, show it in toast or dialog, whatever you want
         if(error!=null) {
             if (error instanceof NetworkError || error instanceof AuthFailureError || error instanceof NoConnectionError || error instanceof TimeoutError) {

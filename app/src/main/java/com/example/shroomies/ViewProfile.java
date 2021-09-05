@@ -86,7 +86,6 @@ public class ViewProfile extends Fragment {
         profileTab = v.findViewById(R.id.user_profile_tab_layout);
         apartmentTab = v.findViewById(R.id.user_profile_tab_button_apartment);
         personalTab = v.findViewById(R.id.user_profile_tab_button_personal);
-        sendMessage = v.findViewById(R.id.send_user_message);
         numberPosts = v.findViewById(R.id.number_posts);
 
         recyclerView = v.findViewById(R.id.recycler_view);
@@ -202,7 +201,7 @@ public class ViewProfile extends Fragment {
 
     private void getApartmentPosts() {
         apartmentPostList = new ArrayList<>();
-        apartmentAdapter = new RecycleViewAdapterApartments(apartmentPostList , getActivity(), profileID, false);
+        apartmentAdapter = new RecycleViewAdapterApartments(apartmentPostList , getActivity(), profileID, false,false);
         recyclerView.setAdapter(apartmentAdapter);
         Query query = mDocRef.collection("postApartment").orderBy("time_stamp", Query.Direction.DESCENDING).whereEqualTo("userID", profileID).limit(APARTMENT_PER_PAGINATION);
         query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -225,7 +224,7 @@ public class ViewProfile extends Fragment {
 
     private void getPersonalPosts(){
         personalPostList = new ArrayList<>();
-        personalPostRecyclerAdapter = new PersonalPostRecyclerAdapter(personalPostList, getActivity(), profileID, false);
+        personalPostRecyclerAdapter = new PersonalPostRecyclerAdapter(personalPostList, getActivity(), profileID, false,false);
         recyclerView.setAdapter(personalPostRecyclerAdapter);
 
         Query query = mDocRef.collection("postPersonal").orderBy("time_stamp", Query.Direction.DESCENDING).whereEqualTo("userID", profileID).limit(APARTMENT_PER_PAGINATION);

@@ -2,6 +2,7 @@ package com.example.shroomies;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,167 +11,196 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.ChildEventListener;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.airbnb.lottie.LottieAnimationView;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+import com.google.android.material.button.MaterialButton;
+import com.virgilsecurity.common.callback.OnResultListener;
+import com.virgilsecurity.crypto.foundation.Hash;
+import com.virgilsecurity.sdk.cards.Card;
 
-import java.util.ArrayList;
+import org.jetbrains.annotations.NotNull;
+
+import java.time.DayOfWeek;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
+import java.time.temporal.ChronoUnit;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 public class PrivateInboxRecycleViewAdapter extends RecyclerView.Adapter<PrivateInboxRecycleViewAdapter.UsersListViewHolder> {
-    private List<String> receiverUsersList;
-    private List<Messages> messageList;
-    private FirebaseAuth mAuth;
-    private DatabaseReference rootRef;
-    private String receiverID;
-    private Context context;
+    private final List<RecieverInbox> recieverInboxList;
+    private final Context context , applicationContext;
+    private HashMap<String , User> userHashMap;
 
-    public PrivateInboxRecycleViewAdapter(List<String> receiverUsersList, Context context) {
-        this.receiverUsersList = receiverUsersList;
+
+    public PrivateInboxRecycleViewAdapter(List<RecieverInbox> receiverUsersList , HashMap<String , User > userHashMap, Context context, Context applicationContext) {
+        this.recieverInboxList = receiverUsersList;
         this.context=context;
+        this.userHashMap = userHashMap;
+        this.applicationContext = applicationContext;
 
+    }
+    public void updateInbox(List<RecieverInbox> newList) {
+        recieverInboxList.clear();
+        recieverInboxList.addAll(newList);
+        this.notifyDataSetChanged();
     }
 
     @NonNull
     @Override
     public UsersListViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v= LayoutInflater.from(parent.getContext()).inflate(R.layout.message_inbox_users_view,parent,false);
-        mAuth = FirebaseAuth.getInstance();
-        rootRef= FirebaseDatabase.getInstance().getReference();
         return new UsersListViewHolder(v);
     }
 
+
     @Override
     public void onBindViewHolder(@NonNull final UsersListViewHolder holder, final int position) {
-                rootRef.child("Users").child(receiverUsersList.get(position)).addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if(snapshot.exists()){
-                            User user=snapshot.getValue(User.class);
-                            holder.receiverName.setText(user.getName());
-                            if(!user.getImage().isEmpty()) {
-                                holder.receiverImageView.setPadding(0,0,0,0);
-                                GlideApp.with(context)
-                                        .load(user.getImage())
-                                        .fitCenter()
-                                        .circleCrop()
-                                        .into(holder.receiverImageView);
-                            }
+
+                //get the user data from the user hashmap
+                if(userHashMap!=null){
+                    User user=userHashMap.get(recieverInboxList.get(position).getReceiverID());
+                    if(user!=null){
+                        holder.receiverName.setText(user.getName());
+                        holder.skeletonLoaderName.clearAnimation();
+                        holder.skeletonLoaderName.setVisibility(View.GONE);
+                        if(!user.getImage().isEmpty()) {
+                            //todo add error image
+                            GlideApp.with(context)
+                                    .load(user.getImage())
+                                    .fitCenter()
+                                    .circleCrop()
+                                    .transition(DrawableTransitionOptions.withCrossFade())
+                                    .into(holder.receiverImageView);
+                        }else {
+                            // make sure Glide doesn't load anything into this view until told otherwise
+                            //todo change this
+                            GlideApp.with(context).load(R.drawable.ic_user_profile_svgrepo_com).into(holder.receiverImageView);
                         }
-                    }
 
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
 
+                        holder.skeletonLoaderImage.clearAnimation();
+                        holder.skeletonLoaderImage.setVisibility(View.GONE);
                     }
-                });
+                }
+                int unSeenMessages = recieverInboxList.get(position).getUnSeenMessageCount();
+                if(unSeenMessages>0){
+                    holder.newMessages.setVisibility(View.VISIBLE);
+                    holder.newMessages.setText(Integer.toString(unSeenMessages));
+                }else{
+                    holder.newMessages.setVisibility(View.GONE);
+
+                }
+                if(recieverInboxList.get(position).getLastMessageTime()!=null){
+
+                    Instant instant = DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(recieverInboxList.get(position).getLastMessageTime(), Instant::from);
+                    LocalDateTime messageDate = instant.atZone(ZoneOffset.systemDefault()).toLocalDateTime();
+                    LocalDateTime now = LocalDateTime.now(OffsetDateTime.now().getOffset()).truncatedTo(ChronoUnit.SECONDS);
+
+                    final long days = ChronoUnit.DAYS.between(messageDate, now);
+                    //if the meesage is older than a week display the exact date
+                    if(days>6){
+                        holder.messageDate.setText(DateTimeFormatter.ofPattern("dd/MM/yyyy").format(messageDate));
+                    }else if(days>0){
+                        holder.messageDate.setText(DayOfWeek.from(messageDate.getDayOfWeek()).getDisplayName(TextStyle.SHORT , Locale.getDefault()));
+                    }else{
+                        holder.messageDate.setText(DateTimeFormatter.ofPattern("h:mm a").format(messageDate));
+                    }
+                }
+
 
                 // set the last message
-                 getLastMessage(receiverUsersList.get(position) , holder);
-                 getUnreadMessages(receiverUsersList.get(position) , holder);
+                if(recieverInboxList.get(position).getLastMessage()!=null && recieverInboxList.get(position).getFrom()!=null){
+
+                    decryptMessage(recieverInboxList.get(position).getFrom() ,recieverInboxList.get(position).getLastMessage() , holder);
+                }
+    }
+    private void decryptMessage(String userID , String encryptedMessage ,UsersListViewHolder usersListViewHolder) {
+        // get the user's card
+        OnResultListener<Card> findUsersListener =
+                new OnResultListener<Card>() {
+                    @Override
+                    public void onSuccess(Card card) {
+//                            com.virgilsecurity.common.model.Data data = new com.virgilsecurity.common.model.Data(messageText.getBytes());
+//                            // Encrypt data using user public keys
+//                            com.virgilsecurity.common.model.Data encryptedData = eThree.authEncrypt(data, findUsersResult);
+////                             Encrypt message using user public key
+                        String decryptMessage= EthreeSingleton
+                                .getInstance(null,null,null)
+                                .getEthreeInstance()
+                                .authDecrypt(encryptedMessage , card);
+
+                        ((AppCompatActivity) context).runOnUiThread(() -> {
+                            usersListViewHolder.lastMessage.setText(decryptMessage);
+                            usersListViewHolder.skeletonLoaderLastMessage.clearAnimation();
+                            usersListViewHolder.skeletonFrameLastMessage.setVisibility(View.GONE);
+                        });
+                    }
+
+                    @Override
+                    public void onError(@NotNull Throwable throwable) {
+                        Log.d("recepientVirgilCard", throwable.getMessage());
+                    }
+                };
+        EthreeSingleton.getInstance(context,null,null).getEthreeInstance().findUser(userID, true).addCallback(findUsersListener);
 
     }
 
     @Override
     public int getItemCount() {
-        return receiverUsersList.size();
+        return recieverInboxList.size();
     }
 
     public class UsersListViewHolder extends RecyclerView.ViewHolder{
-        TextView lastMessage,receiverName , newMessages;
+        TextView lastMessage,receiverName , messageDate;
+        MaterialButton newMessages;
         ImageView receiverImageView;
         RelativeLayout messageInboxViewHolderLayout;
+        LottieAnimationView skeletonLoaderLastMessage, skeletonLoaderImage , skeletonLoaderName;
+        CardView skeletonFrameLastMessage, skeletonFrameImage , skeletonFrameName ;
         public UsersListViewHolder(@NonNull View itemView) {
             super(itemView);
             lastMessage=itemView.findViewById(R.id.inbox_last_message);
             receiverImageView=itemView.findViewById(R.id.inbox_chat_item_image);
             receiverName=itemView.findViewById(R.id.inbox_chat_item_name);
+            messageDate = itemView.findViewById(R.id.message_date);
             newMessages = itemView.findViewById(R.id.new_messages);
-            messageInboxViewHolderLayout=itemView.findViewById(R.id.message_inbox_users_view_layout);
-            messageInboxViewHolderLayout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent intent=new Intent(context, ChattingActivity.class);
-                    intent.putExtra("USERID",receiverUsersList.get(getAdapterPosition()));
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    context.startActivity(intent);
 
+            skeletonLoaderLastMessage = itemView.findViewById(R.id.skeleton_loader_last_message);
+            skeletonLoaderName = itemView.findViewById(R.id.skeleton_loader_name);
+            skeletonLoaderImage = itemView.findViewById(R.id.skeleton_loader_image);
+
+            skeletonFrameName = itemView.findViewById(R.id.skeleton_frame_name);
+            skeletonFrameImage = itemView.findViewById(R.id.skeleton_frame_image);
+            skeletonFrameLastMessage = itemView.findViewById(R.id.skeleton_frame_last_message);
+
+            messageInboxViewHolderLayout=itemView.findViewById(R.id.message_inbox_users_view_layout);
+            messageInboxViewHolderLayout.setOnClickListener(v -> {
+                Intent intent=new Intent(applicationContext, ChattingActivity.class);
+                if(userHashMap.containsKey(recieverInboxList.get(getAdapterPosition()).getReceiverID())){
+                    User user = userHashMap.get(recieverInboxList.get(getAdapterPosition()).getReceiverID());
+                    intent.putExtra("USER"  ,user);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    applicationContext.startActivity(intent);
+                }else{
+                    //todo handle error
                 }
             });
-
         }
-    }
-    public void getLastMessage(String receiverID , final UsersListViewHolder viewHolder){
-        rootRef.child("Messages").child(mAuth.getInstance().getCurrentUser().getUid()).child(receiverID).orderByKey().limitToLast(1).addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-                if(snapshot.exists()) {
-                 Messages messages = snapshot.getValue(Messages.class);
-                 if(messages.getType().equals("text")){
-                     viewHolder.lastMessage.setText(messages.getText());
-
-                 }else{
-                     viewHolder.lastMessage.setText("Photo");
-                 }
-//                 if(messages.getIsSeen().equals("false")){
-//                        viewHolder.newMessages.setVisibility(View.VISIBLE);
-//                        viewHolder.newMessages.setText("New");
-//                 }
-
-
-                }
-            }
-            @Override public void onChildChanged(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-            }
-            @Override public void onChildRemoved(@NonNull DataSnapshot snapshot) {
-
-            }
-            @Override public void onChildMoved(@NonNull DataSnapshot snapshot, @Nullable String previousChildName) {
-
-            }
-            @Override public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
 
     }
-    void getUnreadMessages(final String receiverID , final UsersListViewHolder viewHolder){
-        final ArrayList<Messages> unseenMessages = new ArrayList<>();
-        rootRef.child("Messages").child(mAuth.getInstance().getCurrentUser().getUid()).child(receiverID).orderByChild("isSeen").equalTo("false").addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                unseenMessages.clear();
-                if(snapshot.exists()) {
-                    for (DataSnapshot datasnapshot:
-                            snapshot.getChildren()) {
-                        Messages messages = datasnapshot.getValue(Messages.class);
-                        if(messages.getFrom().equals(receiverID)){
-                            unseenMessages.add(messages);
-                        }
-                    }
-                    if(unseenMessages.size()>0) {
-                        viewHolder.newMessages.setVisibility(View.VISIBLE);
-                        viewHolder.newMessages.setText(Integer.toString(unseenMessages.size()));
-                    }
-                }else{
-                    viewHolder.newMessages.setVisibility(View.GONE);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
+    void setUserHashMap(HashMap<String , User> userHashMap){
+        this.userHashMap = userHashMap;
     }
-
 
 }

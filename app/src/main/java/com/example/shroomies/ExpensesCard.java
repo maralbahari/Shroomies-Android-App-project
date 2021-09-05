@@ -11,9 +11,25 @@ import java.util.HashMap;
 
 public class ExpensesCard implements Parcelable {
 
-    String attachedFile, description, title,
-            dueDate,importance,cardID,
-            done, fileType,actor;
+    String attachedFile;
+    String description;
+    String title;
+    String dueDate;
+    String importance;
+    String cardID;
+    String fileType;
+    String actor;
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    String fileName;
+    boolean done;
     HashMap<String, String> mention;
 
     HashMap<String, Integer> membersShares=new HashMap<>();
@@ -27,11 +43,12 @@ public class ExpensesCard implements Parcelable {
         dueDate = in.readString();
         importance = in.readString();
         cardID = in.readString();
-        done = in.readString();
+        done = in.readBoolean();
         fileType = in.readString();
         actor = in.readString();
         date = in.readString();
     }
+
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
@@ -41,9 +58,9 @@ public class ExpensesCard implements Parcelable {
         dest.writeString(dueDate);
         dest.writeString(importance);
         dest.writeString(cardID);
-        dest.writeString(done);
         dest.writeString(fileType);
         dest.writeString(actor);
+        dest.writeByte((byte) (done ? 1 : 0));
         dest.writeString(date);
     }
 
@@ -79,7 +96,7 @@ public class ExpensesCard implements Parcelable {
     }
 
 
-    public ExpensesCard(String attachedFile, String description, String title, String dueDate, String importance,String fileType ,  String cardId, String done, HashMap<String,String> mention, HashMap<String, Integer> membersShares) {
+    public ExpensesCard(String attachedFile, String description, String title, String dueDate, String importance,String fileType ,  String cardId, boolean done, HashMap<String,String> mention, HashMap<String, Integer> membersShares) {
         this.attachedFile = attachedFile;
         this.description = description;
         this.title = title;
@@ -142,7 +159,7 @@ public class ExpensesCard implements Parcelable {
         this.cardID = cardID;
     }
 
-    public void setDone(String done) {
+    public void setDone(boolean done) {
         this.done = done;
     }
 
@@ -175,7 +192,7 @@ public class ExpensesCard implements Parcelable {
         return cardID;
     }
 
-    public String getDone() {
+    public boolean getDone() {
         return done;
     }
 

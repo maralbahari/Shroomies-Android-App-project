@@ -4,7 +4,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class ShroomiesApartment implements Parcelable {
@@ -13,15 +12,15 @@ public class ShroomiesApartment implements Parcelable {
     Map<String , ExpensesCard > expensesCard;
     Map<String , TasksCard> taskCard;
 
-    public Map<String, apartmentLogs> getLogs() {
+    public Map<String, ApartmentLogs> getLogs() {
         return logs;
     }
 
-    public void setLogs(Map<String, apartmentLogs> logs) {
+    public void setLogs(Map<String, ApartmentLogs> logs) {
         this.logs = logs;
     }
 
-    Map<String , apartmentLogs> logs;
+    Map<String , ApartmentLogs> logs;
 
     public Map<String ,ExpensesCard> getExpensesCard() {
         return expensesCard;

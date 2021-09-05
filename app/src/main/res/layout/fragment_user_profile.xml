@@ -1,56 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<androidx.constraintlayout.motion.widget.MotionLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".UserProfile"
-    >
+    app:layoutDescription="@xml/fragment_user_profile_scene"
+    tools:context=".UserProfile">
 
-
-
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
         <RelativeLayout
+            android:id="@+id/user_profile_info"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:id="@+id/user_profile_info"
-            android:layout_margin="10dp"
             android:background="@drawable/tablayout_round">
 
             <ImageView
                 android:id="@+id/user_profile_image_view"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
                 android:layout_alignParentLeft="true"
+                android:layout_marginLeft="12dp"
                 android:layout_marginTop="10dp"
-                android:layout_marginBottom="20dp"
                 android:layout_marginRight="10dp"
-                android:layout_marginLeft="10dp"
-                android:background="@drawable/circle_white_button"
-                android:elevation="3dp"
-                android:padding="10dp"
+                android:layout_marginBottom="10dp"
+                android:adjustViewBounds="true"
                 android:src="@drawable/ic_user_profile_svgrepo_com">
-
             </ImageView>
-
             <TextView
                 android:id="@+id/user_profile_view_username"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-
-                android:layout_toEndOf="@+id/user_profile_image_view"
-                android:text="Username"
+                android:layout_below="@id/user_profile_image_view"
+                android:layout_marginLeft="15dp"
                 android:shadowColor="@color/jetBlack"
                 android:shadowDx="1"
                 android:shadowDy="1"
                 android:shadowRadius="1.5"
+                android:text="Username"
                 android:textColor="@color/jetBlack"
-                android:textSize="20sp"
-                >
+                android:textSize="15sp">
 
             </TextView>
 
@@ -59,25 +46,23 @@
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/user_profile_view_username"
+                android:layout_marginLeft="15dp"
                 android:layout_marginTop="3dp"
-                android:layout_marginRight="45dp"
-                android:layout_toLeftOf="@+id/user_profile_post_icon"
-                android:layout_toRightOf="@id/user_profile_image_view"
+                android:maxLength="150"
                 android:text="Bio"
                 android:textColor="@color/lightGrey"
-                android:textSize="15sp">
-
-            </TextView>
+                android:textSize="12sp"></TextView>
 
 
             <ImageView
                 android:id="@+id/user_profile_post_icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_icon_post"
-                android:layout_toLeftOf="@id/number_posts"
+                android:layout_marginTop="20dp"
                 android:layout_marginRight="3dp"
-                android:layout_marginTop="20dp"/>
+                android:layout_toLeftOf="@id/number_posts"
+                android:src="@drawable/ic_icon_post" />
+
             <TextView
                 android:id="@+id/number_posts"
                 android:layout_width="wrap_content"
@@ -85,113 +70,65 @@
                 android:layout_alignParentRight="true"
                 android:layout_marginTop="20dp"
                 android:layout_marginRight="25dp"
+                android:padding="0dp"
                 android:text="0"
-                android:textStyle="bold"
                 android:textColor="@color/jetBlack"
                 android:textSize="15sp"
-                android:padding="0dp"
-
-
+                android:textStyle="bold"
                 ></TextView>
 
             <TextView
+                android:id="@+id/posts"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/user_profile_post_icon"
                 android:layout_alignStart="@id/user_profile_post_icon"
-                android:id="@+id/posts"
-                android:textSize="18sp"
-                android:textStyle="bold"
+                android:text="Posts"
                 android:textColor="@color/jetBlack"
-                android:text="Posts"/>
+                android:textSize="13sp"
+                android:textStyle="bold" />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/edit_profile_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="0dp"
-                android:padding="10dp"
+                android:layout_below="@+id/user_profile_view_bio"
                 android:layout_marginTop="10dp"
-                android:layout_below="@+id/user_profile_image_view"
-                android:background="@drawable/edit_profile_button"
-                android:text="edit profile"
-                android:textSize="12sp"
+                android:elevation="5dp"
+                android:text="Edit Profile"
+                android:textAllCaps="false"
                 android:textColor="@color/jetBlack"
-                android:elevation="5dp">
-
-            </Button>
+                android:textSize="13sp"></com.google.android.material.button.MaterialButton>
 
 
         </RelativeLayout>
 
-        <TextView
-            android:id="@+id/user_profile_my_posts"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/user_profile_info"
-            android:layout_marginTop="5dp"
-            android:layout_marginLeft="25dp"
-            android:text="Posts"
-            android:textColor="@color/jetBlack"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-
         <com.google.android.material.tabs.TabLayout
-            android:layout_below="@id/user_profile_my_posts"
             android:id="@+id/user_profile_tab_layout"
             android:layout_width="match_parent"
-            android:background="@drawable/tablayout_round"
-            android:elevation="5dp"
-            android:layout_marginTop="10dp"
             android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/user_profile_info"
             android:layout_marginBottom="10dp"
-            android:layout_marginLeft="20dp"
-            android:layout_marginRight="20dp"
-            app:tabIndicatorGravity="stretch"
-            app:tabIndicatorColor="@color/Alabaster"
-            >
+            app:tabTextAppearance="@android:style/TextAppearance.Widget.TabWidget"
+            android:elevation="5dp">
 
             <com.google.android.material.tabs.TabItem
                 android:id="@+id/user_profile_tab_button_apartment"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="apartment"
-                />
-
-
+                android:text="Apartment" />
             <com.google.android.material.tabs.TabItem
                 android:id="@+id/user_profile_tab_button_personal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="personal"
-                />
-
-
+                android:text="Personal" />
         </com.google.android.material.tabs.TabLayout>
-
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/user_profile_tab_layout"
-            android:layout_alignParentBottom="true"
-            android:layout_marginTop="2dp"
-            android:layout_marginBottom="10dp" />
-
-        <ImageButton
-            android:id="@+id/send_user_message"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentBottom="true"
-            android:layout_below="@+id/user_profile_tab_layout"
-            android:background="@drawable/button_round"
-            android:backgroundTint="@color/LogoYellow"
-            android:elevation="3dp"
-            android:padding="20dp"
-            android:src="@drawable/ic_message"/>
-
-    </RelativeLayout>
-
-</androidx.core.widget.NestedScrollView>
+            android:layout_height="0dp"
+            app:layout_constraintTop_toBottomOf="@id/user_profile_tab_layout"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginTop="2dp" />
+</androidx.constraintlayout.motion.widget.MotionLayout>

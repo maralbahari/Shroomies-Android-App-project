@@ -1,124 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-
-    <androidx.cardview.widget.CardView
-        android:layout_margin="20dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:elevation="5dp"
-        app:cardCornerRadius="20dp"
-        >
-
-       <RelativeLayout
-           android:layout_width="match_parent"
-           android:layout_height="wrap_content">
-
+    android:background="@drawable/rectangle_with_border">
            <ImageView
                android:id="@+id/request_user_photo"
-               android:layout_width="70dp"
-               android:layout_height="70dp"
-               android:layout_marginLeft="20dp"
-               android:layout_marginTop="20dp"
-               android:layout_marginRight="20dp"
-               android:layout_marginBottom="10dp"
-               android:background="@drawable/circle_white_button"
-               android:elevation="5dp"
-               android:padding="5dp"
-               android:src="@drawable/ic_user_profile_small"
+               android:layout_width="50dp"
+               android:layout_height="50dp"
+                android:layout_margin="10dp"
+               android:src="@drawable/ic_user_profile_svgrepo_com"
                 />
-
            <TextView
                android:id="@+id/user_name"
                android:layout_width="wrap_content"
                android:layout_height="wrap_content"
-               android:text="Name"
-               android:textSize="20sp"
+               android:textSize="15sp"
                android:textColor="@color/Black"
                android:textStyle="bold"
-               android:layout_marginTop="30dp"
-                android:layout_toRightOf="@+id/request_user_photo"
+               android:layout_marginTop="10dp"
+               android:lines="1"
+               android:maxLength="30"
+               android:minWidth="200dp"
+               android:text="Name"
+               android:layout_toRightOf="@+id/request_user_photo"
                />
            <TextView
                android:id="@+id/requested_tv"
                android:layout_width="wrap_content"
                android:layout_height="wrap_content"
-               android:text="Requested to join his room"
-               android:layout_below="@+id/user_name"
                android:layout_marginTop="5dp"
                android:layout_toRightOf="@+id/request_user_photo"
+               android:text="text"
+               android:minWidth="150dp"
+               android:layout_below="@+id/user_name"
+               android:lines="1"
                />
 
-           <LinearLayout
-               android:layout_centerHorizontal="true"
-               android:orientation="horizontal"
-               android:layout_marginBottom="10dp"
-               android:paddingBottom="5dp"
-               android:layout_below="@id/request_user_photo"
+           <ImageButton
+               android:id="@+id/accept_button"
                android:layout_width="wrap_content"
-               android:layout_height="wrap_content">
-
-               <Button
-                   android:layout_marginBottom="1dp"
-                   android:padding="2dp"
-                   android:layout_gravity="center"
-                   android:layout_weight="1"
-                   android:minHeight="0dp"
-                   android:id="@+id/accept_button"
-                   android:elevation="2dp"
-                   android:layout_marginLeft="10dp"
-                   android:layout_width="wrap_content"
-                   android:layout_height="wrap_content"
-                   android:background="@drawable/button_rounded_corner_attach"
-                   android:text="Accept"
-                   android:textStyle="bold"
-                   android:textSize="12sp" />
-
-               <Button
-                   android:layout_marginBottom="1dp"
-                   android:padding="2dp"
-                   android:layout_gravity="center"
-                   android:id="@+id/decline_btn"
-                   android:elevation="2dp"
-                   android:minHeight="0dp"
-                   android:layout_marginLeft="25dp"
-                   android:layout_width="wrap_content"
-                   android:layout_height="wrap_content"
-                   android:text="decline"
-                   android:textSize="12sp"
-                   android:textStyle="bold"
-                   android:background="@drawable/leave_room_button"
-                   android:layout_alignParentRight="true"
-                   />
-
-
-           </LinearLayout>
-
+               android:layout_height="wrap_content"
+               android:layout_alignParentRight="true"
+               android:layout_gravity="center"
+               android:background="@drawable/accept_background_button"
+               android:visibility="visible"
+               android:layout_marginRight="10dp"
+               android:layout_centerVertical="true"
+               android:layout_marginLeft="10dp" />
+           <ImageButton
+               android:padding="5dp"
+               android:layout_gravity="center"
+               android:id="@+id/decline_btn"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:layout_centerVertical="true"
+               android:background="@drawable/reject_background_button"
+               android:layout_toLeftOf="@+id/accept_button"
+               android:layout_marginLeft="5dp"
+               />
            <Button
                android:id="@+id/cancel_request"
-               android:layout_width="match_parent"
-               android:layout_height="25dp"
-               android:text="Cancel request"
+               android:layout_width="wrap_content"
+               android:layout_height="wrap_content"
+               android:text="Cancel"
                android:textColor="@color/white"
-               android:textSize="10sp"
-               android:background="@drawable/button_round_corner_purple"
-               android:layout_below="@+id/request_user_photo"
-               android:layout_marginLeft="120dp"
-               android:layout_marginRight="80dp"
-               android:layout_marginBottom="10dp"
-               android:padding="5dp"
-               android:elevation="5dp"
-               android:textStyle="bold"
-               android:visibility="gone"
+               android:textAllCaps="false"
+               android:layout_alignParentEnd="true"
+               android:layout_centerVertical="true"
+               android:layout_margin="10dp"
+               android:layout_toEndOf="@+id/user_name"
+               android:visibility="visible"
+               android:backgroundTint="@color/lightGrey"
                />
 
-       </RelativeLayout>
+    </RelativeLayout>
 
-    </androidx.cardview.widget.CardView>
-
-
-</RelativeLayout>

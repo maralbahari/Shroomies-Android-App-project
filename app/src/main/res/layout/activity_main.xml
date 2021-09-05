@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.mxn.soul.flowingdrawer_core.FlowingDrawer xmlns:android="http://schemas.android.com/apk/res/android"
+<com.mxn.soul.flowingdrawer_core.FlowingDrawer
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/drawerLayout"
@@ -9,15 +10,16 @@
     android:clipToPadding="false"
     app:edPosition="1"
     app:edMenuSize="260dp"
-    app:edMenuBackground="@color/LogoYellow"
+    app:edMenuBackground="@color/white"
     tools:context=".MainActivity"
-
-   >
+    >
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/root_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layout_constraintBottom_toBottomOf="parent">
+        app:layout_constraintBottom_toBottomOf="parent"
+        >
 
     <include
         android:id="@+id/include1"
@@ -46,18 +48,14 @@
             android:id="@+id/bottomNavigationView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:foregroundTint="@color/Timeberwolf"
-            app:itemIconTint="@android:color/black"
+            style="@style/Widget.MaterialComponents.BottomNavigationView.Colored"
+            app:itemIconTint="@color/jetBlack"
             android:background="@color/LogoYellow"
             android:layout_alignParentEnd="true"
-            app:itemTextColor="@android:color/black"
-            app:labelVisibilityMode="labeled"
-            android:textAlignment="center"
-
-            android:theme="@style/Theme.MaterialComponents"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:elevation="3dp"
+            app:itemPaddingBottom="0dp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="1.0"
             app:layout_constraintStart_toStartOf="parent"
             app:menu="@menu/bottom_nav_menu"/>
 
@@ -68,6 +66,7 @@
         android:layout_height="match_parent"
         android:fitsSystemWindows="true"
         android:layout_gravity="start"
+
         >
         <include
             android:id="@id/include"

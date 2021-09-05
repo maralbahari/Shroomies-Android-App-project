@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.shroomies">
+    package="com.example.shroomies"
+    >
+
+
+
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <!--
@@ -16,19 +20,20 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
 
+
+
+
     <application
         android:name=".Home"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:requestLegacyExternalStorage="true"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        android:usesCleartextTraffic="true">
-        <activity android:name=".SignUpPassword"></activity>
-        <activity android:name=".LoginPassword" />
-
+        android:requestLegacyExternalStorage="true"
+        android:usesCleartextTraffic="true"
+        >
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"
@@ -39,18 +44,15 @@
                 android:resource="@xml/provider_paths" />
         </provider>
 
-        <activity
-            android:name=".EditGroupInfo"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".MyShroomiesActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".GroupInfoActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".ImageViewPage"
-            android:screenOrientation="portrait" />
+
+        <activity android:name=".EditGroupInfo"
+            android:screenOrientation="portrait"></activity>
+        <activity android:name=".MyShroomiesActivity"
+            android:screenOrientation="portrait"></activity>
+        <activity android:name=".GroupInfoActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".ImageViewPage"
+            android:screenOrientation="portrait"/>
         <!--
                Set to true if your app is Standalone, that is, it does not require the handheld
                app to run.
@@ -68,43 +70,39 @@
             </intent-filter>
         </service>
 
-        <activity
-            android:name=".GroupChattingActivity"
+            <activity android:name=".GroupChattingActivity"
+                android:parentActivityName=".MessageInbox"
+                android:screenOrientation="portrait"
+                />
+
+
+        <activity android:name=".ChattingActivity"
             android:parentActivityName=".MessageInbox"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".ChattingActivity"
-            android:parentActivityName=".MessageInbox"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".ResetPassword"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".MainActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".SignUpActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".ApartmentViewPage"
+            android:screenOrientation="portrait"/>
+
+        <activity android:name=".ResetPassword"
+            android:screenOrientation="portrait"/>
+
+        <activity android:name=".MainActivity"
+            android:screenOrientation="portrait"/>
+
+        <activity android:name=".SignUpActivity"
+            android:screenOrientation="portrait"/>
+        <activity android:name=".ApartmentViewPage"
             android:parentActivityName=".MainActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".MessageInbox"
+            android:screenOrientation="portrait">
+        </activity>
+        <activity android:name=".MessageInbox"
             android:parentActivityName=".MainActivity"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".LoginActivity"
+            android:screenOrientation="portrait"/>
+
+        <activity android:name=".LoginActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".Favourites"
-            android:screenOrientation="portrait" />
 
         <meta-data
             android:name="com.google.android.gms.version"

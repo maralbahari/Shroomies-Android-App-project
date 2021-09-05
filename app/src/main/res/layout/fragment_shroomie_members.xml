@@ -8,34 +8,11 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
     >
-
-
-    <Button
-        android:id="@+id/add_shroomie_btn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-
-        android:layout_alignParentEnd="true"
-        android:layout_margin="10dp"
-        android:background="@drawable/round_rectangle_yellow"
-        android:minHeight="0dp"
-        android:paddingStart="10dp"
-        android:paddingTop="5dp"
-        android:paddingBottom="5dp"
-        android:paddingEnd="10dp"
-        android:text="Add shroomies"
-        android:textAllCaps="false"
-        android:textColor="@color/white"
-        android:textSize="12sp" />
-
-
         <RelativeLayout
             android:id="@+id/admin_details"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/white"
-            android:layout_below="@id/add_shroomie_btn"
-            android:layout_marginTop="10dp"
             android:elevation="1dp"
             android:orientation="horizontal">
 
@@ -45,33 +22,33 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
 
-                android:layout_margin="5dp"
+                android:layout_margin="10dp"
                 android:adjustViewBounds="true"
                 android:elevation="3dp"
                 android:maxWidth="50dp"
                 android:maxHeight="50dp"
-                android:src="@drawable/ic_user_profile_svgrepo_com" />
+                android:src="@drawable/ic_user_profile_svgrepo_com_40x40" />
 
             <TextView
                 android:id="@+id/admin_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_toEndOf="@+id/owner_image"
-                android:layout_toStartOf="@id/admin_text_view"
+                android:layout_toStartOf="@id/msg_admin"
+                android:layout_marginStart="5dp"
                 android:layout_centerVertical="true"
                 android:lines="1"
-                android:text="Name"
                 android:textColor="@color/jetBlack"/>
             <TextView
                 android:id="@+id/admin_text_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="15dp"
-                android:layout_marginEnd="15dp"
+                android:layout_marginEnd="17dp"
                 android:textSize="12sp"
                 android:layout_centerVertical="true"
                 android:layout_alignBottom="@id/admin_name"
-                android:layout_toStartOf="@id/msg_admin"
+                android:layout_alignParentEnd="true"
                 android:text="Admin" />
 
             <ImageButton
@@ -79,8 +56,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:layout_alignParentEnd="true"
                 android:layout_marginEnd="20dp"
+                android:layout_marginStart="10dp"
+                android:layout_toStartOf="@id/admin_text_view"
                 android:layout_gravity="center"
                 android:background="@color/white"
                 android:src="@drawable/ic_message"
@@ -95,9 +73,14 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@+id/admin_details"
+            android:layout_above="@id/leave_room_btn"
+            android:overScrollMode="never"
+            android:layoutAnimation="@anim/recycler_view_anim"
+
             />
 
-        <Button
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/leave_room_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -108,8 +91,10 @@
             android:layout_marginTop="20dp"
             android:layout_alignParentBottom="true"
             android:textAllCaps="false"
-            android:background="@color/canceRed"
-            android:textColor="@color/white"
+            android:insetBottom="0dp"
+            app:cornerRadius="0dp"
+            android:backgroundTint="@color/lightGrey"
+            android:textColor="@color/jetBlack"
             android:textSize="15sp"
             />
 

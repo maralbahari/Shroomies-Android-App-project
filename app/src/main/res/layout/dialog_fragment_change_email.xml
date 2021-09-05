@@ -1,108 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     tools:context=".ChangeEmailDialog">
 
-    <Button
-        android:id="@+id/exit_button"
-        android:layout_width="63dp"
+    <RelativeLayout
+        android:id="@+id/change_email_upper_page"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_marginStart="168dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="5dp"
-        android:layout_toEndOf="@id/text_current_email"
-        android:background="@drawable/publish_post_button"
-        android:minWidth="0dp"
-        android:minHeight="0dp"
-        android:padding="5dp"
-        android:text="Exit"
-        android:textAllCaps="false"
-        android:textColor="@color/white"
-        android:textSize="14sp"
-        android:textStyle="bold">
-
-    </Button>
-
-    <TextView
-        android:id="@+id/text_current_email"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="5dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginRight="10dp"
-        android:padding="20dp"
-        android:text="Current email:"
-        android:textColor="@color/Black"
-        android:textSize="20sp"
-        android:textStyle="bold"  />
-
-    <TextView
-        android:id="@+id/display_current_email"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/text_current_email"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginBottom="1dp"
-        android:padding="20dp"
-        android:text=""
-        android:textSize="20sp"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/text_new_email"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/display_current_email"
-        android:layout_marginStart="5dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginRight="10dp"
-        android:padding="20dp"
-        android:text="Enter a new email:"
-        android:textColor="@color/Black"
-        android:textSize="20sp"
-        android:textStyle="bold"/>
-
+        android:background="@color/LogoYellow">
+        <ImageButton
+            android:id="@+id/change_email_back_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:padding="5dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_arrow_back_"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="18sp"
+            android:text="Email"
+            android:layout_margin="10dp"
+            android:textColor="@color/jetBlack"
+            android:textStyle="bold"
+            android:layout_centerHorizontal="true"
+            />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/change_email_done_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:background="@android:color/transparent"
+            android:textColor="@color/white"
+            android:text="Done"
+            android:textSize="14sp"
+            android:textStyle="bold"/>
+    </RelativeLayout>
     <EditText
+        android:layout_below="@+id/change_email_upper_page"
         android:id="@+id/enter_new_email"
-        android:layout_width="wrap_content"
-        android:layout_height="80dp"
-        android:layout_below="@id/text_new_email"
-        android:layout_centerHorizontal="true"
-        android:layout_marginLeft="10dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginRight="10dp"
-        android:background="@drawable/textbox_round"
-        android:elevation="3dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:inputType="textEmailAddress"
-        android:padding="20dp"
-        android:textSize="20sp"
+        android:textSize="15sp"
+        android:hint="email"
+        android:background="@android:color/transparent"
+        android:layout_margin="10dp"
+        android:drawablePadding="5dp"
+        android:drawableEnd="@drawable/ic_close_logo_color"
         >
     </EditText>
-
-
-    <Button
-        android:id="@+id/change_email_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+    <View
         android:layout_below="@+id/enter_new_email"
-        android:layout_centerInParent="true"
-        android:layout_marginTop="30dp"
-        android:layout_marginBottom="30dp"
-        android:background="@drawable/publish_post_button"
-        android:padding="20dp"
-        android:text="Change Email"
-        android:textAllCaps="false"
-        android:textColor="@color/white"
-        android:textSize="20sp"
-        android:textStyle="bold">
-
-    </Button>
-
+        android:layout_width="match_parent"
+        android:layout_height="2dp"
+        android:alpha="0.6"
+        android:background="@color/lowerGradientColorForLoginBackground"/>
 </RelativeLayout>

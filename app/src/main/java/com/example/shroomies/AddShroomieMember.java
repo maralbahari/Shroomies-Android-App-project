@@ -3,6 +3,7 @@ package com.example.shroomies;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,7 +20,9 @@ import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkError;
 import com.android.volley.NoConnectionError;
@@ -34,20 +37,16 @@ import com.factor.bouncy.BouncyRecyclerView;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-
-import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.common.net.HttpHeaders;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -55,18 +54,16 @@ public class AddShroomieMember extends DialogFragment {
     //views
     private View v;
     private SearchView memberSearchView;
-    private BouncyRecyclerView addShroomieRecycler;
+    private RecyclerView addShroomieRecycler;
     private ImageButton closeButton;
-    private TextView infoTextView;
-    private TextView recommendedUsers;
     private RelativeLayout rootlayout;
+    private LottieAnimationView progressView;
     //firebase
     private FirebaseAuth mAuth;
     private RequestQueue requestQueue;
     //data
     private UserAdapter userRecyclerAdapter;
     private ArrayList<User> suggestedUser;
-    private ArrayList<String> inboxUser;
     private ShroomiesApartment apartment;
 
 
@@ -79,7 +76,7 @@ public class AddShroomieMember extends DialogFragment {
         if(getDialog()!=null) {
             getDialog().getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
             getDialog().getWindow().setBackgroundDrawableResource(R.drawable.create_group_fragment_background);
-            getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
+            getDialog().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
             getDialog().getWindow().setGravity(Gravity.BOTTOM);
         }
     }
@@ -105,20 +102,16 @@ public class AddShroomieMember extends DialogFragment {
         memberSearchView = v.findViewById(R.id.search_member);
         addShroomieRecycler = v.findViewById(R.id.add_member_recyclerview);
         closeButton = v.findViewById(R.id.close_button_add_shroomie);
-        infoTextView = v.findViewById(R.id.information_text_view);
-        recommendedUsers = v.findViewById(R.id.recommended_text_view);
+        TextView infoTextView = v.findViewById(R.id.information_text_view);
         rootlayout = v.findViewById(R.id.add_member_root_layout);
+        progressView = v.findViewById(R.id.search_user_progress_view);
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
         addShroomieRecycler.setHasFixedSize(true);
         addShroomieRecycler.setLayoutManager(linearLayoutManager);
 
-        closeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dismiss();
-            }
-        });
+        closeButton.setOnClickListener(v -> dismiss());
+
         if (getArguments()!=null){
             Bundle bundle = getArguments();
             apartment=bundle.getParcelable("APARTMENT_DETAILS");
@@ -145,17 +138,15 @@ public class AddShroomieMember extends DialogFragment {
 
     }
     void searchUsers(String query){
+        progressView.setVisibility(View.VISIBLE);
         if(!query.trim().isEmpty()){
             FirebaseUser firebaseUser = mAuth
                     .getCurrentUser();
-            firebaseUser.getIdToken(false)
+            firebaseUser.getIdToken(true)
                     .addOnCompleteListener(task -> {
                         if (task.isSuccessful()){
                             String token = task.getResult().getToken();
                             suggestedUser = new ArrayList<>();
-                            userRecyclerAdapter= new UserAdapter(suggestedUser,getContext(),true,apartment);
-                            userRecyclerAdapter.setHasStableIds(true);
-                            addShroomieRecycler.setAdapter(userRecyclerAdapter);
                             JSONObject jsonObject = new JSONObject();
                             JSONObject data =  new JSONObject();
                             try {
@@ -165,7 +156,7 @@ public class AddShroomieMember extends DialogFragment {
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }
-                            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_SEARCH_USERS, data, response -> {
+                            JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_SEARCH_USERS, data, response -> {
                                 try {
                                     JSONObject result = response.getJSONObject(Config.result);
                                     boolean success = result.getBoolean(Config.success);
@@ -183,14 +174,12 @@ public class AddShroomieMember extends DialogFragment {
 
                                     for(int i= 0 ;i< userArray.length();i++){
                                         try {
-
                                             JSONArray jsonArray =((JSONArray)(userArray.get(i)));
                                             //cast the first index as a json object and the second as a boolean value
                                             JSONObject userJsonObject = (JSONObject) jsonArray.get(0);
                                             boolean requestSent = (boolean)jsonArray.get(1);
                                             User user =mapper.readValue(userJsonObject.toString() , User.class);
                                             user.setRequestSent(requestSent);
-
                                             if(apartment.getApartmentMembers()!=null){
                                                 if(!apartment.getApartmentMembers().containsKey(user.getUserID())){
                                                     suggestedUser.add(user);
@@ -201,10 +190,17 @@ public class AddShroomieMember extends DialogFragment {
 
                                         } catch (JSONException | JsonProcessingException e) {
                                             e.printStackTrace();
-                                        }
+                                        }        progressView.setVisibility(View.GONE);
+
                                     }
-                                    userRecyclerAdapter.notifyDataSetChanged();
-                                    recommendedUsers.setVisibility(View.GONE);
+                                    if(suggestedUser.size()!=0){
+                                        userRecyclerAdapter= new UserAdapter(suggestedUser,getContext(),true,apartment);
+                                        userRecyclerAdapter.setHasStableIds(true);
+                                        addShroomieRecycler.setAdapter(userRecyclerAdapter);
+                                    }else{
+                                        Snackbar.make(rootlayout ,"No such user found" , Snackbar.LENGTH_SHORT).show();
+
+                                    }
 
                                 }else{
                                     String message = result.getString(Config.message);
@@ -212,10 +208,14 @@ public class AddShroomieMember extends DialogFragment {
                                 }
                                 } catch (JSONException e) {
                                     e.printStackTrace();
+                                    progressView.setVisibility(View.GONE);
+
                                 }
+                                progressView.setVisibility(View.GONE);
+
                             }, error -> {
                                 String message = null; // error message, show it in toast or dialog, whatever you want
-                                if (error instanceof NetworkError || error instanceof AuthFailureError || error instanceof NoConnectionError || error instanceof TimeoutError) {
+                                if (error instanceof NetworkError || error instanceof AuthFailureError || error instanceof TimeoutError) {
                                     message = "Cannot connect to Internet";
                                 } else if (error instanceof ServerError) {
                                     message = "The server could not be found. Please try again later";
@@ -244,17 +244,15 @@ public class AddShroomieMember extends DialogFragment {
         }
     }
     void displayErrorAlert(String title ,  String message ){
+        progressView.setVisibility(View.GONE);
         new AlertDialog.Builder(getActivity())
                 .setIcon(R.drawable.ic_alert)
                 .setTitle(title)
                 .setMessage(message)
                 .setCancelable(false)
-                .setNeutralButton("return", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        AddShroomieMember.this.getActivity().onBackPressed();
-                        dialog.dismiss();
-                    }
+                .setNeutralButton("Return", (dialog, which) -> {
+                    AddShroomieMember.this.getActivity().onBackPressed();
+                    dialog.dismiss();
                 })
                 .create()
                 .show();

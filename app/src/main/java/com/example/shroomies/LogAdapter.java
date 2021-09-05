@@ -36,7 +36,7 @@ import java.util.HashMap;
 
 public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
     private final Context context;
-    private final ArrayList<apartmentLogs> apartmentLogsList;
+    private final ArrayList<ApartmentLogs> apartmentLogsList;
     private final HashMap<String , User> usersMap;
     private Spannable cardName=new SpannableString("");
     private LogAdapterToMyshroomies logAdapterToMyshroomies;
@@ -46,13 +46,12 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
 
 
 
-    public LogAdapter(Context context, ArrayList<apartmentLogs> apartmentLogsList , HashMap<String , User> usersMap, FragmentManager fm, Fragment targetedFragment) {
+    public LogAdapter(Context context, ArrayList<ApartmentLogs> apartmentLogsList , HashMap<String , User> usersMap, FragmentManager fm, Fragment targetedFragment) {
         this.context = context;
         this.apartmentLogsList = apartmentLogsList;
         this.targetedFragment = targetedFragment;
         this.usersMap = usersMap;
         this.fm = fm;
-
 
     }
 
@@ -78,6 +77,7 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
                             .fitCenter()
                             .circleCrop()
                             .error(R.drawable.ic_user_profile_svgrepo_com)
+
                             .transition(DrawableTransitionOptions.withCrossFade()) //Here a fading animation
                             .into(holder.userPic);
                 }
@@ -87,17 +87,18 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
       String action= apartmentLogsList.get(position).getAction();
       String cardTitle= apartmentLogsList.get(position).getCardTitle();
       String removedUser= apartmentLogsList.get(position).getRemovedUser();
+      String cardType= apartmentLogsList.get(position).getCardType();
+      String cardID= apartmentLogsList.get(position).getCardID();
 
-      final String cardType= apartmentLogsList.get(position).getCardType();
-      final String cardID= apartmentLogsList.get(position).getCardID();
         DateTimeFormatter formatter = DateTimeFormatter
                 .ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
                 .withZone(ZoneOffset.UTC);
         ZonedDateTime now = ZonedDateTime.now(ZoneOffset.UTC).truncatedTo(ChronoUnit.SECONDS);
         String currentDateString = formatter.format(now);
 
-        final LocalDateTime secondDate = LocalDateTime.parse(apartmentLogsList.get(position).getWhen(), formatter);
         final LocalDateTime firstDate = LocalDateTime.parse(currentDateString  , formatter);
+        final LocalDateTime secondDate = LocalDateTime.parse(apartmentLogsList.get(position).getWhen(), formatter);
+
 
 
         final long days = ChronoUnit.DAYS.between(secondDate, firstDate);
@@ -120,11 +121,12 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
             }
         }
 
-            Spannable nameOfActor = new SpannableString(user.getName());
-            nameOfActor.setSpan(new ForegroundColorSpan(context.getColor(R.color.Black)), 0, nameOfActor.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            nameOfActor.setSpan(new StyleSpan(Typeface.BOLD),0,nameOfActor.length(),Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            holder.logMessage.setText(nameOfActor);
-
+            if(user!=null){
+                Spannable nameOfActor = new SpannableString(user.getName());
+                nameOfActor.setSpan(new ForegroundColorSpan(context.getColor(R.color.Black)), 0, nameOfActor.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                nameOfActor.setSpan(new StyleSpan(Typeface.BOLD),0,nameOfActor.length(),Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                holder.logMessage.setText(nameOfActor);
+            }
 
         ClickableSpan cardClick = new ClickableSpan() {
             @Override
@@ -166,91 +168,91 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
 
 
         switch (action){
-          case "deletingCard":
-              if(cardType.equals("tasks")){
-
+          case Config.deletingCard:
+              if(cardType.equals(Config.task)){
                   holder.logMessage.append(" deleted ");
                   holder.logMessage.append(cardName);
                   holder.logMessage.append(" from tasks");
-              }if(cardType.equals("expenses")){
+
+              }if(cardType.equals(Config.expenses)){
 
               holder.logMessage.append(" deleted ");
               holder.logMessage.append(cardName);
               holder.logMessage.append(" from expenses");
                   }
               break;
-          case "addingCard":
-              if(cardType.equals("tasks")){
+          case Config.addingCard:
+              if(cardType.equals(Config.task)){
                   holder.logMessage.append(" added a new task titled ");
                   holder.logMessage.append(cardName);
 
 
-              }if(cardType.equals("expenses")){
+              }if(cardType.equals(Config.expenses)){
               holder.logMessage.append(" added a new expense titled ");
               holder.logMessage.append(cardName);
                      }
 
               break;
-          case "archivingCard":
-              if(cardType.equals("tasks")){
+          case Config.archivingCard:
+              if(cardType.equals(Config.task)){
                   holder.logMessage.append(" archived ");
                   holder.logMessage.append(cardName);
                   holder.logMessage.append(" from tasks");
-              }if(cardType.equals("expenses")){
-              holder.logMessage.setText(nameOfActor);
+              }if(cardType.equals(Config.expenses)){
               holder.logMessage.append(" archived ");
               holder.logMessage.append(cardName);
               holder.logMessage.append(" from expenses");
                      }
               break;
-          case "deletingArchivedCard":
-                  if(cardType.equals("tasks")){
+          case Config.deletingArchivedCard:
+                  if(cardType.equals(Config.task)){
                       holder.logMessage.append(" deleted ");
                       holder.logMessage.append(cardName);
                       holder.logMessage.append(" from archived tasks");
 
-                  }if(cardType.equals("expenses")){
+                  }if(cardType.equals(Config.expenses)){
               holder.logMessage.append(" deleted ");
               holder.logMessage.append(cardName);
               holder.logMessage.append(" from archived expenses");
               }
               break;
-          case "markingDone":
-              if(cardType.equals("tasks")){
+          case Config.markingCard:
+              if(cardType.equals(Config.task)){
                   holder.logMessage.append(" marked ");
                   holder.logMessage.append(cardName);
                   holder.logMessage.append(" as done in tasks");
-              }if(cardType.equals("expenses")){
+              }if(cardType.equals(Config.expenses)){
               holder.logMessage.append(" marked ");
               holder.logMessage.append(cardName);
               holder.logMessage.append(" as done in expenses");
                  }
               break;
-          case "unMarkingDone":
-              if(cardType.equals("tasks")){
+          case Config.unMarkingCard:
+              if(cardType.equals(Config.task)){
                   holder.logMessage.append(" unmarked ");
                   holder.logMessage.append(cardName);
-                  holder.logMessage.append(" as done in tasks");
-              }if(cardType.equals("expenses")){
+                  holder.logMessage.append(" in tasks");
+              }if(cardType.equals(Config.expenses)){
               holder.logMessage.append(" unmarked ");
               holder.logMessage.append(cardName);
-              holder.logMessage.append(" as done in expenses");
+              holder.logMessage.append(" in expenses");
                    }
               break;
-          case "removing":
+          case Config.removed:
               holder.logMessage.append(" removed ");
               holder.logMessage.append(removedUser);
               break;
-          case "left":
-              holder.logMessage.append(" left ");
+          case Config.left:
+              holder.logMessage.setText(actorID);
+              holder.logMessage.append(" left");
               break;
-          case "joined":
+          case Config.joined:
               holder.logMessage.append(" is a new shroomie ");
               break;
           default:
               holder.logMessage.setText("");
-
       }
+
     }
 
 

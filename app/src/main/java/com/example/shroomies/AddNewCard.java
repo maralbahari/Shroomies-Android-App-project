@@ -27,6 +27,7 @@ import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -56,6 +57,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import com.google.android.material.chip.Chip;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.common.net.HttpHeaders;
@@ -63,6 +65,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 
 import com.hendraanggrian.appcompat.socialview.Mention;
@@ -106,12 +109,13 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                      PDF_PICK_CODE =500 ,DIALOG_RESULT=100;
     //views
     private View v;
-    private TextView   dueDatePlaceholder , expensePlaceholder , addCardTextView;
-    private RelativeLayout imageRelativeLayout, dueDateRelativeLayout, expenseRelativeLayout , addCardRelativeLayout , rootLayout;
+    private TextView addCardTextView;
+    private RelativeLayout imageRelativeLayout , addCardRelativeLayout , rootLayout;
     private ImageView selectedImageView;
     private EditText titleEditText, descriptionEditText;
     private SocialAutoCompleteTextView mentionAutoCompleteTextView;
     private RadioGroup cardColorRadioGroup;
+    private Chip dateChip,expenseChip;
     private LottieAnimationView loadingLottieAnimationView;
     //fireBase
     private FirebaseAuth mAuth;
@@ -124,7 +128,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
     //variables
     private ShroomiesApartment apartment;
     private boolean  expensesCardSelected;
-    private String fileExtension,captureFileName , fileType , dueDate;
+    private String fileExtension,captureFileName , fileType , dueDate ;
     private Uri chosenImageUri = null;
     //interface
     private CardUploaded cardUploaded;
@@ -152,7 +156,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        getDialog().getWindow().setWindowAnimations(R.style.DialogAnimation);
+        getDialog().getWindow().getAttributes().windowAnimations = R.style.DialogAnimation;
     }
 
     @Override
@@ -179,17 +183,13 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
         ImageButton closeImageButton = v.findViewById(R.id.x_button_new_card);
         Button splitExpensesButton = v.findViewById(R.id.split_expenses);
         addCardRelativeLayout = v.findViewById(R.id.my_shroomies_add_card_layout);
-        dueDatePlaceholder = v.findViewById(R.id.date_text_view);
-        dueDateRelativeLayout = v.findViewById(R.id.date_relative_layout);
-        expensePlaceholder  = v.findViewById(R.id.expenses_text_view);
-        expenseRelativeLayout = v.findViewById(R.id.expenses_relative_layout);
         selectedImageView = v.findViewById(R.id.attachment_image_view);
         imageRelativeLayout = v.findViewById(R.id.image_relative_layout);
         rootLayout = v.findViewById(R.id.add_new_card_root_layout);
         ImageButton deleteImageButton = v.findViewById(R.id.delete_attached_image);
-        ImageButton deleteDueDateImageButton = v.findViewById(R.id.remove_date_image_button);
-        ImageButton deleteExpenseImageButton = v.findViewById(R.id.remove_expense_image_button);
         loadingLottieAnimationView = v.findViewById(R.id.lottie_loading_animation);
+        dateChip = v.findViewById(R.id.date_chip);
+        expenseChip = v.findViewById(R.id.expense_chip);
 
         mentionAutoCompleteTextView.setMentionEnabled(true);
         mentionAutoCompleteTextView.setMentionColor(Color.BLUE);
@@ -205,6 +205,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
             apartment=bundle.getParcelable("APARTMENT_DETAILS");
             if(apartment.apartmentMembers!=null) {
                 apartmentMembersHashMap.putAll(apartment.getApartmentMembers());
+
             }
             getMemberUserNames(apartmentMembersHashMap);
             if (!expensesCardSelected) {
@@ -212,13 +213,16 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                 splitExpensesButton.setVisibility(View.GONE);
             }
         }
-        deleteDueDateImageButton.setOnClickListener(v -> {
-            dueDatePlaceholder.setText("");
-            dueDateRelativeLayout.setVisibility(View.GONE);
+
+        dateChip.setOnCloseIconClickListener(v -> {
+            dateChip.setText("");
+            dateChip.setVisibility(View.GONE);
+            dueDate=null;
         });
-        deleteExpenseImageButton.setOnClickListener(v -> {
+        expenseChip.setOnCloseIconClickListener(v -> {
             sharedAmountsHashMap = null;
-            expenseRelativeLayout.setVisibility(View.GONE);
+            expenseChip.setText("");
+            expenseChip.setVisibility(View.GONE);
         });
         splitExpensesButton.setOnClickListener(view14 -> {
             if(!apartmentMembersArrayList.isEmpty()) {
@@ -291,12 +295,13 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                         .withZone(TimeZone.getDefault().toZoneId());
                 Calendar c= Calendar.getInstance();
                 c.set(year1, month1,dayOfMonth);
+                DateTimeFormatter displayFormat =  DateTimeFormatter.ofPattern("EEE, MMM d")
+                        .withZone(TimeZone.getDefault().toZoneId());
 
 //                        ZonedDateTime zonedDateTime  = new ZonedDateTime(new LocalDateTime());
-                String sDate=dateformat.format(c.toInstant());
                 //set the visibility of the due date to visible
-                dueDateRelativeLayout.setVisibility(View.VISIBLE);
-                dueDatePlaceholder.setText(sDate);
+                dateChip.setVisibility(View.VISIBLE);
+                dateChip.setText(displayFormat.format(c.toInstant()));
                 dueDate = dateformat.format(c.toInstant());
 
             }, year, month, day);
@@ -324,6 +329,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
         }
         return mentionedUsers;
     }
+
 
 
     private boolean checkMentions() {
@@ -375,7 +381,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
         firebaseUser.getIdToken(true).addOnCompleteListener(task -> {
             if(task.isSuccessful()){
                 String token = task.getResult().getToken();
-                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.FUNCTION_GET_MEMBER_DETAIL, data, response -> {
+                JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_GET_MEMBER_DETAIL, data, response -> {
                     final ObjectMapper mapper = new ObjectMapper(); // jackson's objectmapper
 
                     try {
@@ -448,7 +454,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                     cardDetails.put("importance", importance);
                     cardDetails.put("date", currentDate);
                     cardDetails.put("cardID", "");
-                    cardDetails.put("done", "false");
+                    cardDetails.put("done", false);
                     cardDetails.put("mention", mMention);
                     cardDetails.put("actor", mAuth.getCurrentUser().getUid());
                     jsonObject.put("cardDetails", cardDetails);
@@ -467,14 +473,15 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                         String message = response.getJSONObject(Config.result).getString(Config.message);
                         if(success) {
                             String cardID = response.getJSONObject(Config.result).getString(Config.message);
-                            if (cardID != null) {
-                                TasksCard taskCard = new TasksCard(mdescription, mtitle, mdueDate, importance, currentDate, cardID, "false", new ObjectMapper().readValue(mMention.toString(), HashMap.class));
+                            if (!cardID.isEmpty()) {
+                                TasksCard taskCard = new TasksCard(mdescription, mtitle, mdueDate, importance, currentDate, cardID, false, new ObjectMapper().readValue(mMention.toString(), HashMap.class));
                                 cardUploaded.sendData(taskCard, null);
                                 dismiss();
                             }
                         }else{
                             Snackbar.make(rootLayout,message , BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.my_shroomies_add_text_view).show();
                             addCardTextView.setText("Add card");
+                            loadingLottieAnimationView.setVisibility(View.GONE);
                             addCardRelativeLayout.setClickable(true);
                         }
                     } catch (JSONException | JsonProcessingException e) {
@@ -482,7 +489,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                     }
 
                 }, error -> {
-                    Snackbar.make(getView(), "Couldn't add card , connection error", BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.my_shroomies_add_text_view).show();
+                    Snackbar.make(rootLayout, "Couldn't add card , connection error", BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.my_shroomies_add_text_view).show();
                     loadingLottieAnimationView.setVisibility(View.GONE);
                     addCardTextView.setText("Add card");
                     addCardRelativeLayout.setClickable(true);
@@ -510,13 +517,14 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
         });
     }
 
-    public void addExpenseCard(String title, String description, String dueDate, String attachUrl , String fileType, String importance, JSONObject mMention, String apartmentID, HashMap<String, Integer> shareAmounts) {
+    public void addExpenseCard(String title, String description, String dueDate, String attachUrl , String fileType, String importance, JSONObject mMention, String apartmentID, HashMap<String, Integer> shareAmounts , String fileName) {
        //get the authorization token
         //if authorization token is recived then proceed
         FirebaseUser firebaseUser = mAuth.getCurrentUser();
         firebaseUser.getIdToken(true).addOnCompleteListener(task -> {
             if(task.isSuccessful()) {
                 String token = task.getResult().getToken();
+                Toast.makeText(getActivity() , token , Toast.LENGTH_SHORT).show();
                 JSONObject jsonObject = new JSONObject();
                 JSONObject data = new JSONObject();
                 JSONObject cardDetails = new JSONObject();
@@ -530,10 +538,12 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                     cardDetails.put("dueDate", dueDate);
                     cardDetails.put("importance", importance);
                     cardDetails.put("attachedFile", attachUrl);
+
+                    cardDetails.put("fileName", fileName);
                     cardDetails.put("fileType", fileType);
                     cardDetails.put("date", dateFormat.format(ZonedDateTime.now()));
                     cardDetails.put("cardID", "");
-                    cardDetails.put("done", "false");
+                    cardDetails.put("done", false);
                     if(mMention!=null){
                         if(mMention.length()!=0){
                             cardDetails.put("mention", mMention);
@@ -541,7 +551,8 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                     }
                     cardDetails.put("actor", mAuth.getCurrentUser().getUid());
                     if (shareAmounts != null) {
-                        cardDetails.put("membersShares", shareAmounts);
+                        JSONObject sharedAmountsJson = new JSONObject(shareAmounts);
+                        cardDetails.put("membersShares", sharedAmountsJson);
                     }
                     jsonObject.put("cardDetails", cardDetails);
                     jsonObject.put("apartmentID", apartmentID);
@@ -551,24 +562,25 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                 }
                 //TODO add progress dialog
                 JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_ADD_EXPENSES_CARDS, data, response -> {
-                   try {
+                    try {
 
-                       boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
-                       String message = response.getJSONObject(Config.result).getString(Config.message);
-                       if(success){
-                           String cardID = response.getJSONObject(Config.result).getString(Config.message);
-                           ExpensesCard expensesCard = new ExpensesCard(attachUrl, description, title, dueDate, importance,fileType, cardID, "false", new ObjectMapper().readValue(mMention.toString(), HashMap.class), shareAmounts);
-                           cardUploaded.sendData(null, expensesCard);
-                           dismiss();
-                       }else{
-                           Snackbar.make(rootLayout,message , BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.my_shroomies_add_text_view).show();
-                           addCardTextView.setText("Add card");
-                           addCardRelativeLayout.setClickable(true);
-                       }
+                        boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
+                        String message = response.getJSONObject(Config.result).getString(Config.message);
+                        if(success){
+                            String cardID = response.getJSONObject(Config.result).getString(Config.message);
+                            ExpensesCard expensesCard = new ExpensesCard(attachUrl, description, title, dueDate, importance,fileType, cardID, false, new ObjectMapper().readValue(mMention.toString(), HashMap.class), shareAmounts);
+                            cardUploaded.sendData(null, expensesCard);
+                            dismiss();
+                        }else{
+                            Snackbar.make(rootLayout,message , BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.my_shroomies_add_text_view).show();
+                            addCardTextView.setText("Add card");
+                            loadingLottieAnimationView.setVisibility(View.GONE);
+                            addCardRelativeLayout.setClickable(true);
+                        }
 
-                   } catch (JsonProcessingException | JSONException e) {
-                       e.printStackTrace();
-                   }
+                    } catch (JsonProcessingException | JSONException e) {
+                        e.printStackTrace();
+                    }
                 }, error -> {
                     loadingLottieAnimationView.setVisibility(View.GONE);
                     addCardTextView.setText("Add card");
@@ -579,12 +591,12 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                     @Override
                     public Map<String, String> getHeaders() {
                         Map<String, String> params = new HashMap<>();
-                        params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
+                        params.put(HttpHeaders.CONTENT_TYPE, "application/json");
                         params.put(HttpHeaders.AUTHORIZATION,"Bearer "+token);
                         return params;
                     }
                 }
-                 ;
+                        ;
                 requestQueue.add(jsonObjectRequest);
             }else{
                 loadingLottieAnimationView.setVisibility(View.GONE);
@@ -600,13 +612,39 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
 
     public void uploadImgToFirebaseStorage( String title,  String description,  String dueDate,  String importance, Uri imgUri , JSONObject mMention, HashMap<String, Integer> sharedAmounts) {
 
+
+
         if (imgUri == null) {
-            addExpenseCard(title, description, dueDate, "" , "", importance, mMention,apartment.getApartmentID(),sharedAmounts);
+            addExpenseCard(title, description, dueDate, "" , "", importance, mMention,apartment.getApartmentID(),sharedAmounts , null);
         } else {
 
-            StorageReference filePath = mStorage.getReference().child(apartment.getApartmentID()).child("Card post image").child(imgUri.getLastPathSegment() + fileExtension);
-            filePath.putFile(imgUri).addOnCompleteListener(task -> task.getResult().getMetadata().getReference().getDownloadUrl().addOnSuccessListener(uri -> {
-                addExpenseCard(title, description, dueDate, uri.toString()  , fileType, importance, mMention,apartment.getApartmentID(),sharedAmounts);
+            //add the date to make the filename unique in the database
+            Date date = new Date();
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyMMddhhmmssMs");
+            String datetime = simpleDateFormat.format(date);
+
+            //get the file name
+            String fileNameWithoutExtension = new File(chosenImageUri.getPath()).getName();
+            //add the extension of the file name
+            String fileName = datetime+fileNameWithoutExtension +fileExtension;
+
+            String type =  null;
+            switch (fileType){
+                case "image":
+                     type = "image/jpg";
+                    break;
+                case "pdf":
+                     type = "application/pdf";
+                    break;
+            }
+
+            StorageMetadata metadata = new StorageMetadata.Builder()
+                    .setContentType(type)
+                    .build();
+
+            StorageReference filePath = mStorage.getReference().child(Config.expenseImages).child(apartment.getApartmentID()).child(fileName);
+            filePath.putFile(imgUri , metadata).addOnCompleteListener(task -> task.getResult().getMetadata().getReference().getDownloadUrl().addOnSuccessListener(uri -> {
+                addExpenseCard(title, description, dueDate, uri.toString()  , fileType, importance, mMention,apartment.getApartmentID(),sharedAmounts  ,fileName );
             })).addOnFailureListener(e -> {
                 loadingLottieAnimationView.setVisibility(View.GONE);
                 addCardTextView.setText("Add card");
@@ -620,7 +658,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
 
     private void showImagePickDialog() {
         String[] options = {"Gallery","PDF","Camera"};
-        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Choose file from");
         builder.setIcon(R.drawable.ic_shroomies_yelllow_black_borders);
         builder.setCancelable(true);
@@ -712,7 +750,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                         Date date = new Date();
                         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyMMddhhmmssMs");
                         String datetime = simpleDateFormat.format(date);
-                        captureFileName = datetime+ "newPhoto.jpg";
+                        captureFileName = datetime+ "newPhoto";
                         //TODO test
                         File file = new File(Environment.getExternalStorageDirectory(), captureFileName );
                         Uri uri = FileProvider.getUriForFile(getActivity(), getActivity().getPackageName() + ".provider", file);
@@ -735,43 +773,47 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
         getActivity();
         if (resultCode == Activity.RESULT_OK) {
             if (requestCode == CAMERA_REQUEST_CODE) {
+                //todo change deprecated method
                 File file = new File(Environment.getExternalStorageDirectory(), captureFileName);
                 //check the size of the file
-                if((file.length()/1048576)<= MAX_FILES_SIZE_IN_BYTES){
+                if ((file.length() / 1048576) <= MAX_FILES_SIZE_IN_BYTES) {
                     chosenImageUri = FileProvider.getUriForFile(getActivity(), getActivity().getPackageName() + ".provider", file);
                     fileExtension = ".jpg";
-                    fileType  = "image";
+                    fileType = "image";
                     addSelectedImageToImageView(chosenImageUri, false);
-                }else{
+                } else {
                     Snackbar.make(rootLayout, "This file is too large", BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.my_shroomies_add_text_view).show();
                 }
                 return;
             }
-            if (data.getData() != null) {
-                if (requestCode == IMAGE_PICK_GALLERY_CODE) {
-                    if (fileSizeIsAllowed(data)) {
-                        chosenImageUri = data.getData(); // load image from gallery
-                        fileExtension = ".jpg";
-                        fileType =  "image";
-                        addSelectedImageToImageView(chosenImageUri, false);
-                    } else {
-                        Snackbar.make(rootLayout, "This file is too large", BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.my_shroomies_add_text_view).show();
+            if(data!=null){
+                if (data.getData() != null) {
+                    if (requestCode == IMAGE_PICK_GALLERY_CODE) {
+                        if (fileSizeIsAllowed(data)) {
+                            chosenImageUri = data.getData(); // load image from gallery
+                            fileExtension = ".jpg";
+                            fileType = "image";
+                            addSelectedImageToImageView(chosenImageUri, false);
+
+                        } else {
+                            Snackbar.make(rootLayout, "This file is too large", BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.my_shroomies_add_text_view).show();
+                        }
                     }
-                }
-                if (requestCode == PDF_PICK_CODE) {
+                    if (requestCode == PDF_PICK_CODE) {
 
-                    if (fileSizeIsAllowed(data)) {
-                        chosenImageUri = data.getData();
-                        fileExtension = ".pdf";
-                        fileType = "pdf";
-                        addSelectedImageToImageView(chosenImageUri, true);
-                    } else {
-                        Snackbar.make(rootLayout, "This file is too large", BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.my_shroomies_add_text_view).show();
+                        if (fileSizeIsAllowed(data)) {
+                            chosenImageUri = data.getData();
+                            fileExtension = ".pdf";
+                            fileType = "pdf";
+                            addSelectedImageToImageView(chosenImageUri, true);
+                        } else {
+                            Snackbar.make(rootLayout, "This file is too large", BaseTransientBottomBar.LENGTH_LONG).setAnchorView(R.id.my_shroomies_add_text_view).show();
 
+                        }
                     }
-                }
 
-            }
+                }
+        }
         }
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -797,8 +839,8 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                 }
                 NumberFormat numberFormat = NumberFormat.getInstance();
                 numberFormat.setGroupingUsed(true);
-                expensePlaceholder.setText(numberFormat.format(totalAmount) + " RM");
-                expenseRelativeLayout.setVisibility(View.VISIBLE);
+                expenseChip.setText(numberFormat.format(totalAmount) + " RM");
+                expenseChip.setVisibility(View.VISIBLE);
             }
         }
     }
@@ -816,7 +858,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                     selectedImageView.setImageBitmap(bmp);
                     Glide.with(getActivity())
                             .load(bmp)
-                            .transform(new CenterCrop(),new RoundedCorners(5) )
+                            .transform(new CenterCrop(),new RoundedCorners(20) )
                             .error(R.drawable.ic_no_file_added)
                             .into(selectedImageView);
                 }else{
@@ -827,7 +869,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
             } else {
                 Glide.with(getActivity())
                         .load(uri)
-                        .transform(new CenterCrop(),new RoundedCorners(5) )
+                        .transform(new CenterCrop(),new RoundedCorners(20) )
                         .error(R.drawable.ic_no_file_added)
                         .into(selectedImageView);
             }
@@ -836,7 +878,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
     void displayErrorAlert(String title  , @Nullable VolleyError error ,@Nullable String errorMessage){
         String message = null; // error message, show it in toast or dialog, whatever you want
         if(error!=null) {
-            if (error instanceof NetworkError || error instanceof AuthFailureError || error instanceof NoConnectionError || error instanceof TimeoutError) {
+            if (error instanceof NetworkError || error instanceof AuthFailureError || error instanceof TimeoutError) {
                 message = "Cannot connect to Internet";
             } else if (error instanceof ServerError) {
                 message = "The server could not be found. Please try again later";

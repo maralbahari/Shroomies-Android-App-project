@@ -1,5 +1,6 @@
 package com.example.shroomies;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.view.LayoutInflater;
@@ -21,6 +22,7 @@ import com.android.volley.NoConnectionError;
 import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
+import com.android.volley.Response;
 import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
@@ -46,7 +48,7 @@ import java.util.Map;
 public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder> {
    private final ArrayList<User> userList;
    private final Context context;
-    private FirebaseAuth mAuth;
+   private FirebaseAuth mAuth;
    private boolean fromSearchMember =false;
    private RequestQueue requestQueue;
    private final ShroomiesApartment apartment;
@@ -72,7 +74,6 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         LayoutInflater layoutInflater = LayoutInflater.from(context);
         View v = layoutInflater.inflate(R.layout.send_request_card, parent, false);
         mAuth=FirebaseAuth.getInstance();
-//        mAuth.useEmulator("10.0.2.2" , 9099);
         requestQueue = Volley.newRequestQueue(context);
         return new UserViewHolder(v);
     }
@@ -87,30 +88,42 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                         .circleCrop()
                         .transition(DrawableTransitionOptions.withCrossFade()) //Here a fading animation
                         .into(holder.userImage);
-                holder.userImage.setPadding(2, 2, 2, 2);
             }
+        }
+        if(userList.get(position).getName()!=null){
+            holder.userName.setText(userList.get(position).getName());
+
         }
         if(!mAuth.getCurrentUser().getUid().equals(apartment.getAdminID())){
             holder.removeMember.setVisibility(View.INVISIBLE);
         }
         if(fromSearchMember){
-            holder.msgMember.setVisibility(View.GONE);
-            holder.removeMember.setVisibility(View.GONE);
-            holder.userName.setText(userList.get(position).getName());
-            holder.msgMember.setVisibility(View.GONE);
+            holder.msgMember.setVisibility(View.INVISIBLE);
+            holder.removeMember.setVisibility(View.INVISIBLE);
             holder.sendRequest.setVisibility(View.VISIBLE);
 
             if(userList.get(position).requestSent()){
                 holder.sendRequest.setClickable(false);
                 holder.sendRequest.setText("Sent!");
             }
-        }else{
-            if (userList.get(position).getUserID().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())){
-                holder.msgMember.setVisibility(View.INVISIBLE);
-                holder.removeMember.setVisibility(View.INVISIBLE);
-                holder.userName.setText("You");
-
+            if(userList.get(position).getUserID().equals(mAuth.getCurrentUser().getUid())){
+                holder.sendRequest.setClickable(false);
+                holder.sendRequest.setVisibility(View.GONE);
             }
+        }else{
+            if(apartment.getAdminID().equals(mAuth.getCurrentUser().getUid())){
+                holder.removeMember.setVisibility(View.VISIBLE);
+            }else{
+                holder.removeMember.setVisibility(View.INVISIBLE);
+                if (userList.get(position).getUserID().equals(FirebaseAuth.getInstance().getCurrentUser().getUid())){
+                    holder.msgMember.setVisibility(View.INVISIBLE);
+                    holder.userName.setText("You");
+                }else{
+                    holder.msgMember.setVisibility(View.VISIBLE);
+                }
+            }
+
+
 
         }
 
@@ -149,23 +162,36 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                 context.startActivity(intent);
             });
 
-            removeMember.setOnClickListener(view -> removeMember(apartment.getApartmentID() , getAdapterPosition()));
+            removeMember.setOnClickListener(v -> new AlertDialog.Builder(context)
+            .setIcon(R.drawable.ic_alert)
+            .setTitle("Remove member")
+            .setMessage("Are you sure you would like to remove this member?")
+            .setCancelable(true)
+            .setNegativeButton("Yes", (dialog, which) -> {
+                dialog.dismiss();
+                removeMember(apartment.getApartmentID() , getAdapterPosition());
+            })
+            .setPositiveButton("Cancel", (dialog, which) -> dialog.dismiss())
+            .create()
+            .show());
 
             sendRequest.setOnClickListener(v -> sendRequestToUser(userList.get(getAdapterPosition()).getUserID() , apartment.getApartmentID()));
 
         }
 
         private void removeMember(String apartmentID, int position) {
+            User removedUser = userList.remove(position);
+            notifyItemRemoved(position);
             FirebaseUser firebaseUser = mAuth.getCurrentUser();
-            firebaseUser.getIdToken(false).addOnCompleteListener(task -> {
+            firebaseUser.getIdToken(true).addOnCompleteListener(task -> {
                 if(task.isSuccessful()){
                     String token = task.getResult().getToken();
                     JSONObject jsonObject = new JSONObject();
                     JSONObject data = new JSONObject();
                     try {
-                        jsonObject.put("apartmentID" , apartmentID);
-                        jsonObject.put("userID" , userList.get(position).getUserID());
-                        data.put("data" , jsonObject);
+                        jsonObject.put(Config.apartmentID , apartmentID);
+                        jsonObject.put(Config.userID , removedUser.getUserID());
+                        data.put(Config.data , jsonObject);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -173,11 +199,13 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                         try {
                             boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
                             if(success){
-                                Snackbar snack=Snackbar.make(parentView,userList.get(getAdapterPosition()).getName()+" has been removed", BaseTransientBottomBar.LENGTH_SHORT);
+
+                                Snackbar snack=Snackbar.make(parentView,removedUser.getName()+" has been removed", BaseTransientBottomBar.LENGTH_SHORT);
                                 snack.show();
-                                userList.remove(position);
-                                notifyItemRemoved(position);
                             }else{
+                                //return the user back
+                                userList.add(removedUser);
+                                notifyDataSetChanged();
                                 Snackbar snack=Snackbar.make(parentView,"We encountered an error while deleting the user", BaseTransientBottomBar.LENGTH_SHORT);
                                 snack.show();
                             }
@@ -204,38 +232,52 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         }
 
         private void sendRequestToUser( String id , String  apartmentID) {
+            sendRequest.setText("Sending...");
+            sendRequest.setClickable(false);
             JSONObject  data = new JSONObject();
             JSONObject jsonObject = new JSONObject();
             try {
-                jsonObject.put("senderID" , mAuth.getCurrentUser().getUid());
-                jsonObject.put ("receiverID" , id);
-                jsonObject.put("apartmentID" , apartmentID);
-                data.put("data" , jsonObject);
+                jsonObject.put(Config.senderID, mAuth.getCurrentUser().getUid());
+                jsonObject.put (Config.receiverID, id);
+                jsonObject.put(Config.apartmentID , apartmentID);
+                data.put(Config.data , jsonObject);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
 
             FirebaseUser firebaseUser = mAuth.getCurrentUser();
-            firebaseUser.getIdToken(false).addOnCompleteListener(task -> {
+            firebaseUser.getIdToken(true).addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     String token = task.getResult().getToken();
                     JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_SEND_REQUEST, data, response -> {
 
                         try {
                             boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
-                            if(success){
+                            if (success) {
                                 sendRequest.setText("Sent!");
                                 sendRequest.setClickable(false);
-                            }else{
-                                Snackbar snack=Snackbar.make(parentView,"We encountered an error while sending the request", BaseTransientBottomBar.LENGTH_SHORT);
+                            } else {
+                                sendRequest.setText("Request");
+                                sendRequest.setClickable(true);
+
+                                Snackbar snack = Snackbar.make(parentView, "We encountered an error while sending the request", BaseTransientBottomBar.LENGTH_SHORT);
                                 snack.show();
                             }
                         } catch (JSONException e) {
                             e.printStackTrace();
+                            sendRequest.setClickable(true);
+                            sendRequest.setText("Request");
+
                         }
 
-                    }, error -> displayErrorAlert(error , null))
-                    {
+                    }, error -> {
+
+                        sendRequest.setText("Request");
+                        sendRequest.setClickable(true);
+
+                        displayErrorAlert(error , null);
+
+                    }) {
                         @Override
                         public Map<String, String> getHeaders()  {
                             Map<String, String> params = new HashMap<>();

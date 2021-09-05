@@ -14,16 +14,15 @@
             android:layout_width="match_parent"
             android:background="@android:color/transparent"
             android:layout_height="wrap_content">
+
             <ImageView
                 android:layout_height="wrap_content"
                 android:layout_width="wrap_content"
                 android:adjustViewBounds="true"
-                android:maxHeight="50dp"
-                android:maxWidth="50dp"
-                android:layout_margin="5dp"
+                android:layout_margin="10dp"
                 android:id="@+id/request_member_photo"
                 android:elevation="3dp"
-                android:src="@drawable/ic_user_profile_svgrepo_com"
+                android:src="@drawable/ic_user_profile_svgrepo_com_40x40"
                 />
 
             <TextView
@@ -31,31 +30,37 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
-                android:text="Name"
-                android:lines="1"
-
                 android:textColor="@color/jetBlack"
                 android:layout_toEndOf="@+id/request_member_photo"
                 android:layout_toStartOf="@id/msg_member"
+                android:layout_marginStart="5dp"
+                android:layout_marginEnd="5dp"
                 />
 
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/send_request_btn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/button_rounded_yello"
-                android:layout_alignParentRight="true"
-                android:layout_marginRight="10dp"
-                android:text="Send request"
-                android:textColor="@color/white"
+                android:layout_alignParentEnd="true"
                 android:layout_centerVertical="true"
-                android:minHeight="0dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="10dp"
                 android:minWidth="0dp"
-                android:padding="5dp"
-                android:drawablePadding="3dp"
+                android:minHeight="0dp"
+               android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+                android:text="Request"
                 android:textAllCaps="false"
-                android:drawableStart="@drawable/ic_request"
+                android:textColor="@color/jetBlack"
                 android:visibility="gone"
+                app:cornerRadius="30dp"
+                app:icon="@drawable/ic_request"
+                app:iconGravity="textStart"
+                app:iconPadding="4dp"
+                app:iconSize="15dp"
+                app:iconTint="@color/jetBlack"
                 />
 
             <ImageButton
@@ -64,9 +69,11 @@
                 android:layout_height="wrap_content"
                 android:layout_centerVertical="true"
                 android:layout_toStartOf="@id/remove_member"
-                android:layout_marginEnd="20dp"
+                android:layout_marginEnd="30dp"
                 android:background="@color/white"
                 android:src="@drawable/ic_message"
+                android:visibility="visible"
+                android:padding="10dp"
                />
 
             <ImageButton
@@ -78,7 +85,8 @@
                 android:layout_alignParentRight="true"
                 android:layout_centerVertical="true"
                 android:layout_marginEnd="20dp"
-
+                android:visibility="visible"
+                android:padding="10dp"
                 />
 
         </RelativeLayout>
