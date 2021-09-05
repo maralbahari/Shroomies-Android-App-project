@@ -4,6 +4,6 @@
     <item android:state_checked="true" android:drawable="@drawable/button_circle_timberwolf_small">
 
     </item>
-    <item android:state_checked="false" android:drawable="@drawable/button_round"/>
+    <item android:state_checked="false" android:drawable="@drawable/edit_text_bg"/>
 
 </selector>

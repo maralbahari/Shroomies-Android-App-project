@@ -1,163 +1,144 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.motion.widget.MotionLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/gradient_yellow_background"
     android:padding="@dimen/box_inset_layout_padding"
     app:layoutDescription="@xml/activity_login_scene"
     tools:context=".LoginActivity"
     tools:deviceIds="wear">
 
+    <TextView
+        android:id="@+id/login_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:fontFamily="@font/montserrat_bold"
+        android:text="@string/login"
+        android:layout_marginTop="20dp"
+        android:textSize="25sp"
+        />
 
     <ImageView
-        android:id="@+id/black_mashroom_logo"
-        android:layout_width="100dp"
-        android:layout_height="129dp"
+        android:id="@+id/black_shroomies_logo"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
         android:alpha="1.0"
-        android:foregroundGravity="center"
-        android:src="@drawable/black_mushroom"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteY="44dp" />
+        android:layout_marginTop="20dp"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/new_shroomies_black"
+        android:layout_below="@+id/login_textview"
+        tools:layout_editor_absoluteY="44dp"
+        android:contentDescription="@string/app_logo" />
 
-    <ImageView
-        android:id="@+id/shroomie_logo"
-        android:layout_width="0dp"
-        android:layout_height="46dp"
-        android:layout_marginStart="109dp"
-        android:layout_marginEnd="109dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/ic_shroomies_text"
-        tools:layout_editor_absoluteY="190dp" />
 
+    <TextView
+        android:id="@+id/enter_email_login"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:alpha="0.9"
+        android:layout_centerHorizontal="true"
+        android:text="@string/enter_your_email"
+        android:textAlignment="center"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:inputType="none"
+        android:layout_below="@+id/black_shroomies_logo"
+        app:layout_constraintVertical_bias="0.0" />
 
     <EditText
         android:id="@+id/email_login"
-        android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:layout_marginStart="50dp"
-        android:layout_marginTop="272dp"
-        android:layout_marginEnd="50dp"
-        android:background="@drawable/button_round"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/textbox_rectangle"
         android:drawableStart="@drawable/ic_email_edit_text"
         android:elevation="30dp"
         android:hint="   Email"
         android:padding="10dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:layout_below="@+id/enter_email_login"
+        android:inputType="textEmailAddress" />
 
-    <EditText
-        android:id="@+id/password_login"
-        android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:layout_marginStart="50dp"
-        android:layout_marginTop="40dp"
-        android:layout_marginEnd="50dp"
-        android:background="@drawable/button_round"
-        android:drawableStart="@drawable/ic_password_edit_text"
-        android:elevation="30dp"
-        android:hint="   Password"
-        android:inputType="textPassword"
-        android:padding="10dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/email_login" />
-
-
-    <TextView
-        android:id="@+id/sign_up_button"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-
-        android:gravity="center"
-        android:shadowColor="@android:color/black"
-        android:shadowDx="1"
-        android:shadowDy="1"
-        android:shadowRadius="2"
-        android:text="Sign up"
-        android:textAlignment="center"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-
-        app:layout_constraintBottom_toBottomOf="parent"/>
 
     <ImageButton
-        android:id="@+id/login_button"
-        android:elevation="5dp"
+        android:id="@+id/next_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
+        android:layout_marginTop="20dp"
+        android:elevation="30dp"
         android:background="@drawable/circle_white_button"
         android:src="@drawable/ic_yellow_arrow_icon"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.135"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/password_login" />
+        android:layout_below="@+id/email_login"
+        android:layout_centerHorizontal="true"
+        android:contentDescription="@string/forward_button" />
+
+    <LinearLayout
+        android:id="@+id/or_options"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:gravity="center"
+        android:weightSum="12"
+        android:layout_below="@+id/next_button"
+        >
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="2dp"
+            android:layout_weight="3"
+            android:background="@color/LogoYellow"
+            />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="6"
+            android:text="@string/or"
+            android:textStyle="bold"
+            android:textAlignment="center"
+            android:textSize="20sp" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="2dp"
+            android:layout_weight="3"
+            android:background="@color/LogoYellow" />
+
+    </LinearLayout>
 
     <Button
         android:id="@+id/google_sign_up"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="52dp"
-        android:layout_marginTop="142dp"
-        android:layout_marginEnd="52dp"
+        android:layout_width="wrap_content"
+        android:layout_height="60dp"
+        android:layout_marginTop="20dp"
         android:background="@drawable/textbox_round"
+        android:textColor="@color/jetBlack"
         android:drawableLeft="@drawable/google_icon"
         android:elevation="10dp"
-        android:gravity="center"
-        android:maxWidth="400dp"
+        android:textSize="17sp"
+        android:textAlignment="center"
+        android:layout_centerHorizontal="true"
+        android:textStyle="bold"
         android:padding="10dp"
-        android:text="   Continue with Google"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.428"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/password_login"
-        app:layout_constraintVertical_bias="0.0" />
+        android:text="@string/continue_with_google"
+        android:layout_below="@+id/or_options" />
+
 
     <TextView
-        android:id="@+id/forgot_password_login"
-        android:layout_width="155dp"
+        android:id="@+id/signup_button"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="131dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginEnd="131dp"
-        android:layout_marginBottom="170dp"
-        android:alpha="0.9"
-        android:gravity="center"
-        android:text="Forgot Password ?"
+        android:layout_marginBottom="15dp"
+        android:text="@string/new_user"
         android:textAlignment="center"
-        android:textColor="@android:color/primary_text_light"
-        android:textSize="15sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/login_button"
-        app:layout_constraintVertical_bias="0.0" />
-
-<!--    <progress-->
-<!--        android:id="@+id/progressBar_login"-->
-<!--        style="?android:attr/progressBarStyle"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginTop="32dp"-->
-<!--        android:layout_marginBottom="5dp"-->
-<!--        android:visibility="gone"-->
-<!--        app:layout_constraintBottom_toTopOf="@+id/forgot_password_login"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintHorizontal_bias="0.305"-->
-<!--        app:layout_constraintStart_toEndOf="@+id/login_button"-->
-<!--        app:layout_constraintTop_toBottomOf="@+id/password_login"-->
-<!--        app:layout_constraintVertical_bias="0.0" />-->
+        android:textSize="18sp"
+        android:padding="5dp"
+        android:textStyle="bold"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"/>
 
 
-</androidx.constraintlayout.motion.widget.MotionLayout>
+</RelativeLayout>
