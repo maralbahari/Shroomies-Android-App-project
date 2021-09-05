@@ -68,6 +68,9 @@
             android:name=".GroupChattingActivity"
             android:parentActivityName=".MessageInbox"
             android:screenOrientation="portrait" />
+        <activity android:name=".RequestActivity"
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait"/>
         <activity
             android:name=".ChattingActivity"
             android:parentActivityName=".MessageInbox"
