@@ -16,53 +16,41 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class ResetPassword extends AppCompatActivity {
-    EditText enter_Email;
-    Button btn_ResetPw;
-    Button btn_Back;
+    EditText enterEmail;
+    Button resetButton;
     FirebaseAuth mAuth;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reset_password);
-        enter_Email = (EditText) findViewById(R.id.edt_reset_email);
-        btn_ResetPw = (Button) findViewById(R.id.btn_reset_password);
-        btn_Back = (Button) findViewById(R.id.btn_back);
+
+        enterEmail = (EditText) findViewById(R.id.edt_reset_email);
+        resetButton = (Button) findViewById(R.id.btn_reset_password);
         mAuth = FirebaseAuth.getInstance();
 
-        btn_ResetPw.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        resetButton.setOnClickListener(v -> {
 
-                String email = enter_Email.getText().toString();
+            String email = enterEmail.getText().toString();
 
-                if (TextUtils.isEmpty(email)) {
-                    Toast.makeText(getApplicationContext(), "Enter your email!", Toast.LENGTH_SHORT).show();
-                    return;
+            //check if fields are filled
+            if (TextUtils.isEmpty(email)) {
+                Toast.makeText(getApplicationContext(), "Enter your email!", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            mAuth.sendPasswordResetEmail(email).addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    Toast.makeText(ResetPassword.this, "Check email for password reset instructions!", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                    startActivity(intent);
                 }
-
-                mAuth.sendPasswordResetEmail(email)
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isSuccessful()) {
-                                    Toast.makeText(ResetPassword.this, "Check email for password reset instructions!", Toast.LENGTH_SHORT).show();
-
-                                } else {
-                                    Toast.makeText(ResetPassword.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        });
-            }
+                else {
+                    Toast.makeText(ResetPassword.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                }
+            });
         });
 
-        btn_Back.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getApplication(),LoginActivity.class);
-                startActivity(intent);
-                finish();
-            }
-        });
     }
 
 }

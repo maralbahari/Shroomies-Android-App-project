@@ -38,7 +38,17 @@
     <string name="attachment_summary_on">Automatically download attachments for incoming emails
     </string>
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
-
+    <string name="continue_with_google">Continue with Google</string>
+    <string name="new_user">New user? Sign up here</string>
+    <string name="login">LOGIN</string>
+    <string name="app_logo">App logo</string>
+    <string name="forward_button">forward button</string>
+    <string name="or">OR</string>
+    <string name="enter_your_email">Enter your email</string>
+    <string name="sign_up">Sign up</string>
+    <string name="enter_your_password">Enter your password</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name="email">Email</string>
 
 
 </resources>

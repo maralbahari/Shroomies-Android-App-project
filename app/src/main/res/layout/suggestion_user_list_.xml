@@ -30,7 +30,7 @@
             android:layout_alignParentStart="true"
            android:layout_margin="5dp"
             app:srcCompat="@drawable/ic_user_profile_small"
-            android:background="@drawable/button_round"
+            android:background="@drawable/edit_text_bg"
             android:elevation="3dp"
             />
 
@@ -72,7 +72,7 @@
             android:layout_margin="2dp"
             android:layout_below="@id/suggestion_list_username"
             android:layout_alignParentRight="true"
-            android:background="@drawable/button_round"
+            android:background="@drawable/edit_text_bg"
             android:elevation="1dp"
            android:padding="5dp"
             android:visibility="gone"
