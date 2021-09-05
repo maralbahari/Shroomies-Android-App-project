@@ -1,125 +1,105 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/transparent"
-   >
+    android:background="@android:color/transparent">
+    <RelativeLayout
+        android:id="@+id/upper_page_drawer"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="@color/LogoYellow">
+        <ImageView
+            android:id="@+id/drawer_nav_profile_pic"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:background="@drawable/circle_white_button_small"
+            android:adjustViewBounds="true"
+            android:layout_margin="20dp"
+            android:elevation="3dp"
+            android:src="@drawable/ic_user_profile_svgrepo_com"
+            />
 
-            <ImageView
-                android:id="@+id/drawer_nav_profile_pic"
-                app:layout_constraintLeft_toLeftOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
-                android:background="@drawable/circle_white_button_small"
-                android:adjustViewBounds="true"
-                android:layout_marginTop="10dp"
-                android:layout_marginStart="10dp"
+        <TextView
+            android:id="@+id/drawer_nav_profile_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_toEndOf="@+id/drawer_nav_profile_pic"
+            android:text="Profile Name"
+            android:textSize="18sp"
+            android:layout_marginStart="3dp"
+            android:textColor="@color/jetBlack"
+            />
+        <View
+            android:id="@+id/seperator"
+            android:layout_width="match_parent"
+            android:layout_marginRight="50dp"
+            android:layout_marginLeft="50dp"
+            android:layout_height="1dp"
+            android:layout_marginTop="20dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/divider"
+            />
 
-
-                android:elevation="3dp"
-                android:src="@drawable/ic_user_profile_svgrepo_com"
-               />
-
-    <TextView
-        android:id="@+id/drawer_nav_profile_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
-        android:text="Profile Name"
-        android:textSize="18sp"
-        android:layout_marginStart="10dp"
-        android:textColor="@color/jetBlack"
-        app:layout_constraintStart_toEndOf="@id/drawer_nav_profile_pic"
-        app:layout_constraintTop_toTopOf="@+id/drawer_nav_profile_pic"
-        />
-
-    <View
-        android:id="@+id/seperator"
-        android:layout_width="0dp"
-        android:layout_height="1dp"
-        android:layout_marginEnd="40dp"
-        android:layout_marginStart="40dp"
-        android:layout_marginTop="20dp"
-
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/drawer_nav_profile_pic"
-        android:background="@drawable/divider"
-
-        />
-
-
+    </RelativeLayout>
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/seperator"
+        android:layout_below="@+id/upper_page_drawer"
         android:layout_marginTop="15dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-
-        <Button
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/my_requests_menu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/my_requests_menu"
-            android:text="Requests"
             android:background="@android:color/transparent"
             android:padding="10dp"
+            android:text="Requests"
+            android:textAlignment="textStart"
             android:textAllCaps="false"
-            android:gravity="center"
-            android:drawablePadding="10dp"
             android:textColor="@color/jetBlack"
+            app:icon="@drawable/ic_request_new"
+            app:iconTint="@color/LogoYellow"
+            app:iconPadding="15dp"
+             />
 
-            />
-        <Button
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/my_favorite_menu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/my_favorite_menu"
-            android:drawableStart="@drawable/ic_heart_filled"
-            android:text="Favorites"
             android:layout_below="@id/my_requests_menu"
             android:background="@android:color/transparent"
             android:padding="10dp"
+            android:text="Favorites"
+            android:textAlignment="textStart"
             android:textAllCaps="false"
-            android:gravity="center"
-            android:drawablePadding="10dp"
+            app:icon="@drawable/ic_favourite_new_icon"
+            app:iconTint="@color/LogoYellow"
+            app:iconPadding="15dp"
             android:textColor="@color/jetBlack"
-
-            />
-
-        <Button
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:drawableStart="@drawable/ic_my_archive_"
-            android:text="Archive"
-            android:id="@+id/my_archive_menu"
-            android:layout_below="@id/my_favorite_menu"
-            android:background="@android:color/transparent"
-            android:padding="10dp"
-            android:textAllCaps="false"
-            android:gravity="center"
-            android:drawablePadding="10dp"
-            android:textColor="@color/jetBlack"
-            />
-        <Button
+             />
+        <com.google.android.material.button.MaterialButton
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:drawableStart="@drawable/ic_log_out_"
             android:text="Log out"
+            android:textAlignment="textStart"
             android:id="@+id/logout"
-            android:layout_below="@id/my_archive_menu"
+            android:layout_below="@id/my_favorite_menu"
             android:background="@android:color/transparent"
             android:padding="10dp"
             android:textAllCaps="false"
-            android:gravity="center"
             android:textColor="@color/jetBlack"
             android:drawablePadding="10dp"
+            app:icon="@drawable/ic_logout_new"
+            app:iconPadding="15dp"
+            app:iconTint="@color/LogoYellow"
             />
-        
-        
     </RelativeLayout>
     
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</RelativeLayout>
