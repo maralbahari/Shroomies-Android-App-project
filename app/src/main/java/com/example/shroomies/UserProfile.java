@@ -31,10 +31,11 @@ import java.util.List;
 
 
 public class UserProfile extends Fragment {
-    private TextView viewUsername;
+    private TextView textViewName;
     private TextView viewBio;
     private TextView numberPosts;
     private ImageView profileImage;
+    private TextView textViewUsername;
     private FirebaseAuth mAuth;
     private DatabaseReference rootRef;
     private FirebaseFirestore mDocRef;
@@ -69,8 +70,9 @@ public class UserProfile extends Fragment {
         mAuth = FirebaseAuth.getInstance();
         Button editProfile = v.findViewById(R.id.edit_profile_button);
         profileImage = v.findViewById(R.id.user_profile_image_view);
-        viewUsername = v.findViewById(R.id.user_profile_view_username);
+        textViewName = v.findViewById(R.id.user_profile_text_view_name);
         viewBio = v.findViewById(R.id.user_profile_view_bio);
+        textViewUsername=v.findViewById(R.id.user_profile_username_text_view);
         TabLayout profileTab = v.findViewById(R.id.user_profile_tab_layout);
         numberPosts = v.findViewById(R.id.number_posts);
         recyclerView = v.findViewById(R.id.recycler_view);
@@ -176,7 +178,8 @@ public class UserProfile extends Fragment {
                 if(snapshot.exists()) {
                      user = snapshot.getValue(User.class);
                      if (user!=null) {
-                         viewUsername.setText(user.getUsername());
+                         textViewName.setText(user.getName());
+                         textViewUsername.setText(user.getUsername());
                          if (!user.getBio().equals("")) {
                              viewBio.setText(user.getBio());
                          }

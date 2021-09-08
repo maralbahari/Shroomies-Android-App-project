@@ -24,26 +24,32 @@
                 android:src="@drawable/ic_user_profile_svgrepo_com">
             </ImageView>
             <TextView
-                android:id="@+id/user_profile_view_username"
+                android:id="@+id/user_profile_text_view_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/user_profile_image_view"
                 android:layout_marginLeft="15dp"
-                android:shadowColor="@color/jetBlack"
-                android:shadowDx="1"
-                android:shadowDy="1"
-                android:shadowRadius="1.5"
-                android:text="Username"
+                android:text="name"
                 android:textColor="@color/jetBlack"
-                android:textSize="15sp">
-
+                android:textSize="14sp">
             </TextView>
-
+            <TextView
+                android:id="@+id/user_profile_username_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/jetBlack"
+                android:text="Username"
+                android:layout_toEndOf="@id/user_profile_image_view"
+                android:layout_toStartOf="@+id/user_profile_post_icon"
+                android:layout_marginEnd="20dp"
+                android:layout_marginTop="20dp"
+                android:textStyle="bold"
+                android:textSize="18sp"/>
             <TextView
                 android:id="@+id/user_profile_view_bio"
                 android:layout_width="200dp"
                 android:layout_height="wrap_content"
-                android:layout_below="@+id/user_profile_view_username"
+                android:layout_below="@+id/user_profile_text_view_name"
                 android:layout_marginLeft="15dp"
                 android:layout_marginTop="3dp"
                 android:maxLength="150"

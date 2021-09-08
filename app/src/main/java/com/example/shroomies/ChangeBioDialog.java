@@ -9,18 +9,12 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.DialogFragment;
-
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputLayout;
@@ -104,31 +98,31 @@ public class ChangeBioDialog extends DialogFragment {
             }
         } else {
 //            todo handle error when bundle is null
+            closeKeyboard();
             dismiss();
 
         }
-        newBio.setEndIconOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                newBio.getEditText().setText("");
-            }
-        });
+        newBio.setEndIconOnClickListener(view1 -> newBio.getEditText().setText(""));
         doneButton.setOnClickListener(v -> {
-            FirebaseUser firebaseUser= mAuth.getCurrentUser();
-            if (firebaseUser!=null) {
-                String txtBio = newBio.getEditText().getText().toString().trim();
-                    if (txtBio.equals(user.getBio())) {
-                        Toast.makeText(getContext(),"No changes have been made",Toast.LENGTH_SHORT).show();
-                    } else {
+            String txtBio = newBio.getEditText().getText().toString().trim();
+            if(txtBio.equals(user.getBio())){
+                newBio.setError("No changes have been made");
+            } else{
+                newBio.setError(null);
+                FirebaseUser firebaseUser= mAuth.getCurrentUser();
+                if (firebaseUser!=null) {
                         updateBio(txtBio);
-                    }
+
+                }
             }
+
         });
         backButton.setOnClickListener(v -> {
             if (!user.getBio().equals(newBio.getEditText().getText().toString())) {
 //                    todo alert for unsaved changes
                 Toast.makeText(getContext(),"unSaved Changes",Toast.LENGTH_LONG).show();
             } else {
+                closeKeyboard();
                 dismiss();
             }
         });
