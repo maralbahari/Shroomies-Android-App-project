@@ -33,6 +33,7 @@ import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
+import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -48,17 +49,18 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Objects;
 
-public class EditProfile extends DialogFragment implements ChangeBioDialog.bio, ChangeEmailDialog.email, ChangeUsernameDialog.name{
+public class EditProfile extends DialogFragment implements ChangeBioDialog.bio, ChangeEmailDialog.email, ChangeUsernameDialog.username {
 
     private View v;
     private ImageView profileImage;
-    private TextView username, email, bio;
+    private TextView nameTxtView, emailTxtView, bioTxt;
     private FirebaseAuth mAuth;
     private DatabaseReference rootRef;
     private StorageReference storageRef;
     private StorageTask uploadTask;
     private CustomLoadingProgressBar customLoadingProgressBar;
     private User user;
+    private MaterialButton changeUserNameButton;
     private static final int IMAGE_REQUEST= 1;
     public static final int DIALOG_FRAGMENT_REQUEST_CODE = 2;
 
@@ -94,13 +96,14 @@ public class EditProfile extends DialogFragment implements ChangeBioDialog.bio, 
         customLoadingProgressBar.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         profileImage = v.findViewById(R.id.edit_profile_image_view);
         ImageButton editImage = v.findViewById(R.id.change_profile_picture);
-        username = v.findViewById(R.id.edit_username);
-        email = v.findViewById(R.id.edit_email);
+        nameTxtView = v.findViewById(R.id.edit_username);
+        emailTxtView = v.findViewById(R.id.edit_email);
+        changeUserNameButton = v.findViewById(R.id.change_username_button);
         Button changePassword = v.findViewById(R.id.change_password);
-        bio = v.findViewById(R.id.edit_bio);
+        bioTxt = v.findViewById(R.id.edit_bio);
         LinearLayout changeBio = v.findViewById(R.id.bio_linear);
         LinearLayout changeEmail = v.findViewById(R.id.email_linear);
-        LinearLayout changeUsername = v.findViewById(R.id.name_linear);
+        LinearLayout changeName = v.findViewById(R.id.name_linear);
         Button deleteAccount = v.findViewById(R.id.delete_account_button);
         Button cancle = v.findViewById(R.id.edit_profile_cancel);
         Button done = v.findViewById(R.id.edit_profile_done);
@@ -117,8 +120,19 @@ public class EditProfile extends DialogFragment implements ChangeBioDialog.bio, 
                 changeBioDialog.setTargetFragment(EditProfile.this,DIALOG_FRAGMENT_REQUEST_CODE );
                 changeBioDialog.show(getParentFragmentManager() ,null);
             });
+            changeName.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    ChangeNameDialogFragment changeNameDialogFragment=new ChangeNameDialogFragment();
+                    Bundle bundle=new Bundle();
+                    bundle.putParcelable("USER",user);
+                    changeNameDialogFragment.setArguments(bundle);
+                    changeNameDialogFragment.setTargetFragment(EditProfile.this,DIALOG_FRAGMENT_REQUEST_CODE );
+                    changeNameDialogFragment.show(getParentFragmentManager() ,null);
+                }
+            });
 
-            changeUsername.setOnClickListener(v -> {
+            changeUserNameButton.setOnClickListener(v -> {
                 ChangeUsernameDialog changeUsernameDialog = new ChangeUsernameDialog();
                 Bundle bundle=new Bundle();
                 bundle.putParcelable("USER",user);
@@ -262,10 +276,11 @@ public class EditProfile extends DialogFragment implements ChangeBioDialog.bio, 
                     user=task.getResult().getValue(User.class);
                     if (user!=null) {
                         if (!user.getBio().equals("")) {
-                            bio.setText(user.getBio());
+                            bioTxt.setText(user.getBio());
                         }
-                        username.setText(user.getName());
-                        email.setText(user.getEmail());
+                        nameTxtView.setText(user.getName());
+                        changeUserNameButton.setText("@"+user.getName());
+                        emailTxtView.setText(user.getEmail());
                         if (user.getImage()!=null) {
                             GlideApp.with(getActivity().getApplicationContext())
                                     .load(user.getImage())
@@ -292,17 +307,17 @@ public class EditProfile extends DialogFragment implements ChangeBioDialog.bio, 
 
     @Override
     public void sendBioBack(String bioTxt) {
-        bio.setText(bioTxt);
+        this.bioTxt.setText(bioTxt);
     }
 
     @Override
     public void sendEmailBack(String emailTxt) {
-        email.setText(emailTxt);
+        emailTxtView.setText(emailTxt);
     }
 
     @Override
-    public void sendNameBack(String nameTxt) {
-        username.setText(nameTxt);
+    public void sendUserNameBack(String nameTxt) {
+        nameTxtView.setText(nameTxt);
     }
 }
 

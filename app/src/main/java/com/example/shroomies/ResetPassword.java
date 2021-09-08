@@ -2,67 +2,63 @@ package com.example.shroomies;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.airbnb.lottie.LottieAnimationView;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class ResetPassword extends AppCompatActivity {
-    EditText enter_Email;
-    Button btn_ResetPw;
-    Button btn_Back;
-    FirebaseAuth mAuth;
+    private TextInputLayout emailPasswordRecoveryButton;
+    private LottieAnimationView loadingAnimationView;
+    private FirebaseAuth mAuth;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reset_password);
-        enter_Email = (EditText) findViewById(R.id.edt_reset_email);
-        btn_ResetPw = (Button) findViewById(R.id.btn_reset_password);
-        btn_Back = (Button) findViewById(R.id.btn_back);
+        emailPasswordRecoveryButton = findViewById(R.id.email_password_recovery);
+        MaterialButton sendEmailButton = findViewById(R.id.send_password_recovery_button);
+        loadingAnimationView = findViewById(R.id.reset_password_loading_animation_view);
         mAuth = FirebaseAuth.getInstance();
 
-        btn_ResetPw.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        Toolbar toolbar = findViewById(R.id.password_recovery_tool_bar);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setTitle(null);
+        toolbar.setNavigationOnClickListener(view -> onBackPressed());
 
-                String email = enter_Email.getText().toString();
 
-                if (TextUtils.isEmpty(email)) {
-                    Toast.makeText(getApplicationContext(), "Enter your email!", Toast.LENGTH_SHORT).show();
-                    return;
-                }
+        sendEmailButton.setOnClickListener(v -> {
 
+            String email = emailPasswordRecoveryButton.getEditText().getText().toString().trim();
+            if(!validEmail(email)) {
+                emailPasswordRecoveryButton.setError("Please enter valid email");
+            }else {
+                emailPasswordRecoveryButton.setError(null);
+                loadingAnimationView.setVisibility(View.VISIBLE);
                 mAuth.sendPasswordResetEmail(email)
-                        .addOnCompleteListener(new OnCompleteListener<Void>() {
-                            @Override
-                            public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isSuccessful()) {
-                                    Toast.makeText(ResetPassword.this, "Check email for password reset instructions!", Toast.LENGTH_SHORT).show();
-
-                                } else {
-                                    Toast.makeText(ResetPassword.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
-                                }
+                        .addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                Toast.makeText(ResetPassword.this, "Check email for password reset instructions!", Toast.LENGTH_SHORT).show();
+                                Intent intent = new Intent(ResetPassword.this , LoginActivity.class);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                startActivity(intent);
+                            } else {
+                                Toast.makeText(ResetPassword.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
                             }
+                            loadingAnimationView.setVisibility(View.GONE);
                         });
             }
+
         });
 
-        btn_Back.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(getApplication(),LoginActivity.class);
-                startActivity(intent);
-                finish();
-            }
-        });
+    }
+    private boolean validEmail(String enteredEmail){
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(enteredEmail).matches();
     }
 
 }

@@ -5,21 +5,24 @@
         android:id="@+id/find_roomie_menu"
         android:icon="@drawable/ic_find_roommie_"
         android:title="@null"
+        app:showAsAction="always"
+        android:checkable="true"
+        android:iconTintMode="src_over"
  />
     <item
         android:id="@+id/publish_post_menu"
-android:title="@null"
-
-
+        android:title="@null"
         android:icon="@drawable/ic_publish_post_"
          />
-
-
 
     <item
         android:id="@+id/user_profile_menu"
         android:title="@null"
         android:icon="@drawable/ic_user_profile_"
-       />
+        app:showAsAction="always"
+        android:checkable="true"
+        android:iconTintMode="src_over"
+
+        />
 
 </menu>

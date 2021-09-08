@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
     tools:context=".ChangeEmailDialog">
     <RelativeLayout
         android:id="@+id/change_bio_upper_page"
@@ -27,7 +27,7 @@
             android:id="@+id/text_current_bio"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Bio"
+            android:text="Edit Bio"
             android:layout_margin="10dp"
             android:layout_centerHorizontal="true"
             android:textColor="@color/Black"
@@ -46,38 +46,41 @@
             android:textStyle="bold">
         </com.google.android.material.button.MaterialButton>
     </RelativeLayout>
-
-    <EditText
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/enter_new_bio"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_margin="10dp"
         android:layout_below="@id/change_bio_upper_page"
-        android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
+        app:boxBackgroundMode="filled"
+        app:boxStrokeColor="@color/white"
+        app:boxStrokeWidth="2dp"
+        android:layout_marginStart="10dp"
         android:layout_marginEnd="10dp"
-        android:layout_marginBottom="10dp"
-        android:background="@android:color/transparent"
-        android:drawableEnd="@drawable/ic_close_logo_color"
-        android:drawablePadding="5dp"
-        android:focusable="true"
-        android:inputType="text|textImeMultiLine"
-        android:lines="5"
-        android:maxLength="100"
-        android:hint="my bio"
-        android:textSize="13sp"></EditText>
-    <View
-        android:layout_below="@+id/enter_new_bio"
-        android:layout_width="match_parent"
-        android:layout_height="2dp"
-        android:alpha="0.6"
-        android:background="@color/lowerGradientColorForLoginBackground"/>
-    <TextView
-        android:id="@+id/bio_char_limit"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"
-        android:textColor="@color/lightGrey"
-        android:textSize="15sp"
-        android:text="100"/>
+        app:errorEnabled="true"
+        app:hintAnimationEnabled="true"
+        app:hintTextColor="@color/jetBlack"
+        app:counterMaxLength="20"
+        app:textColor="@color/jetBlack"
+        app:endIconDrawable="@drawable/ic_close_icon"
+        app:endIconMode="custom"
+        app:counterEnabled="true"
+        app:counterTextColor="@color/LogoYellow"
+        app:endIconTint="@color/LogoYellow">
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/input_edit_text_bio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@android:color/transparent"
+            android:paddingTop="15dp"
+            android:textAlignment="textStart"
+            android:inputType="text|textImeMultiLine"
+            android:lines="5"
+            android:maxLength="100"
+            android:hint="my bio"
+            android:textColor="@color/jetBlack"
+            android:enabled="true"
+            />
+    </com.google.android.material.textfield.TextInputLayout>
 </RelativeLayout>

@@ -47,7 +47,7 @@ public class SearchUserRecyclerViewAdapter extends RecyclerView.Adapter<SearchUs
         if(user.getBio()!=null) {
             holder.userBio.setText(userList.get(position).getBio());
         }
-        holder.userName.setText(user.getName());
+        holder.userName.setText(user.getUsername());
         if (user.getImage()!=null){
             if(!user.getImage().trim().isEmpty()) {
                 GlideApp.with(context).

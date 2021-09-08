@@ -73,7 +73,7 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
 
     @Override
     public void onBindViewHolder(@NonNull RequestAdapter.RequestViewHolder holder, final int position) {
-       holder.senderName.setText(usersList.get(position).getName());
+       holder.senderName.setText(usersList.get(position).getUsername());
        String imageUrl= usersList.get(position).getImage();
 
        if(imageUrl!=null){

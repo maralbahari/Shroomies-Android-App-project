@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<MotionScene 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:motion="http://schemas.android.com/apk/res-auto">
+
+    <Transition
+        motion:constraintSetEnd="@+id/end"
+        motion:constraintSetStart="@id/start"
+        motion:duration="1000">
+       <KeyFrameSet>
+       </KeyFrameSet>
+        <OnSwipe motion:touchAnchorId="@+id/nestedScrollView2" />
+    </Transition>
+
+    <ConstraintSet android:id="@+id/start">
+    </ConstraintSet>
+
+    <ConstraintSet android:id="@+id/end">
+        <Constraint
+            android:layout_height="1dp"
+            motion:layout_constraintStart_toStartOf="parent"
+            motion:layout_constraintHorizontal_bias="0.0"
+            motion:layout_constraintEnd_toEndOf="parent"
+            android:layout_width="match_parent"
+            motion:layout_constraintTop_toBottomOf="@id/view_apartment_post_toolbar"
+            android:id="@+id/view_pager_apartment_view" />
+        <Constraint
+            android:id="@+id/dotsIndicator_apartment_view"
+            motion:layout_constraintEnd_toEndOf="@id/view_pager_apartment_view"
+            android:layout_width="wrap_content"
+            android:layout_height="1dp"
+            motion:layout_constraintBottom_toBottomOf="@id/view_pager_apartment_view"
+            android:layout_marginBottom="20dp"
+            motion:layout_constraintStart_toStartOf="@id/view_pager_apartment_view" />
+        <Constraint
+            android:id="@+id/expand_button"
+            android:layout_width="80dp"
+            android:layout_height="1dp"
+            motion:layout_constraintTop_toTopOf="@id/view_pager_apartment_view"
+            motion:layout_constraintStart_toStartOf="parent" />
+        <Constraint
+            android:id="@+id/message_user_button"
+            android:layout_width="wrap_content"
+            android:layout_height="1dp"
+            motion:layout_constraintTop_toBottomOf="@+id/view_pager_apartment_view"
+            motion:layout_constraintRight_toRightOf="parent"
+            android:layout_marginTop="50dp" />
+        <Constraint
+            motion:layout_constraintEnd_toEndOf="parent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            motion:layout_constraintTop_toBottomOf="@id/view_apartment_post_toolbar"
+            motion:layout_constraintStart_toStartOf="parent"
+            android:layout_marginTop="0dp"
+            android:id="@+id/nestedScrollView2" />
+    </ConstraintSet>
+</MotionScene>

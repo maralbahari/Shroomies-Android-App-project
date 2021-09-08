@@ -57,6 +57,7 @@
     <string name="card_marked_as_done">Card marked as done</string>
     <string name="unexpected_error">An unexpected error has occured</string>
     <string name="card_marked_as_not_done">Card marked as not done</string>
+    <string name="forgot_password"><u>Forgot password?</u></string>
 
 
 </resources>

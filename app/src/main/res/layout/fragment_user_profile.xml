@@ -6,13 +6,11 @@
     android:layout_height="match_parent"
     app:layoutDescription="@xml/fragment_user_profile_scene"
     tools:context=".UserProfile">
-
         <RelativeLayout
             android:id="@+id/user_profile_info"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/tablayout_round">
-
             <ImageView
                 android:id="@+id/user_profile_image_view"
                 android:layout_width="60dp"
@@ -98,9 +96,8 @@
                 android:text="Edit Profile"
                 android:textAllCaps="false"
                 android:textColor="@color/jetBlack"
+                android:insetBottom="0dp"
                 android:textSize="13sp"></com.google.android.material.button.MaterialButton>
-
-
         </RelativeLayout>
 
         <com.google.android.material.tabs.TabLayout

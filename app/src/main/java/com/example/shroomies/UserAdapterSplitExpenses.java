@@ -70,7 +70,7 @@ public class UserAdapterSplitExpenses extends RecyclerView.Adapter<UserAdapterSp
                 .into(holder.profilePicImageView);
     }
 
-    holder.userNameTextView.setText(shroomieList.get(position).getName());
+    holder.userNameTextView.setText(shroomieList.get(position).getUsername());
 
     if(fromViewCard){
         holder.amountSeekBar.setVisibility(View.INVISIBLE);

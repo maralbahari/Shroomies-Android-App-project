@@ -21,6 +21,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
+
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -36,7 +38,7 @@ public class ChangeEmailDialog extends DialogFragment {
     private DatabaseReference rootRef;
 
     private User user;
-    private EditText newEmail;
+    private TextInputLayout newEmail;
     private View v;
     private email changedEmail;
 
@@ -98,32 +100,33 @@ public class ChangeEmailDialog extends DialogFragment {
         Bundle bundle=this.getArguments();
         if (bundle!=null) {
             user=bundle.getParcelable("USER");
-            newEmail.setText(user.getEmail());
-            newEmail.setSelection(newEmail.getText().length());
+            newEmail.getEditText().setText(user.getEmail());
+            newEmail.getEditText().setSelection(newEmail.getEditText().getText().length());
         } else {
 //            todo error handling when bundle is null
             dismiss();
         }
-        newEmail.setOnTouchListener((view1, motionEvent) -> {
-            final int DRAWABLE_RIGHT = 2;
-            if (motionEvent.getAction()== MotionEvent.ACTION_UP){
-                if(motionEvent.getRawX()>=(newEmail.getRight()-newEmail.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
-                    newEmail.setText("");
-                    return true;
-                }
+        newEmail.setEndIconOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                newEmail.getEditText().setText("");
             }
-            return false;
         });
 
 
         doneButton.setOnClickListener(v -> {
             FirebaseUser firebaseUser=mAuth.getCurrentUser();
             if (firebaseUser!=null) {
-                String txtEmail = newEmail.getText().toString().trim();
+                String txtEmail = newEmail.getEditText().getText().toString().trim();
                 if (user.getEmail().equals(txtEmail)) {
                     Toast.makeText(getContext(),"No changes have been made",Toast.LENGTH_SHORT).show();
                 } else {
-                    updateEmail(txtEmail);
+                    if(validEmail(txtEmail)) {
+                        newEmail.setError(null);
+                        updateEmail(txtEmail);
+                    }else{
+                        newEmail.setError("Please enter valid email");
+                    }
                 }
             } else{
                 //            todo error handling when user is null or signed out
@@ -131,7 +134,7 @@ public class ChangeEmailDialog extends DialogFragment {
         });
 
         backButton.setOnClickListener(v -> {
-            if (!user.getEmail().equals(newEmail.getText().toString())) {
+            if (!user.getEmail().equals(newEmail.getEditText().getText().toString())) {
                 Toast.makeText(getContext(),"unSaved Changes",Toast.LENGTH_LONG).show();
             } else {
                 dismiss();
@@ -152,6 +155,9 @@ public class ChangeEmailDialog extends DialogFragment {
 //                    sendEmailVerification(firebaseUser);
             }
         }).addOnFailureListener(e -> Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show());
+    }
+    private boolean validEmail(String enteredEmail){
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(enteredEmail).matches();
     }
     private void sendEmailVerification(FirebaseUser firebaseUser) {
 //        firebaseUser.updateEmail(newEmail.getText().toString()).addOnCompleteListener(new OnCompleteListener<Void>() {

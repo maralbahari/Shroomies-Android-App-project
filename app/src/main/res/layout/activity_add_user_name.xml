@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/gradient_yellow_background">
+    <TextView
+        android:id="@+id/welcome_to_shroomies_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="👋🏿 Welcome to shroomies!"
+        android:textSize="23sp"
+        android:textStyle="bold"
+        android:padding="10dp"
+        android:gravity="center"
+        android:layout_marginTop="20dp"
+        android:textColor="@color/jetBlack"/>
+    <TextView
+        android:id="@+id/add_username_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/welcome_to_shroomies_text_view"
+        android:layout_marginTop="20dp"
+        android:padding="15dp"
+        android:textColor="@color/jetBlack"
+        android:textStyle="bold"
+
+        android:text="Before starting , you just have to take one more step and add a unique username."/>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/add_username_text_input"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="25dp"
+        android:layout_marginEnd="25dp"
+        android:layout_below="@+id/add_username_text_view"
+        android:layout_marginTop="10dp"
+        app:boxBackgroundMode="outline"
+        app:boxCornerRadiusBottomEnd="10dp"
+        app:boxCornerRadiusBottomStart="10dp"
+        app:boxCornerRadiusTopEnd="10dp"
+        app:boxCornerRadiusTopStart="10dp"
+        app:boxStrokeColor="@color/white"
+        app:boxStrokeWidth="2dp"
+        app:errorEnabled="true"
+        app:hintAnimationEnabled="true"
+        app:hintTextColor="@color/jetBlack"
+        app:counterMaxLength="20"
+        app:startIconDrawable="@drawable/ic_user_profile_"
+        app:textColor="@color/jetBlack"
+        app:endIconDrawable="@drawable/ic_information"
+        app:endIconMode="custom"
+        app:counterEnabled="true"
+        >
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@android:color/transparent"
+            android:id="@+id/add_user_name_edit_text"
+            android:hint="Username"
+            android:inputType="text"
+            android:maxLength="20"
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp"
+            android:textAlignment="textStart"
+
+            />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/help_card_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/add_username_text_input"
+        android:layout_marginTop="-15dp"
+        android:layout_alignEnd="@id/add_username_text_input"
+        app:cardCornerRadius="5dp"
+        android:backgroundTint="@color/white"
+        android:layout_marginEnd="10dp"
+        app:cardElevation="5dp"
+        android:visibility="gone"
+
+        >
+        <TextView
+            android:id="@+id/help_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:textStyle="bold"
+            android:text="The username must be:\n-No longer than 20 characters.\n-Must not contain any spacing"
+            />
+    </androidx.cardview.widget.CardView>
+
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/add_user_name_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/add_username_text_input"
+        android:text="Continue"
+        android:backgroundTint="#66333533"
+        android:textColor="@color/white"
+        android:textAllCaps="false"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
+        android:outlineProvider="none"
+        android:layout_alignStart="@+id/add_username_text_input"
+        android:layout_marginTop="30dp"
+        />
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/add_user_name_animation_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@+id/add_user_name_button"
+        android:layout_alignBottom="@+id/add_user_name_button"
+        android:layout_alignTop="@id/add_user_name_button"
+        android:layout_marginStart="10dp"
+        app:lottie_autoPlay="true"
+        app:lottie_loop="true"
+        app:lottie_rawRes="@raw/loading_jetblack"
+        android:visibility="gone"
+        />
+
+
+
+
+
+</RelativeLayout>

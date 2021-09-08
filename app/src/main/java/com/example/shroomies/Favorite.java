@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -49,6 +50,7 @@ public class Favorite extends Fragment {
     private Set<String> apartmentFavouriteSet;
     private Set<String> personalFavouritesSet;
     private FirebaseFirestore mDocRef;
+    private Toolbar toolbar;
 
 
     @Override
@@ -70,6 +72,7 @@ public class Favorite extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         tabLayoutFavorite = v.findViewById(R.id.tab_layout_Fav);
         favAptRecyclerView = v.findViewById(R.id.fav_recycler_view);
+        toolbar=v.findViewById(R.id.favorite_toolbar);
 
 
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());

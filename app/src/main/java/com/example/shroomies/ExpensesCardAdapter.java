@@ -16,7 +16,6 @@ import androidx.appcompat.widget.PopupMenu;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.AuthFailureError;
@@ -128,7 +127,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                     :expensesCardArrayList.get(position).getMention().entrySet()){
                 if(memberHashMap.get(entry.getKey())!=null){
                     //create a new Chip for each mentioned user
-                    String name = memberHashMap.get(entry.getKey()).getName();
+                    String name = memberHashMap.get(entry.getKey()).getUsername();
                     Chip chip = new Chip(context);
                     chip.setText("@"+name);
                     chip.setTextColor(context.getColor(R.color.mentionBlue));

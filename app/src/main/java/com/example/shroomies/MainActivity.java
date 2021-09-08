@@ -2,9 +2,10 @@ package com.example.shroomies;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -13,45 +14,39 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.mxn.soul.flowingdrawer_core.ElasticDrawer;
 import com.mxn.soul.flowingdrawer_core.FlowingDrawer;
 import com.mxn.soul.flowingdrawer_core.FlowingMenuLayout;
+
 import org.jetbrains.annotations.NotNull;
 
 public class MainActivity extends AppCompatActivity {
     private FlowingDrawer drawerLayout;
-    private ConstraintLayout rootLayout;
+//    private ConstraintLayout rootLayout;
     private Toolbar toolbar;
     private FlowingMenuLayout navigationView;
     private ImageButton myShroomies, inboxButton;
     private TextView usernameDrawer;
     private Button logoutButton , requestsButton;
     private ImageView profilePic;
-    private BottomNavigationView bottomNavigationView;
+    private BottomNavigationView bottomNavigationview;
 
     private FragmentTransaction ft;
     private FragmentManager fm;
 
     private FirebaseAuth mAuth;
-    private FirebaseUser fUser;
     private DatabaseReference rootRef;
     private User user;
 
@@ -62,18 +57,14 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //Creating session in main activity
-
         mAuth = FirebaseAuth.getInstance();
         rootRef = FirebaseDatabase.getInstance().getReference();
-
-
         FirebaseUser fUser=mAuth.getCurrentUser();
 
+
         logoutButton = findViewById(R.id.logout);
-        rootLayout  = findViewById(R.id.root_layout);
+//        rootLayout  = findViewById(R.id.root_layout);
         requestsButton = findViewById(R.id.my_requests_menu);
-        bottomNavigationView = findViewById(R.id.bottomNavigationView);
         drawerLayout =  findViewById(R.id.drawerLayout);
         toolbar =  findViewById(R.id.toolbar);
         navigationView = findViewById(R.id.navigationView);
@@ -81,15 +72,16 @@ public class MainActivity extends AppCompatActivity {
         inboxButton = findViewById(R.id.inbox_button);
         usernameDrawer = findViewById(R.id.drawer_nav_profile_name);
         profilePic = findViewById(R.id.drawer_nav_profile_pic);
+        bottomNavigationview = findViewById(R.id.bottomNavigationView);
 
         drawerLayout.setTouchMode(ElasticDrawer.TOUCH_MODE_BEZEL);
         drawerLayout.setOnDrawerStateChangeListener(new ElasticDrawer.OnDrawerStateChangeListener() {
             @Override
             public void onDrawerStateChange(int oldState, int newState) {
                 if (newState == ElasticDrawer.STATE_OPENING|| newState ==ElasticDrawer.STATE_OPEN) {
-                    rootLayout.setForeground(new ColorDrawable(ContextCompat.getColor(getApplication(), R.color.dim_background)));
+//                    rootLayout.setForeground(new ColorDrawable(ContextCompat.getColor(getApplication(), R.color.dim_background)));
                 }else{
-                    rootLayout.setForeground(null);
+//                    rootLayout.setForeground(null);
 
                 }
             }
@@ -118,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                 startActivity(intent);
-                EthreeSingleton.getInstance(getApplication() , null , null).clearInstance();
+//                EthreeSingleton.getInstance(getApplication() , null , null).clearInstance();
             }
         });
 
@@ -131,17 +123,21 @@ public class MainActivity extends AppCompatActivity {
            ref.child(userID).setValue(task.getResult());
        });
 
-        bottomNavigationView.setOnItemSelectedListener(item -> {
-            if(item.getItemId()==R.id.find_roomie_menu){
-                getFragment(new FindRoommate());
-            }if(item.getItemId()==R.id.publish_post_menu){
-                getFragment(new PublishPost());
-            }if(item.getItemId()==R.id.user_profile_menu){
-                getFragment(new UserProfile());
-            }
-            return true;
-        });
+//        bottomAppBar.setOnItemSelectedListener(item -> {
+//
+//        });
 
+        bottomNavigationview.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull @NotNull MenuItem item) {
+                if(item.getItemId()==R.id.find_roomie_menu){
+                    getFragment(new FindRoommate());
+                }if(item.getItemId()==R.id.user_profile_menu){
+                    getFragment(new UserProfile());
+                }
+                return true;
+            }
+        });
 
 
         myShroomies.setOnClickListener(v -> startActivity(new Intent( getApplicationContext(), MyShroomiesActivity.class)));
@@ -243,7 +239,7 @@ public class MainActivity extends AppCompatActivity {
         rootRef.child(Config.users).child(mAuth.getCurrentUser().getUid()).get().addOnCompleteListener(task -> {
             if(task.isSuccessful()){
                 user = task.getResult().getValue(User.class);
-                usernameDrawer.setText(user.getName());
+                usernameDrawer.setText(user.getUsername());
                 if(user.getImage()!=null){
                     GlideApp.with(getApplicationContext())
                             .load(user.getImage())
@@ -252,11 +248,10 @@ public class MainActivity extends AppCompatActivity {
                             .transition(DrawableTransitionOptions.withCrossFade())
                             .into(profilePic);
                 }
-
-
             }
         });
     }
+
 
 
 

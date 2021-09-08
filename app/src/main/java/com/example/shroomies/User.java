@@ -5,7 +5,7 @@ import android.os.Parcelable;
 
 
 public class User implements Parcelable{
-    private String name;
+    private String username;
     private String email;
     private String apartmentID;
     private String bio;
@@ -13,6 +13,19 @@ public class User implements Parcelable{
     private String userID;
     private float sharedAmount;
     private boolean requestSent;
+    private String name;
+
+    public boolean isRequestSent() {
+        return requestSent;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
 
     public boolean requestSent() {
         return requestSent;
@@ -22,12 +35,12 @@ public class User implements Parcelable{
         this.requestSent = requestSent;
     }
 
-    public String getName() {
-        return name;
+    public String getUsername() {
+        return username;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getEmail() {
@@ -84,7 +97,8 @@ public class User implements Parcelable{
     }
 
     public User(String name, String email, String username, String bio, String imageurl, String id, Context context,String apartmentID) {
-        this.name = name;
+        this.username = username;
+        this.name=name;
         this.email = email;
         this.bio = bio;
         this.image = imageurl;
@@ -93,7 +107,7 @@ public class User implements Parcelable{
     }
 
     protected User(Parcel in) {
-        name = in.readString();
+        username = in.readString();
         email = in.readString();
 
         bio = in.readString();
@@ -121,7 +135,7 @@ public class User implements Parcelable{
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(name);
+        dest.writeString(username);
         dest.writeString(email);
         dest.writeString(bio);
         dest.writeString(image);

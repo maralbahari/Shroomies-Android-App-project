@@ -31,19 +31,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.chip.ChipGroup;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.hendraanggrian.appcompat.widget.SocialAutoCompleteTextView;
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
@@ -326,7 +317,7 @@ public class ViewCards extends DialogFragment {
         :mentions.entrySet()){
             if(membersHashMap.get(mention.getKey())!=null){
                 Chip chip = new Chip(getActivity());
-                chip.setText(membersHashMap.get(mention.getKey()).getName());
+                chip.setText(membersHashMap.get(mention.getKey()).getUsername());
                 mentionChipGroup.addView(chip);
             }
         }

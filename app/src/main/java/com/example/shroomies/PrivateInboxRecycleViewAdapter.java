@@ -16,11 +16,9 @@ import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.airbnb.lottie.LottieAnimationView;
-import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.google.android.material.button.MaterialButton;
 import com.virgilsecurity.common.callback.OnResultListener;
-import com.virgilsecurity.crypto.foundation.Hash;
 import com.virgilsecurity.sdk.cards.Card;
 
 import org.jetbrains.annotations.NotNull;
@@ -71,7 +69,7 @@ public class PrivateInboxRecycleViewAdapter extends RecyclerView.Adapter<Private
                 if(userHashMap!=null){
                     User user=userHashMap.get(recieverInboxList.get(position).getReceiverID());
                     if(user!=null){
-                        holder.receiverName.setText(user.getName());
+                        holder.receiverName.setText(user.getUsername());
                         holder.skeletonLoaderName.clearAnimation();
                         holder.skeletonLoaderName.setVisibility(View.GONE);
                         if(!user.getImage().isEmpty()) {

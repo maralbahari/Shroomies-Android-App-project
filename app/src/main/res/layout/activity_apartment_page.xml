@@ -4,28 +4,32 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:layoutDescription="@xml/fragment_apartment_page_scene">
-    <include
-        android:id="@+id/include1"
-        layout="@layout/drawer_toolbar"
+    app:layoutDescription="@xml/activity_apartment_page_scene">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/view_apartment_post_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="80dp"
+        android:background="@color/LogoYellow"
+        android:elevation="5dp"
+        app:contentInsetStart="0dp"
+        app:contentInsetStartWithNavigation="0dp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.viewpager.widget.ViewPager
         android:id="@+id/view_pager_apartment_view"
         android:layout_width="match_parent"
         android:layout_height="300dp"
-
-      ></androidx.viewpager.widget.ViewPager>
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/view_apartment_post_toolbar"></androidx.viewpager.widget.ViewPager>
 
     <com.make.dots.dotsindicator.DotsIndicator
         android:id="@+id/dotsIndicator_apartment_view"
-
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-
         android:layout_marginBottom="20dp"
         android:background="@drawable/dots_background"
         android:padding="4dp"
@@ -39,47 +43,41 @@
         app:layout_constraintStart_toStartOf="@id/view_pager_apartment_view"
 
         />
+
     <ImageButton
         android:id="@+id/expand_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:src="@drawable/ic_expand_image_icon"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
         android:background="@android:color/transparent"
-        app:layout_constraintTop_toTopOf="@+id/view_pager_apartment_view"
-        app:layout_constraintLeft_toLeftOf="@id/view_pager_apartment_view"
-        android:layout_margin="10dp"
-        />
+        android:src="@drawable/ic_expand_image_icon"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/view_pager_apartment_view" />
+
     <ImageButton
         android:id="@+id/message_user_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:layout_marginTop="50dp"
         android:background="@drawable/button_circle_yellow"
-        android:src="@drawable/ic_icon_feather_message_circle"
-        android:layout_marginRight="20dp"
-        android:padding="15dp"
-        app:layout_constraintEnd_toEndOf="parent"
         android:onClick="chatWithThisUser"
-        app:layout_constraintTop_toBottomOf="@+id/dotsIndicator_apartment_view" />
-
+        android:padding="15dp"
+        android:src="@drawable/ic_icon_feather_message_circle"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/view_pager_apartment_view" />
 
     <com.factor.bouncy.BouncyNestedScrollView
         android:id="@+id/nestedScrollView2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fillViewport="true"
-        android:paddingBottom="80dp"
-        app:recyclerview_fling_animation_size=".8"
-        app:recyclerview_overscroll_animation_size=".8"
-        app:recyclerview_damping_ratio="DAMPING_RATIO_LOW_BOUNCY"
-        app:recyclerview_stiffness="STIFFNESS_HIGH"
-        app:allow_drag_reorder="true"
-        app:allow_item_swipe="false"
-     >
+        android:layout_marginTop="10dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/message_user_button">
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            >
+            android:layout_height="wrap_content">
 
             <TextView
                 android:id="@+id/price_text_view_apartment_card"
@@ -88,13 +86,11 @@
                 android:layout_alignParentStart="true"
                 android:layout_marginStart="15dp"
                 android:layout_marginTop="15dp"
-
                 android:layout_marginEnd="0dp"
                 android:layout_marginBottom="0dp"
                 android:fontFamily="@font/amiko"
                 android:shadowColor="@color/lightGrey"
                 android:shadowRadius="2"
-
                 android:text="1000 RM"
                 android:textColor="@color/jetBlack"
                 android:textSize="24sp"
@@ -108,8 +104,6 @@
                 android:layout_below="@id/price_text_view_apartment_card"
                 android:layout_marginLeft="15dp"
                 android:layout_marginTop="5dp"
-                android:fontFamily="@font/amiko"
-
                 android:text="5 roommates required"
                 android:textSize="15sp" />
 
@@ -128,69 +122,56 @@
                     android:id="@+id/post_by_text_view"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-
                     android:layout_marginStart="15dp"
-
-                    android:fontFamily="@font/amiko"
                     android:text="Post by"
-
-
                     android:textSize="20sp" />
 
                 <ImageView
                     android:id="@+id/user_image_view"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
                     android:layout_below="@+id/post_by_text_view"
                     android:layout_marginLeft="15dp"
                     android:layout_marginBottom="5dp"
                     android:adjustViewBounds="true"
-                    android:background="@drawable/circle_white_button"
                     android:elevation="1dp"
-                    android:maxWidth="60dp"
-                    android:maxHeight="60dp"
-                    android:padding="10dp"
                     android:scaleType="fitXY"
                     android:src="@drawable/ic_user_profile_svgrepo_com" />
 
                 <TextView
                     android:id="@+id/name_of_user_text_view"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_below="@id/post_by_text_view"
                     android:layout_marginLeft="10dp"
                     android:layout_marginTop="5dp"
-
+                    android:layout_marginRight="100dp"
                     android:layout_toRightOf="@id/user_image_view"
-                    android:fontFamily="@font/amiko"
+                    android:lines="1"
                     android:text="name of user"
                     android:textColor="@color/jetBlack"
                     android:textSize="18dp" />
 
                 <TextView
                     android:id="@+id/date_of_post_text_view"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/name_of_user_text_view"
                     android:layout_marginLeft="10dp"
-
+                    android:layout_marginRight="100dp"
                     android:layout_toRightOf="@id/user_image_view"
                     android:text="posted on x-x-x" />
-
             </RelativeLayout>
 
             <TextView
                 android:id="@+id/about_user_final_text_View"
                 android:layout_width="wrap_content"
-
                 android:layout_height="wrap_content"
                 android:layout_below="@id/user_info_relative_layout"
                 android:layout_marginLeft="15dp"
                 android:layout_marginTop="10dp"
-                android:fontFamily="@font/amiko"
                 android:text="About this post"
                 android:textSize="21dp" />
-
 
             <TextView
                 android:id="@+id/user_description_text_view"
@@ -200,14 +181,11 @@
                 android:layout_marginLeft="15dp"
                 android:layout_marginTop="10dp"
                 android:layout_marginRight="15dp"
-
                 android:background="@drawable/apartment_post_background"
-
                 android:elevation="2dp"
                 android:padding="10dp"
                 android:text="hello my name is badr baswaid im a very funny guy  bvla blabla"
                 android:textSize="20dp" />
-
 
             <RelativeLayout
                 android:id="@+id/location_relative_layout"
@@ -222,13 +200,10 @@
                     android:id="@+id/location_chip_view"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-
                     android:layout_marginLeft="15dp"
                     android:layout_marginTop="15dp"
                     android:drawableStart="@drawable/ic_location_icon_25dp"
                     android:drawablePadding="5dp"
-                    android:fontFamily="@font/amiko"
-
                     android:text="Location"
                     android:textSize="20sp" />
 
@@ -258,14 +233,11 @@
 
             </RelativeLayout>
 
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/location_relative_layout"
-                android:layout_marginLeft="15dp"
-                android:layout_marginRight="10dp"
-                android:layout_marginBottom="20dp"
+                android:layout_margin="20dp"
                 android:background="@drawable/text_low_alpha_background"
                 android:elevation="2dp"
                 android:orientation="horizontal">
@@ -308,7 +280,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-
                     android:elevation="1dp"
                     android:padding="10dp"
                     android:src="@drawable/ic_icon_ionic_ios_female"
@@ -321,13 +292,9 @@
 
                 <ImageView
                     android:id="@+id/pets_allowd_image_view_apartment"
-
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-
                     android:layout_gravity="center_horizontal"
-
-
                     android:elevation="1dp"
                     android:padding="10dp"
                     android:src="@drawable/ic_icon_map_pet_store"
@@ -343,7 +310,6 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
-
                     android:elevation="1dp"
                     android:padding="10dp"
                     android:src="@drawable/ic_icon_material_smoke_free"
@@ -353,6 +319,4 @@
         </RelativeLayout>
 
     </com.factor.bouncy.BouncyNestedScrollView>
-
-
 </androidx.constraintlayout.motion.widget.MotionLayout>

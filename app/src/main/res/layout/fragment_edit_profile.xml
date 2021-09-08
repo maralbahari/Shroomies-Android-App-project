@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".EditProfile">
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
         <RelativeLayout
             android:id="@+id/upper_edit_profile_page"
             android:layout_width="match_parent"
@@ -77,19 +74,38 @@
             android:src="@drawable/ic_pen_edit_"
             >
         </ImageButton>
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/change_username_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="\@username"
+        android:layout_below="@+id/change_profile_picture"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:textAllCaps="false"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="@color/LogoYellow"
+        android:background="@android:color/transparent"
+        android:shadowRadius="15"
+        android:shadowColor="@color/veryLightGrey"
+        android:shadowDy="9"
+
+
+        />
         <View
-            android:id="@+id/line_below_image"
+            android:id="@+id/line_below_user_name"
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:layout_below="@id/change_profile_picture"
-            android:layout_marginTop="20dp"
+            android:layout_below="@id/change_username_button"
+            android:layout_marginTop="10dp"
             android:alpha="0.8"
             android:background="@color/lowerGradientColorForLoginBackground"/>
         <LinearLayout
             android:id="@+id/bio_linear"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_below="@id/line_below_image"
+            android:layout_below="@id/line_below_user_name"
             android:orientation="horizontal"
             android:layout_margin="10dp">
             <TextView
@@ -128,19 +144,19 @@
                 android:layout_width="wrap_content"
                 android:minWidth="50dp"
                 android:layout_height="wrap_content"
-                android:text="Name"
+                android:text="name"
                 android:textColor="@color/jetBlack"
                 android:textSize="15sp"/>
+
             <TextView
                 android:id="@+id/edit_username"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="50dp"
                 android:layout_gravity="center_horizontal"
-                android:text="Name"
-                android:textSize="14sp"
+                android:layout_marginLeft="50dp"
                 android:lines="1"
-                />
+                android:text="name"
+                android:textSize="14sp" />
         </LinearLayout>
         <View
             android:layout_width="match_parent"
@@ -172,6 +188,7 @@
                 android:lines="1"
                 />
         </LinearLayout>
+
         <View
             android:id="@+id/line_below_email"
             android:layout_width="match_parent"
@@ -192,7 +209,6 @@
             android:textColor="@color/LogoYellow"
             android:textStyle="bold"
             android:textAllCaps="false">
-
         </com.google.android.material.button.MaterialButton>
         <View
             android:layout_width="match_parent"
@@ -217,4 +233,3 @@
             android:typeface="normal">
         </com.google.android.material.button.MaterialButton>
     </RelativeLayout>
-</androidx.core.widget.NestedScrollView>

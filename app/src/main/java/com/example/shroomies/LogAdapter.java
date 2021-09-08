@@ -122,7 +122,7 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
         }
 
             if(user!=null){
-                Spannable nameOfActor = new SpannableString(user.getName());
+                Spannable nameOfActor = new SpannableString(user.getUsername());
                 nameOfActor.setSpan(new ForegroundColorSpan(context.getColor(R.color.Black)), 0, nameOfActor.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 nameOfActor.setSpan(new StyleSpan(Typeface.BOLD),0,nameOfActor.length(),Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 holder.logMessage.setText(nameOfActor);

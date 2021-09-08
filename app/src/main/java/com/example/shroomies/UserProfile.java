@@ -176,7 +176,7 @@ public class UserProfile extends Fragment {
                 if(snapshot.exists()) {
                      user = snapshot.getValue(User.class);
                      if (user!=null) {
-                         viewUsername.setText(user.getName());
+                         viewUsername.setText(user.getUsername());
                          if (!user.getBio().equals("")) {
                              viewBio.setText(user.getBio());
                          }

@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
+
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -29,6 +29,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -40,6 +41,7 @@ import com.make.dots.dotsindicator.DotsIndicator;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCallback {
     private static final String MAP_VIEW_BUNDLE_KEY = "MapViewBundleKey";
@@ -56,7 +58,6 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
     ImageView userImageView , maleImageView , femaleImageView , petsImageView , smokeFreeImageView;
     User user;
     FirebaseAuth mAuth;
-    String postDate;
 
 
     @Override
@@ -68,13 +69,9 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getIntent().getExtras() != null) {
-
-            apartment = new Apartment();
-            apartment = getIntent().getExtras().getParcelable("apartment");
-            postDate  = getIntent().getStringExtra("POST_DATE");
-        }
         setContentView(R.layout.activity_apartment_page);
+        mAuth=FirebaseAuth.getInstance();
+        FirebaseUser firebaseUser=mAuth.getCurrentUser();
         expandImagesButton = findViewById(R.id.expand_button);
         maleImageView = findViewById(R.id.male_image_view_apartment);
         femaleImageView = findViewById(R.id.female_image_view_apartment);
@@ -82,6 +79,7 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
         smokeFreeImageView = findViewById(R.id.non_smoking_image_view_apartment);
         locationAddressTextView = findViewById(R.id.location_address_text_view);
         viewPager = findViewById(R.id.view_pager_apartment_view);
+        messageButton = findViewById(R.id.message_user_button);
         dotsIndicator = findViewById(R.id.dotsIndicator_apartment_view);
         priceTextView = findViewById(R.id.price_text_view_apartment_card);
         descriptionTextView = findViewById(R.id.user_description_text_view);
@@ -89,72 +87,95 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
         userImageView = findViewById(R.id.user_image_view);
         date = findViewById(R.id.date_of_post_text_view);
         username = findViewById(R.id.name_of_user_text_view);
-        mapView = findViewById(R.id.apartment_post_page_map);
-        toolbar = (Toolbar) findViewById(R.id.toolbar);
-        messageButton = findViewById(R.id.message_user_button);
+        toolbar=findViewById(R.id.view_apartment_post_toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-
-        initGoogleMap(savedInstanceState);
-
-
-
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("Shroomie Post");
+        mapView = findViewById(R.id.apartment_post_page_map);
         mapView.getMapAsync(this);
-
-        //set the desicription
-        if (apartment.getDescription() != null) {
-            descriptionTextView.setText(apartment.getDescription());
-        }
-        //set the no of roommates
-        numberOfRoomMates.setText((apartment.getNumberOfRoommates()) + " Room mates required ");
-//        date.setText(apartment.getDate().toString());
-        messageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (user != null) {
-                    chatWithThisUser(user);
+        initGoogleMap(savedInstanceState);
+        if (getIntent().getExtras() != null) {
+            apartment = new Apartment();
+            apartment = getIntent().getExtras().getParcelable("apartment");
+            //set the desicription
+            if(apartment!=null) {
+                if(firebaseUser!=null) {
+                    getPostOwnerDetails(firebaseUser.getUid(),apartment.getUserID());
                 }
+                descriptionTextView.setText(apartment.getDescription());
+                numberOfRoomMates.setText((apartment.getNumberOfRoommates()) + " Roommates required ");
+                date.setText(apartment.getTime_stamp());
+                //set the location address
+                geocoder = new Geocoder(getApplicationContext());
+                try {
+                    // for some reason the latitude and the longitude are saved oppositly
+                    locationAddressTextView.setText(geocoder.getFromLocation(apartment.getLatitude(), apartment.getLongitude(), 1).get(0).getAddressLine(0));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                List<String> preferences = apartment.getPreferences();
+                if (preferences!=null)
+                    for (String preference
+                            : preferences) {
+                        if(preference!=null) {
+                            switch (preference) {
+                                case "male":
+                                    maleImageView.setVisibility(View.VISIBLE);
+                                    break;
+                                case "female":
+                                    femaleImageView.setVisibility(View.VISIBLE);
+                                    break;
+                                case "pet":
+                                    petsImageView.setVisibility(View.VISIBLE);
+                                    break;
+                                case "non_smoking":
+                                    smokeFreeImageView.setVisibility(View.VISIBLE);
+                            }
+                        }
+                    }
+                viewPagerAdapterApartmentView = new ViewPagerAdapterApartmentView(getApplicationContext(), apartment.getImage_url());
+                viewPager.setAdapter(viewPagerAdapterApartmentView);
+                dotsIndicator.setViewPager(viewPager);
+                viewPager.getAdapter().registerDataSetObserver(dotsIndicator.getDataSetObserver());
+                expandImagesButton.setOnClickListener(v -> {
+                    ImageViewPager imageViewPager = new ImageViewPager(apartment.getImage_url());
+                    imageViewPager.show(getSupportFragmentManager() , null);
+                });
+            }
+
+
+        }
+        messageButton.setOnClickListener(v -> {
+            if (user != null) {
+                chatWithThisUser(user);
             }
         });
-        if(postDate!=null){
-            date.setText(postDate);
-            Toast.makeText(getApplication() , postDate , Toast.LENGTH_LONG).show();
-        }else{
-            Toast.makeText(getApplication() , "date is null" , Toast.LENGTH_LONG).show();
-        }
-        //set the location address
-        geocoder = new Geocoder(getApplicationContext());
-        try {
-            // for some reason the latitude and the longitude are saved oppositly
-            locationAddressTextView.setText(geocoder.getFromLocation(apartment.getLatitude(), apartment.getLongitude(), 1).get(0).getAddressLine(0));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        // get the username and profile picture from the database
-        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(apartment.getUserID());
+
+
+    }
+    private void getPostOwnerDetails(String currentUserid,String userUid){
+        DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference(Config.users).child(userUid);
 
         databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 user = new User();
                 user = snapshot.getValue(User.class);
-                if (mAuth.getInstance().getCurrentUser().getUid().equals(user.getUserID())) {
-                    messageButton.setVisibility(View.GONE);
-                    username.setText("you");
-                } else {
-                    username.setText(user.getName());
-                }
+                if (user!=null) {
+                    if (currentUserid.equals(user.getUserID())) {
+                        messageButton.setVisibility(View.GONE);
+                        username.setText("you");
+                    } else {
+                        username.setText(user.getUsername());
+                    }
 
-                if (!user.getImage().isEmpty()) {
-                    GlideApp.with(getApplication())
-                            .load(user.getImage())
-                            .transform(new CircleCrop())
-                            .into(userImageView);
-                    userImageView.setPadding(2,2,2,2);
+                    if (!user.getImage().isEmpty()) {
+                        GlideApp.with(getApplication())
+                                .load(user.getImage())
+                                .transform(new CircleCrop())
+                                .into(userImageView);
+                    }
                 }
-
             }
 
             @Override
@@ -162,49 +183,12 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
 
             }
         });
-
-        viewPagerAdapterApartmentView = new ViewPagerAdapterApartmentView(getApplicationContext(), apartment.getImage_url());
-        viewPager.setAdapter(viewPagerAdapterApartmentView);
-        dotsIndicator.setViewPager(viewPager);
-        viewPager.getAdapter().registerDataSetObserver(dotsIndicator.getDataSetObserver());
-        expandImagesButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                ImageViewPager imageViewPager = new ImageViewPager(apartment.getImage_url());
-                imageViewPager.show(getSupportFragmentManager() , null);
-            }
-        });
-
-        List<String> preferences = apartment.getPreferences();
-        if (preferences!=null)
-            for (String preference
-                    : preferences) {
-                if(preference!=null) {
-                    switch (preference) {
-                        case "male":
-                            maleImageView.setVisibility(View.VISIBLE);
-                            break;
-                        case "female":
-                            femaleImageView.setVisibility(View.VISIBLE);
-                            break;
-                        case "pet":
-                            petsImageView.setVisibility(View.VISIBLE);
-                            break;
-                        case "non_smoking":
-                            smokeFreeImageView.setVisibility(View.VISIBLE);
-                    }
-                }
-            }
-
-
     }
 
     private void chatWithThisUser(User user) {
-
         Intent intent = new Intent(getApplication(), ChattingActivity.class);
-        intent.putExtra("USERID", user.getUserID());
+        intent.putExtra("USER", user);
         startActivity(intent);
-
     }
 
 
@@ -212,7 +196,6 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
     @Override
     protected void onStop() {
         super.onStop();
-
             mapView.onStop();
 
     }
@@ -220,7 +203,6 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
             mapView.onDestroy();
 
     }
@@ -228,7 +210,6 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
     @Override
     protected void onPause() {
         super.onPause();
-
             mapView.onPause();
 
     }
@@ -236,7 +217,6 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
     @Override
     protected void onResume() {
         super.onResume();
-
             mapView.onResume();
 
     }
@@ -267,8 +247,6 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
     public void onMapReady(GoogleMap googleMap) {
 
         if(apartment!=null) {
-
-
             LatLng latLng = new LatLng(apartment.getLatitude(), apartment.getLongitude());
             Bitmap bitmap = BitmapFactory.decodeResource(getResources(), getResources().getIdentifier("black_mushroom", "drawable", getApplicationContext().getPackageName()));
             Bitmap resizedBitmap = Bitmap.createScaledBitmap(bitmap, 90, 100, false);
@@ -303,7 +281,7 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
 // create a new view pager adapter
 class ViewPagerAdapterApartmentView extends PagerAdapter {
     Context context;
-    private List<String> imageUrls;
+    private final List<String> imageUrls;
     ViewPagerAdapterApartmentView(Context context , List<String> imageUrls){
         this.context = context;
         this.imageUrls = imageUrls;

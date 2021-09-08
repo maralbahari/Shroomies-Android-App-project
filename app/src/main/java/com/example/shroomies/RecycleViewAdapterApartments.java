@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -24,41 +23,25 @@ import com.bumptech.glide.load.MultiTransformation;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.make.dots.dotsindicator.DotsIndicator;
 
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleViewAdapterApartments.ViewHolder> {
     private static final String APARTMENT_FAVOURITES = "APARTMENT_FAVOURITES";
-    private List<Apartment> apartmentList;
-    private Context context;
-    private Geocoder geocoder;
-    private User receiverUser;
-    private DatabaseReference rootRef;
+    private final List<Apartment> apartmentList;
+    private final Context context;
     boolean isFromAptFav;
     Set<String> favoriteSet;
-    private String userId;
-    private boolean isFromUserProfile;
+    private final String userId;
+    private final boolean isFromUserProfile;
 
 
     public RecycleViewAdapterApartments(List<Apartment> apartmentList, Context context, String userId , boolean isFromAptFav, boolean isFromUserProfile){
@@ -80,7 +63,6 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
     public RecycleViewAdapterApartments.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(context);
         View view  = layoutInflater.inflate(R.layout.apartment_card,parent,false);
-        rootRef=FirebaseDatabase.getInstance().getReference();
         return new ViewHolder(view);
     }
 
@@ -88,7 +70,7 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
         //initialize geocoeder to get the location from the latlng
-        geocoder = new Geocoder(context);
+        Geocoder geocoder = new Geocoder(context);
 
         //set the description
         holder.descriptionTV.setText(apartmentList.get(position).getDescription());
@@ -177,62 +159,36 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
                 deletePostButton.setVisibility(View.VISIBLE);
                 sendMessageButton.setVisibility(View.GONE);
             }
-            sendMessageButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    //get user details and pass to chatting activity
-                    DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(apartmentList.get(getAdapterPosition()).getUserID());
-
-                    databaseReference.addValueEventListener(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            receiverUser = new User();
-                            receiverUser = snapshot.getValue(User.class);
-                            Intent intent = new Intent(context, ChattingActivity.class);
-                            intent.putExtra("USERID", receiverUser.getUserID());
-                            context.startActivity(intent);
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-
-                        }
-                    });
-                }
+            sendMessageButton.setOnClickListener(v -> {
+                        Intent intent = new Intent(context, ChattingActivity.class);
+                        intent.putExtra("USERID", apartmentList.get(getAdapterPosition()).getId());
+                        context.startActivity(intent);
             });
 
-            deletePostButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    deletePost();
-                }
-            });
+            deletePostButton.setOnClickListener(v -> deletePost());
 
 
             // on click go to the apartment view
             apartmentCardRelativeLayout.setOnClickListener(v -> goToApartmentViewPage(getAdapterPosition()));
             // on check add to shared preferences
 
-            favoriteCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    SharedPreferences prefs = context.getSharedPreferences(userId, Context.MODE_PRIVATE);
-                    SharedPreferences.Editor edit = prefs.edit();
-                    if (isChecked) {
-                        favoriteSet.add(apartmentList.get(getAdapterPosition()).getApartmentID());
-                        edit.putStringSet(APARTMENT_FAVOURITES, favoriteSet);
-                        edit.commit();
-                    } else {
-                        favoriteSet.remove(apartmentList.get(getAdapterPosition()).getApartmentID());
-                        edit.putStringSet(APARTMENT_FAVOURITES, favoriteSet);
-                        edit.commit();
-                        if (isFromAptFav) {
-                            apartmentList.remove(getAdapterPosition());
-                            notifyItemRemoved(getAdapterPosition());
-                        }
+            favoriteCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                SharedPreferences prefs = context.getSharedPreferences(userId, Context.MODE_PRIVATE);
+                SharedPreferences.Editor edit = prefs.edit();
+                if (isChecked) {
+                    favoriteSet.add(apartmentList.get(getAdapterPosition()).getApartmentID());
+                    edit.putStringSet(APARTMENT_FAVOURITES, favoriteSet);
+                    edit.apply();
+                } else {
+                    favoriteSet.remove(apartmentList.get(getAdapterPosition()).getApartmentID());
+                    edit.putStringSet(APARTMENT_FAVOURITES, favoriteSet);
+                    edit.commit();
+                    if (isFromAptFav) {
+                        apartmentList.remove(getAdapterPosition());
+                        notifyItemRemoved(getAdapterPosition());
                     }
-
                 }
+
             });
 
 
@@ -245,21 +201,11 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
                     .collection("postApartment")
                     .document(apartmentList.get(getAdapterPosition()).getApartmentID()).
                     delete()
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            storage.getReferenceFromUrl(apartmentList.get(getAdapterPosition()).getImage_url().get(0)).getParent().delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-                                @Override
-                                public void onComplete(@NonNull @NotNull Task<Void> task) {
-                                    apartmentList.remove(getAdapterPosition());
-                                    notifyItemRemoved(getAdapterPosition());
-                                }
-                            }).addOnFailureListener(new OnFailureListener() {
-                                @Override
-                                public void onFailure(@NonNull @NotNull Exception e) {
-                                    Toast.makeText(context,"Something went wrong!",Toast.LENGTH_SHORT).show();
-                                }
-                            });
+                    .addOnSuccessListener(aVoid -> {
+                        storage.getReferenceFromUrl(apartmentList.get(getAdapterPosition()).getImage_url().get(0)).getParent().delete().addOnCompleteListener(task -> {
+                            apartmentList.remove(getAdapterPosition());
+                            notifyItemRemoved(getAdapterPosition());
+                        }).addOnFailureListener(e -> Toast.makeText(context,"Something went wrong!",Toast.LENGTH_SHORT).show());
 //                            for (String url:apartmentList.get(getAdapterPosition()).getImage_url()){
 //                                storage.getReferenceFromUrl(url).getParent().delete().addOnCompleteListener(new OnCompleteListener<Void>() {
 //                                    @Override
@@ -268,13 +214,9 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
 //                                    }
 //                                });
 //                            }
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    //TODO disaplay a dialog
-                }
-            });
+                    }).addOnFailureListener(e -> {
+                        //TODO disaplay a dialog
+                    });
 
         }
     }
@@ -283,9 +225,6 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
             // add the parcelable apartment object to the intent and use it's values to
             //update the apartment view class
             intent.putExtra("apartment",apartmentList.get(position));
-            ZoneId currentZoneID = ZonedDateTime.now(ZoneId.systemDefault()).getZone();
-            DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("dd-MM-yyyy");
-//            intent.putExtra("POST_DATE"  , apartmentList.get(position).getTime_stamp().toDate().toInstant().atZone(currentZoneID).format(myFormatObj));
             context.startActivity(intent);
         }
 
@@ -293,7 +232,7 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
 
     class ViewPagerPostAdapter extends PagerAdapter {
         Context context;
-        private List<String> apartmentImages;
+        private final List<String> apartmentImages;
 
         ViewPagerPostAdapter(Context context , List<String> apartmentImages ){
         this.context = context;

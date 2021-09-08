@@ -97,7 +97,7 @@
             android:layout_marginRight="3dp"
             android:elevation="3dp"
             android:src="@drawable/male_icon_15dp"
-            android:visibility="visible" />
+            android:visibility="gone" />
         <Space
             android:layout_width="0dp"
             android:layout_height="1dp"
@@ -109,7 +109,7 @@
             android:layout_gravity="center_horizontal"
             android:layout_marginRight="3dp"
             android:layout_marginLeft="3dp"
-            android:visibility="visible"
+            android:visibility="gone"
             android:elevation="3dp"
             android:src="@drawable/female_icon_15dp" />
 
@@ -127,7 +127,7 @@
             android:layout_marginRight="3dp"
             android:elevation="3dp"
             android:src="@drawable/pet_icon_15dp"
-            android:visibility="visible" />
+            android:visibility="gone" />
         <Space
             android:layout_width="0dp"
             android:layout_height="1dp"
@@ -141,7 +141,7 @@
             android:layout_marginRight="3dp"
             android:layout_marginLeft="3dp"
             android:elevation="3dp"
-            android:visibility="visible"
+            android:visibility="gone"
             android:src="@drawable/smoking_icon_15dp"
             />
     </LinearLayout>

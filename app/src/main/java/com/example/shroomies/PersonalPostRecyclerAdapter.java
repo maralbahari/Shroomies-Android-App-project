@@ -7,20 +7,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
-import com.bumptech.glide.load.resource.bitmap.CircleCrop;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -34,14 +31,13 @@ import java.util.Set;
 
 public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPostRecyclerAdapter.PersonalPostViewHolder> {
     private static final String PERSONAL_FAVOURITES = "PERSONAL_FAVOURITES";
-    private List <PersonalPostModel> personalPostModelList;
-    private Context context;
-    private User receiverUser;
-    private DatabaseReference myRef;
-    private Boolean isFromfav;
+    private final List <PersonalPostModel> personalPostModelList;
+    private final Context context;
+    private DatabaseReference rootRef;
+    private final Boolean isFromfav;
     private Set<String> favoriteSet;
-    private String userId;
-    private boolean isFromUserProfile;
+    private final String userId;
+    private final boolean isFromUserProfile;
 
 
     public PersonalPostRecyclerAdapter(List<PersonalPostModel> personalPostModelList, Context context,String userId, Boolean isFromfav,boolean isFromUserProfile) {
@@ -62,6 +58,7 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
 
         LayoutInflater layoutInflater = LayoutInflater.from(context);
         View view  = layoutInflater.inflate(R.layout.personal_post_custom_card,parent,false);
+        rootRef=FirebaseDatabase.getInstance().getReference();
 
         return new PersonalPostViewHolder(view);
     }
@@ -78,21 +75,20 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
         holder.userBudget.setText("Budget: " + personalPostModelList.get(position).getPrice());
         String id = personalPostModelList.get(position).getUserID();
         // getting data from user id
-         myRef = FirebaseDatabase.getInstance().getReference().child("Users").child(id);
 
-        myRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        rootRef.child(Config.users).child(id).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()){
                     User user = snapshot.getValue(User.class);
-                    holder.userName.setText(user.getName());
-//                    holder.TV_userOccupation.setText(user.getBio());
-                    if (user.getImage()!=null){
-                    Glide.with(context).
-                            load(user.getImage())
-                            .transform(new CenterCrop() , new CircleCrop())
-                            .into(holder.userPic);
-                    holder.userPic.setPadding(3,3,3,3);
+                    if (user!=null) {
+                        holder.userName.setText(user.getUsername());
+                        if (user.getImage()!=null){
+                            Glide.with(context).
+                                    load(user.getImage())
+                                    .transform(new CenterCrop())
+                                    .into(holder.userPic);
+                    }
                     }
                 }
             }
@@ -100,22 +96,22 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
             public void onCancelled(@NonNull DatabaseError error) { }
         });
 //        setting preferences
-//        for (String preference
-//                :personalPostModelList.get(position).getPreferences()) {
-//            switch (preference) {
-//                case "male":
-//                    holder.IV_male.setVisibility(View.VISIBLE);
-//                    break;
-//                case "female":
-//                    holder.IV_female.setVisibility(View.VISIBLE);
-//                    break;
-//                case "pet":
-//                    holder.IV_pet.setVisibility(View.VISIBLE);
-//                    break;
-//                case "non_smoking":
-//                    holder.IV_smoke.setVisibility(View.VISIBLE);
-//            }
-//        }
+        for (String preference
+                :personalPostModelList.get(position).getPreferences()) {
+            switch (preference) {
+                case "male":
+                    holder.maleIC.setVisibility(View.VISIBLE);
+                    break;
+                case "female":
+                    holder.femaleIC.setVisibility(View.VISIBLE);
+                    break;
+                case "pet":
+                    holder.petIC.setVisibility(View.VISIBLE);
+                    break;
+                case "non_smoking":
+                    holder.smokeIC.setVisibility(View.VISIBLE);
+            }
+        }
         if(favoriteSet.contains(personalPostModelList.get(position).getPostID())){
             holder.favButton.setChecked(true);
         }
@@ -154,76 +150,43 @@ public class PersonalPostRecyclerAdapter extends RecyclerView.Adapter<PersonalPo
                 deletPostButton.setVisibility(View.VISIBLE);
                 messageButton.setVisibility(View.GONE);
             }
-            messageButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("Users").child(personalPostModelList.get(getAdapterPosition()).getUserID());
-
-                    databaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-//                            receiverUser = new User();
-//                            receiverUser = snapshot.getValue(User.class);
-//                            Log.d("user" , snapshot.toString());
-//                            Toast.makeText(context ,snapshot.toString() ,Toast.LENGTH_SHORT).show();
-                            Intent intent = new Intent(context, ChattingActivity.class);
-                            intent.putExtra("USERID", snapshot.getKey());
-                            context.startActivity(intent);
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-
-                        }
-                    });
-                }
+            messageButton.setOnClickListener(v -> {
+                String postOwnerID=personalPostModelList.get(getAdapterPosition()).getUserID();
+                Intent intent = new Intent(context, ChattingActivity.class);
+                intent.putExtra("USERID", postOwnerID);
+                context.startActivity(intent);
             });
-            deletPostButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    deletPersonalPost();
-                }
-            });
-            favButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-                @Override
-                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    SharedPreferences prefs = context.getSharedPreferences(userId, Context.MODE_PRIVATE);
-                    SharedPreferences.Editor edit = prefs.edit();
-                    if(isChecked) {
-                        favoriteSet.add(personalPostModelList.get(getAdapterPosition()).getPostID());
-                        edit.putStringSet(PERSONAL_FAVOURITES, favoriteSet);
-                        edit.commit();
-                    }else{
-                        favoriteSet.remove(personalPostModelList.get(getAdapterPosition()).getPostID());
-                        edit.putStringSet(PERSONAL_FAVOURITES, favoriteSet);
-                        edit.commit();
-                        if(isFromfav){
-                            personalPostModelList.remove(getAdapterPosition());
-                            notifyItemRemoved(getAdapterPosition());
-                        }
+            deletPostButton.setOnClickListener(v -> deletPersonalPost());
+            favButton.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                SharedPreferences prefs = context.getSharedPreferences(userId, Context.MODE_PRIVATE);
+                SharedPreferences.Editor edit = prefs.edit();
+                if(isChecked) {
+                    favoriteSet.add(personalPostModelList.get(getAdapterPosition()).getPostID());
+                    edit.putStringSet(PERSONAL_FAVOURITES, favoriteSet);
+                    edit.apply();
+                }else{
+                    favoriteSet.remove(personalPostModelList.get(getAdapterPosition()).getPostID());
+                    edit.putStringSet(PERSONAL_FAVOURITES, favoriteSet);
+                    edit.commit();
+                    if(isFromfav){
+                        personalPostModelList.remove(getAdapterPosition());
+                        notifyItemRemoved(getAdapterPosition());
                     }
-
                 }
             });
 }
         private void deletPersonalPost() {
-            FirebaseFirestore
-                    .getInstance()
-                    .collection("postPersonal")
-                    .document(personalPostModelList.get(getAdapterPosition()).getId()).
-                    delete()
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            personalPostModelList.remove(getAdapterPosition());
-                            notifyItemRemoved(getAdapterPosition());
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
+            FirebaseFirestore firestore=FirebaseFirestore.getInstance();
+            firestore.collection("postPersonal")
+                .document(personalPostModelList.get(getAdapterPosition()).getId()).
+                delete()
+                .addOnSuccessListener(aVoid -> {
+                    personalPostModelList.remove(getAdapterPosition());
+                    notifyItemRemoved(getAdapterPosition());
+                }).addOnFailureListener(e -> {
                     //TODO display a dialog
-                }
-            });
+                    Toast.makeText(context,"Something went wrong!",Toast.LENGTH_SHORT).show();
+                });
 
         }
     }

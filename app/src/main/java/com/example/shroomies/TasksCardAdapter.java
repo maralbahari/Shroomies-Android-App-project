@@ -2,7 +2,6 @@ package com.example.shroomies;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.View;
@@ -15,7 +14,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.FragmentManager;
-import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.AuthFailureError;
@@ -223,7 +221,7 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
                     :tasksCardsList.get(position).getMention().entrySet()){
                 if(memberHashMap.get(entry.getKey())!=null){
                     //create a new Chip for each mentioned user
-                    String name = memberHashMap.get(entry.getKey()).getName();
+                    String name = memberHashMap.get(entry.getKey()).getUsername();
                     Chip chip = new Chip(context);
                     chip.setText("@"+name);
                     chip.setTextColor(context.getColor(R.color.mentionBlue));

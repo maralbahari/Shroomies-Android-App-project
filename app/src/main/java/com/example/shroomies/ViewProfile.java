@@ -156,7 +156,7 @@ public class ViewProfile extends Fragment {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
                     User user = snapshot.getValue(User.class);
-                    viewUsername.setText(user.getName());
+                    viewUsername.setText(user.getUsername());
                     viewBio.setText(user.getBio());
                     String url = snapshot.child("image").getValue(String.class);
                     if (user.getImage() != null) {

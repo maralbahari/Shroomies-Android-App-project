@@ -15,11 +15,11 @@
       },
       "oauth_client": [
         {
-          "client_id": "869729058596-i29otg5pts0b8mbkcg8tlnlbakqh7u18.apps.googleusercontent.com",
+          "client_id": "869729058596-7vcqut6v4q16afuj55qvc1gghn96rdcq.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.shroomies",
-            "certificate_hash": "d4658d5bc065007e8df1846dff4bb950b2c35f72"
+            "certificate_hash": "7d4cc9605bb392452f3ec0a43c66c0422da5d61f"
           }
         },
         {

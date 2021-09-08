@@ -22,7 +22,6 @@ import com.android.volley.NoConnectionError;
 import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
 import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
@@ -90,8 +89,8 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                         .into(holder.userImage);
             }
         }
-        if(userList.get(position).getName()!=null){
-            holder.userName.setText(userList.get(position).getName());
+        if(userList.get(position).getUsername()!=null){
+            holder.userName.setText(userList.get(position).getUsername());
 
         }
         if(!mAuth.getCurrentUser().getUid().equals(apartment.getAdminID())){
@@ -200,7 +199,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
                             boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
                             if(success){
 
-                                Snackbar snack=Snackbar.make(parentView,removedUser.getName()+" has been removed", BaseTransientBottomBar.LENGTH_SHORT);
+                                Snackbar snack=Snackbar.make(parentView,removedUser.getUsername()+" has been removed", BaseTransientBottomBar.LENGTH_SHORT);
                                 snack.show();
                             }else{
                                 //return the user back

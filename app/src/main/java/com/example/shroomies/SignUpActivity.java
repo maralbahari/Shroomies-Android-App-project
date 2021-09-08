@@ -1,215 +1,112 @@
 package com.example.shroomies;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Toast;
-
-import androidx.annotation.NonNull;
+import android.widget.ImageButton;
 import androidx.appcompat.app.AppCompatActivity;
-
-import com.airbnb.lottie.L;
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
-import com.google.android.gms.tasks.Continuation;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
+import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
 import com.google.android.gms.tasks.Task;
-import com.google.common.net.HttpHeaders;
-import com.google.firebase.auth.AuthResult;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GetTokenResult;
-import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.functions.FirebaseFunctions;
-import com.google.firebase.functions.HttpsCallableResult;
-import com.virgilsecurity.android.common.callback.OnGetTokenCallback;
-import com.virgilsecurity.android.common.callback.OnKeyChangedCallback;
-import com.virgilsecurity.android.common.model.EThreeParams;
-import com.virgilsecurity.android.ethree.interaction.EThree;
-import com.virgilsecurity.common.callback.OnResultListener;
-import com.virgilsecurity.common.model.Data;
-import com.virgilsecurity.sdk.crypto.KeyPairType;
 
-import org.jetbrains.annotations.NotNull;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import kotlin.Function;
-import kotlin.jvm.functions.Function0;
 
 public class SignUpActivity extends AppCompatActivity{
-    private EditText name;
-    private EditText email;
-    private EditText password;
-    private EditText confirmpw;
-    private Button register;
-    private DatabaseReference mRootref;
-    private FirebaseAuth mAuth;
-    CustomLoadingProgressBar pd;
-    SessionManager sessionManager;
-    public static EThree eThree;
-    private  String token ="";
-   private String apartmentID;
-   private RequestQueue requestQueue;
-
+    private TextInputLayout usernameEditText;
+    private TextInputLayout emailEditText;
+    private CardView helpCardView;
+    private boolean userNameIsTaken;
+    private static final Pattern pattern = Pattern.compile(Config.USERNAME_PATTERN);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_sign_up);
-        name = findViewById(R.id.fullname);
-        email = findViewById(R.id.emailid);
-        password = findViewById(R.id.password);
-        confirmpw = findViewById(R.id.confirmpw);
-        register = findViewById(R.id.registerbt);
-//        FirebaseDatabase.getInstance().useEmulator("10.0.2.2",9000);
-        mRootref = FirebaseDatabase.getInstance().getReference();
+        usernameEditText = findViewById(R.id.username_sign_up);
+        emailEditText = findViewById(R.id.email_sign_up);
+        ImageButton nextButton = findViewById(R.id.next_button_sign_up);
+        helpCardView = findViewById(R.id.help_card_view);
+        Toolbar toolbar = findViewById(R.id.sign_up_tool_bar);
 
-        mAuth = FirebaseAuth.getInstance();
-        requestQueue = Volley.newRequestQueue(getApplicationContext());
-//        mAuth.useEmulator("10.0.2.2",9099);
-        pd = new CustomLoadingProgressBar(SignUpActivity.this , "Creating account... " , R.raw.loading_animation);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle(null);
 
-        Boolean isEnabled;
-
-        register.setOnClickListener(v -> {
-            String txtName = name.getText().toString();
-            String txtEmail = email.getText().toString().trim();
-            String txtPass = password.getText().toString();
-            String txtConfpw = confirmpw.getText().toString();
-            if (TextUtils.isEmpty(txtName) || TextUtils.isEmpty(txtEmail) || TextUtils.isEmpty(txtPass)
-                    || TextUtils.isEmpty(txtConfpw)){
-                Toast.makeText(SignUpActivity.this, "Empty credentials!", Toast.LENGTH_SHORT).show();
+        if (usernameEditText.isErrorEnabled() && usernameEditText.isSelected()) {
+            usernameEditText.setErrorEnabled(false);
+        }
+        usernameEditText.setErrorIconOnClickListener(view -> {
+            if (helpCardView.getVisibility() == View.VISIBLE) {
+                helpCardView.setVisibility(View.GONE);
+            } else {
+                helpCardView.setVisibility(View.VISIBLE);
             }
-            else if (txtPass.length() < 6){
-                Toast.makeText(SignUpActivity.this, "Password too short!", Toast.LENGTH_SHORT).show();
+        });
+        nextButton.setOnClickListener(view -> {
+            String enteredEmail = Objects.requireNonNull(emailEditText.getEditText()).getText().toString().trim();
+            String enteredUsername = Objects.requireNonNull(usernameEditText.getEditText()).getText().toString().toLowerCase().trim();
+            if(eligibaleToContinue(enteredEmail,enteredUsername)) {
+
+                    checkDuplicateUserName(enteredUsername).addOnCompleteListener(task -> {
+                        if(task.isSuccessful()){
+                            if(task.getResult().getValue()!=null){
+                                usernameEditText.setError(enteredUsername + " is taken");
+                            }else{
+                                usernameEditText.setError(null);
+                                emailEditText.setError(null);
+                                usernameEditText.setError(null);
+                                Intent intent = new Intent(SignUpActivity.this, PasswordSignUp.class);
+                                intent.putExtra("EMAIL", enteredEmail);
+                                intent.putExtra("USERNAME", enteredUsername);
+                                startActivity(intent);
+                            }
+                        }
+                    });
+
+            }else {
+                if (!validUsername(enteredUsername)) {
+                    usernameEditText.setError("Please enter valid username");
+                }else{
+                    usernameEditText.setError(null);
+                }
+                if(!validEmail(enteredEmail)) {
+                    emailEditText.setError("Please enter valid email");
+                }else {
+                    emailEditText.setError(null);
+                }
             }
-            else {
-                    registerUser(txtName , txtEmail , txtPass, txtConfpw);
+        });
+        usernameEditText.setEndIconOnClickListener(view -> {
+            if (helpCardView.getVisibility() == View.VISIBLE) {
+                helpCardView.setVisibility(View.GONE);
+            } else {
+                helpCardView.setVisibility(View.VISIBLE);
             }
         });
 
     }
-
-
-
-    private void registerUser(final String name, final String email, String password, String confirmpw) {
-        pd.show();
-        JSONObject jsonObject = new JSONObject();
-        JSONObject data = new JSONObject();
-
-        try {
-            jsonObject.put("email" , email);
-            jsonObject.put("name", name);
-            jsonObject.put("password" , password);
-            data.put("data", jsonObject);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-            JsonObjectRequest jsonObjectRequest =
-                    new JsonObjectRequest(Request.Method.POST, Config.URL_REGISTER_USER, data, response -> {
-                        Toast.makeText(SignUpActivity.this, name+", you are a Shroomie now", Toast.LENGTH_SHORT).show();
-                        pd.dismiss();
-                        //                              sendEmailVerification();
-                        Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
-                        startActivity(intent);
-
-                    }, error -> {
-
-            });
-            requestQueue.add(jsonObjectRequest);
-        }
-
-
-    private void sendEmailVerification(){
-        final FirebaseUser user = mAuth.getCurrentUser();
-         user.sendEmailVerification().addOnCompleteListener(this, new OnCompleteListener<Void>() {
-            @Override
-            public void onComplete(@NonNull Task<Void> task) {
-                findViewById(R.id.registerbt).setEnabled(true);
-                if(task.isSuccessful()){
-
-                    Toast.makeText(getApplicationContext(), "Registered Successfully. Verification email sent to " + user.getEmail(), Toast.LENGTH_SHORT).show();
-                    getE3Token();
-                    Intent intent = new Intent(SignUpActivity.this, LoginActivity.class);
-                    startActivity(intent);
-                    Toast.makeText(SignUpActivity.this, name+", you are a Shroomie now", Toast.LENGTH_SHORT).show();
-                    //get public and private keys for Virgil e3 kit
-                }
-                else {
-                    Log.e("Register", "Send Email verification failed!",task.getException());
-                    Toast.makeText(getApplicationContext(), "Failed to send verification email", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-
-
+    private Task<DataSnapshot> checkDuplicateUserName(String userName){
+        DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference(Config.usersnames);
+        return rootRef.orderByKey().equalTo(userName).get().addOnCompleteListener(task -> { });
+    }
+    private boolean eligibaleToContinue(String enteredEmail,String enteredUsername){
+        return validUsername(enteredUsername) && validEmail(enteredEmail) && !userNameIsTaken;
+    }
+    private boolean validEmail(String enteredEmail){
+        return android.util.Patterns.EMAIL_ADDRESS.matcher(enteredEmail).matches();
     }
 
-
-
-    private void getE3Token() {
-        com.virgilsecurity.common.callback.OnCompleteListener registerListener = new com.virgilsecurity.common.callback.OnCompleteListener() {
-            @Override
-            public void onSuccess() {
-                Log.d("ethree register ", "success");
-
-            }
-            @Override
-            public void onError(@NotNull Throwable throwable) {
-                Log.d("ethree register ", throwable.toString());
-            }
-        };
-        /*Map<String, String> data*/
-        FirebaseFunctions.getInstance()
-                .getHttpsCallable("getVirgilJwt")
-                .call()
-                .continueWith(new Continuation<HttpsCallableResult, Object>() {
-                    @Override
-                    public Object then(@NonNull Task<HttpsCallableResult> task) throws Exception {
-                        token = ((Map<String, String>) task.getResult().getData()).get("token");
-                        eThree = new EThree(mAuth.getCurrentUser().getUid()
-                                , (OnGetTokenCallback) () -> getToken()
-                                , getApplicationContext());
-                        eThree.register().addCallback(registerListener);
-                        return null;
-
-                    }
-                });
-        }
-
-    public String getToken(){
-        return token;
+    public static boolean validUsername(final String username) {
+        Matcher matcher = pattern.matcher(username);
+        return matcher.matches();
     }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (pd != null) {
-            pd.dismiss();
-            pd = null;
-        }
-    }
-
-
 
 }

@@ -3,6 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".DeleteUser">
     <RelativeLayout
         android:id="@+id/delete_account_upper_page"
@@ -32,63 +33,78 @@
             android:layout_height="wrap_content"
             android:text="Done"
             android:layout_alignParentRight="true"
-            android:textColor="@color/lightGrey"
+            android:textColor="@color/Black"
             android:textAllCaps="false"
             android:background="@android:color/transparent"/>
     </RelativeLayout>
-
-    <TextView
-        android:id="@+id/delete_account_exp"
-        android:layout_below="@+id/delete_account_password"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:maxLines="1"
-        android:inputType="textEmailAddress"
-        android:text="Please Enter the password belongs to this email."
-        android:textColor="@color/LogoYellow"
-        android:layout_margin="10dp"
-        android:elevation="-5dp"
-        android:padding="-5dp"
-        android:textSize="14sp"
-        />
-    <TextView
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/delete_account_email"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Email"
-        android:inputType="textEmailAddress"
-        android:layout_below="@id/delete_account_upper_page"
-        android:layout_margin="10dp"
-        />
-    <View
-        android:id="@+id/line_below_image"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_below="@id/delete_account_email"
-        android:layout_margin="5dp"
-        android:alpha="0.8"
-        android:background="@color/lowerGradientColorForLoginBackground"/>
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        app:boxBackgroundMode="filled"
+        android:layout_marginTop="10dp"
+        app:boxCornerRadiusBottomEnd="10dp"
+        app:boxCornerRadiusBottomStart="10dp"
+        app:boxCornerRadiusTopEnd="10dp"
+        app:boxCornerRadiusTopStart="10dp"
+        app:boxStrokeWidth="2dp"
+        app:boxStrokeColor="@color/LogoYellow"
+        android:layout_below="@+id/delete_account_upper_page"
+        app:startIconDrawable="@drawable/ic_email_edit_text"
+        app:startIconTint="@color/LogoYellow"
+        >
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/entered_email_login"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@android:color/transparent"
+            android:inputType="textEmailSubject"
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp"
+            android:textAlignment="textStart"
+            android:textColor="#66333533"
+            android:enabled="false"
+            />
+    </com.google.android.material.textfield.TextInputLayout>
 
-    <EditText
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/delete_account_password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/delete_account_email"
         android:layout_marginStart="10dp"
-        android:layout_marginTop="20dp"
         android:layout_marginEnd="10dp"
-        android:layout_marginBottom="10dp"
-        android:background="@android:color/transparent"
-        android:drawableRight="@drawable/ic_close_logo_color"
-        android:hint="Password"
-        android:inputType="textPassword"
-        android:drawablePadding="5dp"
-        android:focusedByDefault="true"/>
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_below="@+id/delete_account_password"
-        android:layout_margin="5dp"
-        android:alpha="0.8"
-        android:background="@color/lowerGradientColorForLoginBackground"/>
+        android:layout_below="@+id/delete_account_email"
+        android:layout_marginTop="10dp"
+        app:boxBackgroundMode="outline"
+        app:boxCornerRadiusBottomEnd="10dp"
+        app:boxCornerRadiusBottomStart="10dp"
+        app:boxCornerRadiusTopEnd="10dp"
+        app:boxCornerRadiusTopStart="10dp"
+        app:boxStrokeColor="@color/LogoYellow"
+        app:boxStrokeWidth="2dp"
+        app:hintAnimationEnabled="true"
+        app:hintTextColor="@color/jetBlack"
+        app:startIconDrawable="@drawable/ic_password_edit_text"
+        app:passwordToggleEnabled="true"
+        app:boxStrokeErrorColor="@color/red"
+        app:errorEnabled="true"
+        app:helperText="Please Enter the password belongs to this email."
+        app:helperTextTextColor="@color/LogoYellow"
+        app:startIconTint="@color/LogoYellow"
+        app:textColor="@color/jetBlack">
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@android:color/transparent"
+            android:id="@+id/login_password_edit_text"
+            android:hint="Password"
+            android:inputType="textPassword"
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp"
+            android:textAlignment="textStart"
+            />
+    </com.google.android.material.textfield.TextInputLayout>
+
 </RelativeLayout>

@@ -52,6 +52,9 @@ public class Config {
 
 
 
+    public static String usersnames = "usernames";
+
+
 
 
 
@@ -143,4 +146,12 @@ public class Config {
     public static final String FEMALE  = "female";
     public static final String NON_SMOKING  ="non_smoking";
     public static final String PET_FRIENDLY = "pet";
+
+
+
+
+
+    public static final String USERNAME_PATTERN =
+            "^[a-zA-Z0-9]([._-](?![._-])|[a-zA-Z0-9]){3,18}[a-zA-Z0-9]$";
+    public static String username = "username";
 }

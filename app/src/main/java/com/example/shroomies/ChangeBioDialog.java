@@ -22,6 +22,8 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import android.view.inputmethod.InputMethodManager;
@@ -38,10 +40,8 @@ public class ChangeBioDialog extends DialogFragment {
     private FirebaseAuth mAuth;
     private DatabaseReference rootRef;
 
-    private EditText newBio;
-    private TextView bioLimit;
+    private TextInputLayout newBio;
     private User user;
-    final int maxChar = 100;
     private View v;
     private bio changedBio;
     @Override
@@ -93,69 +93,39 @@ public class ChangeBioDialog extends DialogFragment {
         showKeyboard();
         Button doneButton = v.findViewById(R.id.change_bio_done_button);
         ImageButton backButton = v.findViewById(R.id.change_bio_back_button);
-        bioLimit=v.findViewById(R.id.bio_char_limit);
         Bundle bundle=this.getArguments();
         if (bundle!=null) {
             user=bundle.getParcelable("USER");
             if (!user.getBio().equals("")) {
-                newBio.setText(user.getBio());
-                newBio.setSelection(newBio.getText().length());
-                int currentChar=user.getBio().length();
-                bioLimit.setText(String.valueOf(maxChar -currentChar));
+                newBio.getEditText().setText(user.getBio());
+                newBio.getEditText().setSelection(newBio.getEditText().getText().length());
             } else {
                 newBio.setHint("my bio");
-                bioLimit.setText(String.valueOf(maxChar));
             }
         } else {
 //            todo handle error when bundle is null
             dismiss();
 
         }
-        newBio.addTextChangedListener(new TextWatcher() {
+        newBio.setEndIconOnClickListener(new View.OnClickListener() {
             @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
+            public void onClick(View view) {
+                newBio.getEditText().setText("");
             }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                int newChar=editable.length();
-                bioLimit.setText(String.valueOf((maxChar-newChar)));
-            }
-        });
-        newBio.setOnTouchListener((view1, motionEvent) -> {
-            final int DRAWABLE_RIGHT = 2;
-            if (motionEvent.getAction()==MotionEvent.ACTION_UP){
-                if(motionEvent.getRawX()>=(newBio.getRight()-newBio.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
-                    newBio.setText("");
-                    return true;
-                }
-            }
-            return false;
         });
         doneButton.setOnClickListener(v -> {
             FirebaseUser firebaseUser= mAuth.getCurrentUser();
             if (firebaseUser!=null) {
-                String txtBio = newBio.getText().toString().trim();
-                if (txtBio.length()>maxChar) {
-                    Toast.makeText(getContext(),"Your bio needs to be less than 150 character",Toast.LENGTH_LONG).show();
-                } else {
+                String txtBio = newBio.getEditText().getText().toString().trim();
                     if (txtBio.equals(user.getBio())) {
                         Toast.makeText(getContext(),"No changes have been made",Toast.LENGTH_SHORT).show();
                     } else {
                         updateBio(txtBio);
                     }
-                }
             }
         });
         backButton.setOnClickListener(v -> {
-            if (!user.getBio().equals(newBio.getText().toString())) {
+            if (!user.getBio().equals(newBio.getEditText().getText().toString())) {
 //                    todo alert for unsaved changes
                 Toast.makeText(getContext(),"unSaved Changes",Toast.LENGTH_LONG).show();
             } else {

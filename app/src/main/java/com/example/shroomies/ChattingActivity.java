@@ -582,7 +582,7 @@ public class ChattingActivity extends AppCompatActivity {
                     .into(receiverProfileImage);
             receiverProfileImage.setPadding(0, 0, 0, 0);
         }
-        receiverUsername.setText(reciever.getName());
+        receiverUsername.setText(reciever.getUsername());
         messageSeen(reciever.getUserID());
     }
 

@@ -5,159 +5,190 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/gradient_yellow_background"
-    android:padding="@dimen/box_inset_layout_padding"
     app:layoutDescription="@xml/activity_login_scene"
-    tools:context=".LoginActivity"
-    tools:deviceIds="wear">
-
+    tools:context=".LoginActivity">
 
     <ImageView
         android:id="@+id/black_mashroom_logo"
-        android:layout_width="100dp"
-        android:layout_height="129dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="50dp"
         android:alpha="1.0"
         android:foregroundGravity="center"
-        android:src="@drawable/black_mushroom"
+        android:maxWidth="100dp"
+        android:maxHeight="100dp"
+        android:minWidth="80dp"
+        android:minHeight="80dp"
+        android:src="@drawable/ic_shroomies_full_black_30x28"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteY="44dp" />
-
-    <ImageView
-        android:id="@+id/shroomie_logo"
-        android:layout_width="0dp"
-        android:layout_height="46dp"
-        android:layout_marginStart="109dp"
-        android:layout_marginEnd="109dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/ic_shroomies_text"
-        tools:layout_editor_absoluteY="190dp" />
-
-
-    <EditText
-        android:id="@+id/email_login"
-        android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:layout_marginStart="50dp"
-        android:layout_marginTop="272dp"
-        android:layout_marginEnd="50dp"
-        android:background="@drawable/button_round"
-        android:drawableStart="@drawable/ic_email_edit_text"
-        android:elevation="30dp"
-        android:hint="   Email"
-        android:padding="10dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <EditText
-        android:id="@+id/password_login"
-        android:layout_width="0dp"
-        android:layout_height="60dp"
-        android:layout_marginStart="50dp"
-        android:layout_marginTop="40dp"
-        android:layout_marginEnd="50dp"
-        android:background="@drawable/button_round"
-        android:drawableStart="@drawable/ic_password_edit_text"
-        android:elevation="30dp"
-        android:hint="   Password"
-        android:inputType="textPassword"
-        android:padding="10dp"
+    <ImageView
+        android:id="@+id/shroomie_logo"
+        android:layout_width="120dp"
+        android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/email_login" />
+        app:layout_constraintTop_toBottomOf="@+id/black_mashroom_logo"
+
+        app:srcCompat="@drawable/ic_shroomies_text" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/email_login"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="25dp"
+        app:boxBackgroundMode="outline"
+
+        app:boxCornerRadiusBottomEnd="10dp"
+        app:boxCornerRadiusBottomStart="10dp"
+        app:boxCornerRadiusTopEnd="10dp"
+        app:boxCornerRadiusTopStart="10dp"
+        app:boxStrokeColor="@color/white"
+        app:boxStrokeWidth="2dp"
+        app:errorEnabled="true"
+        app:hintAnimationEnabled="true"
+        app:hintTextColor="@color/jetBlack"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/shroomie_logo"
+        app:startIconDrawable="@drawable/ic_email_edit_text"
+        app:textColor="@color/jetBlack">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:backgroundTint="@android:color/transparent"
+            android:hint="Email"
+            android:inputType="textEmailSubject"
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp"
+            android:textAlignment="textStart"
+
+            />
+    </com.google.android.material.textfield.TextInputLayout>
 
 
     <TextView
-        android:id="@+id/sign_up_button"
+        android:id="@+id/textView"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-
+        android:layout_height="wrap_content"
         android:gravity="center"
-        android:shadowColor="@android:color/black"
-        android:shadowDx="1"
-        android:shadowDy="1"
-        android:shadowRadius="2"
-        android:text="Sign up"
-        android:textAlignment="center"
-        android:textSize="24sp"
-        android:textStyle="bold"
+        android:padding="10dp"
+        android:shadowColor="@color/lightGrey"
+        android:shadowDy="2"
+        android:shadowRadius="10"
+        android:text="Don't have an account yet?"
+        app:layout_constraintBottom_toTopOf="@+id/sign_up_button"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
 
-        app:layout_constraintBottom_toBottomOf="parent"/>
-
-    <ImageButton
-        android:id="@+id/login_button"
-        android:elevation="5dp"
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/sign_up_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:background="@drawable/circle_white_button"
-        android:src="@drawable/ic_yellow_arrow_icon"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.135"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/password_login" />
-
-    <Button
-        android:id="@+id/google_sign_up"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="52dp"
-        android:layout_marginTop="142dp"
-        android:layout_marginEnd="52dp"
-        android:background="@drawable/textbox_round"
-        android:drawableLeft="@drawable/google_icon"
-        android:elevation="10dp"
+        android:layout_marginTop="50dp"
+        android:backgroundTint="@android:color/transparent"
         android:gravity="center"
-        android:maxWidth="400dp"
-        android:padding="10dp"
-        android:text="   Continue with Google"
+        android:insetTop="0dp"
+        android:outlineProvider="none"
+        android:text="Sign up"
+        android:textAlignment="center"
+        android:textAllCaps="false"
+        android:textColor="@color/jetBlack"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        app:cornerRadius="20dp"
+        app:elevation="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.428"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/login_button_card_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="10dp"
+        android:backgroundTint="@color/jetBlack"
+        android:foreground="?selectableItemBackground"
+        app:cardCornerRadius="100dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/password_login"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toBottomOf="@+id/email_login">
+
+        <ImageButton
+            android:id="@+id/login_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:elevation="5dp"
+            android:foreground="?selectableItemBackground"
+            android:padding="10dp"
+            android:src="@drawable/ic_next_arraow_yellow"
+            />
+    </androidx.cardview.widget.CardView>
+
+    <View
+        android:id="@+id/left_divider"
+        android:layout_width="wrap_content"
+        android:layout_height="0.5dp"
+        android:layout_marginTop="40dp"
+        android:background="@color/jetBlack"
+        app:layout_constraintEnd_toStartOf="@id/continue_with_text_view"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/login_button_card_view"
+
+        />
 
     <TextView
-        android:id="@+id/forgot_password_login"
-        android:layout_width="155dp"
+        android:id="@+id/continue_with_text_view"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="131dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginEnd="131dp"
-        android:layout_marginBottom="170dp"
-        android:alpha="0.9"
-        android:gravity="center"
-        android:text="Forgot Password ?"
-        android:textAlignment="center"
-        android:textColor="@android:color/primary_text_light"
-        android:textSize="15sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="30dp"
+        android:text="Or continue with"
+        app:layout_constraintBottom_toBottomOf="@id/left_divider"
+        app:layout_constraintEnd_toStartOf="@id/right_divider"
+        app:layout_constraintStart_toEndOf="@id/left_divider"
+        app:layout_constraintTop_toTopOf="@id/left_divider" />
+
+    <View
+        android:id="@+id/right_divider"
+        android:layout_width="wrap_content"
+        android:layout_height="0.5dp"
+        android:layout_marginTop="40dp"
+        android:background="@color/jetBlack"
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/continue_with_text_view"
+        app:layout_constraintTop_toBottomOf="@id/login_button_card_view"
+
+        />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:backgroundTint="@color/jetBlack"
+        app:cardCornerRadius="50dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/login_button"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintTop_toBottomOf="@id/continue_with_text_view">
 
-<!--    <progress-->
-<!--        android:id="@+id/progressBar_login"-->
-<!--        style="?android:attr/progressBarStyle"-->
-<!--        android:layout_width="wrap_content"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_marginTop="32dp"-->
-<!--        android:layout_marginBottom="5dp"-->
-<!--        android:visibility="gone"-->
-<!--        app:layout_constraintBottom_toTopOf="@+id/forgot_password_login"-->
-<!--        app:layout_constraintEnd_toEndOf="parent"-->
-<!--        app:layout_constraintHorizontal_bias="0.305"-->
-<!--        app:layout_constraintStart_toEndOf="@+id/login_button"-->
-<!--        app:layout_constraintTop_toBottomOf="@+id/password_login"-->
-<!--        app:layout_constraintVertical_bias="0.0" />-->
+        <ImageButton
+            android:id="@+id/google_sign_up"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent"
+            android:foreground="?selectableItemBackground"
+            android:padding="10dp"
+            android:src="@drawable/ic_google_icon_svg"
+            android:textAllCaps="false" />
+    </androidx.cardview.widget.CardView>
 
 
 </androidx.constraintlayout.motion.widget.MotionLayout>

@@ -40,7 +40,6 @@ import androidx.fragment.app.DialogFragment;
 import com.airbnb.lottie.LottieAnimationView;
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkError;
-import com.android.volley.NoConnectionError;
 import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -400,8 +399,8 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                                         }
                                         if(user!=null) {
                                             apartmentMembersArrayList.add(user);
-                                            nameAndIdHashMap.put(user.getName() , user.getUserID());
-                                            mentionAdapter.add(new Mention(user.getName()));
+                                            nameAndIdHashMap.put(user.getUsername() , user.getUserID());
+                                            mentionAdapter.add(new Mention(user.getUsername()));
                                             mentionAutoCompleteTextView.setMentionAdapter(mentionAdapter);
                                         }
 

@@ -17,6 +17,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthCredential;
 import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
@@ -28,7 +30,7 @@ public class DeleteUser extends DialogFragment {
     private FirebaseAuth mAuth;
     private User user;
     private View v;
-    private EditText userPassword;
+    private TextInputLayout userPassword;
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -44,14 +46,14 @@ public class DeleteUser extends DialogFragment {
         super.onViewCreated(view, savedInstanceState);
         Button cancelButton = v.findViewById(R.id.delete_account_cancel);
         Button doneButton = v.findViewById(R.id.delete_account_done);
-        TextView userEmail = v.findViewById(R.id.delete_account_email);
+        TextInputLayout userEmail = v.findViewById(R.id.delete_account_email);
         userPassword=v.findViewById(R.id.delete_account_password);
         Bundle bundle=this.getArguments();
         if (bundle!=null) {
             user=bundle.getParcelable("USER");
             if (user!=null) {
-                userEmail.setText(user.getEmail());
-                doneButton.setOnClickListener(view1 -> reAuthenticateUser(user.getEmail(), userPassword.getText().toString()));
+                userEmail.getEditText().setText(user.getEmail());
+                doneButton.setOnClickListener(view1 -> reAuthenticateUser(user.getEmail(), userPassword.getEditText().getText().toString().trim()));
                 cancelButton.setOnClickListener(view12 -> dismiss());
             }
 
@@ -105,10 +107,11 @@ public class DeleteUser extends DialogFragment {
     private void deleteAccount(FirebaseUser firebaseUser) {
         firebaseUser.delete().addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
+                userPassword.setError(null);
                 Toast.makeText(getContext(),"You are no longer shroomie",Toast.LENGTH_LONG).show();
                 mAuth.signOut();
                 this.getTargetFragment().getActivity().finish();
             }
-        }).addOnFailureListener(e -> Toast.makeText(getContext(),e.getMessage(),Toast.LENGTH_LONG).show());
+        }).addOnFailureListener(e -> userPassword.setError(e.getMessage()));
     }
 }
