@@ -1,19 +1,25 @@
 package com.example.shroomies;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.fragment.app.Fragment;
 import androidx.viewpager.widget.ViewPager;
 
 import android.Manifest;
+import android.app.Application;
+import android.content.Context;
 import android.content.Intent;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -29,6 +35,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.common.net.HttpHeaders;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -48,26 +55,27 @@ import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.sql.Array;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class PublishPostImage extends AppCompatActivity {
+public class PublishPostImage extends Fragment {
     private static final int PICK_IMAGE_MULTIPLE = 1;
     public static final int NUMBER_OF_IMAGES_ALLOWED = 5;
-
+    private View v;
     private ViewPager viewPager;
     private DotsIndicator dotsIndicator;
     private ImageButton deleteImageButton;
     private LottieAnimationView lottieAnimationView;
     private TextView addImageTextView;
-    private MaterialButton publishPostButton;
+    private MaterialButton publishPostButton, addMoreImagesButton;
     private CardView addImageCardView;
+    private AppCompatActivity appCompatActivity;
+    private RelativeLayout rootLayout;
+
 
     private ArrayList<Uri> imageUris;
     private ViewPagerAdapter viewPagerAdapter;
@@ -81,26 +89,39 @@ public class PublishPostImage extends AppCompatActivity {
     private String locality, subLocality, description, postType;
     private int budget, numberOfRoomMates;
     private ArrayList<String> preferences;
+    private UploadTask uploadTask;
 
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_publish_post_image1);
-        mAuth = FirebaseAuth.getInstance();
-        requestQueue = Volley.newRequestQueue(getApplication());
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        appCompatActivity =(AppCompatActivity)context;
+    }
 
-        lottieAnimationView = findViewById(R.id.add_image_animation);
-        addImageTextView = findViewById(R.id.add_image_text_view);
-        viewPager = findViewById(R.id.view_pager);
-        dotsIndicator = findViewById(R.id.dots_indicator);
-        deleteImageButton = findViewById(R.id.delete_image_post);
-        publishPostButton = findViewById(R.id.publish_post_button);
-        addImageCardView = findViewById(R.id.add_image_card_view);
-        publishPostButton = findViewById(R.id.publish_post_button);
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        v = inflater.inflate(R.layout.fragment_publish_post_image, container, false);
+        mAuth=FirebaseAuth.getInstance();
+        requestQueue= Volley.newRequestQueue(getActivity());
+        return v;
+    }
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        lottieAnimationView = v.findViewById(R.id.add_image_animation);
+        addImageTextView = v.findViewById(R.id.add_image_text_view);
+        viewPager = v.findViewById(R.id.view_pager);
+        dotsIndicator = v.findViewById(R.id.dots_indicator);
+        deleteImageButton = v.findViewById(R.id.delete_image_post);
+        publishPostButton = v.findViewById(R.id.publish_post_button);
+        addImageCardView = v.findViewById(R.id.add_image_card_view);
+        publishPostButton = v.findViewById(R.id.publish_post_button);
+        addMoreImagesButton = v.findViewById(R.id.add_more_images_button);
+        rootLayout = v.findViewById(R.id.root_layout);
 
-        if (getIntent().getExtras() != null) {
-            Bundle bundle = getIntent().getExtras();
+        if (this.getArguments()!=null) {
+            Bundle bundle = this.getArguments();
             latLng = bundle.getParcelable(Config.SELECTED_LAT_LNG);
             locality = bundle.getString(Config.LOCALITY);
             subLocality = bundle.getString(Config.SUB_LOCALITY);
@@ -111,7 +132,6 @@ public class PublishPostImage extends AppCompatActivity {
         } else {
             //todo display error
         }
-
 
         imageUris = new ArrayList<>();
 
@@ -132,29 +152,27 @@ public class PublishPostImage extends AppCompatActivity {
         });
         deleteImageButton.setOnClickListener(v -> deleteFromView());
         addImageCardView.setOnClickListener(v -> pickFromGallery());
-        publishPostButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (!imageUris.isEmpty()) {
-
-                    postImagesAddToDatabase(latLng, description, numberOfRoomMates, budget, preferences, imageUris, locality, subLocality);
-                } else {
-                    //todo display error
-                }
+        addMoreImagesButton.setOnClickListener(v -> pickFromGallery());
+        publishPostButton.setOnClickListener(v -> {
+            if (!imageUris.isEmpty()) {
+                postImagesAddToDatabase(latLng, description, numberOfRoomMates, budget, preferences, imageUris, locality, subLocality);
+            } else {
+                //todo display error
             }
         });
-
     }
 
+
+
     private void pickFromGallery() {
-        Dexter.withContext(getApplication()).withPermissions(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+        Dexter.withContext(getActivity()).withPermissions(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE)
                 .withListener(new MultiplePermissionsListener() {
                     @Override
                     public void onPermissionsChecked(MultiplePermissionsReport multiplePermissionsReport) {
                         if (multiplePermissionsReport.isAnyPermissionPermanentlyDenied()) {
                             // navigate user to app settings
                             Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-                            Uri uri = Uri.fromParts("package", getApplication().getPackageName(), null);
+                            Uri uri = Uri.fromParts("package", getActivity().getPackageName(), null);
                             intent.setData(uri);
                             startActivity(intent);
                         } else {
@@ -182,47 +200,45 @@ public class PublishPostImage extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         boolean duplicateFound = false;
         Uri selectedImageUri;
+        int spaceAvailable = NUMBER_OF_IMAGES_ALLOWED - imageUris.size();
 
-        if (imageUris.size() > NUMBER_OF_IMAGES_ALLOWED) {
-            Toast.makeText(getApplication(), "too many photos", Toast.LENGTH_SHORT).show();
-        } else {
-            if (resultCode == RESULT_OK && requestCode == PICK_IMAGE_MULTIPLE) {
-                // if more than one image is selected
-                if (data.getClipData() != null) {
-                    int count = data.getClipData().getItemCount(); //evaluate the count before the for loop
-                    // get the remaining amount of space left from the pictures that have already been
-                    //uploaded if any exist
-                    int spaceAvailable = NUMBER_OF_IMAGES_ALLOWED - imageUris.size();
-                    if (count > spaceAvailable) {
-                        count -= spaceAvailable;
-                    }
+        if (resultCode == getActivity().RESULT_OK && requestCode == PICK_IMAGE_MULTIPLE) {
+            // if more than one image is selected
+            if (data.getClipData() != null) {
+                int count = data.getClipData().getItemCount(); //evaluate the count before the for loop
+                // get the remaining amount of space left from the pictures that have already been
+                //uploaded if any exist
+                Snackbar.make(rootLayout, "space is  "+spaceAvailable , Snackbar.LENGTH_SHORT).show();
 
-                    for (int i = 0; i < count; i++) {
-                        selectedImageUri = data.getClipData().getItemAt(i).getUri();
-                        if (!imageUris.contains(selectedImageUri)) {
-                            addToViewPager(selectedImageUri);
-                        }
+                for (int i = 0; i < count; i++) {
+                    if(i>spaceAvailable){
+                        break;
                     }
-                }
-                // if one image is selected
-                else if (data.getData() != null) {
-                    selectedImageUri = data.getData();
-                    //check if the selected uri already exists in tge list
-                    for (Uri uri : imageUris) {
-                        //if duplicate found break
-                        if (data.getData().equals(uri)) {
-                            duplicateFound = true;
-                            break;
-                        }
-                    }
-                    if (!duplicateFound) {
+                    selectedImageUri = data.getClipData().getItemAt(i).getUri();
+                    if (!imageUris.contains(selectedImageUri)) {
                         addToViewPager(selectedImageUri);
-                    } else {
-                        //todo show error
                     }
                 }
             }
+            // if one image is selected
+            else if (data.getData() != null) {
+                selectedImageUri = data.getData();
+                //check if the selected uri already exists in tge list
+                for (Uri uri : imageUris) {
+                    //if duplicate found break
+                    if (data.getData().equals(uri)) {
+                        duplicateFound = true;
+                        break;
+                    }
+                }
+                if (!duplicateFound) {
+                    addToViewPager(selectedImageUri);
+                } else {
+                    //todo show error
+                }
+            }
         }
+
     }
 
     void addToViewPager(Uri newImageUri) {
@@ -231,10 +247,15 @@ public class PublishPostImage extends AppCompatActivity {
         deleteImageButton.setVisibility(View.VISIBLE);
         addImageCardView.setVisibility(View.GONE);
         lottieAnimationView.pauseAnimation();
+        if(imageUris.size()==NUMBER_OF_IMAGES_ALLOWED-1){
+            addMoreImagesButton.setVisibility(View.GONE);
+        }else{
+            addMoreImagesButton.setVisibility(View.VISIBLE);
+        }
         //if no duplicate found  store the image
         imageUris.add(newImageUri);
         //initalize adapter with the list of uri
-        viewPagerAdapter = new ViewPagerAdapter(getApplication(), imageUris);
+        viewPagerAdapter = new ViewPagerAdapter(getActivity(), imageUris);
         // set the view pager to the adapter
         viewPager.setAdapter(viewPagerAdapter);
         // add the indicator to the view pager and set to update on chage od dataset
@@ -252,13 +273,19 @@ public class PublishPostImage extends AppCompatActivity {
             viewPager.setVisibility(View.GONE);
             dotsIndicator.setVisibility(View.GONE);
             deleteImageButton.setVisibility(View.GONE);
+            addMoreImagesButton.setVisibility(View.GONE);
             addImageCardView.setVisibility(View.VISIBLE);
             lottieAnimationView.playAnimation();
-        } else {
-            addImageCardView.setVisibility(View.GONE);
+        } else{
+            if(imageUris.size()==NUMBER_OF_IMAGES_ALLOWED){
+                addMoreImagesButton.setVisibility(View.GONE);
+            }else{
+                addMoreImagesButton.setVisibility(View.VISIBLE);
+            }
+
             lottieAnimationView.pauseAnimation();
             //initalize adapter with the list of uri
-            viewPagerAdapter = new ViewPagerAdapter(getApplication(), imageUris);
+            viewPagerAdapter = new ViewPagerAdapter(getActivity(), imageUris);
             // set the view pager to the adapter
             viewPager.setAdapter(viewPagerAdapter);
             // add the indicator to the view pager and set to update on chage od dataset
@@ -269,21 +296,20 @@ public class PublishPostImage extends AppCompatActivity {
         }
 
 
+
     }
 
     void postImagesAddToDatabase(final LatLng locationLtLng, final String description, final int numberRoomMate, final int price, final ArrayList<String> property, final List<Uri> imageUri, final String locality, final String subLocality) {
         publishPostButton.setVisibility(View.INVISIBLE);
+        getActivity().onBackPressed();
         // get the referance of the database
         StorageReference storageReference = FirebaseStorage.getInstance().getReference();
 
         //create a storage referance
-
-        UploadTask uploadTask;
-
         final List<String> IMAGE_URLS = new ArrayList<>();
         for (Uri uri :
                 imageUri) {
-            StorageReference filePath = storageReference.child("apartment post image").child(uri.getLastPathSegment()
+            StorageReference filePath = storageReference.child("apartmentPostImage").child(uri.getLastPathSegment()
                     + getUniqueName() + ".jpg");
             filePath.putFile(uri).addOnCompleteListener((OnCompleteListener<UploadTask.TaskSnapshot>) task -> {
                 if (task.isSuccessful()) {
@@ -296,9 +322,8 @@ public class PublishPostImage extends AppCompatActivity {
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception e) {
-                    PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
-                    postPublishedDialog.setMessageText("an error occured while publishing your post");
-                    postPublishedDialog.warningMessage(true);
+                    //todo change drawable
+                    showCustomToast("An error occurred while uploading your images ");
                 }
             });
         }
@@ -323,6 +348,7 @@ public class PublishPostImage extends AppCompatActivity {
     }
 
     void publishApartmentPost(LatLng locationLtLng, String description, int numberRoomMate, int price, ArrayList<String>property, List<String> imageUris, String locality, String subLocality) {
+
         FirebaseUser firebaseUser = mAuth.getCurrentUser();
         firebaseUser.getIdToken(true).addOnCompleteListener(new OnCompleteListener<GetTokenResult>() {
             @Override
@@ -359,19 +385,16 @@ public class PublishPostImage extends AppCompatActivity {
                             boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
                             String message = response.getJSONObject(Config.result).getString(Config.message);
                             if (success) {
-//                                PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
-//                                postPublishedDialog.setMessageText(message);
-//                                postPublishedDialog.show(getParentFragmentManager(), null);
-                                //todo change
+                                showCustomToast(message);
                             }
 
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }, error -> {
-                        PostPublishedDialog postPublishedDialog = new PostPublishedDialog();
-                        postPublishedDialog.setMessageText("an error occured while publishing your post");
-                        postPublishedDialog.warningMessage(true);
+
+                        showCustomToast("An error occurred while publishing your post");
+
                     }) {
                         @Override
                         public Map<String, String> getHeaders() {
@@ -386,11 +409,30 @@ public class PublishPostImage extends AppCompatActivity {
 //                    todo handle error
                 }
             }
-        }).addOnFailureListener(new OnFailureListener() {
-            @Override
-            public void onFailure(@NonNull @NotNull Exception e) {
+        }).addOnFailureListener(e -> {
 //                todo when token is null
-            }
+        });
+
+    }
+    public void showCustomToast(String msg) {
+        appCompatActivity.runOnUiThread(() -> {
+            //inflate the custom toast
+            LayoutInflater inflater = appCompatActivity.getLayoutInflater();
+            // Inflate the Layout
+            View layout = inflater.inflate(R.layout.custom_toast,(ViewGroup) appCompatActivity.findViewById(R.id.toast_layout));
+
+            TextView text = (TextView) layout.findViewById(R.id.toast_text);
+
+            // Set the Text to show in TextView
+            text.setText(msg);
+
+            Toast toast = new Toast(appCompatActivity.getApplication());
+
+            //Setting up toast position, similar to Snackbar
+            toast.setGravity(Gravity.BOTTOM | Gravity.START | Gravity.FILL_HORIZONTAL, 0, 0);
+            toast.setDuration(Toast.LENGTH_LONG);
+            toast.setView(layout);
+            toast.show();
         });
 
     }

@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".Favourites"
+    >
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/favourites_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/LogoYellow"
+        app:contentInsetStartWithNavigation="0dp"
+        android:elevation="5dp"
+        app:contentInsetStart="0dp"
+        >
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            >
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                app:cardCornerRadius="200dp"
+                android:layout_centerHorizontal="true"
+                >
+
+                <com.google.android.material.tabs.TabLayout
+                    android:id="@+id/tab_layout_Fav"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@color/verylightgrey"
+                    android:backgroundTint="@color/verylightgrey"
+                    app:tabBackground="@drawable/tab_backgorund_style"
+                    app:tabSelectedTextColor="@color/jetBlack"
+                    android:minWidth="250dp"
+                    app:tabIndicator="@android:color/transparent"
+                    app:tabTextAppearance="@android:style/TextAppearance.Widget.TabWidget"
+                    app:tabIndicatorAnimationMode="elastic"
+                    >
+
+                    <com.google.android.material.tabs.TabItem
+                        android:id="@+id/tab_button_fav_apartment"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Apartment"
+                        />
+
+                    <com.google.android.material.tabs.TabItem
+                        android:id="@+id/tab_button_fav_personal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Personal"
+                        />
+
+                </com.google.android.material.tabs.TabLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+        </RelativeLayout>
+
+    </com.google.android.material.appbar.MaterialToolbar>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/fav_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:orientation="vertical"
+        android:visibility="invisible"
+        android:layout_below="@id/favourites_toolbar"
+        />
+
+    <com.airbnb.lottie.LottieAnimationView
+        android:id="@+id/favourites_anim"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        app:lottie_rawRes="@raw/favourites_animation"
+        android:scaleType="fitCenter"
+        app:lottie_loop="true"
+        android:layout_centerHorizontal="true"
+        android:visibility="gone"
+        android:layout_marginTop="20dp"
+        android:layout_below="@id/favourites_toolbar"
+        />
+
+    <RelativeLayout
+        android:id="@+id/no_favourited_posts_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_centerInParent="true"
+        android:layout_below="@id/favourites_anim"
+        android:layout_marginTop="-40dp"
+        >
+        <TextView
+            android:id="@+id/no_favourites_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="You have not added any posts to your favourites yet."
+            android:layout_margin="10dp"
+            android:gravity="center"
+            android:layout_centerHorizontal="true"
+            />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/go_to_search"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="Go to search"
+            android:textStyle="bold"
+            android:textColor="@color/jetBlack"
+            android:textAllCaps="false"
+            android:layout_below="@id/no_favourites_text"
+            />
+    </RelativeLayout>
+
+
+</RelativeLayout>

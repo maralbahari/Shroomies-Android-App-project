@@ -4,22 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/root_layout"
     tools:context=".PublishPostImage">
 
-    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar_publish_post_images"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:navigationIcon="@drawable/ic_back_button"
-        android:background="@color/LogoYellow"
-        android:elevation="3dp"
-        app:contentInsetStart="0dp"
-        app:contentInsetStartWithNavigation="0dp"
-        app:title="Add images"
-        >
 
-
-    </androidx.appcompat.widget.Toolbar>
     <androidx.cardview.widget.CardView
         android:id="@+id/add_image_card_view"
         android:layout_width="match_parent"
@@ -28,7 +16,6 @@
         android:clickable="true"
         app:cardCornerRadius="15dp"
         android:foreground="?selectableItemBackground"
-        android:layout_below="@+id/toolbar_publish_post_images"
         >
         <LinearLayout
             android:layout_width="match_parent"
@@ -64,9 +51,8 @@
         android:id="@+id/view_pager"
         android:layout_width="wrap_content"
         android:layout_height="250dp"
-        android:layout_below="@id/toolbar_publish_post_images"
         android:layout_margin="10dp"
-        android:visibility="gone" />
+        android:visibility="visible" />
 
     <ImageButton
         android:id="@+id/delete_image_post"
@@ -81,6 +67,20 @@
         android:src="@drawable/ic_icon_material_remove_circle_outline"
         android:visibility="gone"
 
+        />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/add_more_images_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/view_pager"
+        android:background="@android:color/transparent"
+        android:text="Add more images"
+        android:textColor="@color/LogoYellow"
+        android:textAllCaps="false"
+        app:icon="@drawable/ic_add"
+        app:iconTint="@color/LogoYellow"
+        app:iconSize="15dp"
+        android:visibility="gone"
         />
 
     <com.make.dots.dotsindicator.DotsIndicator
@@ -102,12 +102,13 @@
         android:id="@+id/publish_post_button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/LogoYellow"
+        android:backgroundTint="@color/LogoYellow"
         android:layout_alignParentBottom="true"
         android:textColor="@color/jetBlack"
         android:text="Publish post"
         android:textAllCaps="false"
         android:textStyle="bold"
+        android:insetBottom="0dp"
         />
 
 </RelativeLayout>
