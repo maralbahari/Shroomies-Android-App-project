@@ -3,19 +3,19 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/transparent">
+    android:background="@drawable/gradient_yellow_background"
+    >
     <RelativeLayout
         android:id="@+id/upper_page_drawer"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:background="@color/LogoYellow">
+        android:layout_height="wrap_content"
+        >
         <ImageView
             android:id="@+id/drawer_nav_profile_pic"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:background="@drawable/circle_white_button_small"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
             android:adjustViewBounds="true"
-            android:layout_margin="20dp"
+            android:layout_margin="10dp"
             android:elevation="3dp"
             android:src="@drawable/ic_user_profile_svgrepo_com"
             />
@@ -24,30 +24,44 @@
             android:id="@+id/drawer_nav_profile_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:layout_toEndOf="@+id/drawer_nav_profile_pic"
-            android:text="Profile Name"
-            android:textSize="18sp"
-            android:layout_marginStart="3dp"
+
+            android:layout_below="@id/drawer_nav_profile_pic"
+            android:text="\@Profile Name"
+            android:textSize="16sp"
+            android:layout_alignStart="@id/drawer_nav_profile_pic"
             android:textColor="@color/jetBlack"
             />
-        <View
-            android:id="@+id/seperator"
-            android:layout_width="match_parent"
-            android:layout_marginRight="50dp"
-            android:layout_marginLeft="50dp"
-            android:layout_height="1dp"
-            android:layout_marginTop="20dp"
-            android:layout_alignParentBottom="true"
-            android:layout_marginBottom="10dp"
-            android:background="@drawable/divider"
+        <TextView
+            android:id="@+id/drawer_nav_display_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/drawer_nav_profile_name"
+            android:layout_alignStart="@id/drawer_nav_profile_pic"
+            android:layout_marginTop="5dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginBottom="15dp"
+            android:textColor="@color/lightGrey"
+            android:textSize="12sp"
             />
 
+
     </RelativeLayout>
+    <View
+        android:id="@+id/divider"
+        android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:layout_below="@id/upper_page_drawer"
+        android:backgroundTint="@color/jetBlack"
+        android:layout_marginEnd="40dp"
+        android:layout_marginStart="40dp"
+        android:background="@drawable/divider"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"/>
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/upper_page_drawer"
+        android:layout_below="@+id/divider"
         android:layout_marginTop="15dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
@@ -57,14 +71,19 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
-            android:padding="10dp"
             android:text="Requests"
             android:textAlignment="textStart"
             android:textAllCaps="false"
             android:textColor="@color/jetBlack"
             app:icon="@drawable/ic_request_new"
-            app:iconTint="@color/LogoYellow"
+            app:iconTint="@color/jetBlack"
             app:iconPadding="15dp"
+            app:iconGravity="start"
+            android:paddingTop="10dp"
+            android:paddingStart="10dp"
+            android:paddingBottom="10dp"
+            android:minWidth="0dp"
+
              />
 
         <com.google.android.material.button.MaterialButton
@@ -73,31 +92,56 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/my_requests_menu"
             android:background="@android:color/transparent"
-            android:padding="10dp"
             android:text="Favorites"
             android:textAlignment="textStart"
             android:textAllCaps="false"
             app:icon="@drawable/ic_favourite_new_icon"
-            app:iconTint="@color/LogoYellow"
-            app:iconPadding="15dp"
+            app:iconTint="@color/jetBlack"
             android:textColor="@color/jetBlack"
+            app:iconGravity="start"
+            android:paddingTop="10dp"
+            android:paddingStart="10dp"
+            android:paddingBottom="10dp"
+            android:minWidth="0dp"
              />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/privacy_policy_menu"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/my_favorite_menu"
+            android:background="@android:color/transparent"
+            android:text="Privacy policy"
+            android:textAlignment="textStart"
+            android:textAllCaps="false"
+            app:icon="@drawable/ic_policy"
+            app:iconTint="@color/jetBlack"
+            app:iconSize="25dp"
+            app:iconGravity="start"
+            android:textColor="@color/jetBlack"
+            android:gravity="start|center"
+            android:paddingTop="10dp"
+            android:paddingStart="10dp"
+            android:paddingBottom="10dp"
+            android:paddingEnd="14dp"
+            />
         <com.google.android.material.button.MaterialButton
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:drawableStart="@drawable/ic_log_out_"
             android:text="Log out"
             android:textAlignment="textStart"
             android:id="@+id/logout"
-            android:layout_below="@id/my_favorite_menu"
+            android:layout_alignParentBottom="true"
             android:background="@android:color/transparent"
-            android:padding="10dp"
             android:textAllCaps="false"
             android:textColor="@color/jetBlack"
             android:drawablePadding="10dp"
             app:icon="@drawable/ic_logout_new"
-            app:iconPadding="15dp"
-            app:iconTint="@color/LogoYellow"
+            app:iconTint="@color/jetBlack"
+            app:iconGravity="end"
+            android:paddingTop="10dp"
+            android:paddingStart="10dp"
+            android:paddingBottom="10dp"
+            android:minWidth="0dp"
             />
     </RelativeLayout>
     

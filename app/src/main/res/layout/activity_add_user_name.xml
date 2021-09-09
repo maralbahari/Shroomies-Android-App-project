@@ -122,6 +122,23 @@
         app:lottie_rawRes="@raw/loading_jetblack"
         android:visibility="gone"
         />
+    <com.google.android.material.button.MaterialButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/back_to_login_button"
+        android:text="Back to login"
+        android:textAllCaps="false"
+        android:background="@android:color/transparent"
+        android:textColor="@color/jetBlack"
+        app:icon="@drawable/ic_back_button"
+        app:iconTint="@color/jetBlack"
+        app:iconSize="20dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="20dp"
+        android:layout_marginEnd="10dp"
+
+        />
 
 
 

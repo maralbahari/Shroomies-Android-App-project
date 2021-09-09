@@ -5,8 +5,11 @@ import androidx.appcompat.widget.Toolbar;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.CheckBox;
 import android.widget.Toast;
+
+import com.airbnb.lottie.LottieAnimationView;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
@@ -31,12 +34,14 @@ public class PasswordSignUp extends AppCompatActivity {
     private TextInputLayout passwordEditText;
     private TextInputLayout repPasswordEditText;
     private CheckBox termsCond;
+    private MaterialButton register;
     //variables
     public static EThree eThree;
     private  String token ="";
     private RequestQueue requestQueue;
     //firebase
     private FirebaseAuth mAuth;
+    private LottieAnimationView loadingAnimation;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,8 +51,9 @@ public class PasswordSignUp extends AppCompatActivity {
 
         passwordEditText=findViewById(R.id.password_sign_up);
         repPasswordEditText=findViewById(R.id.confirm_password_sign_up);
-        MaterialButton register = findViewById(R.id.register_button);
+        register = findViewById(R.id.register_button);
         termsCond=findViewById(R.id.terms_conditions_privacy_check_box);
+        loadingAnimation =  findViewById(R.id.register_animation_view);
 
         Toolbar toolbar = findViewById(R.id.sign_up_password_tool_bar);
         setSupportActionBar(toolbar);
@@ -68,7 +74,7 @@ public class PasswordSignUp extends AppCompatActivity {
                         registerUser(enteredEmail,enteredPassword,enteredUsername);
                     }else {
                         if (!termsCond.isChecked()) {
-                            Toast.makeText(getApplicationContext(), "please read and accept the our policy terms and condition", Toast.LENGTH_SHORT).show();
+                            new CustomToast(PasswordSignUp.this , "Please read and accept the our policy terms and condition" ,R.drawable.ic_error_icon).showCustomToast();
                         }
                         if(!enteredPassword.equals(repeatedPassword)) {
                             repPasswordEditText.setError("Password do not match");
@@ -92,12 +98,13 @@ public class PasswordSignUp extends AppCompatActivity {
     private void registerUser(String email,String password,String username){
         JSONObject jsonObject = new JSONObject();
         JSONObject data = new JSONObject();
-
+        register.setClickable(false);
+        loadingAnimation.setVisibility(View.VISIBLE);
         try {
             jsonObject.put("email" , email);
             jsonObject.put("username", username);
             jsonObject.put("password" , password);
-            data.put("data", jsonObject);
+            data.put(Config.data, jsonObject);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -107,19 +114,24 @@ public class PasswordSignUp extends AppCompatActivity {
                     try {
                         String message = response.getJSONObject(Config.result).getString(Config.message);
                         boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
+
                         if (success){
 //                          sendEmailVerification();
-                            Toast.makeText(PasswordSignUp.this, message, Toast.LENGTH_SHORT).show();
                             Intent intent = new Intent(PasswordSignUp.this, LoginActivity.class);
                             startActivity(intent);
+                            new CustomToast(PasswordSignUp.this , message ,R.drawable.ic_accept_check).showCustomToast();
                         }else{
-                            Toast.makeText(PasswordSignUp.this,message,Toast.LENGTH_SHORT).show();
+                            new CustomToast(PasswordSignUp.this , message ,R.drawable.ic_error_icon).showCustomToast();
                         }
+                        register.setClickable(true);
+                        loadingAnimation.setVisibility(View.GONE);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
                 }, error -> {
-
+                    register.setClickable(true);
+                    loadingAnimation.setVisibility(View.GONE);
+                    new CustomToast(PasswordSignUp.this , "We encountered an unexpected error" ,R.drawable.ic_error_icon).showCustomToast();
                 });
         requestQueue.add(jsonObjectRequest);
     }
@@ -137,7 +149,7 @@ public class PasswordSignUp extends AppCompatActivity {
                 }
                 else {
                     Log.e("Register", "Send Email verification failed!",task.getException());
-                    Toast.makeText(getApplicationContext(), "Failed to send verification email", Toast.LENGTH_SHORT).show();
+                    new CustomToast(PasswordSignUp.this , "Failed to send verification email" ,R.drawable.ic_error_icon).showCustomToast();
                 }
             });
         }

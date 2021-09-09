@@ -2,6 +2,7 @@ package com.example.shroomies;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -14,6 +15,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -34,7 +37,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class MainActivity extends AppCompatActivity {
     private FlowingDrawer drawerLayout;
-//    private ConstraintLayout rootLayout;
+    private ConstraintLayout rootLayout;
     private Toolbar toolbar;
     private FlowingMenuLayout navigationView;
     private ImageButton myShroomies, inboxButton;
@@ -63,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         logoutButton = findViewById(R.id.logout);
-//        rootLayout  = findViewById(R.id.root_layout);
+        rootLayout  = findViewById(R.id.root_layout);
         requestsButton = findViewById(R.id.my_requests_menu);
         drawerLayout =  findViewById(R.id.drawerLayout);
         toolbar =  findViewById(R.id.toolbar);
@@ -79,9 +82,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onDrawerStateChange(int oldState, int newState) {
                 if (newState == ElasticDrawer.STATE_OPENING|| newState ==ElasticDrawer.STATE_OPEN) {
-//                    rootLayout.setForeground(new ColorDrawable(ContextCompat.getColor(getApplication(), R.color.dim_background)));
+                    rootLayout.setForeground(new ColorDrawable(ContextCompat.getColor(getApplication(), R.color.dim_background)));
                 }else{
-//                    rootLayout.setForeground(null);
+                    rootLayout.setForeground(null);
 
                 }
             }
@@ -239,14 +242,22 @@ public class MainActivity extends AppCompatActivity {
         rootRef.child(Config.users).child(mAuth.getCurrentUser().getUid()).get().addOnCompleteListener(task -> {
             if(task.isSuccessful()){
                 user = task.getResult().getValue(User.class);
-                usernameDrawer.setText(user.getUsername());
-                if(user.getImage()!=null){
-                    GlideApp.with(getApplicationContext())
-                            .load(user.getImage())
-                            .fitCenter()
-                            .circleCrop()
-                            .transition(DrawableTransitionOptions.withCrossFade())
-                            .into(profilePic);
+                if(user.getUsername()==null){
+                    finish();
+                    startActivity(new Intent(getApplicationContext() , AddUsername.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP));
+
+                }else{
+                    usernameDrawer.setText("@"+user.getUsername());
+                    if(user.getImage()!=null){
+                        if(!user.getImage().isEmpty()){
+                            GlideApp.with(getApplicationContext())
+                                    .load(user.getImage())
+                                    .fitCenter()
+                                    .circleCrop()
+                                    .transition(DrawableTransitionOptions.withCrossFade())
+                                    .into(profilePic);
+                        }
+                }
                 }
             }
         });

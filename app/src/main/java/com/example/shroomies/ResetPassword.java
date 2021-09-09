@@ -43,12 +43,13 @@ public class ResetPassword extends AppCompatActivity {
                 mAuth.sendPasswordResetEmail(email)
                         .addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
-                                Toast.makeText(ResetPassword.this, "Check email for password reset instructions!", Toast.LENGTH_SHORT).show();
+                                new CustomToast(ResetPassword.this , "An email has been sent" ,R.drawable.ic_check).showCustomToast();
                                 Intent intent = new Intent(ResetPassword.this , LoginActivity.class);
                                 intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
                                 startActivity(intent);
+                                finish();
                             } else {
-                                Toast.makeText(ResetPassword.this, task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                                new CustomToast(ResetPassword.this , "We encountered an unexpected problem" ,R.drawable.ic_error_icon).showCustomToast();
                             }
                             loadingAnimationView.setVisibility(View.GONE);
                         });

@@ -34,56 +34,69 @@ public class AddUsername extends AppCompatActivity {
     private LottieAnimationView loadingAnimationView;
     private CardView infoCardView;
     private MaterialButton continueButton;
-    DatabaseReference rootRef;
+    private DatabaseReference rootRef;
+    private MaterialButton backToLogin;
+   private FirebaseAuth mAuth;
+
+
+    @Override
+    public void onBackPressed() {
+        //sign out the user
+        if(mAuth!=null){
+            mAuth.signOut();
+        }
+        //finish the activity
+        finish();
+    }
+
     @Override
     protected void onCreate(@Nullable @org.jetbrains.annotations.Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_user_name);
+        mAuth  = FirebaseAuth.getInstance();
         rootRef = FirebaseDatabase.getInstance().getReference();
         addUsernameTextInputLayout = findViewById(R.id.add_username_text_input);
         continueButton = findViewById(R.id.add_user_name_button);
         infoCardView = findViewById(R.id.help_card_view);
         loadingAnimationView = findViewById(R.id.add_user_name_animation_view);
+        backToLogin = findViewById(R.id.back_to_login_button);
 
-        addUsernameTextInputLayout.setEndIconOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if(infoCardView.getVisibility()==View.VISIBLE){
-                    infoCardView.setVisibility(View.GONE);
-                }else{
-                    infoCardView.setVisibility(View.VISIBLE);
-                }
+        addUsernameTextInputLayout.setEndIconOnClickListener(view -> {
+            if(infoCardView.getVisibility()==View.VISIBLE){
+                infoCardView.setVisibility(View.GONE);
+            }else{
+                infoCardView.setVisibility(View.VISIBLE);
             }
+        });
+        backToLogin.setOnClickListener(v -> {
+            onBackPressed();
         });
 
 
-        continueButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String userName = addUsernameTextInputLayout.getEditText().getText().toString().toLowerCase().trim();
-                if(validUsername(userName)){
-                    loadingAnimationView.setVisibility(View.VISIBLE);
-                    continueButton.setClickable(false);
-                    checkDuplicateUserName(userName).addOnCompleteListener(task -> {
-                        if(task.isSuccessful()){
-                            if(task.getResult().getValue()!=null){
-                                addUsernameTextInputLayout.setError("This username is already taken");
-                                continueButton.setClickable(true);
-                                loadingAnimationView.setVisibility(View.GONE);
-                            }else{
-                                setUsername(userName);
-                                addUsernameTextInputLayout.setError(null);
-                            }
+        continueButton.setOnClickListener(view -> {
+            String userName = addUsernameTextInputLayout.getEditText().getText().toString().toLowerCase().trim();
+            if(validUsername(userName)){
+                loadingAnimationView.setVisibility(View.VISIBLE);
+                continueButton.setClickable(false);
+                checkDuplicateUserName(userName).addOnCompleteListener(task -> {
+                    if(task.isSuccessful()){
+                        if(task.getResult().getValue()!=null){
+                            addUsernameTextInputLayout.setError("This username is already taken");
+                            continueButton.setClickable(true);
+                            loadingAnimationView.setVisibility(View.GONE);
+                        }else{
+                            setUsername(userName);
+                            addUsernameTextInputLayout.setError(null);
                         }
-                    });
-                }else{
-                    addUsernameTextInputLayout.setError("Please enter a valid username");
-                }
+                    }
+                });
+            }else{
+                addUsernameTextInputLayout.setError("Please enter a valid username");
             }
         });
     }
     private void setUsername(String userName) {
-        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+        FirebaseUser firebaseUser = mAuth.getCurrentUser();
         if(firebaseUser!=null){
             rootRef.child(Config.users)
                     .child(firebaseUser.getUid())

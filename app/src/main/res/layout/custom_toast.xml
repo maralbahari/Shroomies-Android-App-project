@@ -5,21 +5,20 @@
     android:layout_height="wrap_content"
     android:id="@+id/toast_layout"
     android:layout_gravity="bottom|center_horizontal"
-    android:background="#545454"
+    android:background="@color/jetBlack"
+    android:elevation="3dp"
     android:gravity="left|fill_vertical">
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-
         android:id="@+id/toast_text"
-        android:layout_gravity="bottom"
         android:textColor="#ffffff"
         android:textSize="14sp"
         android:padding="10dp"
         android:gravity="center_vertical"
-        android:drawablePadding="5dp"
-        android:drawableStart="@drawable/ic_accept_check"/>
+        android:drawablePadding="10dp"
+       />
 
 </LinearLayout>

@@ -10,7 +10,7 @@
     android:clipToPadding="false"
     app:edPosition="1"
     app:edMenuSize="260dp"
-    app:edMenuBackground="@color/white"
+    app:edMenuBackground="@color/LogoYellow"
     tools:context=".MainActivity"
     >
 
@@ -48,13 +48,15 @@
             android:id="@+id/bottomNavigationView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/Widget.MaterialComponents.BottomNavigationView.Colored"
-            app:itemIconTint="@color/jetBlack"
+            style="@style/Widget.MaterialComponents.BottomNavigationView.PrimarySurface"
+            app:itemIconTint="@color/bottom_nav_items"
+
             android:background="@color/LogoYellow"
             android:layout_alignParentEnd="true"
             app:layout_constraintBottom_toBottomOf="parent"
             app:elevation="3dp"
             app:itemPaddingBottom="0dp"
+
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:menu="@menu/bottom_nav_menu"/>

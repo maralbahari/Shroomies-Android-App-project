@@ -68,6 +68,9 @@ public class SignUpActivity extends AppCompatActivity{
                                 intent.putExtra("USERNAME", enteredUsername);
                                 startActivity(intent);
                             }
+                        }else{
+                            new CustomToast(SignUpActivity.this , "We encountered a problem" ,R.drawable.ic_error_icon).showCustomToast();
+
                         }
                     });
 

@@ -23,6 +23,14 @@
           }
         },
         {
+          "client_id": "869729058596-kpo62dv7lrsf564chq1eiqbitp05rtfd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.shroomies",
+            "certificate_hash": "9bd24931022c3dc29491b64a4b6f8e27b0c132d8"
+          }
+        },
+        {
           "client_id": "869729058596-i5k1shovsa37kn4ig4b1cg83k1p6j43l.apps.googleusercontent.com",
           "client_type": 3
         }

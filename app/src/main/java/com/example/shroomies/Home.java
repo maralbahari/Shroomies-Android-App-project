@@ -47,24 +47,15 @@ public class Home extends Application {
                 // then the user signed in for the first time
                 // using google
                 getE3Token();
-                user.getIdToken(true).addOnCompleteListener(task -> {
-                    if(validUsername(user.getDisplayName())){
-                        Intent intent= new Intent(getApplicationContext(),MainActivity.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(intent);
-                    }else{
-                        startActivity(new Intent(getApplicationContext() , AddUsername.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-                    }
-                });
+                Intent intent= new Intent(getApplicationContext(),MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+
             }
         }
 
     }
 
-    public static boolean validUsername(final String username) {
-        Matcher matcher = pattern.matcher(username);
-        return matcher.matches();
-    }
 
     private void getE3Token() {
 
@@ -84,18 +75,20 @@ public class Home extends Application {
                         JSONObject result = response.getJSONObject(Config.result);
                         if(!result.isNull(Config.token)){
                             String ethreeToken  = result.getString(Config.token);
-                            EThree eThree = EthreeSingleton.getInstance(getApplicationContext(),mAuth.getCurrentUser().getUid() , ethreeToken).getEthreeInstance();
-                            eThree.register().addCallback(new com.virgilsecurity.common.callback.OnCompleteListener() {
-                                @Override
-                                public void onSuccess() {
-                                    Toast.makeText(getApplicationContext() , "yayyyy" , Toast.LENGTH_LONG).show();
-                                }
+                            if(firebaseUser!=null){
+                                EThree eThree = EthreeSingleton.getInstance(getApplicationContext(),firebaseUser.getUid() , ethreeToken).getEthreeInstance();
+                                eThree.register().addCallback(new com.virgilsecurity.common.callback.OnCompleteListener() {
+                                    @Override
+                                    public void onSuccess() {
+                                        Toast.makeText(getApplicationContext() , "yayyyy" , Toast.LENGTH_LONG).show();
+                                    }
 
-                                @Override
-                                public void onError(@NotNull Throwable throwable) {
-                                    Log.d( "boooo" , throwable.getMessage());
-                                }
-                            });
+                                    @Override
+                                    public void onError(@NotNull Throwable throwable) {
+                                        Log.d( "boooo" , throwable.getMessage());
+                                    }
+                                });
+                            }
 
                         }else{
                             //todo handle error

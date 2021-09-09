@@ -68,7 +68,7 @@
             android:layout_marginLeft="-52dp"
             android:layout_marginTop="-50dp"
             android:layout_toRightOf="@+id/edit_profile_image_view"
-            android:background="@drawable/button_round"
+            android:background="@drawable/button_circle_yellow_small"
             android:elevation="5dp"
             android:padding="5dp"
             android:src="@drawable/ic_pen_edit_"

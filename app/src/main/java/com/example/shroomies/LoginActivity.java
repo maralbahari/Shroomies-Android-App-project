@@ -3,6 +3,7 @@ package com.example.shroomies;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.ImageButton;
 import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
@@ -99,18 +100,17 @@ public class LoginActivity extends AppCompatActivity {
             if (task.isSuccessful()){
                 FirebaseUser user = mAuth.getCurrentUser();
                 if (user!=null) {
-                    if(task.getResult().getAdditionalUserInfo().isNewUser()) {
-                        Log.d("GOOGLE SIGN IN","new user");
-                        startActivity(new Intent(getApplicationContext() , AddUsername.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                    Intent intent= new Intent(getApplicationContext(),MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                    Log.d("GOOGLE SIGN IN","not new user");
 
-                    }else{
-                        Intent intent= new Intent(getApplicationContext(),MainActivity.class);
-                        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivity(intent);
-                        Toast.makeText(LoginActivity.this, "signed in successfully", Toast.LENGTH_SHORT).show();
-                        Log.d("GOOGLE SIGN IN","not new user");
-                    }
+                }else{
+                    new CustomToast(LoginActivity.this , "We encountered a problem with your account" ,R.drawable.ic_error_icon).showCustomToast();
                 }
+            }else{
+                new CustomToast(LoginActivity.this , "We encountered an unexpected problem" ,R.drawable.ic_error_icon).showCustomToast();
+
             }
         });
     }

@@ -1,21 +1,30 @@
 package com.example.shroomies;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.airbnb.lottie.LottieAnimationView;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.common.net.HttpHeaders;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
+import com.google.firebase.auth.FirebaseAuthUserCollisionException;
+import com.google.firebase.auth.FirebaseAuthWeakPasswordException;
 import com.google.firebase.auth.FirebaseUser;
 import com.virgilsecurity.android.ethree.interaction.EThree;
 
@@ -32,7 +41,10 @@ public class LoginPassword extends AppCompatActivity {
     private FirebaseAuth mAuth;
     public EThree eThree;
     private RequestQueue requestQueue;
-    TextInputLayout emailEditText;
+    private LottieAnimationView loadingAnimationView;
+    private RelativeLayout rootLayout;
+    private TextInputLayout emailEditText;
+    private Button loginButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +56,9 @@ public class LoginPassword extends AppCompatActivity {
         emailEditText = findViewById(R.id.user_email_text_view);
         passwordEditText=findViewById(R.id.password_login);
         Button forgotPasswordButton = findViewById(R.id.forgot_password_button);
-        Button loginButton = findViewById(R.id.login_button);
+        loadingAnimationView = findViewById(R.id.login_animation_view);
+        loginButton = findViewById(R.id.login_button);
+        rootLayout = findViewById(R.id.root_layout);
 
         Toolbar toolbar = findViewById(R.id.login_password_toolbar);
         setSupportActionBar(toolbar);
@@ -69,28 +83,53 @@ public class LoginPassword extends AppCompatActivity {
 
     }
     private void login(String enteredEmail,String password){
+        loadingAnimationView.setVisibility(View.VISIBLE);
+        loginButton.setClickable(false);
         mAuth.signInWithEmailAndPassword(enteredEmail, password).addOnCompleteListener(task -> {
-            FirebaseUser firebaseUser=mAuth.getCurrentUser();
-            if(firebaseUser!=null){
-                if(firebaseUser.isEmailVerified()){
-                    Intent intent = new Intent(LoginPassword.this, MainActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(intent);
+            if(task.isSuccessful()){
+                FirebaseUser firebaseUser=mAuth.getCurrentUser();
+                if(firebaseUser!=null){
+                    if(firebaseUser.isEmailVerified()){
+                        Intent intent = new Intent(LoginPassword.this, MainActivity.class);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        getE3Token();
+                        startActivity(intent);
+                        finish();
+                    }else{
+                        loginButton.setClickable(true);
+                        loadingAnimationView.setVisibility(View.GONE);
+                        Snackbar mySnackbar = Snackbar.make(rootLayout,
+                                "Please verify your email", Snackbar.LENGTH_LONG);
+                        mySnackbar.setAction("Resend", v -> firebaseUser.sendEmailVerification().addOnCompleteListener(task1 -> {
+                            if (task1.isSuccessful()) {
+                                new CustomToast(LoginPassword.this , "Email sent" ,R.drawable.ic_accept_check).showCustomToast();
+                            }
+                        }));
+                        mySnackbar.show();
+
+                    }
                 }else{
-                    Toast.makeText(getApplicationContext(),"please verify your email",Toast.LENGTH_SHORT).show();
-                    firebaseUser.sendEmailVerification().addOnCompleteListener(task1 -> {
-                        if (task1.isSuccessful()) {
-                            Toast.makeText(getApplicationContext(),"Kindly check your email",Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    loginButton.setClickable(true);
+                    loadingAnimationView.setVisibility(View.GONE);
+                    new CustomToast(LoginPassword.this , "We encountered a problem authenticating your account" ,R.drawable.ic_error_icon).showCustomToast();
+                }
+            }else{
+                loginButton.setClickable(true);
+                loadingAnimationView.setVisibility(View.GONE);
+                try {
+                    throw task.getException();
+                } catch(FirebaseAuthInvalidCredentialsException e) {
+                    emailEditText.setError(" ");
+                    passwordEditText.setError("The email or password is incorrect");
+                } catch(Exception e) {
+                    new CustomToast(LoginPassword.this , "We encountered an unexpected problem" ,R.drawable.ic_error_icon).showCustomToast();
 
                 }
             }
-        }).addOnFailureListener(e ->{
-                emailEditText.setError(" ");
-                passwordEditText.setError("Wrong email or password");});
+        });
 }
-    private void getE3Token(String bundledEmail,String enteredPassword) {
+
+    private void getE3Token() {
         JSONObject data = new JSONObject();
         try {
             data.put(Config.data , "");
@@ -112,7 +151,6 @@ public class LoginPassword extends AppCompatActivity {
                                 eThree.register().addCallback(new com.virgilsecurity.common.callback.OnCompleteListener() {
                                     @Override
                                     public void onSuccess() {
-                                        login(bundledEmail,enteredPassword);
                                         Toast.makeText(getApplicationContext() , "yayyyy" , Toast.LENGTH_LONG).show();
                                     }
 
