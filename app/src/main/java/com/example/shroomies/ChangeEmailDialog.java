@@ -2,6 +2,7 @@ package com.example.shroomies;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -93,7 +94,7 @@ public class ChangeEmailDialog extends DialogFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        newEmail = v.findViewById(R.id.enter_new_email);
+        newEmail = v.findViewById(R.id.change_email_input_text);
         newEmail.requestFocus();
         Button doneButton = v.findViewById(R.id.change_email_done_button);
         ImageButton backButton = v.findViewById(R.id.change_email_back_button);
@@ -101,6 +102,7 @@ public class ChangeEmailDialog extends DialogFragment {
         if (bundle!=null) {
             user=bundle.getParcelable("USER");
             newEmail.getEditText().setText(user.getEmail());
+            newEmail.getEditText().requestFocus();
             newEmail.getEditText().setSelection(newEmail.getEditText().getText().length());
         } else {
 //            todo error handling when bundle is null
@@ -119,7 +121,7 @@ public class ChangeEmailDialog extends DialogFragment {
             if (firebaseUser!=null) {
                 String txtEmail = newEmail.getEditText().getText().toString().trim();
                 if (user.getEmail().equals(txtEmail)) {
-                    Toast.makeText(getContext(),"No changes have been made",Toast.LENGTH_SHORT).show();
+                    newEmail.setError("No changes have been made");
                 } else {
                     if(validEmail(txtEmail)) {
                         newEmail.setError(null);
@@ -135,8 +137,9 @@ public class ChangeEmailDialog extends DialogFragment {
 
         backButton.setOnClickListener(v -> {
             if (!user.getEmail().equals(newEmail.getEditText().getText().toString())) {
-                Toast.makeText(getContext(),"unSaved Changes",Toast.LENGTH_LONG).show();
+                newEmail.setError("unSaved Changes");
             } else {
+                closeKeyboard();
                 dismiss();
             }
         });
@@ -186,6 +189,12 @@ public class ChangeEmailDialog extends DialogFragment {
     @Override
     public void onStop() {
         super.onStop();
+        closeKeyboard();
+    }
+
+    @Override
+    public void onCancel(@NonNull @NotNull DialogInterface dialog) {
+        super.onCancel(dialog);
         closeKeyboard();
     }
 }

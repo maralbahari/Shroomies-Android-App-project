@@ -50,7 +50,7 @@ public class ChangeUsernameDialog extends DialogFragment {
         super.onStart();
         if(getDialog()!=null) {
             getDialog().getWindow().setLayout(ActionBar.LayoutParams.MATCH_PARENT, Toolbar.LayoutParams.MATCH_PARENT);
-            getDialog().getWindow().setGravity(Gravity.LEFT);
+            getDialog().getWindow().setGravity(Gravity.START);
             getDialog().getWindow().setBackgroundDrawableResource(R.drawable.create_group_fragment_background);
             showKeyboard();
         }
@@ -109,6 +109,7 @@ public class ChangeUsernameDialog extends DialogFragment {
         } else {
 //            todo handle error when bundle is null
             dismiss();
+            closeKeyboard();
         }
         newUsernameEditText.setErrorIconOnClickListener(v -> {
             if (helperTxt.getVisibility() == View.VISIBLE) {
@@ -125,37 +126,45 @@ public class ChangeUsernameDialog extends DialogFragment {
             }
         });
         doneButton.setOnClickListener(v -> {
-            FirebaseUser firebaseUser=mAuth.getCurrentUser();
-            if (firebaseUser!=null) {
-                String txtName = newUsernameEditText.getEditText().getText().toString().toLowerCase().trim();
-                if(validUsername(txtName)){
-                    newUsernameEditText.setError(null);
-                    checkDuplicateUserName(txtName).addOnCompleteListener(task -> {
-                        if(task.isSuccessful()){
-                            if(task.getResult().getValue()!=null){
-                                newUsernameEditText.setError(txtName+ " is taken");
-                            }else{
-                                newUsernameEditText.setError(null);
-                                newUsernameEditText.setError(null);
-                                updateUsername(txtName);
+            String txtUserName = newUsernameEditText.getEditText().getText().toString().toLowerCase().trim();
+            if(txtUserName.equals(user.getUsername())) {
+                newUsernameEditText.setError("No changes have been made");
+            }else{
+                FirebaseUser firebaseUser=mAuth.getCurrentUser();
+                if (firebaseUser!=null) {
+
+                    if(validUsername(txtUserName)){
+                        newUsernameEditText.setError(null);
+                        checkDuplicateUserName(txtUserName).addOnCompleteListener(task -> {
+                            if(task.isSuccessful()){
+                                if(task.getResult().getValue()!=null){
+                                    newUsernameEditText.setError(txtUserName+ " is taken");
+                                }else{
+                                    newUsernameEditText.setError(null);
+                                    newUsernameEditText.setError(null);
+                                    updateUsername(txtUserName);
+                                }
                             }
-                        }
-                    });
+                        });
 
-                }else {
-                    newUsernameEditText.setError("Please enter valid username");
-                }
+                    }else {
+                        newUsernameEditText.setError("Please enter valid username");
+                    }
 
-            } else {
+                } else {
 //                    todo error handling when user is null
-                dismiss();
+                    closeKeyboard();
+                    dismiss();
+                }
             }
+
         });
         backButton.setOnClickListener(v -> {
             closeKeyboard();
             if (!user.getUsername().equals(newUsernameEditText.getEditText().getText().toString())) {
                 newUsernameEditText.setError("Unsaved Changes");
             } else {
+                closeKeyboard();
                 newUsernameEditText.setError(null);
                 dismiss();
             }
@@ -169,6 +178,7 @@ public class ChangeUsernameDialog extends DialogFragment {
             if (task.isSuccessful()) {
                 changedUserUsername.sendUserNameBack(txtName);
                 Toast.makeText(getActivity(), "Updated username successfully", Toast.LENGTH_SHORT).show();
+                closeKeyboard();
                 dismiss();
             }
         }).addOnFailureListener(e -> Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show());

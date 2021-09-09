@@ -2,6 +2,7 @@ package com.example.shroomies;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -47,7 +48,7 @@ public class ChangeNameDialogFragment extends DialogFragment {
             showKeyboard();
         }
     }
-    private interface name{
+    public interface name{
         void sendbackName(String changedName);
     }
     @Override
@@ -101,13 +102,19 @@ public class ChangeNameDialogFragment extends DialogFragment {
         if(bundle!=null) {
             user=bundle.getParcelable("USER");
             if(user!=null) {
-                nameEditTxt.getEditText().setText(user.getName());
+                if(!user.getName().isEmpty()){
+                    nameEditTxt.getEditText().setText(user.getName());
+                }else{
+                    nameEditTxt.getEditText().setHint("My name");
+                }
+                nameEditTxt.getEditText().requestFocus();
                 nameEditTxt.getEditText().setSelection(nameEditTxt.getEditText().getText().length());
                 backButton.setOnClickListener(view1 -> {
                     String enteredName=nameEditTxt.getEditText().getText().toString().trim();
                     if(!user.getName().equals(enteredName)){
                         nameEditTxt.setError("Unsaved Changes");
                     }else{
+                        closeKeyboard();
                         nameEditTxt.setError(null);
                         dismiss();
                     }
@@ -115,11 +122,16 @@ public class ChangeNameDialogFragment extends DialogFragment {
                 doneButton.setOnClickListener(view12 -> {
                     nameEditTxt.setError(null);
                     String enteredName=nameEditTxt.getEditText().getText().toString().trim();
-                    FirebaseUser firebaseUser=mAuth.getCurrentUser();
-                    if(firebaseUser!=null){
-                        updateName(enteredName,firebaseUser.getUid());
-                    }else{
-                        dismiss();
+                    if(enteredName.equals(user.getName())) {
+                        nameEditTxt.setError("No changes have been made");
+                    } else {
+                        FirebaseUser firebaseUser = mAuth.getCurrentUser();
+                        if (firebaseUser != null) {
+                            updateName(enteredName, firebaseUser.getUid());
+                        } else {
+                            closeKeyboard();
+                            dismiss();
+                        }
                     }
                 });
             }
@@ -130,8 +142,14 @@ public class ChangeNameDialogFragment extends DialogFragment {
          rootRef.child(Config.users).child(userUid).child("name").setValue(enteredName).addOnCompleteListener(task -> {
              if(task.isSuccessful()){
                  changedName.sendbackName(enteredName);
+                 closeKeyboard();
                  dismiss();
              }
          }).addOnFailureListener(e -> Toast.makeText(getContext(),e.getMessage(),Toast.LENGTH_SHORT).show());
+    }
+    @Override
+    public void onCancel(@NonNull @NotNull DialogInterface dialog) {
+        super.onCancel(dialog);
+        closeKeyboard();
     }
 }

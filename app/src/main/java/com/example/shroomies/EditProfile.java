@@ -36,20 +36,25 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.StorageTask;
 import com.google.firebase.storage.UploadTask;
 
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Objects;
 
-public class EditProfile extends DialogFragment implements ChangeBioDialog.bio, ChangeEmailDialog.email, ChangeUsernameDialog.username {
+public class EditProfile extends DialogFragment implements ChangeBioDialog.bio, ChangeEmailDialog.email, ChangeUsernameDialog.username, ChangeNameDialogFragment.name {
 
     private View v;
     private ImageView profileImage;
@@ -108,67 +113,68 @@ public class EditProfile extends DialogFragment implements ChangeBioDialog.bio, 
         Button cancle = v.findViewById(R.id.edit_profile_cancel);
         Button done = v.findViewById(R.id.edit_profile_done);
         FirebaseUser firebaseUser=mAuth.getCurrentUser();
-        if (firebaseUser!=null) {
-            String userUid=firebaseUser.getUid();
-            getUserDetails(userUid);
-            editImage.setOnClickListener(v -> openImage());
-            changeBio.setOnClickListener(v -> {
-                ChangeBioDialog changeBioDialog = new ChangeBioDialog();
-                Bundle bundle=new Bundle();
-                bundle.putParcelable("USER",user);
-                changeBioDialog.setArguments(bundle);
-                changeBioDialog.setTargetFragment(EditProfile.this,DIALOG_FRAGMENT_REQUEST_CODE );
-                changeBioDialog.show(getParentFragmentManager() ,null);
-            });
-            changeName.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    ChangeNameDialogFragment changeNameDialogFragment=new ChangeNameDialogFragment();
+            if (firebaseUser!=null) {
+                getUserDetails(firebaseUser.getUid());
+                editImage.setOnClickListener(v -> openImage());
+                changeBio.setOnClickListener(v -> {
+                    ChangeBioDialog changeBioDialog = new ChangeBioDialog();
                     Bundle bundle=new Bundle();
                     bundle.putParcelable("USER",user);
-                    changeNameDialogFragment.setArguments(bundle);
-                    changeNameDialogFragment.setTargetFragment(EditProfile.this,DIALOG_FRAGMENT_REQUEST_CODE );
-                    changeNameDialogFragment.show(getParentFragmentManager() ,null);
-                }
-            });
-
-            changeUserNameButton.setOnClickListener(v -> {
-                ChangeUsernameDialog changeUsernameDialog = new ChangeUsernameDialog();
-                Bundle bundle=new Bundle();
-                bundle.putParcelable("USER",user);
-                changeUsernameDialog.setArguments(bundle);
-                changeUsernameDialog.setTargetFragment(EditProfile.this,DIALOG_FRAGMENT_REQUEST_CODE );
-                changeUsernameDialog.show(getParentFragmentManager() ,null);
-            });
-            changeEmail.setOnClickListener(v -> {
-                ChangeEmailDialog changeEmailDialog = new ChangeEmailDialog();
-                Bundle bundle=new Bundle();
-                bundle.putParcelable("USER",user);
-                changeEmailDialog.setArguments(bundle);
-                changeEmailDialog.setTargetFragment(EditProfile.this,DIALOG_FRAGMENT_REQUEST_CODE );
-                changeEmailDialog.show(getParentFragmentManager() ,null);
-            });
-
-            changePassword.setOnClickListener(v ->
-                    resetPass()
-            );
-            deleteAccount.setOnClickListener(v -> {
-                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                builder.setTitle("Are you sure want to delete this account?");
-                builder.setPositiveButton("Yes", (dialogInterface, i) -> {
-                    DeleteUser deleteUser=new DeleteUser();
-                    Bundle bundle=new Bundle();
-                    bundle.putParcelable("USER",user);
-                    deleteUser.setArguments(bundle);
-                    deleteUser.setTargetFragment(EditProfile.this,DIALOG_FRAGMENT_REQUEST_CODE);
-                    deleteUser.show(getParentFragmentManager(),null);
+                    changeBioDialog.setArguments(bundle);
+                    changeBioDialog.setTargetFragment(EditProfile.this,DIALOG_FRAGMENT_REQUEST_CODE );
+                    changeBioDialog.show(getParentFragmentManager() ,null);
                 });
-                builder.setNegativeButton("cancel", (dialogInterface, i) -> dialogInterface.dismiss());
-                builder.show();
-            });
-        } else {
-            dismiss();
-        }
+                changeName.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        ChangeNameDialogFragment changeNameDialogFragment=new ChangeNameDialogFragment();
+                        Bundle bundle=new Bundle();
+                        bundle.putParcelable("USER",user);
+                        changeNameDialogFragment.setArguments(bundle);
+                        changeNameDialogFragment.setTargetFragment(EditProfile.this,DIALOG_FRAGMENT_REQUEST_CODE );
+                        changeNameDialogFragment.show(getParentFragmentManager() ,null);
+                    }
+                });
+
+                changeUserNameButton.setOnClickListener(v -> {
+                    ChangeUsernameDialog changeUsernameDialog = new ChangeUsernameDialog();
+                    Bundle bundle=new Bundle();
+                    bundle.putParcelable("USER",user);
+                    changeUsernameDialog.setArguments(bundle);
+                    changeUsernameDialog.setTargetFragment(EditProfile.this,DIALOG_FRAGMENT_REQUEST_CODE );
+                    changeUsernameDialog.show(getParentFragmentManager() ,null);
+                });
+                changeEmail.setOnClickListener(v -> {
+                    ChangeEmailDialog changeEmailDialog = new ChangeEmailDialog();
+                    Bundle bundle=new Bundle();
+                    bundle.putParcelable("USER",user);
+                    changeEmailDialog.setArguments(bundle);
+                    changeEmailDialog.setTargetFragment(EditProfile.this,DIALOG_FRAGMENT_REQUEST_CODE );
+                    changeEmailDialog.show(getParentFragmentManager() ,null);
+                });
+
+                changePassword.setOnClickListener(v ->
+                        resetPass()
+                );
+                deleteAccount.setOnClickListener(v -> {
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                    builder.setTitle("Are you sure want to delete this account?");
+                    builder.setPositiveButton("Yes", (dialogInterface, i) -> {
+                        DeleteUser deleteUser=new DeleteUser();
+                        Bundle bundle=new Bundle();
+                        bundle.putParcelable("USER",user);
+                        deleteUser.setArguments(bundle);
+                        deleteUser.setTargetFragment(EditProfile.this,DIALOG_FRAGMENT_REQUEST_CODE);
+                        deleteUser.show(getParentFragmentManager(),null);
+                    });
+                    builder.setNegativeButton("cancel", (dialogInterface, i) -> dialogInterface.dismiss());
+                    builder.show();
+                });
+            } else {
+                dismiss();
+            }
+
+
         done.setOnClickListener(v -> dismiss());
         cancle.setOnClickListener(v -> dismiss());
     }
@@ -188,29 +194,42 @@ public class EditProfile extends DialogFragment implements ChangeBioDialog.bio, 
         }
     }
     private void openImage() {
-        final CharSequence[] pictureOptions = { "Choose From Gallery", "Remove Profile Picture"};
+        final CharSequence[] pictureOptions = {"Choose From Gallery", "Remove Profile Picture"};
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Change Profile Image");
         builder.setItems(pictureOptions, (dialog, item) -> {
-            if (pictureOptions[item].equals("Choose From Gallery")){
+            if (pictureOptions[item].equals("Choose From Gallery")) {
                 Intent pickPicture = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                 startActivityForResult(pickPicture, IMAGE_REQUEST);
-            } else if (pictureOptions[item].equals("Remove Profile Picture")){
-                StorageReference storageReference =FirebaseStorage.getInstance().getReferenceFromUrl(user.getImage());
-                storageReference.delete().addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        GlideApp.with(getContext())
-                                .load(R.drawable.ic_user_profile_svgrepo_com)
-                                .transform(new CircleCrop())
-                                .into(profileImage);
-                        customLoadingProgressBar.dismiss();
-                        Toast.makeText(getContext(),"Image deleted successfully.",Toast.LENGTH_SHORT).show();
-
-                    }
-                }).addOnFailureListener(e -> Toast.makeText(getContext(),e.getMessage(),Toast.LENGTH_LONG).show());
+            } else if (pictureOptions[item].equals("Remove Profile Picture")) {
+                removeProfileImage();
             }
         });
         builder.show();
+    }
+    private void removeProfileImage(){
+        rootRef.child(Config.users).child(user.getUserID()).child("iamge").setValue("").addOnCompleteListener(new OnCompleteListener<Void>() {
+            @Override
+            public void onComplete(@NonNull @NotNull Task<Void> task) {
+                if (task.isSuccessful()) {
+                    GlideApp.with(getContext())
+                            .load(R.drawable.ic_user_profile_svgrepo_com)
+                            .transform(new CircleCrop())
+                            .into(profileImage);
+                    StorageReference storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(user.getImage());
+                    if (storageReference != null) {
+                        storageReference.delete().addOnCompleteListener(task1 -> {
+                            if (task1.isSuccessful()) {
+                                Toast.makeText(getContext(), "Image deleted successfully.", Toast.LENGTH_SHORT).show();
+
+                            }
+                        }).addOnFailureListener(e -> Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show());
+
+                    }
+                    customLoadingProgressBar.dismiss();
+                }
+            }
+        }).addOnFailureListener(e -> Toast.makeText(getContext(), e.getMessage(), Toast.LENGTH_LONG).show());
     }
     private void uploadImage(Uri imageUri){
         Bitmap bitmap=null;
@@ -270,16 +289,18 @@ public class EditProfile extends DialogFragment implements ChangeBioDialog.bio, 
 
     }
 
-    private void getUserDetails(String userUid){
-        rootRef.child(Config.users).child(userUid).get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                    user=task.getResult().getValue(User.class);
+    private void getUserDetails(String  userUid){
+        rootRef.child(Config.users).child(userUid).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+                if(snapshot.exists()) {
+                    user= snapshot.getValue(User.class);
                     if (user!=null) {
                         if (!user.getBio().equals("")) {
                             bioTxt.setText(user.getBio());
                         }
                         nameTxtView.setText(user.getName());
-                        changeUserNameButton.setText("@"+user.getName());
+                        changeUserNameButton.setText("@"+user.getUsername());
                         emailTxtView.setText(user.getEmail());
                         if (user.getImage()!=null) {
                             GlideApp.with(getActivity().getApplicationContext())
@@ -290,9 +311,16 @@ public class EditProfile extends DialogFragment implements ChangeBioDialog.bio, 
                                     .into(profileImage);
                         }
                     }
-
                 }
-            }).addOnFailureListener(e -> Toast.makeText(getContext(),e.getMessage(),Toast.LENGTH_LONG).show());
+
+            }
+
+            @Override
+            public void onCancelled(@NonNull @NotNull DatabaseError error) {
+
+            }
+        });
+
     }
     private void resetPass(){
         mAuth.sendPasswordResetEmail(user.getEmail()).addOnCompleteListener(task -> {
@@ -317,7 +345,12 @@ public class EditProfile extends DialogFragment implements ChangeBioDialog.bio, 
 
     @Override
     public void sendUserNameBack(String nameTxt) {
-        nameTxtView.setText(nameTxt);
+        changeUserNameButton.setText(nameTxt);
+    }
+
+    @Override
+    public void sendbackName(String changedName) {
+        nameTxtView.setText(changedName);
     }
 }
 

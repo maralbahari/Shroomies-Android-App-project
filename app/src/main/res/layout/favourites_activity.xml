@@ -35,8 +35,6 @@
                     android:id="@+id/tab_layout_Fav"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@color/veryLightGrey"
-                    android:backgroundTint="@color/veryLightGrey"
                     app:tabBackground="@drawable/tab_backgorund_style"
                     app:tabSelectedTextColor="@color/jetBlack"
                     android:minWidth="250dp"
