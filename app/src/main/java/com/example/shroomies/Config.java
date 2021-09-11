@@ -47,6 +47,7 @@ public class Config {
     public static final String messages="messages";
     public static final String users = "users";
     public static final String inboxes="inboxes";
+    public static final String groupMessages="groupMessages";
     //chat
     public static final String privateChatImages = "privateChatImages";
 

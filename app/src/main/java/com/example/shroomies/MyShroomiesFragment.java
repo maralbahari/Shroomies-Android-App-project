@@ -1,6 +1,7 @@
 package com.example.shroomies;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -80,6 +81,7 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
     private IOverScrollDecor tasksDecor;
     private IOverScrollStateListener onOverPullListener;
     private RelativeLayout noCardsLayout;
+    private MaterialButton groupMessageButton;
     private Toolbar toolbar;
     //data structures
     private ArrayList<TasksCard> tasksCardsList;
@@ -148,6 +150,7 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
         expandButton = v.findViewById(R.id.expand_button);
         slidingLayout = v.findViewById(R.id.sliding_layout);
         noCardsLayout =  v.findViewById(R.id.no_cards_layout);
+        groupMessageButton=v.findViewById(R.id.my_shroomies_group_message_btn);
 
         MaterialButton memberButton = v.findViewById(R.id.my_shroomies_member_btn);
         MaterialButton logButton = v.findViewById(R.id.my_shroomies_log);
@@ -201,7 +204,14 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
             }
         };
 
-
+        groupMessageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent= new Intent(getContext(),GroupChatting.class);
+                intent.putExtra("MEMBERS",membersHashMap);
+                startActivity(intent);
+            }
+        });
 
 
         slidingLayout.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
@@ -385,18 +395,21 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
     private void getUserToken(){
         displayProgressView();
         FirebaseUser firebaseUser = mAuth.getCurrentUser();
-        firebaseUser.getIdToken(false).addOnCompleteListener(task -> {
-            if(task.isSuccessful()) {
-                String token = task.getResult().getToken();
-                String apartmentID = (String) task.getResult().getClaims().get(Config.apartmentID);
-                Log.d("apartment ID" , apartmentID);
-                getApartmentDetails(token, apartmentID);
-            }else{
-                String title = "Authentication error";
-                String message = "We encountered a problem while authenticating your account";
-                displayErrorAlert(title, message);
-            }
-        });
+        if(firebaseUser!=null){
+            firebaseUser.getIdToken(true).addOnCompleteListener(task -> {
+                if(task.isSuccessful()) {
+                    String token = task.getResult().getToken();
+                    String apartmentID = (String) task.getResult().getClaims().get(Config.apartmentID);
+                    Log.d("apartment ID" , apartmentID);
+                    getApartmentDetails(token, apartmentID);
+                }else{
+                    String title = "Authentication error";
+                    String message = "We encountered a problem while authenticating your account";
+                    displayErrorAlert(title, message);
+                }
+            });
+        }
+
     }
 
 
