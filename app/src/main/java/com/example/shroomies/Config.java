@@ -32,6 +32,8 @@ public class Config {
     public static final String logs="logs";
     public static final String task = "task";
     public static final String expenses  = "expenses";
+    public static final String privateMessage="privateMessage";
+    public static final String groupMessage="groupMessage";
     //log actions
     public static final String deletingCard="deletingCard";
     public static final String addingCard = "addingCard";

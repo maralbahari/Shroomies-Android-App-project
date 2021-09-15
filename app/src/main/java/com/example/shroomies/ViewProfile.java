@@ -81,7 +81,7 @@ public class ViewProfile extends Fragment {
         authRef = FirebaseAuth.getInstance();
         editProfile = v.findViewById(R.id.edit_profile_button);
         profileImage = v.findViewById(R.id.user_profile_image_view);
-        viewUsername = v.findViewById(R.id.user_profile_view_username);
+        viewUsername = v.findViewById(R.id.user_profile_text_view_name);
         viewBio = v.findViewById(R.id.user_profile_view_bio);
         profileTab = v.findViewById(R.id.user_profile_tab_layout);
         apartmentTab = v.findViewById(R.id.user_profile_tab_button_apartment);

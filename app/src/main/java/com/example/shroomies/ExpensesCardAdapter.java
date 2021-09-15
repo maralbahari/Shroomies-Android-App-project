@@ -1,10 +1,14 @@
 package com.example.shroomies;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -16,6 +20,7 @@ import androidx.appcompat.widget.PopupMenu;
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.AuthFailureError;
@@ -67,6 +72,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
     private RequestQueue requestQueue;
     private final ArrayList<ExpensesCard> expensesCardArrayList;
     private final HashMap<String, User> memberHashMap;
+    private FragmentTransaction ft;
 
     public ExpensesCardAdapter(ArrayList<ExpensesCard> expensesCardArrayList, Context context, Boolean fromArchive,String apartmentID,FragmentManager fragmentManager,View parentView , HashMap<String, User> memberHashMap) {
         this.expensesCardArrayList = expensesCardArrayList;
@@ -77,7 +83,6 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
         this.parentView=parentView;
         this.memberHashMap = memberHashMap;
     }
-
 
     @Override
     public void onItemSwiped(int position) {
@@ -90,7 +95,6 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
         }
 
     }
-
     @NonNull
     @Override
     public ExpensesCardAdapter.ExpensesViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -237,6 +241,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
 //        private final MaterialButton archive;
         private final MaterialCheckBox done;
 
+        @SuppressLint("ClickableViewAccessibility")
         public ExpensesViewHolder(@NonNull View v) {
             super(v);
             importanceView = v.findViewById(R.id.importance_view);
@@ -260,16 +265,29 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
             });
 
             optionsMenuButton.setOnClickListener(v1 -> showPopup(v1, getAdapterPosition(), expensesCardArrayList.get(getAdapterPosition())));
-
-
-            expensesCardView.setOnClickListener(view -> {
-                ViewCards viewCard=new ViewCards();
-                Bundle bundle=new Bundle();
-                bundle.putSerializable(Config.members , memberHashMap);
-                bundle.putParcelable("CARD_DETAILS",expensesCardArrayList.get(getAdapterPosition()));
-                bundle.putBoolean("FROM_TASK_TAB",false);
-                viewCard.setArguments(bundle);
-                viewCard.show(fragmentManager,"VIEWCARD");
+            expensesCardView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    Intent intent= new Intent(context,GroupChatting.class);
+                    Bundle bundle=new Bundle();
+                    bundle.putSerializable("MEMBERS",memberHashMap);
+                    intent.putExtra("ExpenseCARD",expensesCardArrayList.get(getAdapterPosition()));
+                    intent.putExtra("extras",bundle);
+                    context.startActivity(intent);
+                    return true;
+                }
+            });
+            expensesCardView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    ViewCards viewCard=new ViewCards();
+                    Bundle bundle=new Bundle();
+                    bundle.putSerializable(Config.members , memberHashMap);
+                    bundle.putParcelable("CARD_DETAILS",expensesCardArrayList.get(getAdapterPosition()));
+                    bundle.putBoolean("FROM_TASK_TAB",false);
+                    viewCard.setArguments(bundle);
+                    viewCard.show(fragmentManager,"VIEWCARD");
+                }
             });
 
 

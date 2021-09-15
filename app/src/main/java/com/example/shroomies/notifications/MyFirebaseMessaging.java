@@ -15,6 +15,7 @@ import androidx.core.app.NotificationCompat;
 
 import com.example.shroomies.ChattingActivity;
 import com.example.shroomies.Config;
+import com.example.shroomies.GroupChatting;
 import com.example.shroomies.MyShroomiesActivity;
 import com.example.shroomies.R;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -86,6 +87,12 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
                 intent.putExtra("messageID",messageID);
                 pendingIntent=PendingIntent.getActivity(this,i,intent,PendingIntent.FLAG_ONE_SHOT);
             }
+            if (contentType.equals("groupMessage")) {
+//                String messageID=msg.getData().get("messageID");
+//                String messageType=msg.getData().get("messageType");
+                Intent intent = new Intent(this, MyShroomiesActivity.class);
+                pendingIntent=PendingIntent.getActivity(this,i,intent,PendingIntent.FLAG_ONE_SHOT);
+            }
             Uri defSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
             NotificationCompat.Builder builder = new NotificationCompat.Builder(this)
                     .setSmallIcon(R.drawable.ic_shroomies_full_black_30x28)
@@ -94,7 +101,6 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
                     .setAutoCancel(true)
                     .setSound(defSoundUri)
                     .setContentIntent(pendingIntent);
-
             NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
             notificationManager.notify(notiID, builder.build());
         }
@@ -119,7 +125,7 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
                 i = Integer.parseInt(idWithoutLetters.substring(0,9));
             }
 
-            if (contentType.equals("task")) {
+            if (contentType.equals(Config.task)) {
                 String cardID=msg.getData().get("task");
                 Intent intent = new Intent(this, MyShroomiesActivity.class);
                 intent.putExtra("CARDID",cardID);
@@ -132,12 +138,19 @@ public class MyFirebaseMessaging extends FirebaseMessagingService {
                 intent.putExtra("TAB", Config.expenses);
                 pendingIntent = PendingIntent.getActivity(this,i,intent, PendingIntent.FLAG_ONE_SHOT);
             }
-            if (contentType.equals("privateMessage")) {
+            if (contentType.equals(Config.privateMessage)) {
                 String messageID=msg.getData().get("messageID");
                 String receiverID=msg.getData().get("receiverID");
                 Intent intent = new Intent(this, ChattingActivity.class);
                 intent.putExtra("USERID",receiverID);
                 intent.putExtra("messageID",messageID);
+                pendingIntent=PendingIntent.getActivity(this,i,intent,PendingIntent.FLAG_ONE_SHOT);
+            }
+            if (contentType.equals(Config.groupMessage)) {
+                String messageID=msg.getData().get("messageID");
+                String messageType=msg.getData().get("messageType");
+                Intent intent = new Intent(this, GroupChatting.class);
+                intent.putExtra("MESSAGEID",messageID);
                 pendingIntent=PendingIntent.getActivity(this,i,intent,PendingIntent.FLAG_ONE_SHOT);
             }
             Uri defSoundUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);

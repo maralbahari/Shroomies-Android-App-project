@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.shroomies">
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -26,10 +27,14 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
-        <activity android:name=".PasswordSignUp"
-            android:parentActivityName=".SignUpActivity">
-        </activity>
-        <activity android:name=".PublishPostImage" />
+        <activity
+            android:name=".PasswordSignUp"
+            android:parentActivityName=".SignUpActivity"></activity>
+        <activity android:name=".PublishPostImage"
+            tools:ignore="Instantiatable" />
+        <activity
+            android:name=".GroupChatting"
+            android:parentActivityName=".MyShroomiesActivity"></activity>
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -43,14 +48,15 @@
 
         <activity
             android:name=".PublishPostPreferances"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            tools:ignore="Instantiatable" />
         <activity
             android:name=".MyShroomiesActivity"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ImageViewPage"
             android:screenOrientation="portrait" />
-        <activity android:name=".AddUsername"/>
+        <activity android:name=".AddUsername" />
         <!--
                Set to true if your app is Standalone, that is, it does not require the handheld
                app to run.
@@ -69,10 +75,6 @@
         </service>
 
         <activity
-            android:name=".GroupChattingActivity"
-            android:parentActivityName=".MessageInbox"
-            android:screenOrientation="portrait" />
-        <activity
             android:name=".RequestActivity"
             android:parentActivityName=".MainActivity"
             android:screenOrientation="portrait" />
@@ -82,9 +84,9 @@
             android:screenOrientation="portrait" />
         <activity
             android:name=".ResetPassword"
-            android:screenOrientation="portrait"
             android:parentActivityName=".LoginPassword"
-            android:windowSoftInputMode="adjustPan"/>
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".MainActivity"
             android:screenOrientation="portrait" />
@@ -92,8 +94,7 @@
             android:name=".SignUpActivity"
             android:parentActivityName=".LoginActivity"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustPan"
-            />
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".ApartmentViewPage"
             android:parentActivityName=".MainActivity"

@@ -1,5 +1,6 @@
 package com.example.shroomies;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
@@ -38,11 +39,28 @@ public class MyShroomiesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_shroomies);
         //load myshroomies fragment
-        Fragment myshroomiesFragment = new MyShroomiesFragment();
-        fm = getSupportFragmentManager();
-        ft = fm.beginTransaction();
-        ft.replace(R.id.my_shroomies_container, myshroomiesFragment);
-        ft.commit();
+        Bundle bundle=getIntent().getExtras();
+        if(bundle!=null){
+            String cardID=bundle.getString("CARDID");
+            String cardType=bundle.getString("CARDTYPE");
+            Bundle newBundle=new Bundle();
+            newBundle.putString("CARDID",cardID);
+            newBundle.putString("CARDTYPE",cardType);
+            Fragment myshroomiesFragment = new MyShroomiesFragment();
+            myshroomiesFragment.setArguments(bundle);
+            fm = getSupportFragmentManager();
+            ft = fm.beginTransaction();
+            ft.add(R.id.my_shroomies_container, myshroomiesFragment);
+            ft.commit();
+
+        }else {
+            Fragment myshroomiesFragment = new MyShroomiesFragment();
+            fm = getSupportFragmentManager();
+            ft = fm.beginTransaction();
+            ft.add(R.id.my_shroomies_container, myshroomiesFragment);
+            ft.commit();
+        }
+
         mAuth = FirebaseAuth.getInstance();
         rootRef = FirebaseDatabase.getInstance().getReference();
         FirebaseUser firebaseUser = mAuth.getCurrentUser();
@@ -97,4 +115,6 @@ public class MyShroomiesActivity extends AppCompatActivity {
         super.onDestroy();
         rootRef.removeEventListener(apartmentListener);
     }
+
+
 }

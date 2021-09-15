@@ -285,26 +285,37 @@
                 app:iconGravity="start"
                 android:insetBottom="0dp"
                 android:insetTop="0dp"
+                app:elevation="0dp"
                 />
-
-
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/my_shroomies_group_message_btn"
+            <FrameLayout
+                android:id="@+id/frame_layout_message_button"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:padding="20dp"
-                android:text="Group messaging"
-                android:textStyle="bold"
-                android:textColor="@color/jetBlack"
-                android:textAllCaps="false"
-                app:icon="@drawable/ic_message"
-                app:iconGravity="start"
-                app:iconTint="@color/jetBlack"
-                android:insetBottom="0dp"
-                android:insetTop="0dp"
-                />
+                android:foreground="@color/LogoYellow"
+                android:elevation="0dp"
+                android:clipChildren="false"
+                android:outlineProvider="none">
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/my_shroomies_group_message_btn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:padding="20dp"
+                    android:text="Group messaging"
+                    android:textStyle="bold"
+                    android:textColor="@color/jetBlack"
+                    android:textAllCaps="false"
+                    app:icon="@drawable/ic_message"
+                    app:iconGravity="start"
+                    app:elevation="0dp"
+                    android:background="@null"
+                    android:elevation="0dp"
+                    android:outlineProvider="none"
+                    app:iconTint="@color/jetBlack"
+                    android:insetBottom="0dp"
+                    android:insetTop="0dp"
+                    />
+            </FrameLayout>
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/my_shroomies_member_btn"
                 android:layout_width="match_parent"

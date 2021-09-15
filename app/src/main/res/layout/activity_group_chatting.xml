@@ -6,92 +6,180 @@
     android:layout_height="match_parent"
     tools:context=".GroupChatting">
     <com.google.android.material.appbar.MaterialToolbar
-        android:id="@+id/group_chat_toolbar"
+        android:id="@+id/group_chatting_activity_toolbar"
+        android:background="@color/LogoYellow"
+        app:title="Group Chat"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"/>
+    <RelativeLayout
+        android:id="@+id/no_message_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/LogoYellow"
-        android:elevation="3dp"
-        app:subtitleCentered="true"
-        app:subtitle="Group Chat"
-        app:subtitleTextColor="@color/jetBlack"/>
-    <RelativeLayout
-        android:id="@+id/group_chat_bottom_chatting_layout"
-        android:layout_width="match_parent"
-        android:layout_height="62dp"
-        android:layout_alignParentBottom="true"
-        android:background="@color/LogoYellow"
-        android:elevation="3dp"
-        android:padding="8dp">
-
-        <EditText
-            android:id="@+id/group_chat_messeg_body_edit_text"
-            android:layout_width="wrap_content"
-            android:layout_height="40dp"
-            android:layout_centerVertical="true"
-            android:layout_margin="5dp"
-            android:layout_toLeftOf="@id/group_chat_send_message_button"
-            android:layout_toRightOf="@id/group_chat_choose_file_button"
-            android:background="@drawable/background_text_white"
-            android:elevation="1dp"
-            android:inputType="textMultiLine"
-            android:padding="5dp"
-            android:scrollbars="vertical" />
-
-        <ImageButton
-            android:id="@+id/group_chat_choose_file_button"
-            android:layout_width="wrap_content"
+        android:visibility="gone"
+        android:layout_alignParentTop="true"
+        android:layout_above="@+id/group_chat_bottom_layout_view">
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/no_message_anim"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"
-            android:layout_margin="5dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:layout_marginBottom="5dp"
-            android:background="@null"
-            android:src="@drawable/ic_photo_camera"
+            android:scaleType="fitXY"
+            android:adjustViewBounds="true"
+            android:layout_centerHorizontal="true"
+            app:lottie_autoPlay="false"
+            app:lottie_loop="true"
+            app:lottie_rawRes="@raw/mushroom_no_message"
             />
         <TextView
-            android:id="@+id/group_chat_image_text_view"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:layout_toEndOf="@id/group_chat_selected_image_view"
-            android:layout_margin="10dp"
-            android:text="Image"
-            android:visibility="gone"
+            android:gravity="center"
+            android:layout_below="@+id/no_message_anim"
+            android:text="Say Hi to your Shroomies"
+            android:textColor="@color/lightGrey"
+            android:textStyle="bold"
+            android:layout_margin="20dp"
+            android:textSize="20sp"
             />
-        <ImageView
-            android:layout_centerVertical="true"
-            android:id="@+id/group_chat_selected_image_view"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:scaleType="centerCrop"
-            android:adjustViewBounds="true"
-            android:visibility="gone"
-            />
-
-        <ImageButton
-            android:id="@+id/group_chat_send_message_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_margin="5dp"
-            android:background="@drawable/circle_white_button_small"
-            android:elevation="3dp"
-            android:padding="5dp"
-            android:src="@drawable/ic_send" />
-
     </RelativeLayout>
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/group_chat_recycler_view"
+
+    <RelativeLayout
+        android:id="@+id/group_chat_bottom_layout_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_above="@id/group_chat_bottom_chatting_layout"
-        android:layout_below="@id/group_chat_toolbar"
-        android:background="@drawable/chatting_background"
-        android:paddingStart="5dp"
-        android:paddingEnd="5dp"
-        app:stackFromEnd="true" />
+        android:layout_alignParentBottom="true">
+        <RelativeLayout
+            android:id="@+id/reply_card_message_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/LogoYellow"
+            android:visibility="gone">
+
+            <ImageButton
+                android:id="@+id/dismiss_reply"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:background="@android:color/transparent"
+                android:layout_margin="10dp"
+                android:src="@drawable/ic_close_icon" />
+            <View
+                android:id="@+id/reply_message_importance"
+                android:layout_width="4dp"
+                android:layout_height="60dp"
+                android:background="@color/okGreen"
+                />
+            <TextView
+                android:id="@+id/reply_message_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Card Title"
+                android:padding="5dp"
+                android:layout_toEndOf="@+id/reply_message_importance"
+                android:layout_marginStart="5dp"
+                android:textColor="@color/jetBlack"
+                android:textStyle="bold"/>
+            <TextView
+                android:id="@+id/reply_message_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="card type"
+                android:padding="5dp"
+                android:layout_below="@+id/reply_message_title"
+                android:layout_toEndOf="@+id/reply_message_importance"
+                android:textColor="@color/jetBlack"
+                android:layout_marginStart="5dp"
+                />
+        </RelativeLayout>
+        <RelativeLayout
+            android:id="@+id/group_chat_bottom_chatting_layout"
+            android:layout_width="match_parent"
+            android:layout_height="62dp"
+            android:layout_below="@+id/reply_card_message_layout"
+            android:background="@color/LogoYellow"
+            android:elevation="3dp"
+            android:padding="8dp">
+            <EditText
+                android:id="@+id/group_chat_messeg_body_edit_text"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_centerVertical="true"
+                android:layout_margin="5dp"
+                android:layout_toLeftOf="@id/group_chat_send_message_button"
+                android:layout_toRightOf="@id/group_chat_choose_file_button"
+                android:background="@drawable/background_text_white"
+                android:elevation="1dp"
+                android:inputType="textMultiLine"
+                android:padding="5dp"
+                android:scrollbars="vertical" />
+
+            <ImageButton
+                android:id="@+id/group_chat_choose_file_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:layout_margin="5dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginBottom="5dp"
+                android:background="@null"
+                android:src="@drawable/ic_photo_camera"
+                />
+            <TextView
+                android:id="@+id/group_chat_image_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toEndOf="@id/group_chat_selected_image_view"
+                android:layout_margin="10dp"
+                android:text="Image"
+                android:visibility="gone"
+                />
+            <ImageView
+                android:layout_centerVertical="true"
+                android:id="@+id/group_chat_selected_image_view"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:scaleType="centerCrop"
+                android:adjustViewBounds="true"
+                android:visibility="gone"
+                />
+
+            <ImageButton
+                android:id="@+id/group_chat_send_message_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_margin="5dp"
+                android:background="@drawable/circle_white_button_small"
+                android:elevation="3dp"
+                android:padding="5dp"
+                android:src="@drawable/ic_send" />
+
+        </RelativeLayout>
+    </RelativeLayout>
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/group_message_swipe_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbarStyle="insideInset"
+        android:scrollbarFadeDuration="@integer/config_navAnimTime"
+        android:scrollIndicators="top"
+        android:scrollbarAlwaysDrawVerticalTrack="true"
+        android:layout_below="@+id/group_chatting_activity_toolbar"
+        android:scrollbarTrackVertical="@color/lowerGradientColorForLoginBackground"
+        android:layout_above="@id/group_chat_bottom_layout_view">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/group_chat_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/chatting_background"
+            android:paddingStart="5dp"
+            android:paddingEnd="5dp"
+            app:stackFromEnd="true"/>
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
 </RelativeLayout>

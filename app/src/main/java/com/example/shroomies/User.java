@@ -116,16 +116,13 @@ public class User implements Parcelable{
         this.apartmentID = apartmentID;
         this.requestCount=requestCount;
     }
-
     protected User(Parcel in) {
         username = in.readString();
         email = in.readString();
-
         bio = in.readString();
         image = in.readString();
         userID = in.readString();
     }
-
     public static final Creator<User> CREATOR = new Creator<User>() {
         @Override
         public User createFromParcel(Parcel in) {
@@ -137,7 +134,6 @@ public class User implements Parcelable{
             return new User[size];
         }
     };
-
 
     @Override
     public int describeContents() {
@@ -152,4 +148,5 @@ public class User implements Parcelable{
         dest.writeString(image);
         dest.writeString(userID);
     }
+
 }
