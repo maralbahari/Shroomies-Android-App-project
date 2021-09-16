@@ -41,7 +41,7 @@ public class Home extends Application {
         mAuth=FirebaseAuth.getInstance();
         FirebaseUser user=mAuth.getCurrentUser();
         if(user!=null){
-            if(user.isEmailVerified()){
+//            if(user.isEmailVerified()){
                 requestQueue = Volley.newRequestQueue(getApplicationContext());
                 // if the username is invalid
                 // then the user signed in for the first time
@@ -51,7 +51,7 @@ public class Home extends Application {
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
 
-            }
+//            }
         }
 
     }
