@@ -2,12 +2,15 @@ package com.example.shroomies;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -22,6 +25,8 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+import com.google.android.material.badge.BadgeDrawable;
+import com.google.android.material.badge.BadgeUtils;
 import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
@@ -45,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     private Button logoutButton , requestsButton;
     private ImageView profilePic;
     private BottomNavigationView bottomNavigationview;
+    private FrameLayout requestButtonFrame;
 
     private FragmentTransaction ft;
     private FragmentManager fm;
@@ -76,7 +82,7 @@ public class MainActivity extends AppCompatActivity {
         usernameDrawer = findViewById(R.id.drawer_nav_profile_name);
         profilePic = findViewById(R.id.drawer_nav_profile_pic);
         bottomNavigationview = findViewById(R.id.bottomNavigationView);
-
+        requestButtonFrame=findViewById(R.id.drawer_nav_request_button_frame_layout);
         drawerLayout.setTouchMode(ElasticDrawer.TOUCH_MODE_BEZEL);
         drawerLayout.setOnDrawerStateChangeListener(new ElasticDrawer.OnDrawerStateChangeListener() {
             @Override
@@ -248,6 +254,28 @@ public class MainActivity extends AppCompatActivity {
 
                 }else{
                     usernameDrawer.setText("@"+user.getUsername());
+                    int requestNo=user.getRequestCount();
+                    requestsButton.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                        @SuppressLint("UnsafeExperimentalUsageError")
+                        @Override
+                        public void onGlobalLayout() {
+                            BadgeDrawable badgeDrawable=BadgeDrawable.create(MainActivity.this);
+                            badgeDrawable.setBackgroundColor(getColor(R.color.lightGrey));
+                            badgeDrawable.setBadgeTextColor(Color.WHITE);
+                            BadgeUtils.attachBadgeDrawable(badgeDrawable, requestsButton, requestButtonFrame);
+                            badgeDrawable.setHorizontalOffset(100);
+                            badgeDrawable.setVerticalOffset(70);
+                            badgeDrawable.setHotspotBounds(100,100,100,100);
+                            badgeDrawable.setBadgeGravity(BadgeDrawable.BOTTOM_END);
+                            requestButtonFrame.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                            if (requestNo==0){
+                                badgeDrawable.setVisible(false);
+                            }else{
+                                badgeDrawable.setVisible(true);
+                                badgeDrawable.setNumber(requestNo);
+                            }
+                        }
+                    });
                     if(user.getImage()!=null){
                         if(!user.getImage().isEmpty()){
                             GlideApp.with(getApplicationContext())
