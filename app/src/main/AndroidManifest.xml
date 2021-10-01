@@ -26,10 +26,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true">
+
         <activity android:name=".PasswordSignUp"
             android:parentActivityName=".SignUpActivity">
         </activity>
-        <activity android:name=".PublishPostImage" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -40,10 +40,15 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
         </provider>
-
+        <activity android:name=".SearchSettingActivity"
+            android:screenOrientation="portrait"
+            android:parentActivityName=".MainActivity"/>
+        <activity android:name=".FavouritesActivity"
+            android:screenOrientation="portrait"/>
         <activity
-            android:name=".PublishPostPreferances"
-            android:screenOrientation="portrait" />
+            android:name=".PublishPostActivity"
+            android:screenOrientation="portrait"
+            android:parentActivityName=".MainActivity"/>
         <activity
             android:name=".MyShroomiesActivity"
             android:screenOrientation="portrait" />
