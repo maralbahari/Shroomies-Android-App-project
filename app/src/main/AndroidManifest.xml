@@ -36,6 +36,10 @@
             android:name=".GroupChatting"
             android:parentActivityName=".MyShroomiesActivity"></activity>
 
+        <activity android:name=".PasswordSignUp"
+            android:parentActivityName=".SignUpActivity">
+        </activity>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"
@@ -46,10 +50,20 @@
                 android:resource="@xml/provider_paths" />
         </provider>
 
+        <activity android:name=".SearchSettingActivity"
+            android:screenOrientation="portrait"
+            android:parentActivityName=".MainActivity"/>
+
+        <activity android:name=".FavouritesActivity"
+            android:screenOrientation="portrait"/>
         <activity
+
             android:name=".PublishPostPreferances"
             android:screenOrientation="portrait"
             tools:ignore="Instantiatable" />
+            android:name=".PublishPostActivity"
+            android:screenOrientation="portrait"
+            android:parentActivityName=".MainActivity"/>
         <activity
             android:name=".MyShroomiesActivity"
             android:screenOrientation="portrait" />

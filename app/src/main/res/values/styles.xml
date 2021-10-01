@@ -4,12 +4,15 @@
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/LogoYellow</item>
         <item name="colorPrimaryDark">@color/LogoYellow</item>
-        <item name="colorAccent">@color/Timeberwolf</item>
+        <item name="colorAccent">@color/LogoYellow</item>
         <item name="android:windowActionBarOverlay">true</item>
         <item name="alertDialogTheme">@style/AlertDialogTheme</item>
         <item name="android:fontFamily">@font/montserrat</item>
         <item name="android:textViewStyle">@font/montserrat</item>
         <item name="android:buttonStyle">@font/montserrat</item>
+    </style>
+    <style name="SearchViewStyle" parent="Widget.AppCompat.Light.SearchView">
+        <item name="android:textSize">14sp</item>
     </style>
 
     <style name="AlertDialogTheme" parent="ThemeOverlay.AppCompat.Dialog.Alert">
@@ -40,6 +43,10 @@
         <item name="android:windowExitAnimation">@anim/slide_down</item>
     </style>
 
+    <style name="MaterialButtonToggleStyle">
+        <item name="backgroundTint">@drawable/toggle_background_selector</item>
+        <item name="strokeColor">@drawable/toggle_stroke_selector</item>
+    </style>
 
 </resources>
 

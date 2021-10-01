@@ -19,7 +19,7 @@
         <Constraint
             android:layout_height="1dp"
             motion:layout_constraintStart_toStartOf="parent"
-            motion:layout_constraintHorizontal_bias="0.0"
+            android:alpha="0"
             motion:layout_constraintEnd_toEndOf="parent"
             android:layout_width="match_parent"
             motion:layout_constraintTop_toBottomOf="@id/view_apartment_post_toolbar"
@@ -28,28 +28,28 @@
             android:id="@+id/dotsIndicator_apartment_view"
             motion:layout_constraintEnd_toEndOf="@id/view_pager_apartment_view"
             android:layout_width="wrap_content"
-            android:layout_height="1dp"
+            android:layout_height="wrap_content"
+            android:alpha="0"
             motion:layout_constraintBottom_toBottomOf="@id/view_pager_apartment_view"
             android:layout_marginBottom="20dp"
             motion:layout_constraintStart_toStartOf="@id/view_pager_apartment_view" />
-        <Constraint
-            android:id="@+id/expand_button"
-            android:layout_width="80dp"
-            android:layout_height="1dp"
-            motion:layout_constraintTop_toTopOf="@id/view_pager_apartment_view"
-            motion:layout_constraintStart_toStartOf="parent" />
+
         <Constraint
             android:id="@+id/message_user_button"
             android:layout_width="wrap_content"
-            android:layout_height="1dp"
-            motion:layout_constraintTop_toBottomOf="@+id/view_pager_apartment_view"
+            android:layout_height="wrap_content"
+            android:alpha="0"
+            motion:layout_constraintBottom_toBottomOf="@+id/view_pager_apartment_view"
+            motion:layout_constraintTop_toBottomOf="@id/view_pager_apartment_view"
             motion:layout_constraintRight_toRightOf="parent"
-            android:layout_marginTop="50dp" />
+            android:layout_marginEnd="10dp"
+             />
         <Constraint
             motion:layout_constraintEnd_toEndOf="parent"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             motion:layout_constraintTop_toBottomOf="@id/view_apartment_post_toolbar"
+            motion:layout_constraintBottom_toBottomOf="parent"
             motion:layout_constraintStart_toStartOf="parent"
             android:layout_marginTop="0dp"
             android:id="@+id/nestedScrollView2" />
