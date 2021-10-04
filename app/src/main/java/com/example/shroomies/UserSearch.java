@@ -1,17 +1,19 @@
 package com.example.shroomies;
 
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.SearchView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
-import com.factor.bouncy.BouncyRecyclerView;
+import com.google.android.material.appbar.MaterialToolbar;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -25,16 +27,9 @@ import java.util.List;
 
 public class UserSearch extends Fragment {
     DatabaseReference rootRef;
-    private CustomLoadingProgressBar customLoadingProgressBar;
-    private RefreshProgressBar refreshProgressBar;
-    private BouncyRecyclerView recyclerView;
     private SearchUserRecyclerViewAdapter searchUserRecyclerViewAdapter;
     private List<User> userList;
-    private String searchTerm;
     private View v;
-
-
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -53,65 +48,69 @@ public class UserSearch extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        customLoadingProgressBar = new CustomLoadingProgressBar(getActivity(), "Searching..." , R.raw.search_anim );
-        customLoadingProgressBar.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-        recyclerView = v.findViewById(R.id.user_recycler_view);
+        RecyclerView recyclerView = v.findViewById(R.id.user_recycler_view);
         userList = new ArrayList<>();
-        searchUserRecyclerViewAdapter =  new SearchUserRecyclerViewAdapter(getActivity() , userList);
+        searchUserRecyclerViewAdapter = new SearchUserRecyclerViewAdapter(getActivity(), userList);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        MaterialToolbar toolbar = getActivity().findViewById(R.id.toolbar);
+        android.widget.SearchView searchView = toolbar.findViewById(R.id.SVsearch_disc);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                if (!query.trim().equals("")) {
+                    getSearch(query.trim().toLowerCase());
+                }
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
+        int searchCloseButtonId = searchView.getContext().getResources()
+                .getIdentifier("android:id/search_close_btn", null, null);
+        ImageView closeButton = searchView.findViewById(searchCloseButtonId);
+        closeButton.setOnClickListener(v -> {
+            // if the user closed the search get  the starting page apartments
+            searchView.setQuery("", false);
+            searchView.clearFocus();
+            searchView.setIconifiedByDefault(false);
+        });
+
 
         searchUserRecyclerViewAdapter.setHasStableIds(true);
         recyclerView.setAdapter(searchUserRecyclerViewAdapter);
         recyclerView.setHasFixedSize(true);
 
 
-        Bundle bundle = getArguments();
-        if (bundle != null) {
-            customLoadingProgressBar.show();
-            // save the search term for pagination
-            searchTerm =  ((String) bundle.get("myQuery")).trim();
-            getSearch(searchTerm);
-        }
-
     }
 
     private void getSearch(String personalQuery) {
-
         Query query;
             // limit the data to 30 matching users
-        query = rootRef.child("Users").limitToFirst(20).orderByChild("name").startAt(personalQuery)
+        query = rootRef.child(Config.users).limitToFirst(30).orderByChild(Config.username).startAt(personalQuery)
                 .endAt(personalQuery + "\uf8ff");
 
         query.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(snapshot.exists()){
+                    userList.clear();
                     for (DataSnapshot dataSnapshot
                     :snapshot.getChildren()){
                         User user = dataSnapshot.getValue(User.class);
                         userList.add(user);
                     }
                     searchUserRecyclerViewAdapter.notifyDataSetChanged();
-
                 }
-               closeProgressBarsSetOverPullListener();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                closeProgressBarsSetOverPullListener();
             }
         });
 
-    }
-
-    void closeProgressBarsSetOverPullListener(){
-
-        if(customLoadingProgressBar!=null){
-            customLoadingProgressBar.dismiss();
-        }
-        if(refreshProgressBar!=null){
-            refreshProgressBar.dismiss();
-        }
     }
 }
