@@ -1,7 +1,6 @@
 package com.example.shroomies;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,27 +17,15 @@ import androidx.fragment.app.DialogFragment;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
-import com.bumptech.glide.load.resource.bitmap.CenterCrop;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.make.dots.dotsindicator.DotsIndicator;
+import com.otaliastudios.zoom.ZoomImageView;
 
 import java.util.List;
 
 public class ImageViewPager extends DialogFragment {
     private View v;
-    private ViewPager viewPager;
-    List<String> imageUrls;
-    private DotsIndicator dotsIndicator;
-    private ViewPagerAdapterImageView viewPagerAdapterImageView;
-    private ImageButton shareButton , closeButton;
-
-    ImageViewPager(List<String> imageUrls){
-        this.imageUrls=imageUrls;
-    }
 
 
     @Override
@@ -69,33 +56,19 @@ public class ImageViewPager extends DialogFragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        viewPager = v.findViewById(R.id.image_view_pager);
-        dotsIndicator = v.findViewById(R.id.dotsIndicator_image_view_pager);
-        closeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dismiss();
-            }
-        });
+        ViewPager viewPager = v.findViewById(R.id.image_view_pager);
+        DotsIndicator dotsIndicator = v.findViewById(R.id.dotsIndicator_image_view_pager);
+        ImageButton closeButton = v.findViewById(R.id.close_button);
+        closeButton.setOnClickListener(v -> ImageViewPager.this.dismiss());
+        Bundle bundle = getArguments();
+        if(bundle!=null){
+            List<String> imageUrls = bundle.getStringArrayList(Config.IMAGE_URL);
+            ViewPagerAdapterImageView viewPagerAdapterImageView = new ViewPagerAdapterImageView(getActivity(), imageUrls);
+            viewPager.setAdapter(viewPagerAdapterImageView);
+            dotsIndicator.setViewPager(viewPager);
+            viewPager.getAdapter().registerDataSetObserver(dotsIndicator.getDataSetObserver());
+        }
 
-        viewPagerAdapterImageView = new ViewPagerAdapterImageView(getActivity(),  imageUrls);
-        viewPager.setAdapter(viewPagerAdapterImageView);
-        dotsIndicator.setViewPager(viewPager);
-        viewPager.getAdapter().registerDataSetObserver(dotsIndicator.getDataSetObserver());
-
-        shareButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-               String currentImageURL = imageUrls.get( viewPagerAdapterImageView.getItemPosition(viewPager.getCurrentItem()));
-               FirebaseStorage.getInstance().getReference().child(currentImageURL).getDownloadUrl().addOnCompleteListener(new OnCompleteListener<Uri>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Uri> task) {
-                        Uri imageUri = task.getResult();
-
-                    }
-                });
-            }
-        });
 
     }
 
@@ -104,7 +77,7 @@ public class ImageViewPager extends DialogFragment {
 
 class ViewPagerAdapterImageView extends PagerAdapter {
     Context context;
-    private List<String> imageUrls;
+    private final List<String> imageUrls;
 
     ViewPagerAdapterImageView(Context context , List<String> imageUrls){
         this.context = context;
@@ -122,13 +95,21 @@ class ViewPagerAdapterImageView extends PagerAdapter {
         return view==object;
     }
 
-
     @NonNull
     @Override
     public Object instantiateItem(@NonNull ViewGroup container, int position) {
-        ImageView imageView = new ImageView(context);
-
-
+        ZoomImageView imageView = new ZoomImageView(context);
+        imageView.setTransformation(ZoomImageView.TRANSFORMATION_CENTER_INSIDE , ZoomImageView.TRANSFORMATION_GRAVITY_AUTO);
+        imageView.setZoomEnabled(true);
+        imageView.setOverPinchable(true);
+        imageView.setHorizontalPanEnabled(true);
+        imageView.setVerticalPanEnabled(true);
+//        imageView.setOneFingerScrollEnabled(true);
+//        imageView.setTwoFingersScrollEnabled(true);
+//        imageView.setThreeFingersScrollEnabled(true);
+        imageView.setMinZoom(0.7f);
+        imageView.setMaxZoom(2.5f);
+        imageView.setAnimationDuration(280);
         StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(imageUrls.get(position));
         // Load the image using Glide
         imageView.setPadding(3,3,3,3);

@@ -7,69 +7,32 @@
     android:background="@color/white"
     tools:context=".PublishPost">
 
-    <HorizontalScrollView
-        android:id="@+id/scroll_view"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:scrollbars="none">
-
-    <com.google.android.material.chip.ChipGroup
-        android:id="@+id/chip_group"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:chipSpacingVertical="3dp"
-        app:singleLine="true"
-        android:paddingStart="5dp"
-        android:paddingEnd="5dp"
-        app:singleSelection="true"
-        app:selectionRequired="true"
-        >
         <com.google.android.material.chip.Chip
-            android:id="@+id/apartment_post_chip"
+            android:id="@+id/post_type_chip"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="I want to share my place with someone"
+            android:text="Room post"
             android:padding="0dp"
-            android:checkable="true"
-            android:checked="true"
             app:chipBackgroundColor="@color/LogoYellow"
             android:elevation="3dp"
-            app:checkedIcon="@drawable/ic_check"
-            app:chipStrokeColor="@color/LogoYellow"
             android:textColor="@color/jetBlack"
-            android:textSize="12sp"
-            app:chipStrokeWidth="1dp"
-            app:checkedIconTint="@color/jetBlack"
-
+            android:textSize="14sp"
+            android:layout_margin="5dp"
+            app:closeIconEnabled="false"
+            app:closeIcon="@drawable/ic_arrow_down"
+            app:closeIconSize="10dp"
+            app:closeIconVisible="true"
+            app:closeIconEndPadding="5dp"
             />
-        <com.google.android.material.chip.Chip
-            android:id="@+id/personal_post_chip"
-
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="I'm looking to join someone else's place"
-            android:textSize="12sp"
-            android:checkable="true"
-            app:chipBackgroundColor="@color/white"
-            android:elevation="3dp"
-            app:checkedIcon="@drawable/ic_check"
-            app:chipStrokeColor="@color/LogoYellow"
-            android:textColor="@color/jetBlack"
-            app:checkedIconTint="@color/jetBlack"
-            app:chipStrokeWidth="1dp"/>
-
-    </com.google.android.material.chip.ChipGroup>
-    </HorizontalScrollView>
-
 
 
         <RelativeLayout
             android:id="@+id/relative_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/scroll_view"
+            android:layout_below="@id/post_type_chip"
 
-            android:paddingBottom="20dp">
+            >
             <ImageView
                 android:id="@+id/user_image_publish_post"
                 android:layout_width="40dp"
@@ -91,11 +54,10 @@
                 android:background="@android:color/transparent"
                 android:hint="talk about yourself"
                 android:layout_alignTop="@id/user_image_publish_post"
-
                 android:padding="5dp"
                 android:focusable="true"
-                android:fontFamily="@font/amiko"
                 android:maxLength="200"
+                android:textSize="14sp"
 
                 android:layout_toEndOf="@id/user_image_publish_post"
                 android:focusedByDefault="true"
@@ -104,378 +66,164 @@
 
                 />
 
+<RelativeLayout
+    android:id="@+id/apartment_post_layout"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_below="@+id/post_description"
+    android:layout_marginTop="10dp"
 
-<!--            <androidx.viewpager.widget.ViewPager-->
-<!--                android:id="@+id/view_pager"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="200dp"-->
+    >
+<View
+    android:id="@+id/top_divider"
+    android:layout_width="wrap_content"
+    android:layout_height="0.3dp"
+    android:background="@color/Alabaster"
+    android:layout_alignParentTop="true"/>
 
+            <TextView
+                android:id="@+id/select_type_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:text="Select the type of your residential unit"
+                android:textSize="12sp"
+                android:layout_marginTop="10dp"
+                android:layout_below="@+id/top_divider"
+               />
+            <com.google.android.material.chip.ChipGroup
+                android:id="@+id/type_of_unit_chip_group"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/select_type_text_view"
+                android:orientation="horizontal"
+                android:padding="5dp"
+                app:singleSelection="true"
+                app:selectionRequired="true"
+                >
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/condo_type_chip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Condominium"
+                    app:chipBackgroundColor="@color/white"
+                    app:chipStrokeWidth="1dp"
+                    app:chipStrokeColor="@color/LogoYellow"
+                    android:checkable="true"
+                    app:checkedIcon="@drawable/ic_check"
+                    app:checkedIconTint="@color/LogoYellow"
+                    android:elevation="3dp"
+                    android:textSize="12sp"/>
 
-<!--                android:layout_below="@id/post_description"-->
-<!--                android:layout_marginLeft="10dp"-->
-<!--                android:layout_marginTop="20dp"-->
-<!--                android:layout_marginRight="20dp"-->
-<!--                android:layout_marginBottom="20dp"-->
-<!--                android:visibility="gone" />-->
-
-<!--            <ImageButton-->
-<!--                android:id="@+id/delete_image_post"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_alignLeft="@+id/view_pager"-->
-<!--                android:layout_alignBottom="@id/view_pager"-->
-
-<!--                android:layout_marginLeft="20dp"-->
-<!--                android:layout_marginBottom="20dp"-->
-<!--                android:background="@drawable/small_circle_button"-->
-<!--                android:elevation="5dp"-->
-<!--                android:padding="5dp"-->
-<!--                android:src="@drawable/ic_icon_material_remove_circle_outline"-->
-<!--                android:visibility="gone"-->
-
-<!--                />-->
-
-<!--            <com.make.dots.dotsindicator.DotsIndicator-->
-<!--                android:id="@+id/dotsIndicator"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_below="@id/view_pager"-->
-<!--                android:layout_centerHorizontal="true"-->
-<!--                android:layout_marginTop="-60dp"-->
-<!--                android:background="@drawable/dots_background"-->
-<!--                android:padding="4dp"-->
-<!--                android:visibility="gone"-->
-<!--                app:dot_drawable="@drawable/ic_dot_darkgrey"-->
-<!--                app:dot_drawable_unselected="@drawable/ic_dot_lightgrey"-->
-<!--                app:dot_height="6dp"-->
-<!--                app:dot_margin="4dp"-->
-<!--                app:dot_width="6dp" />-->
-
-
-<!--            <LinearLayout-->
-<!--                android:id="@+id/preferences_linear_layout"-->
-<!--                android:layout_width="wrap_content"-->
-
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_below="@id/view_pager"-->
-<!--                android:layout_marginTop="10dp"-->
-<!--                android:layout_marginBottom="10dp"-->
-<!--                android:layout_marginLeft="10dp"-->
-<!--                android:layout_marginRight="5dp"-->
-<!--                android:background="@drawable/text_low_alpha_background"-->
-<!--                android:elevation="5dp"-->
-<!--                android:gravity="center"-->
-<!--                android:orientation="horizontal"-->
-<!--                android:visibility="visible">-->
-
-<!--                <TextView-->
-<!--                    android:id="@+id/preferences_text_view"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:layout_below="@id/view_pager"-->
-<!--                    android:layout_marginLeft="5dp"-->
-<!--                    android:elevation="3dp"-->
-<!--                    android:visibility="gone"-->
-<!--                    android:padding="3dp"-->
-<!--                    android:text="Preferances"-->
-
-<!--                    />-->
-
-
-<!--                <ImageView-->
-<!--                    android:id="@+id/male_image_view_publish_post"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:layout_margin="5dp"-->
-<!--                    android:elevation="3dp"-->
-
-<!--                    android:src="@drawable/male_icon_15dp"-->
-<!--                    android:visibility="gone" />-->
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/apartment_type_chip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Apartment"
+                    app:chipBackgroundColor="@color/white"
+                    app:chipStrokeWidth="1dp"
+                    app:chipStrokeColor="@color/LogoYellow"
+                    android:checkable="true"
+                    app:checkedIcon="@drawable/ic_check"
+                    app:checkedIconTint="@color/LogoYellow"
+                    android:elevation="3dp"
+                    android:textSize="12sp"/>
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/flat_type_chip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Flat"
+                    app:chipBackgroundColor="@color/white"
+                    app:chipStrokeWidth="1dp"
+                    app:chipStrokeColor="@color/LogoYellow"
+                    android:checkable="true"
+                    app:checkedIcon="@drawable/ic_check"
+                    app:checkedIconTint="@color/LogoYellow"
+                    android:elevation="3dp"
+                    android:textSize="12sp"/>
 
 
-<!--                <Space-->
-<!--                    android:layout_width="0dp"-->
-<!--                    android:layout_height="1dp"-->
-<!--                    android:layout_weight="1" />-->
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/house_type_chip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Town house"
+                    app:chipBackgroundColor="@color/white"
+                    app:chipStrokeWidth="1dp"
+                    app:chipStrokeColor="@color/LogoYellow"
+                    android:checkable="true"
+                    app:checkedIcon="@drawable/ic_check"
+                    app:checkedIconTint="@color/LogoYellow"
+                    android:elevation="3dp"
+                    android:textSize="12sp"/>
 
-<!--                <ImageView-->
-<!--                    android:id="@+id/female_image_view_publish_post"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-
-<!--                    android:layout_margin="5dp"-->
 
 
-<!--                    android:elevation="3dp"-->
-
-<!--                    android:src="@drawable/female_icon_15dp"-->
-
-<!--                    android:visibility="gone" />-->
-
-<!--                <Space-->
-<!--                    android:layout_width="0dp"-->
-<!--                    android:layout_height="1dp"-->
-<!--                    android:layout_weight="1" />-->
-
-<!--                <ImageView-->
-<!--                    android:id="@+id/pets_allowd_image_view_publish_post"-->
-
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:layout_margin="5dp"-->
-
-<!--                    android:elevation="3dp"-->
-
-<!--                    android:src="@drawable/pet_icon_15dp"-->
-
-<!--                    android:visibility="gone" />-->
-
-<!--                <Space-->
-<!--                    android:layout_width="0dp"-->
-<!--                    android:layout_height="1dp"-->
-<!--                    android:layout_weight="1" />-->
-
-<!--                <ImageView-->
-<!--                    android:id="@+id/non_smoking_image_view_publish_post"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:layout_margin="5dp"-->
-<!--                    android:elevation="3dp"-->
-<!--                    android:src="@drawable/smoking_icon_15dp"-->
-<!--                    android:visibility="gone" />-->
-<!--            </LinearLayout>-->
-<!--            <LinearLayout-->
-<!--                android:id="@+id/price_roommate_linear_layout"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_below="@+id/preferences_linear_layout">-->
-
-<!--                <TextView-->
-
-<!--                    android:id="@+id/price_text_view_apartment_card"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:layout_marginTop="10dp"-->
-<!--                    android:layout_marginBottom="10dp"-->
-<!--                    android:layout_marginLeft="10dp"-->
-<!--                    android:layout_marginRight="5dp"-->
-<!--                    android:background="@drawable/text_low_alpha_background"-->
-<!--                    android:elevation="3dp"-->
-<!--                    android:padding="3dp"-->
-<!--                    android:visibility="gone"-->
-<!--                    android:fontFamily="@font/amiko"-->
-
-<!--                    />-->
-
-<!--                <TextView-->
-<!--                    android:id="@+id/number_of_room_mates_text_view"-->
-<!--                    android:layout_width="wrap_content"-->
-<!--                    android:layout_height="wrap_content"-->
-<!--                    android:layout_below="@+id/preferences_linear_layout"-->
-<!--                    android:layout_marginTop="10dp"-->
-<!--                    android:layout_marginBottom="10dp"-->
-<!--                    android:layout_marginLeft="5dp"-->
-<!--                    android:layout_marginRight="5dp"-->
-<!--                    android:layout_toRightOf="@+id/price_text_view_apartment_card"-->
-<!--                    android:background="@drawable/text_low_alpha_background"-->
-<!--                    android:elevation="3dp"-->
-<!--                    android:padding="3dp"-->
-<!--                    android:visibility="gone"-->
-<!--                    android:fontFamily="@font/amiko"/>-->
-<!--            </LinearLayout>-->
-
-<!--            <TextView-->
-<!--                android:id="@+id/location_text_view"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_below="@id/post_description"-->
-<!--                android:layout_margin="10dp"-->
-<!--                android:background="@drawable/text_low_alpha_background"-->
-<!--                android:drawableStart="@drawable/ic_location_icon_25dp"-->
-<!--                android:gravity="center_vertical"-->
-<!--                android:elevation="3dp"-->
-<!--                android:lines="1"-->
-<!--                android:padding="3dp"-->
-<!--                android:fontFamily="@font/amiko"-->
-<!--                />-->
+            </com.google.android.material.chip.ChipGroup>
+            <TextView
+                android:id="@+id/search_for_name_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/type_of_unit_chip_group"
+                android:text="You must search for the building name"
+                android:padding="10dp"
+                android:textSize="12sp"
+                android:textColor="@color/lightGrey"
+                android:gravity="center"
+                android:visibility="gone"
+                />
+            <View
+                android:id="@+id/divider"
+                android:layout_width="match_parent"
+                android:layout_height="0.1dp"
+                android:layout_below="@id/search_for_name_text_view"
+                android:background="@color/Alabaster"
+                />
             <com.google.android.material.chip.Chip
                 android:id="@+id/location_chip_view"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="location"
-                android:layout_below="@id/post_description"
-                android:layout_marginStart="10dp"
+                android:layout_below="@id/divider"
+                android:layout_marginStart="5dp"
                 android:layout_marginEnd="10dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="5dp"
                 android:minHeight="0dp"
                 android:padding="0dp"
-                app:iconEndPadding="0dp"
+                android:text="Add location"
                 app:chipIcon="@drawable/ic_location_icon_25dp"
-
-
-
+                app:chipBackgroundColor="@color/white"
+                app:chipStrokeWidth="1dp"
+                app:chipStrokeColor="@color/LogoYellow"
                 />
+
+
+
+</RelativeLayout>
+
+
+
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/publish_post_next_button"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
                 android:text="Next"
                 android:textAllCaps="false"
-                android:layout_margin="10dp"
+                android:insetBottom="0dp"
                 app:icon="@drawable/ic_next_arraow_yellow"
-                app:iconTint="@color/LogoYellow"
-                app:iconSize="15dp"
-                app:iconGravity="end"
+                app:iconTint="@color/jetBlack"
+                app:iconSize="10dp"
+                app:iconGravity="textEnd"
                 android:textStyle="bold"
                 android:layout_alignParentBottom="true"
-                android:textColor="@color/LogoYellow"
-
-                android:background="@android:color/transparent"
-                app:cornerRadius="100dp"
+                android:textColor="@color/jetBlack"
+                android:backgroundTint="@color/LogoYellow"
+                app:cornerRadius="0dp"
                 android:minWidth="0dp"
+                app:elevation="3dp"
+                android:elevation="3dp"
                 />
         </RelativeLayout>
-
-
-
-
-
-<!--    <androidx.constraintlayout.widget.ConstraintLayout-->
-<!--        android:id="@+id/publish_post_option_bar"-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="wrap_content"-->
-<!--        android:layout_alignParentBottom="true"-->
-<!--        android:layout_marginTop="5dp"-->
-<!--        android:background="@color/LogoYellow"-->
-<!--        android:elevation="3dp">-->
-
-<!--        <LinearLayout-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="match_parent"-->
-<!--            android:layout_margin="5dp"-->
-<!--            app:layout_constraintBottom_toBottomOf="parent"-->
-<!--            app:layout_constraintLeft_toLeftOf="parent"-->
-<!--            app:layout_constraintTop_toTopOf="parent">-->
-
-<!--            <Button-->
-<!--                android:id="@+id/add_image_button"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_margin="4dp"-->
-<!--                android:background="@drawable/button_round_alabaster"-->
-<!--                android:drawableStart="@drawable/ic_photo_library_25dp"-->
-<!--                android:elevation="3dp"-->
-<!--                android:fontFamily="@font/amiko"-->
-<!--                android:minWidth="0dp"-->
-<!--                android:minHeight="0dp"-->
-<!--                android:paddingLeft="4dp"-->
-<!--                android:paddingRight="4dp"-->
-<!--                android:paddingTop="3dp"-->
-<!--                android:paddingBottom="3dp"-->
-
-<!--                android:text="Image"-->
-<!--                android:textAllCaps="false"-->
-<!--                android:textColor="@color/jetBlack"-->
-<!--                android:textSize="10sp" />-->
-
-<!--            <Space-->
-<!--                android:layout_width="0dp"-->
-<!--                android:layout_height="1dp"-->
-<!--                android:layout_weight="1" />-->
-
-<!--            <Button-->
-<!--                android:id="@+id/preferences_image_button"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_margin="4dp"-->
-<!--                android:layout_marginLeft="10dp"-->
-<!--                android:layout_marginRight="10dp"-->
-
-<!--                android:background="@drawable/button_round_alabaster"-->
-<!--                android:drawableStart="@drawable/ic_options_icon_25dp"-->
-<!--                android:elevation="3dp"-->
-<!--                android:fontFamily="@font/amiko"-->
-<!--                android:minWidth="0dp"-->
-<!--                android:minHeight="0dp"-->
-<!--                android:paddingLeft="4dp"-->
-<!--                android:paddingRight="4dp"-->
-<!--                android:paddingTop="3dp"-->
-<!--                android:paddingBottom="3dp"-->
-<!--                android:text="Preferences"-->
-<!--                android:textAllCaps="false"-->
-<!--                android:textColor="@color/jetBlack"-->
-<!--                android:textSize="10sp"-->
-
-<!--                />-->
-
-<!--            <Space-->
-<!--                android:layout_width="0dp"-->
-<!--                android:layout_height="1dp"-->
-<!--                android:layout_weight="1" />-->
-
-<!--            <Button-->
-<!--                android:id="@+id/location_image_button"-->
-<!--                android:layout_width="wrap_content"-->
-<!--                android:layout_height="wrap_content"-->
-<!--                android:layout_margin="4dp"-->
-<!--                android:layout_marginLeft="10dp"-->
-<!--                android:layout_marginRight="10dp"-->
-
-<!--                android:background="@drawable/button_round_alabaster"-->
-<!--                android:drawableStart="@drawable/ic_location_icon_25dp"-->
-<!--                android:elevation="3dp"-->
-<!--                android:fontFamily="@font/amiko"-->
-<!--                android:minWidth="0dp"-->
-<!--                android:minHeight="0dp"-->
-<!--                android:paddingLeft="4dp"-->
-<!--                android:paddingRight="4dp"-->
-<!--                android:paddingTop="3dp"-->
-<!--                android:paddingBottom="3dp"-->
-<!--                android:text="Location"-->
-<!--                android:textAllCaps="false"-->
-<!--                android:textColor="@color/jetBlack"-->
-<!--                android:textSize="10sp"-->
-
-<!--                />-->
-<!--        </LinearLayout>-->
-
-<!--        <Button-->
-<!--            android:id="@+id/publish_post_button"-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_marginTop="5dp"-->
-<!--            android:layout_marginRight="10dp"-->
-<!--            android:layout_marginBottom="5dp"-->
-
-<!--            android:background="@drawable/button_round_greyish_timber_wolf"-->
-
-<!--            android:outlineProvider="none"-->
-<!--            android:fontFamily="@font/amiko"-->
-<!--            android:minWidth="0dp"-->
-<!--            android:minHeight="0dp"-->
-<!--            android:paddingLeft="4dp"-->
-<!--            android:paddingRight="4dp"-->
-<!--            android:paddingTop="3dp"-->
-<!--            android:paddingBottom="3dp"-->
-
-<!--            android:text="Publish"-->
-<!--            android:textAllCaps="false"-->
-<!--            android:textColor="@color/jetBlack"-->
-<!--            android:textSize="12sp"-->
-<!--            app:layout_constraintBottom_toBottomOf="parent"-->
-<!--            app:layout_constraintRight_toRightOf="parent"-->
-<!--            app:layout_constraintTop_toTopOf="parent"-->
-<!--            android:clickable="false"-->
-
-
-<!--            />-->
-
-
-<!--    </androidx.constraintlayout.widget.ConstraintLayout>-->
-
-
 
 
 </RelativeLayout>

@@ -5,8 +5,8 @@
     android:layout_height="wrap_content"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".MapsFragment"
-    android:layout_marginTop="60dp"
-    android:layout_marginBottom="50dp">
+    android:id="@+id/root_layout"
+>
 
 
     <fragment
@@ -16,63 +16,68 @@
         android:layout_height="match_parent"/>
 
 
-    <LinearLayout
-        android:id="@+id/search_bar_maps_fragment"
-        android:layout_width="wrap_content"
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/map_fragment_toolbar"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_marginRight="10dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginTop="15dp"
-        android:padding="10dp"
-        android:elevation="3dp"
+        android:background="#B3333533"
+        app:navigationIcon="@drawable/ic_back_button_yellow"
+        app:contentInsetStartWithNavigation="-0dp"
 
-        android:layout_centerHorizontal="true"
-        android:background="@drawable/button_round_alabaster">
+        >
 
+    <androidx.cardview.widget.CardView
+        android:id="@+id/search_bar_maps_fragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:backgroundTint="@android:color/transparent"
+        app:cardCornerRadius="5dp"
+        android:clickable="true"
+        android:layout_marginEnd="10dp"
+        android:elevation="0dp"
+        app:cardElevation="0dp"
 
-        <ImageButton
-            android:id="@+id/search_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/quantum_ic_search_grey600_24"
-            android:background="@android:color/transparent"
-            android:layout_gravity="center_vertical"
-            android:padding="3dp"
-            />
+        >
         <TextView
-            android:id="@+id/location_text_view_map_fragment"
-            android:layout_width="wrap_content"
+            android:id="@+id/location_text_view"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:maxLines="3"
+            android:padding="10dp"
+            android:drawablePadding="10dp"
+            android:backgroundTint="@color/jetBlack"
+            android:foreground="?selectableItemBackground"
+            android:drawableTint="@color/LogoYellow"
+            android:drawableEnd="@drawable/quantum_ic_search_grey600_24"
+            android:textColor="@color/white"
+            android:singleLine="true"
+            android:scrollHorizontally="true"
+            android:ellipsize="marquee"
+            android:marqueeRepeatLimit="marquee_forever"
+            />
 
-            android:layout_gravity="center_vertical"
-            android:fontFamily="@font/amiko"/>
+    </androidx.cardview.widget.CardView>
 
-    </LinearLayout>
-
+    </com.google.android.material.appbar.MaterialToolbar>
 
 
-    <Button
+
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/update_location_button"
         android:layout_alignParentBottom="true"
-        android:layout_margin="20dp"
-        android:layout_centerInParent="true"
+        android:layout_centerHorizontal="true"
+        android:insetBottom="10dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:minHeight="0dp"
         android:minWidth="0dp"
-        android:paddingTop="5dp"
-        android:paddingBottom="5dp"
-        android:paddingRight="10dp"
-        android:paddingLeft="10dp"
         android:text="Update location"
         android:textAllCaps="false"
-         android:textColor="@color/jetBlack"
-        android:fontFamily="@font/amiko"
-        android:background="@drawable/search_light_green_background">
+        android:textColor="@color/jetBlack"
+        app:cornerRadius="100dp"
 
-    </Button>
+       >
+
+    </com.google.android.material.button.MaterialButton>
 
 
 
