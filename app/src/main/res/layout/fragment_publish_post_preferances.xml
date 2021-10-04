@@ -5,13 +5,13 @@
 
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".PublishPostPreferances">
+    tools:context=".PublishPostPreferences">
 
 
     <LinearLayout
         android:layout_below="@+id/add_preferences_text_view"
         android:layout_width="match_parent"
-        android:layout_height="150dp"
+        android:layout_height="wrap_content"
         android:id="@+id/linearLayout"
 
         android:gravity="center"
@@ -38,15 +38,43 @@
                 android:drawablePadding="3dp"
                 android:fontFamily="@font/amiko"
                 />
-            <NumberPicker
-                android:id="@+id/roommate_number_picker"
+<!--            <NumberPicker-->
+<!--                android:id="@+id/roommate_number_picker"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:selectionDividerHeight="0.0000000000001dp"-->
+<!--                android:minHeight="0dp"-->
+<!--                />-->
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:selectionDividerHeight="0.0000000000001dp"
-                android:minHeight="0dp"
+                app:boxStrokeColor="@color/LogoYellow"
+                app:boxStrokeWidth="0.5dp"
+                app:boxBackgroundMode="outline"
+                app:boxCornerRadiusTopEnd="5dp"
+                app:boxCornerRadiusTopStart="5dp"
+                app:boxCornerRadiusBottomStart="5dp"
+                app:boxCornerRadiusBottomEnd="5dp"
+                app:helperText=" "
                 >
+                 <com.google.android.material.textfield.TextInputEditText
+                     android:id="@+id/roommate_number_edit_text"
 
-            </NumberPicker>
+                     android:layout_height="match_parent"
+                     android:layout_width="match_parent"
+                     android:minWidth="100dp"
+                     android:minHeight="100dp"
+                     android:maxLength="2"
+                     android:gravity="center"
+                     android:backgroundTint="@color/white"
+                     android:paddingBottom="15dp"
+                     android:paddingTop="15dp"
+                     android:inputType="number"
+                 >
+                </com.google.android.material.textfield.TextInputEditText>
+
+            </com.google.android.material.textfield.TextInputLayout>
+
         </LinearLayout>
 
 
@@ -67,13 +95,43 @@
                 android:drawableStart="@drawable/ic_expense"
                 android:drawablePadding="3dp"
                 />
-            <NumberPicker
-                android:id="@+id/budget_number_picker"
+<!--            <NumberPicker-->
+<!--                android:id="@+id/budget_number_picker"-->
+<!--                android:layout_width="wrap_content"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:orientation="horizontal"-->
+<!--                android:selectionDividerHeight="0.0000000000001dp"-->
+<!--                />-->
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:selectionDividerHeight="0.0000000000001dp"
-                />
+                app:boxStrokeColor="@color/LogoYellow"
+                app:boxStrokeWidth="0.5dp"
+                app:boxBackgroundMode="outline"
+                app:boxCornerRadiusTopEnd="5dp"
+                app:boxCornerRadiusTopStart="5dp"
+                app:boxCornerRadiusBottomStart="5dp"
+                app:boxCornerRadiusBottomEnd="5dp"
+                app:helperText="RM"
+                app:helperTextEnabled="true"
+                >
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/budget_edit_text"
+                android:layout_height="match_parent"
+                android:layout_width="match_parent"
+                android:minWidth="100dp"
+                android:minHeight="100dp"
+                android:maxLength="5"
+                android:gravity="center"
+                android:backgroundTint="@color/white"
+                android:paddingBottom="15dp"
+                android:paddingTop="15dp"
+                android:inputType="number"
+
+                >
+            </com.google.android.material.textfield.TextInputEditText>
+
+            </com.google.android.material.textfield.TextInputLayout>
 
         </LinearLayout>
 
@@ -117,23 +175,8 @@
 
         />
     <com.google.android.material.checkbox.MaterialCheckBox
-        android:id="@+id/smoking_checkbox"
-        android:layout_below="@+id/female_checkbox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="I'm looking for non-smokers"
-        android:paddingStart="10dp"
-        android:paddingEnd="10dp"
-        android:drawableEnd="@drawable/smoking_icon_15dp"
-        android:drawablePadding="10dp"
-        android:gravity="left|center_vertical"
-        android:layoutDirection="rtl"
-        app:buttonTint="@color/LogoYellow"
-
-        />
-    <com.google.android.material.checkbox.MaterialCheckBox
         android:id="@+id/pet_friendly_checkbox"
-        android:layout_below="@+id/smoking_checkbox"
+        android:layout_below="@+id/female_checkbox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="I'm pet friendly"
@@ -146,6 +189,38 @@
         app:buttonTint="@color/LogoYellow"
 
         />
+    <com.google.android.material.checkbox.MaterialCheckBox
+        android:id="@+id/smoking_checkbox"
+        android:layout_below="@+id/pet_friendly_checkbox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="I'm fine with smoking"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:drawableEnd="@drawable/smoking_icon_15dp"
+        android:drawablePadding="10dp"
+        android:gravity="left|center_vertical"
+        android:layoutDirection="rtl"
+        app:buttonTint="@color/LogoYellow"
+
+        />
+    <com.google.android.material.checkbox.MaterialCheckBox
+        android:id="@+id/alcohol_checkbox"
+        android:layout_below="@+id/smoking_checkbox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="I'm fine with alcohol"
+        android:paddingStart="10dp"
+        android:paddingEnd="10dp"
+        android:drawableEnd="@drawable/ic_alcohol"
+        android:drawablePadding="10dp"
+        android:gravity="left|center_vertical"
+        android:layoutDirection="rtl"
+        app:buttonTint="@color/LogoYellow"
+
+        />
+
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/publish_post_next_button"
         android:layout_width="match_parent"

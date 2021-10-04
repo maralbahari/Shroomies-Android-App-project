@@ -31,7 +31,7 @@
         android:layout_alignParentRight="true"
         android:layout_marginTop="8dp"
         android:layout_marginRight="10dp"
-        android:layout_toRightOf="@+id/preferances_text_view"
+        android:layout_toRightOf="@+id/gender_text_view"
         android:layout_alignParentTop="true"
         />
     <View
