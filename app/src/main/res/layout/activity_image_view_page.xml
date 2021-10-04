@@ -6,22 +6,18 @@
     android:layout_height="match_parent"
     android:background="@color/jetBlack"
     android:id="@+id/root_view_image_view_page">
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="end"
-        android:background="@color/LogoYellow"
-        android:elevation="10dp">
-        <ImageButton
-            android:id="@+id/close_image_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_close_icon"
-            android:background="@android:color/transparent"
-            android:layout_margin="10dp"
-            />
-    </LinearLayout>
 
+    <ImageButton
+        android:id="@+id/close_image_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/cross"
+        android:background="@android:color/transparent"
+        android:layout_alignParentEnd="true"
+        android:padding="10dp"
+        android:tint="@color/white"
+
+        />
 
 
     <com.otaliastudios.zoom.ZoomImageView
