@@ -1,7 +1,5 @@
 package com.example.shroomies;
 
-import com.virgilsecurity.sdk.cards.Card;
-
 public class Config {
     //myShroomies Activity and its fragments
     public static final String apartmentID="apartmentID";
@@ -39,23 +37,27 @@ public class Config {
     public static final String addingCard = "addingCard";
     public static final String archivingCard = "archivingCard";
     public static final String deletingArchivedCard = "deletingArchivedCard";
-    public static final String markingCard  = "markingCard";
+    public static final String markingCard = "markingCard";
     public static final String unMarkingCard = "unMarkingCard";
     public static final String left = "left";
     public static final String joined = "joined";
     public static final String removed = "removed";
     public static final String token = "token";
-    public static final String expenseImages ="expenseImages" ;
-    public static final String messages="messages";
+    public static final String expenseImages = "expenseImages";
+    public static final String messages = "messages";
     public static final String users = "users";
     public static final String inboxes="inboxes";
     public static final String groupMessages="groupMessages";
+    public static final String image = "image";
+
     //chat
     public static final String privateChatImages = "privateChatImages";
 
 
+    public static final String usersnames = "usernames";
 
-    public static String usersnames = "usernames";
+    //search
+    public static final String posApartment = "postApartment";
 
 
 
@@ -122,39 +124,70 @@ public class Config {
     public static final String URL_DELETE_EXPENSE_CARD_ARCHIVE = "https://us-central1-shroomies-e34d3.cloudfunctions.net/deleteArchiveExpensesCard";
     public static final String URL_SEND_REQUEST = "https://us-central1-shroomies-e34d3.cloudfunctions.net/sendRequest";
     public static final String URL_GET_REQUESTS = "https://us-central1-shroomies-e34d3.cloudfunctions.net/getRequests";
-    public static final String URL_CANCEL_OR_REJECT_REQUEST= "https://us-central1-shroomies-e34d3.cloudfunctions.net/cancelOrRejectRequest";
+    public static final String URL_CANCEL_OR_REJECT_REQUEST = "https://us-central1-shroomies-e34d3.cloudfunctions.net/cancelOrRejectRequest";
     public static final String URL_ACCEPT_REQUEST = "http://us-central1-shroomies-e34d3.cloudfunctions.net/acceptRequest";
-    public static final String URL_GET_USER_DETAILS= "https://us-central1-shroomies-e34d3.cloudfunctions.net/getUserDetails";
+    public static final String URL_GET_USER_DETAILS = "https://us-central1-shroomies-e34d3.cloudfunctions.net/getUserDetails";
     public static final String URL_REGISTER_USER = "https://us-central1-shroomies-e34d3.cloudfunctions.net/registerUser";
-    public static final String URL_REMOVE_MEMBER= "https://us-central1-shroomies-e34d3.cloudfunctions.net/removeMember";
+    public static final String URL_REMOVE_MEMBER = "https://us-central1-shroomies-e34d3.cloudfunctions.net/removeMember";
     public static final String URL_GET_LOGS = "https://us-central1-shroomies-e34d3.cloudfunctions.net/getLogs";
-    public static final String URL_PUBLISH_POST="https://us-central1-shroomies-e34d3.cloudfunctions.net/publishPost";
+    public static final String URL_PUBLISH_POST = "https://us-central1-shroomies-e34d3.cloudfunctions.net/publishPost";
     public static final String URL_GET_VIRGIL_JWT = "https://us-central1-shroomies-e34d3.cloudfunctions.net/getVirgilJwt";
 
     //publish post
-    public static final String LOCALITY ="LOCALITY" ;
-    public static final String SUB_LOCALITY ="SUB_LOCALITY" ;
-    public static final String SELECTED_LAT_LNG ="SELECTED_LAT_LNG" ;
-    public static final String DESCRIPTION ="DESCRIPTION" ;
+    public static final String LOCALITY = "locality";
+    public static final String SUB_LOCALITY = "subLocality";
+    public static final String SELECTED_LAT_LNG = "selectedLatLng";
+    public static final String DESCRIPTION = "description";
 
-    public static final String POST_TYPE = "POST_TYPE";
-    public static final String PERSONAL_POST = "PERSONAL_POST";
-    public static final String APARTMENT_POST = "APARTMENT_POST";
+    public static final String POST_TYPE = "postType";
+    public static final String PERSONAL_POST = "personalPost";
+    public static final String APARTMENT_POST = "apartmentPost";
 
-    public static final String BUDGET ="BUDGET";
+    public static final String BUDGET = "budget";
 
-    public static final String NUMBER_OF_ROOMMATES = "NUMBER_OF_ROOMMATES";
-    public static final String PREFERENCES ="PREFERENCES" ;
-    public static final String MALE ="male" ;
-    public static final String FEMALE  = "female";
-    public static final String NON_SMOKING  ="non_smoking";
+    public static final String NUMBER_OF_ROOMMATES = "numberOfRoommates";
+    public static final String PREFERENCE = "preferences";
+    public static final String MALE = "male";
+    public static final String FEMALE = "female";
+    public static final String NON_SMOKING = "nonSmoking";
     public static final String PET_FRIENDLY = "pet";
 
-
-
+    public static final String TYPE_HOUSE = "house";
+    public static final String TYPE_APARTMENT = "apartment";
+    public static final String TYPE_FLAT = "flat";
+    public static final String TYPE_CONDO = "condo";
+    public static final String BUILDING_TYPE = "buildingType";
+    public static final String BUILDING_NAME = "buildingName";
+    public static final String BUILDING_ADDRESS = "buildingAddress";
+    public static final String PRICE = "price";
+    public static final String IMAGE_URL = "imageUrl";
+    public static final String GEO_HASH = "geoHash";
+    public static final String TIME_STAMP = "timeStamp";
+    public static final String POST_DETAILS = "postDetails";
+    public static final String LATITUDE = "latitude";
+    public static final String LONGITUDE = "longitude";
 
 
     public static final String USERNAME_PATTERN =
             "^[a-zA-Z0-9]([._-](?![._-])|[a-zA-Z0-9]){3,18}[a-zA-Z0-9]$";
+    public static final String APARTMENT_POST_IMAGE = "apartmentPostImage";
+    public static final String BUILDING_TYPES = "buildingTypes";
+    public static final String PERSONAL_POST_LIST = "PERSONAL_POST_LIST";
+    public static final String KEY_WORDS = "keyWords";
+    public static final String SHOW_POSTS_NEAR_ME = "show_posts_near_me";
+    public static final String STATE_PREFERENCE = "state_preference";
+
+    public static final String NONE = "None";
+    public static final String LOW_VALUE = "lowValue";
+    public static final String HIGH_VALUE = "highValue";
+    public static final String FILTER_PRICE = "filter_price";
+    public static final String PROPERTIES = "properties";
+    public static final String FILTER_PREFERENCE = "filter_preferences";
+    public static final String APARTMENT_LIST = "APARTMENT_LIST";
+    public static final String FAVOURITES = "FAVOURITES";
+    public static final String IMAGE_FOLDER_PATH = "imageFolderPath";
+
     public static String username = "username";
+
+
 }

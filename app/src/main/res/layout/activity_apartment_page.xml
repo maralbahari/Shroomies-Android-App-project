@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.motion.widget.MotionLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     app:layoutDescription="@xml/activity_apartment_page_scene">
@@ -9,13 +8,15 @@
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/view_apartment_post_toolbar"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
+        android:layout_height="wrap_content"
         android:background="@color/LogoYellow"
         android:elevation="5dp"
         app:contentInsetStart="0dp"
         app:contentInsetStartWithNavigation="0dp"
+        app:navigationIcon="@drawable/ic_back_button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:subtitleCentered="true"
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.viewpager.widget.ViewPager
@@ -44,40 +45,30 @@
 
         />
 
-    <ImageButton
-        android:id="@+id/expand_button"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:background="@android:color/transparent"
-        android:src="@drawable/ic_expand_image_icon"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/view_pager_apartment_view" />
 
-    <ImageButton
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/message_user_button"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="10dp"
+        app:layout_constraintBottom_toBottomOf="@id/view_pager_apartment_view"
+        app:layout_constraintTop_toBottomOf="@+id/view_pager_apartment_view"
+        app:backgroundTint="@color/LogoYellow"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:layout_marginTop="50dp"
-        android:background="@drawable/button_circle_yellow"
-        android:onClick="chatWithThisUser"
-        android:padding="15dp"
-        android:src="@drawable/ic_icon_feather_message_circle"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/view_pager_apartment_view" />
+        android:src="@drawable/ic_message" />
+
 
     <com.factor.bouncy.BouncyNestedScrollView
         android:id="@+id/nestedScrollView2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="10dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/message_user_button">
+        app:layout_constraintTop_toBottomOf="@+id/view_pager_apartment_view">
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="match_parent">
 
             <TextView
                 android:id="@+id/price_text_view_apartment_card"
@@ -85,54 +76,50 @@
                 android:layout_height="wrap_content"
                 android:layout_alignParentStart="true"
                 android:layout_marginStart="15dp"
-                android:layout_marginTop="15dp"
+                android:layout_marginTop="10dp"
                 android:layout_marginEnd="0dp"
                 android:layout_marginBottom="0dp"
-                android:fontFamily="@font/amiko"
                 android:shadowColor="@color/lightGrey"
                 android:shadowRadius="2"
-                android:text="1000 RM"
                 android:textColor="@color/jetBlack"
-                android:textSize="24sp"
+                android:textSize="16sp"
                 android:textStyle="bold"
                 app:layout_constraintStart_toStartOf="parent" />
 
             <TextView
                 android:id="@+id/number_of_roommates_text_view"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/price_text_view_apartment_card"
-                android:layout_marginLeft="15dp"
+                android:layout_marginStart="15dp"
                 android:layout_marginTop="5dp"
-                android:text="5 roommates required"
-                android:textSize="15sp" />
+
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/building_type"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/number_of_roommates_text_view"
+                android:textColor="@color/LogoYellow"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="5dp" />
 
             <RelativeLayout
                 android:id="@+id/user_info_relative_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/number_of_roommates_text_view"
+                android:layout_below="@id/building_type"
                 android:layout_marginTop="10dp"
                 android:layout_marginBottom="10dp"
-                android:background="@drawable/transparent_background_solid_borders"
-                android:paddingTop="15dp"
-                android:paddingBottom="15dp">
+                android:background="@drawable/rectangle_with_border">
 
-                <TextView
-                    android:id="@+id/post_by_text_view"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="15dp"
-                    android:text="Post by"
-                    android:textSize="20sp" />
 
                 <ImageView
                     android:id="@+id/user_image_view"
                     android:layout_width="60dp"
                     android:layout_height="60dp"
-                    android:layout_below="@+id/post_by_text_view"
-                    android:layout_marginLeft="15dp"
-                    android:layout_marginBottom="5dp"
+                    android:layout_margin="10dp"
                     android:adjustViewBounds="true"
                     android:elevation="1dp"
                     android:scaleType="fitXY"
@@ -142,178 +129,252 @@
                     android:id="@+id/name_of_user_text_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_below="@id/post_by_text_view"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginRight="100dp"
-                    android:layout_toRightOf="@id/user_image_view"
+                    android:layout_marginTop="15dp"
+                    android:layout_toEndOf="@id/user_image_view"
+
+                    android:layout_marginEnd="10dp"
                     android:lines="1"
-                    android:text="name of user"
                     android:textColor="@color/jetBlack"
-                    android:textSize="18dp" />
+                    android:textSize="14sp" />
 
                 <TextView
                     android:id="@+id/date_of_post_text_view"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_below="@+id/name_of_user_text_view"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="100dp"
-                    android:layout_toRightOf="@id/user_image_view"
-                    android:text="posted on x-x-x" />
+                    android:layout_toEndOf="@id/user_image_view"
+                    android:textColor="@color/lightGrey"
+                    android:textSize="14sp" />
+
             </RelativeLayout>
 
-            <TextView
-                android:id="@+id/about_user_final_text_View"
-                android:layout_width="wrap_content"
+            <androidx.constraintlayout.motion.widget.MotionLayout
+                android:id="@+id/description_layout"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_below="@id/user_info_relative_layout"
-                android:layout_marginLeft="15dp"
-                android:layout_marginTop="10dp"
-                android:text="About this post"
-                android:textSize="21dp" />
-
-            <TextView
-                android:id="@+id/user_description_text_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_below="@id/about_user_final_text_View"
-                android:layout_marginLeft="15dp"
-                android:layout_marginTop="10dp"
-                android:layout_marginRight="15dp"
-                android:background="@drawable/apartment_post_background"
-                android:elevation="2dp"
-                android:padding="10dp"
-                android:text="hello my name is badr baswaid im a very funny guy  bvla blabla"
-                android:textSize="20dp" />
-
-            <RelativeLayout
-                android:id="@+id/location_relative_layout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/user_description_text_view"
-                android:layout_marginTop="20dp"
-                android:layout_marginBottom="20dp"
-                android:background="@drawable/transparent_background_solid_borders">
+                app:layoutDescription="@xml/activity_apartment_page_xml_description_layout_scene">
 
                 <TextView
-                    android:id="@+id/location_chip_view"
+                    android:id="@+id/about_user_final_text_View"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="15dp"
-                    android:layout_marginTop="15dp"
-                    android:drawableStart="@drawable/ic_location_icon_25dp"
-                    android:drawablePadding="5dp"
-                    android:text="Location"
-                    android:textSize="20sp" />
+                    android:layout_marginTop="5dp"
+                    android:text="About this post"
+                    android:textSize="14dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <TextView
-                    android:id="@+id/location_address_text_view"
+                    android:id="@+id/user_description_text_view"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_below="@id/location_chip_view"
-                    android:layout_marginLeft="15dp"
-                    android:layout_marginTop="15dp"
-                    android:layout_marginRight="15dp"
-                    android:background="@drawable/apartment_post_background"
-                    android:elevation="1dp"
-                    android:fontFamily="@font/amiko"
-                    android:padding="3dp"
-                    android:text="Latitud3 jalan lorong universiti"
-                    android:textSize="18dp" />
+                    android:layout_below="@id/about_user_final_text_View"
+                    android:padding="10dp"
 
-                <com.example.shroomies.CustomMapView
-                    android:id="@+id/apartment_post_page_map"
+                    android:textColor="@color/jetBlack"
+                    android:textSize="14sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/about_user_final_text_View" />
+
+                <LinearLayout
+                    android:id="@+id/linearLayout2"
                     android:layout_width="match_parent"
-                    android:layout_height="200dp"
-                    android:layout_below="@+id/location_address_text_view"
-                    android:layout_marginLeft="15dp"
-                    android:layout_marginRight="15dp"
-                    android:layout_marginBottom="15dp" />
+                    android:layout_height="0dp"
+                    android:gravity="center"
+                    android:background="@drawable/transparent_white_gradient"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintTop_toTopOf="@id/user_description_text_view">
 
-            </RelativeLayout>
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/read_more_chip"
+                        android:layout_width="100dp"
+                        android:layout_height="wrap_content"
+                        android:text="Read more"
+                        android:textAlignment="center"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/jetBlack" />
+                </LinearLayout>
+
+            </androidx.constraintlayout.motion.widget.MotionLayout>
+
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/location_card_view"
+
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/description_layout"
+                android:layout_margin="5dp"
+                app:cardCornerRadius="5dp"
+                app:cardElevation="0dp">
+
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+
+                    <TextView
+                        android:id="@+id/location_address_text_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_alignTop="@id/apartment_post_page_map"
+                        android:layout_alignStart="@id/apartment_post_page_map"
+                        android:layout_alignEnd="@+id/apartment_post_page_map"
+                        android:elevation="1dp"
+                        android:padding="5dp"
+                        android:background="#B3333533"
+                        android:textColor="@color/white"
+                        android:drawableStart="@drawable/ic_location_icon_25dp"
+                        android:drawableTint="@color/white"
+                        android:drawablePadding="5dp"
+                        android:textSize="12sp"
+                        android:gravity="center_vertical"
+                        android:maxLines="2"
+                        android:ellipsize="end" />
+
+                    <com.example.shroomies.CustomMapView
+                        android:id="@+id/apartment_post_page_map"
+                        android:layout_width="match_parent"
+                        android:layout_height="250dp" />
+
+                </RelativeLayout>
+            </androidx.cardview.widget.CardView>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_below="@id/location_relative_layout"
-                android:layout_margin="20dp"
-                android:background="@drawable/text_low_alpha_background"
+                android:padding="10dp"
+                android:layout_below="@+id/location_card_view"
+                android:layout_alignParentBottom="true"
+                android:background="@drawable/rectangle_with_border"
                 android:elevation="2dp"
-                android:orientation="horizontal">
+                android:orientation="vertical">
 
                 <TextView
-                    android:id="@+id/preferances_text_view"
+                    android:id="@+id/gender_text_view"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
                     android:layout_marginLeft="5dp"
-                    android:fontFamily="@font/amiko"
                     android:gravity="center_vertical"
-                    android:text="Preferences"
-                    android:textSize="20sp" />
+                    android:textSize="12sp"
+                    android:visibility="visible" />
 
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="1dp"
-                    android:layout_weight="1" />
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/gender_chip_group"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
-                <ImageView
-                    android:id="@+id/male_image_view_apartment"
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/male_chip"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Males"
+                        app:chipIcon="@drawable/male_icon_15dp"
+                        app:chipBackgroundColor="@color/white"
+                        app:chipStrokeWidth="1dp"
+                        app:chipStrokeColor="@color/LogoYellow"
+                        android:checked="true"
+                        app:chipIconVisible="true"
+                        app:chipIconEnabled="true"
+                        app:chipIconSize="20dp"
+                        app:iconStartPadding="5dp"
+                        android:minHeight="0dp"
+                        android:visibility="gone"
+
+                        />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/female_chip"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Females"
+                        app:chipIcon="@drawable/female_icon_15dp"
+                        app:chipBackgroundColor="@color/white"
+                        app:chipStrokeWidth="1dp"
+                        app:chipStrokeColor="@color/LogoYellow"
+                        android:checked="true"
+                        app:chipIconVisible="true"
+                        app:chipIconEnabled="true"
+                        app:chipIconSize="20dp"
+                        app:iconStartPadding="5dp"
+                        android:minHeight="0dp"
+                        android:visibility="gone"
+
+                        />
+                </com.google.android.material.chip.ChipGroup>
+
+
+                <TextView
+                    android:id="@+id/preferences_text_view"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="5dp"
+                    android:textSize="12sp" />
 
-                    android:elevation="1dp"
-                    android:padding="10dp"
+                <com.google.android.material.chip.ChipGroup
+                    android:id="@+id/preferences_chip_group"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
-                    android:src="@drawable/ic_icon_ionic_ios_male"
-                    android:visibility="gone" />
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/pet_chip"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Pets"
+                        app:chipIcon="@drawable/pet_icon_15dp"
+                        app:chipBackgroundColor="@color/white"
+                        app:chipStrokeWidth="1dp"
+                        app:chipStrokeColor="@color/LogoYellow"
+                        app:chipIconVisible="true"
+                        app:chipIconEnabled="true"
+                        app:chipIconSize="20dp"
+                        app:iconStartPadding="5dp"
+                        android:minHeight="0dp"
+                        android:visibility="gone"
 
+                        />
 
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="1dp"
-                    android:layout_weight="1" />
+                    <com.google.android.material.chip.Chip
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/smoking_chip"
+                        android:text="Smoking"
+                        app:chipIcon="@drawable/smoking_icon_15dp"
+                        app:chipBackgroundColor="@color/white"
+                        app:chipStrokeWidth="1dp"
+                        app:chipStrokeColor="@color/LogoYellow"
+                        app:chipIconVisible="true"
+                        app:chipIconEnabled="true"
+                        app:chipIconSize="20dp"
+                        app:iconStartPadding="5dp"
+                        android:minHeight="0dp"
+                        android:visibility="gone" />
 
-                <ImageView
-                    android:id="@+id/female_image_view_apartment"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:elevation="1dp"
-                    android:padding="10dp"
-                    android:src="@drawable/ic_icon_ionic_ios_female"
-                    android:visibility="gone" />
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/alcohol_chip"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Alcohol"
+                        app:chipIcon="@drawable/ic_alcohol"
+                        app:iconEndPadding="0dp"
+                        app:chipBackgroundColor="@color/white"
+                        app:chipStrokeWidth="1dp"
+                        app:chipStrokeColor="@color/LogoYellow"
+                        android:checked="true"
+                        app:chipIconVisible="true"
+                        app:chipIconEnabled="true"
+                        app:chipIconSize="20dp"
+                        app:iconStartPadding="5dp"
+                        android:minHeight="0dp"
+                        android:visibility="gone"
 
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="1dp"
-                    android:layout_weight="1" />
+                        />
 
-                <ImageView
-                    android:id="@+id/pets_allowd_image_view_apartment"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:elevation="1dp"
-                    android:padding="10dp"
-                    android:src="@drawable/ic_icon_map_pet_store"
-                    android:visibility="gone" />
+                </com.google.android.material.chip.ChipGroup>
 
-                <Space
-                    android:layout_width="0dp"
-                    android:layout_height="1dp"
-                    android:layout_weight="1" />
-
-                <ImageView
-                    android:id="@+id/non_smoking_image_view_apartment"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:elevation="1dp"
-                    android:padding="10dp"
-                    android:src="@drawable/ic_icon_material_smoke_free"
-                    android:visibility="gone" />
             </LinearLayout>
 
         </RelativeLayout>
