@@ -1,16 +1,18 @@
 package com.example.shroomies;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
+import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
-
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
@@ -38,18 +40,25 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
+import com.google.android.material.badge.BadgeUtils;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.badge.BadgeDrawable;
 import com.google.common.net.HttpHeaders;
 import com.google.firebase.auth.FirebaseAuth;
 
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.skydoves.powerspinner.PowerSpinnerView;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
-import com.virgilsecurity.crypto.foundation.Hash;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -67,7 +76,7 @@ import me.everything.android.ui.overscroll.IOverScrollStateListener;
 import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
 
 
-public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshroomies , CardUploaded {
+public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshroomies , CardUploaded  {
     //views
     private View v;
     private TabLayout myShroomiesTablayout;
@@ -80,7 +89,9 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
     private IOverScrollDecor tasksDecor;
     private IOverScrollStateListener onOverPullListener;
     private RelativeLayout noCardsLayout;
-    private Toolbar toolbar;
+    private MaterialButton groupMessageButton;
+    private FrameLayout messageButtonFrame;
+    BadgeDrawable badgeDrawable;
     //data structures
     private ArrayList<TasksCard> tasksCardsList;
     private ArrayList<ExpensesCard> expensesCardsList;
@@ -104,6 +115,7 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
     private boolean cardFound =false;
     private int recyclerPosition=0;
     boolean scrollFromTop;
+    private int unSeenMessagesNo=0;
 
     @Override
     public void sendData(TasksCard tasksCard , ExpensesCard expensesCard) {
@@ -148,26 +160,44 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
         expandButton = v.findViewById(R.id.expand_button);
         slidingLayout = v.findViewById(R.id.sliding_layout);
         noCardsLayout =  v.findViewById(R.id.no_cards_layout);
-
+        groupMessageButton=v.findViewById(R.id.my_shroomies_group_message_btn);
+        messageButtonFrame=v.findViewById(R.id.frame_layout_message_button);
         MaterialButton memberButton = v.findViewById(R.id.my_shroomies_member_btn);
         MaterialButton logButton = v.findViewById(R.id.my_shroomies_log);
         MaterialButton archiveButton = v.findViewById(R.id.my_shroomies_archive_btn);
         MaterialButton addMemberButton = v.findViewById(R.id.my_shroomies_add_member_btn);
-
-        toolbar = getActivity().findViewById(R.id.my_shroomies_toolbar);
+        badgeDrawable = BadgeDrawable.create(getContext());
+        Toolbar toolbar = getActivity().findViewById(R.id.my_shroomies_toolbar);
         progressView = toolbar.findViewById(R.id.loading_progress_view);
         logoImageButton= toolbar.findViewById(R.id.myshroomies_toolbar_logo);
-
+        if (this.getArguments()!=null){
+            Bundle bundle=this.getArguments();
+            selectedCardID=bundle.getString("CARDID");
+            selectedCardType=bundle.getString("CARDTYPE");
+        }
         toolbar.setNavigationIcon(null);
         toolbar.setTitle(null);
         toolbar.setElevation(0);
         toolbar.findViewById(R.id.myshroomies_toolbar_logo).setVisibility(View.VISIBLE);
         toolbar.findViewById(R.id.my_shroomies_add_card_btn).setVisibility(View.VISIBLE);
         toolbar.setNavigationIcon(R.drawable.ic_back_button);
-        toolbar.setNavigationOnClickListener(view1 -> {
-            getActivity().onBackPressed();
-        });
+        toolbar.setNavigationOnClickListener(view1 -> getActivity().onBackPressed());
+        groupMessageButton.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @SuppressLint({"ResourceAsColor", "UnsafeExperimentalUsageError"})
+            @Override
+            public void onGlobalLayout() {
+                badgeDrawable.setNumber(unSeenMessagesNo);
+                badgeDrawable.setBackgroundColor(getActivity().getColor(R.color.red));
+                BadgeUtils.attachBadgeDrawable(badgeDrawable, groupMessageButton, messageButtonFrame);
+                badgeDrawable.setHorizontalOffset(100);
+                badgeDrawable.setVerticalOffset(100);
+                badgeDrawable.setHotspotBounds(100,100,100,100);
+                badgeDrawable.setBadgeGravity(BadgeDrawable.BOTTOM_END);
+                groupMessageButton.getViewTreeObserver().removeOnGlobalLayoutListener(this);
 
+            }
+        });
+//
 
         ImageButton addCardButton = toolbar.findViewById(R.id.my_shroomies_add_card_btn);
         addCardButton.setVisibility(View.VISIBLE);
@@ -201,7 +231,14 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
             }
         };
 
+        groupMessageButton.setOnClickListener(view13 -> {
+            Intent intent=new Intent(getActivity(),GroupChatting.class);
+            Bundle bundle=new Bundle();
+            bundle.putSerializable("MEMBERS",membersHashMap);
+            intent.putExtra("extras",bundle);
+            startActivity(intent);
 
+        });
 
 
         slidingLayout.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
@@ -385,21 +422,48 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
     private void getUserToken(){
         displayProgressView();
         FirebaseUser firebaseUser = mAuth.getCurrentUser();
-        firebaseUser.getIdToken(false).addOnCompleteListener(task -> {
-            if(task.isSuccessful()) {
-                String token = task.getResult().getToken();
-                String apartmentID = (String) task.getResult().getClaims().get(Config.apartmentID);
-                Log.d("apartment ID" , apartmentID);
-                getApartmentDetails(token, apartmentID);
-            }else{
-                String title = "Authentication error";
-                String message = "We encountered a problem while authenticating your account";
-                displayErrorAlert(title, message);
-            }
-        });
+        if(firebaseUser!=null){
+            firebaseUser.getIdToken(true).addOnCompleteListener(task -> {
+                if(task.isSuccessful()) {
+                    String token = task.getResult().getToken();
+                    String apartmentID = (String) task.getResult().getClaims().get(Config.apartmentID);
+                    Log.d("apartment ID" , apartmentID);
+                    getApartmentDetails(token, apartmentID);
+                    getUnseenMessageNo(apartmentID,firebaseUser.getUid());
+                }else{
+                    String title = "Authentication error";
+                    String message = "We encountered a problem while authenticating your account";
+                    displayErrorAlert(title, message);
+                }
+            });
+        }
+
     }
+    private void getUnseenMessageNo(String apartmentID, String userID){
+        DatabaseReference rootRef= FirebaseDatabase.getInstance().getReference();
+        rootRef.child("groupMessages").child(apartmentID).child("unSeenMessageCount")
+                .child(userID).addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull @NotNull DataSnapshot snapshot) {
+                        if (snapshot.exists()) {
+                            unSeenMessagesNo=Integer.parseInt(snapshot.getValue().toString());
+                            if(unSeenMessagesNo==0){
+                                badgeDrawable.setVisible(false);
+                            }else{
+                                badgeDrawable.setVisible(true);
+                                badgeDrawable.setNumber(unSeenMessagesNo);
+                            }
+                        }else{
+                            badgeDrawable.setVisible(false);
+                        }
+                    }
 
+                    @Override
+                    public void onCancelled(@NonNull @NotNull DatabaseError error) {
 
+                    }
+                });
+    }
 
     private void getApartmentDetails(String token , String apartmentID){
         JSONObject jsonObject = new JSONObject();
@@ -443,7 +507,7 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
                 }
 
 
-                expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList, getActivity(), false, apartment.getApartmentID(), getChildFragmentManager(), slidingLayout , membersHashMap);
+                expensesCardAdapter = new ExpensesCardAdapter(expensesCardsList, getActivity(), false, apartment.getApartmentID(), getParentFragmentManager(), slidingLayout , membersHashMap);
                 myExpensesRecyclerView.setAdapter(expensesCardAdapter);
                 ItemTouchHelper.Callback expenseCalback =
                         new CardsTouchHelper(expensesCardAdapter);
@@ -460,7 +524,7 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
 
 
 
-                tasksCardAdapter = new TasksCardAdapter(tasksCardsList, getActivity(), false, apartment.getApartmentID(), getChildFragmentManager(), slidingLayout , membersHashMap);
+                tasksCardAdapter = new TasksCardAdapter(tasksCardsList, getActivity(), false, apartment.getApartmentID(), getParentFragmentManager(), slidingLayout , membersHashMap);
                 myTasksRecyclerView.setAdapter(tasksCardAdapter);
                 ItemTouchHelper.Callback callback =
                         new CardsTouchHelper(tasksCardAdapter);
@@ -480,6 +544,7 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
                 removeProgressView();
 
                 scroll();
+
 
             } else {
                 String title = "Unexpected error";
@@ -557,6 +622,7 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
 
     private void scroll(){
     if(selectedCardID!=null){
+        sendInput(selectedCardID,selectedCardType);
         if(selectedCardType.equals(Config.task)){
             if(cardFound){
                 myShroomiesTablayout.getTabAt(1).select();
@@ -764,6 +830,4 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
                 .create()
                 .show();
     }
-
-
 }

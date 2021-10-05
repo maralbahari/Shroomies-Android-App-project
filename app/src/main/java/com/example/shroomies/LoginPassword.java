@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
@@ -75,6 +76,7 @@ public class LoginPassword extends AppCompatActivity {
             if(enteredPassword.isEmpty()){
                 passwordEditText.setError("Please enter your password");
             }else {
+                closeKeyboard();
                 login(bundledEmail,enteredPassword);
 //                getE3Token(bundledEmail,enteredPassword);
             }
@@ -89,25 +91,25 @@ public class LoginPassword extends AppCompatActivity {
             if(task.isSuccessful()){
                 FirebaseUser firebaseUser=mAuth.getCurrentUser();
                 if(firebaseUser!=null){
-                    if(firebaseUser.isEmailVerified()){
+//                    if(firebaseUser.isEmailVerified()){
                         Intent intent = new Intent(LoginPassword.this, MainActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         getE3Token();
                         startActivity(intent);
                         finish();
-                    }else{
-                        loginButton.setClickable(true);
-                        loadingAnimationView.setVisibility(View.GONE);
-                        Snackbar mySnackbar = Snackbar.make(rootLayout,
-                                "Please verify your email", Snackbar.LENGTH_LONG);
-                        mySnackbar.setAction("Resend", v -> firebaseUser.sendEmailVerification().addOnCompleteListener(task1 -> {
-                            if (task1.isSuccessful()) {
-                                new CustomToast(LoginPassword.this , "Email sent" ,R.drawable.ic_accept_check).showCustomToast();
-                            }
-                        }));
-                        mySnackbar.show();
-
-                    }
+//                    }else{
+//                        Toast.makeText(this,"here",Toast.LENGTH_SHORT).show();
+//                        loginButton.setClickable(true);
+//                        loadingAnimationView.setVisibility(View.GONE);
+//                        Snackbar mySnackbar = Snackbar.make(rootLayout,
+//                                "Please verify your email", Snackbar.LENGTH_LONG);
+//                        mySnackbar.setAction("Resend", v -> firebaseUser.sendEmailVerification().addOnCompleteListener(task1 -> {
+//                            if (task1.isSuccessful()) {
+//                                new CustomToast(LoginPassword.this , "Email sent" ,R.drawable.ic_accept_check).showCustomToast();
+//                            }
+//                        }));
+//                        mySnackbar.show();
+//                    }
                 }else{
                     loginButton.setClickable(true);
                     loadingAnimationView.setVisibility(View.GONE);
@@ -183,5 +185,9 @@ public class LoginPassword extends AppCompatActivity {
                 }
             });
         }
+    }
+    public void closeKeyboard(){
+        InputMethodManager inputMethodManager = (InputMethodManager) getApplicationContext().getSystemService(getApplicationContext().INPUT_METHOD_SERVICE);
+        inputMethodManager.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
     }
 }

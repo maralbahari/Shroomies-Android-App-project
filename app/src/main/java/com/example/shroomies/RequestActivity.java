@@ -188,7 +188,7 @@ public class RequestActivity extends AppCompatActivity {
                                 User user = mapper.readValue(receivedJsonArray.get(i).toString(), User.class);
                                 senderUsers.add(user);
                             }
-                            invitationAdapter = new RequestAdapter(getApplicationContext(), rootLayout, senderUsers, false);
+                            invitationAdapter = new RequestAdapter(RequestActivity.this, rootLayout, senderUsers, false);
                             invitationAdapter.notifyDataSetChanged();
                             invitationRecyclerView.setAdapter(invitationAdapter);
                         }else{
@@ -208,7 +208,7 @@ public class RequestActivity extends AppCompatActivity {
                                 User user = mapper.readValue(sentJsonArray.get(i).toString(), User.class);
                                 receiverUsers.add(user);
                             }
-                            requestAdapter = new RequestAdapter(getApplicationContext(), rootLayout, receiverUsers, true);
+                            requestAdapter = new RequestAdapter(RequestActivity.this, rootLayout, receiverUsers, true);
                             requestAdapter.notifyDataSetChanged();
                             requestRecyclerView.setAdapter(requestAdapter);
 

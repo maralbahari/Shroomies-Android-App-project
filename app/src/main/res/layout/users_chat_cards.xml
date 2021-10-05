@@ -134,10 +134,8 @@
             android:id="@+id/receiver_image_view"
             android:layout_width="200dp"
             android:layout_height="wrap_content"
-
             android:adjustViewBounds="true"
             android:scaleType="fitCenter"
-
             tools:srcCompat="@drawable/ic_icon_awesome_image" />
 
         <TextView

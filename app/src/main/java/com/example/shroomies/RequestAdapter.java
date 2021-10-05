@@ -211,6 +211,8 @@ public class RequestAdapter extends RecyclerView.Adapter<RequestAdapter.RequestV
                                 String message = response.getJSONObject(Config.result).getString(Config.message);
                                 if(success){
                                     //todo remove ffrom adapter
+                                    usersList.remove(getAdapterPosition());
+                                    notifyItemRemoved(getAdapterPosition());
                                     Snackbar.make(rootLayout,message, BaseTransientBottomBar.LENGTH_LONG).show();
                                 }else{
                                     String title = "Maximum members";

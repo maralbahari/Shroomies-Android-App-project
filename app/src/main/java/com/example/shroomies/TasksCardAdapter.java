@@ -1,6 +1,7 @@
 package com.example.shroomies;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
@@ -14,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.AuthFailureError;
@@ -119,6 +121,18 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
                 bundle.putBoolean("FROM_TASK_TAB", true);
                 viewCard.setArguments(bundle);
                 viewCard.show(fragmentManager, "VIEWCARD");
+            });
+            taskCardView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    Intent intent=new Intent(context,GroupChatting.class);
+                    Bundle bundle=new Bundle();
+                    bundle.putSerializable("MEMBERS",memberHashMap);
+                    intent.putExtra("TaskCARD",tasksCardsList.get(getAdapterPosition()));
+                    intent.putExtra("extras",bundle);
+                    context.startActivity(intent);
+                    return true;
+                }
             });
 
             done.setOnClickListener(view -> {

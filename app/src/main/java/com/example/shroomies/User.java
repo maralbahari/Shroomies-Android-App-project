@@ -14,6 +14,16 @@ public class User implements Parcelable{
     private float sharedAmount;
     private boolean requestSent;
     private String name;
+    private int requestCount;
+
+    public int getRequestCount() {
+        return requestCount;
+    }
+
+    public void setRequestCount(int requestCount) {
+        this.requestCount = requestCount;
+    }
+
 
     public boolean isRequestSent() {
         return requestSent;
@@ -96,7 +106,7 @@ public class User implements Parcelable{
 
     }
 
-    public User(String name, String email, String username, String bio, String imageurl, String id, Context context,String apartmentID) {
+    public User(String name, String email, String username, String bio, String imageurl, String id,String apartmentID,int requestCount) {
         this.username = username;
         this.name=name;
         this.email = email;
@@ -104,17 +114,15 @@ public class User implements Parcelable{
         this.image = imageurl;
         this.userID = id;
         this.apartmentID = apartmentID;
+        this.requestCount=requestCount;
     }
-
     protected User(Parcel in) {
         username = in.readString();
         email = in.readString();
-
         bio = in.readString();
         image = in.readString();
         userID = in.readString();
     }
-
     public static final Creator<User> CREATOR = new Creator<User>() {
         @Override
         public User createFromParcel(Parcel in) {
@@ -126,7 +134,6 @@ public class User implements Parcelable{
             return new User[size];
         }
     };
-
 
     @Override
     public int describeContents() {
@@ -141,4 +148,5 @@ public class User implements Parcelable{
         dest.writeString(image);
         dest.writeString(userID);
     }
+
 }
