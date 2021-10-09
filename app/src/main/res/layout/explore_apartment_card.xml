@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="2dp"
+    android:layout_margin="0.5dp"
     >
 
     <ImageView
@@ -13,95 +13,68 @@
         android:layout_alignParentTop="true"
         android:id="@+id/apartment_image"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:minHeight="150dp"
+        android:layout_height="180dp"
         android:scaleType="fitXY"
         android:adjustViewBounds="true"/>
 
 
     <LinearLayout
+        android:layout_alignParentStart="true"
         android:padding="4dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-       android:layout_alignParentLeft="true"
-        android:layout_margin="3dp"
-        android:elevation="5dp"
+        android:layout_margin="2dp"
         android:orientation="vertical"
-        android:background="@drawable/text_low_alpha_background">
+        android:background="@drawable/post_icon_background"
+        android:backgroundTint="#4DE3E3E3">
 
 
         <ImageView
-            android:id="@+id/male_image_view_apartment"
+            android:id="@+id/male_image_view_personal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-
-android:layout_marginTop="3dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
             android:elevation="3dp"
-
             android:src="@drawable/male_icon_15dp"
-            android:visibility="gone"/>
+            android:visibility="visible" />
 
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" />
 
         <ImageView
-            android:id="@+id/female_image_view_apartment"
+            android:id="@+id/female_image_view_personal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="3dp"
-
-
-            android:visibility="gone"
-
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
             android:elevation="3dp"
+            android:src="@drawable/female_icon_15dp"
+            android:visibility="visible" />
 
-            android:src="@drawable/female_icon_15dp" />
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" />
 
         <ImageView
             android:id="@+id/pets_allowd_image_view_apartment"
-
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="3dp"
-
-
-
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
             android:elevation="3dp"
+            android:src="@drawable/pet_icon_15dp"
+            android:visibility="visible" />
 
-            android:visibility="gone"
-
-            android:src="@drawable/pet_icon_15dp" />
-
-        <Space
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_weight="1" />
 
         <ImageView
-            android:id="@+id/non_smoking_image_view_apartment"
+            android:id="@+id/non_smoking_image_view_personal"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="3dp"
-
-
+            android:layout_marginTop="2dp"
+            android:layout_marginBottom="2dp"
             android:elevation="3dp"
-
-            android:visibility="gone"
-            android:src="@drawable/smoking_icon_15dp"
-            />
+            android:visibility="visible"
+            android:src="@drawable/smoking_icon_15dp" />
     </LinearLayout>
 
 
@@ -113,29 +86,24 @@ android:layout_marginTop="3dp"
         android:layout_alignParentLeft="true"
         android:shadowRadius="10"
         android:shadowColor="@color/jetBlack"
-        android:padding="5dp"
         android:layout_alignBottom="@+id/apartment_image"
-        android:layout_toLeftOf="@id/favorite_check_box"
+        android:layout_toStartOf="@id/favorite_check_box"
         android:layout_margin="2dp"
         android:textColor="@color/white"
+        android:textSize="12sp"
         android:textStyle="bold"
-
-
-        />
-
+        android:ellipsize="end"
+        android:lines="1" />
 
     <CheckBox
         android:id="@+id/favorite_check_box"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-
+        android:layout_width="15dp"
+        android:layout_height="15dp"
         android:layout_alignBottom="@id/apartment_image"
-        android:drawableStart="@drawable/start_check_button"
-        android:elevation="10dp"
+        android:background="@drawable/start_check_button"
         android:button="@null"
-        android:layout_alignParentRight="true"
-
-        />
+        android:layout_margin="5dp"
+        android:layout_alignParentEnd="true" />
 
     <TextView
         android:id="@+id/price_text_view_apartment_card"
@@ -146,11 +114,9 @@ android:layout_marginTop="3dp"
         android:textColor="@color/white"
         android:shadowRadius="10"
         android:shadowColor="@color/jetBlack"
-        android:padding="5dp"
         android:textStyle="bold"
-
+        android:textSize="12sp"
         android:layout_margin="2dp"
-
         />
 
 

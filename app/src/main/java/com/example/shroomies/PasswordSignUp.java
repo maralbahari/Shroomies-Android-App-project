@@ -1,6 +1,4 @@
 package com.example.shroomies;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,6 +6,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.Toast;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.airbnb.lottie.LottieAnimationView;
 
@@ -109,6 +110,38 @@ public class PasswordSignUp extends AppCompatActivity {
                             new CustomToast(PasswordSignUp.this , "Registered Successfully" ,R.drawable.ic_accept_check).showCustomToast();
                             Intent intent = new Intent(PasswordSignUp.this, LoginActivity.class);
                             startActivity(intent);
+        try {
+            jsonObject.put("email" , email);
+            jsonObject.put("username", username);
+            jsonObject.put("password" , password);
+            data.put(Config.data, jsonObject);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        JsonObjectRequest jsonObjectRequest =
+                new JsonObjectRequest(Request.Method.POST, Config.URL_REGISTER_USER, data, response -> {
+
+                    try {
+                        String message = response.getJSONObject(Config.result).getString(Config.message);
+                        boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
+
+                        if (success) {
+//                          sendEmailVerification();
+
+
+                            OnGetTokenCallback onGetTokenCallback = new OnGetTokenCallback() {
+                                @NotNull
+                                @Override
+                                public String onGetToken() {
+                                    return null;
+                                }
+                            };
+                            Intent intent = new Intent(PasswordSignUp.this, LoginActivity.class);
+                            startActivity(intent);
+                            new CustomToast(PasswordSignUp.this, message, R.drawable.ic_accept_check).showCustomToast();
+                        }else{
+                            new CustomToast(PasswordSignUp.this , message ,R.drawable.ic_error_icon).showCustomToast();
+>>>>>>> 1fa7bd2... Search settings feature enhanced for different filters
                         }
                     }).addOnFailureListener(e -> {
                         loadingAnimation.setVisibility(View.GONE);
