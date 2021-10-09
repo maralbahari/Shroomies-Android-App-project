@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:foreground="?selectableItemBackground"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:clickable="true"
+    android:id="@+id/relative_layout">
+
+    <ImageView
+        android:id="@+id/apartmnent_image"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:layout_margin="5dp"
+        android:adjustViewBounds="true" />
+
+    <TextView
+        android:id="@+id/apartment_location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/apartmnent_image"
+        android:layout_toStartOf="@id/favourite_image_button"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:lines="1"
+        android:ellipsize="end"
+
+        />
+
+    <TextView
+        android:id="@+id/apartment_price"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@id/apartment_location"
+        android:layout_below="@id/apartment_location"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="10dp"
+        android:ellipsize="end"
+        android:textColor="@color/jetBlack"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/apartment_roommates"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/apartment_price"
+        android:layout_alignTop="@id/apartment_price"
+        android:textColor="@color/jetBlack"
+        android:textSize="12sp" />
+
+    <androidx.cardview.widget.CardView
+
+        android:id="@+id/favourite_image_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:layout_alignParentEnd="true"
+        android:layout_margin="5dp"
+        android:backgroundTint="@android:color/transparent"
+        android:background="@android:color/transparent"
+        app:cardCornerRadius="50dp"
+        app:cardElevation="0dp"
+        android:clickable="true">
+
+        <ImageButton
+            android:id="@+id/favorite_image_button_apartment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/start_check_button"
+            android:background="@android:color/transparent"
+            android:backgroundTint="@color/veryLightGrey"
+            android:clickable="true"
+            android:padding="5dp"
+            android:ellipsize="end"
+            android:foreground="?selectableItemBackground" />
+    </androidx.cardview.widget.CardView>
+
+    <View
+        android:layout_width="wrap_content"
+        android:layout_height="0.8dp"
+        android:background="@drawable/divider"
+        android:backgroundTint="@color/Alabaster"
+        android:layout_below="@id/apartmnent_image"
+        android:layout_toEndOf="@+id/apartmnent_image"
+        android:layout_alignParentEnd="true"
+        android:layout_marginEnd="20dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+
+
+        />
+
+
+</RelativeLayout>

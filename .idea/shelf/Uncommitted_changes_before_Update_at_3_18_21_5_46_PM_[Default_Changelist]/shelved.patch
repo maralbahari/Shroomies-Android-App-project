@@ -1,0 +1,47 @@
+Index: app/src/main/res/layout/fragment_my_shroomies.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\n<RelativeLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    xmlns:app=\"http://schemas.android.com/apk/res-auto\"\n    xmlns:tools=\"http://schemas.android.com/tools\"\n    android:layout_width=\"match_parent\"\n    android:layout_height=\"match_parent\"\n\n    android:scrollIndicators=\"none\"\n    tools:context=\".MyShroomies\">\n\n\n\n    <com.google.android.material.tabs.TabLayout\n        android:id=\"@+id/my_shroomies_tablayout\"\n        android:layout_width=\"match_parent\"\n        android:layout_height=\"wrap_content\"\n\n        android:background=\"@drawable/tablayout_round\"\n        android:elevation=\"10dp\"\n        android:scrollIndicators=\"none\"\n        app:tabIndicatorAnimationDuration=\"0\"\n        app:tabMode=\"fixed\"\n        app:tabIndicatorColor=\"@color/Alabaster\"\n        app:tabIndicatorGravity=\"stretch\">\n\n        <com.google.android.material.tabs.TabItem\n            android:id=\"@+id/my_shroomie_expense_tab\"\n            android:layout_width=\"wrap_content\"\n            android:layout_height=\"wrap_content\"\n            android:text=\"Expenses\" />\n\n        <com.google.android.material.tabs.TabItem\n            android:id=\"@+id/my_shroomie_task_tab\"\n            android:layout_width=\"wrap_content\"\n            android:layout_height=\"wrap_content\"\n            android:text=\"Tasks\" />\n    </com.google.android.material.tabs.TabLayout>\n\n\n    <LinearLayout\n        android:id=\"@+id/expand_button_wrapper\"\n        android:layout_width=\"wrap_content\"\n        android:layout_height=\"wrap_content\"\n        android:elevation=\"5dp\"\n        android:layout_alignBottom=\"@id/buttons_linear_layout\"\n        android:layout_alignParentRight=\"true\"\n        android:layout_marginTop=\"10dp\"\n        android:layout_below=\"@+id/my_shroomies_tablayout\"\n        android:background=\"@drawable/yellow_background_round_left_bottom_top\">\n    <ImageButton\n        android:id=\"@+id/expand_button\"\n        android:layout_width=\"wrap_content\"\n        android:layout_height=\"wrap_content\"\n        android:src=\"@drawable/ic_expand_icon\"\n        android:paddingTop=\"15dp\"\n        android:paddingBottom=\"15dp\"\n        android:paddingRight=\"5dp\"\n        android:paddingLeft=\"5dp\"\n        android:background=\"@android:color/transparent\"\n        />\n    </LinearLayout>\n    <LinearLayout\n        android:id=\"@+id/buttons_linear_layout\"\n\n        android:layout_width=\"match_parent\"\n        android:layout_height=\"wrap_content\"\n        android:layout_below=\"@+id/my_shroomies_tablayout\"\n        android:layout_toLeftOf=\"@id/expand_button_wrapper\"\n        android:animateLayoutChanges=\"true\"\n\n        android:elevation=\"3dp\"\n        android:layout_marginTop=\"10dp\"\n        android:layout_marginBottom=\"5dp\"\n        android:layout_marginLeft=\"5dp\"\n        android:layout_marginRight=\"-4dp\"\n\n        android:visibility=\"invisible\"\n        android:background=\"@drawable/yellow_background_round_left_bottom_top\"\n        android:orientation=\"horizontal\">\n\n\n    <Button\n        android:id=\"@+id/my_shroomies_log\"\n        android:layout_width=\"0dp\"\n        android:layout_height=\"match_parent\"\n        android:background=\"@android:color/transparent\"\n        android:drawableStart=\"@drawable/ic_history_24\"\n        android:fontFamily=\"@font/amiko\"\n        android:textStyle=\"bold\"\n        android:padding=\"5dp\"\n        android:minWidth=\"0dp\"\n        android:minHeight=\"0dp\"\n        android:text=\"Log activities\"\n        android:textColor=\"@color/jetBlack\"\n        android:lines=\"1\"\n        android:textSize=\"12sp\"\n        android:layout_weight=\"1\"\n        android:textAllCaps=\"false\"\n\n        />\n\n    <Button\n        android:id=\"@+id/my_shroomies_member_btn\"\n        android:layout_width=\"0dp\"\n        android:layout_height=\"match_parent\"\n        android:background=\"@android:color/transparent\"\n        android:drawableStart=\"@drawable/ic_member\"\n        android:minWidth=\"0dp\"\n        android:minHeight=\"0dp\"\n        android:padding=\"10dp\"\n        android:text=\"Members\"\n        android:fontFamily=\"@font/amiko\"\n        android:textStyle=\"bold\"\n        android:textColor=\"@color/jetBlack\"\n        android:lines=\"1\"\n       android:textSize=\"12sp\"\n        android:textAllCaps=\"false\"\n        android:layout_weight=\"1\"\n\n        />\n\n    <LinearLayout\n        android:id=\"@+id/shroomie_linearlayout_filter\"\n        android:layout_width=\"0dp\"\n        android:layout_height=\"match_parent\"\n        android:background=\"@android:color/transparent\"\n        android:gravity=\"center\"\n        android:orientation=\"horizontal\"\n        android:paddingTop=\"5dp\"\n        android:paddingBottom=\"5dp\"\n        android:layout_weight=\"1\"\n\n        >\n\n        <TextView\n            android:layout_width=\"wrap_content\"\n            android:layout_height=\"wrap_content\"\n            android:layout_marginLeft=\"5dp\"\n            android:drawableStart=\"@drawable/ic_filter\"\n            android:drawablePadding=\"5dp\"\n            android:gravity=\"center\"\n            android:fontFamily=\"@font/amiko\"\n            android:textStyle=\"bold\"\n            android:textColor=\"@color/jetBlack\"\n            android:text=\"Filters\"\n           android:textSize=\"12sp\" />\n\n        <Spinner\n            android:id=\"@+id/shroomie_spinner_filter\"\n            android:layout_width=\"wrap_content\"\n            android:layout_height=\"wrap_content\"\n            android:layout_marginLeft=\"5dp\"\n            android:layout_marginRight=\"1dp\"\n\n\n            />\n\n\n         </LinearLayout>\n    </LinearLayout>\n\n    <com.factor.bouncy.BouncyRecyclerView\n\n        android:id=\"@+id/my_expenses_recycler_view\"\n        android:layout_width=\"match_parent\"\n        android:layout_height=\"wrap_content\"\n        android:layout_below=\"@id/my_shroomies_tablayout\"\n        app:recyclerview_fling_animation_size=\".5\"\n        app:recyclerview_overscroll_animation_size=\".5\"\n        app:recyclerview_damping_ratio=\"DAMPING_RATIO_LOW_BOUNCY\"\n        app:recyclerview_stiffness=\"STIFFNESS_MEDIUM\"\n        app:allow_drag_reorder=\"true\"\n        app:allow_item_swipe=\"false\"/>\n\n    <com.factor.bouncy.BouncyRecyclerView\n        android:id=\"@+id/my_tasks_recycler_view\"\n        android:layout_width=\"match_parent\"\n        android:layout_height=\"wrap_content\"\n        android:layout_below=\"@+id/my_shroomies_tablayout\"\n        android:layout_marginLeft=\"20dp\"\n        android:layout_marginTop=\"5dp\"\n        android:layout_marginRight=\"20dp\"\n        android:visibility=\"gone\"\n        app:recyclerview_fling_animation_size=\".5\"\n        app:recyclerview_overscroll_animation_size=\".5\"\n        app:recyclerview_damping_ratio=\"DAMPING_RATIO_LOW_BOUNCY\"\n        app:recyclerview_stiffness=\"STIFFNESS_MEDIUM\"\n        app:allow_drag_reorder=\"true\"\n        app:allow_item_swipe=\"false\"/>\n\n    <ImageButton\n        android:id=\"@+id/my_shroomies_add_card_btn\"\n        android:layout_width=\"wrap_content\"\n        android:layout_height=\"wrap_content\"\n        android:layout_alignParentRight=\"true\"\n        android:layout_alignParentBottom=\"true\"\n        android:src=\"@drawable/ic_edit\"\n        android:background=\"@drawable/button_circle_yellow\"\n        android:layout_margin=\"20dp\"\n        android:padding=\"20dp\"\n        android:elevation=\"3dp\" />\n\n\n</RelativeLayout>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/fragment_my_shroomies.xml	(revision 7b362ea99782b00eb38d3ace1dd7707b6d158570)
++++ app/src/main/res/layout/fragment_my_shroomies.xml	(date 1616060621000)
+@@ -4,12 +4,10 @@
+     xmlns:tools="http://schemas.android.com/tools"
+     android:layout_width="match_parent"
+     android:layout_height="match_parent"
+-
+     android:scrollIndicators="none"
+     tools:context=".MyShroomies">
+ 
+ 
+-
+     <com.google.android.material.tabs.TabLayout
+         android:id="@+id/my_shroomies_tablayout"
+         android:layout_width="match_parent"
+@@ -61,24 +59,20 @@
+     </LinearLayout>
+     <LinearLayout
+         android:id="@+id/buttons_linear_layout"
+-
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:layout_below="@+id/my_shroomies_tablayout"
+         android:layout_toLeftOf="@id/expand_button_wrapper"
+         android:animateLayoutChanges="true"
+-
+         android:elevation="3dp"
+         android:layout_marginTop="10dp"
+         android:layout_marginBottom="5dp"
+         android:layout_marginLeft="5dp"
+         android:layout_marginRight="-4dp"
+-
+         android:visibility="invisible"
+         android:background="@drawable/yellow_background_round_left_bottom_top"
+         android:orientation="horizontal">
+ 
+-
+     <Button
+         android:id="@+id/my_shroomies_log"
+         android:layout_width="0dp"

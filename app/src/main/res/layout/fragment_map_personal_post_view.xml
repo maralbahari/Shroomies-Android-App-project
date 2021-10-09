@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/apartment_layout_map"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="70dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginLeft="10dp"
+        android:background="@drawable/map_single_post_view_background">
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/personal_post_image_card_view"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            app:cardCornerRadius="100dp"
+            app:cardElevation="0dp">
+
+            <ImageView
+                android:id="@+id/personal_post_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+
+                />
+
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/skeleton_loader_image"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:lottie_autoPlay="true"
+                app:lottie_loop="true"
+                app:lottie_rawRes="@raw/skeleton_loader"
+                android:scaleType="fitXY" />
+
+        </androidx.cardview.widget.CardView>
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/user_name_card_view"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+
+            android:layout_toEndOf="@+id/personal_post_image_card_view"
+            android:layout_toStartOf="@+id/favourite_card_view"
+            android:layout_alignTop="@+id/personal_post_image_card_view"
+            app:cardCornerRadius="5dp"
+            app:cardElevation="0dp">
+
+            <TextView
+                android:id="@+id/user_name_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textSize="12sp"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:paddingStart="5dp"
+                android:paddingEnd="5dp"
+                android:textColor="@color/jetBlack"
+                android:lines="1"
+                android:ellipsize="end" />
+
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/skeleton_loader_user_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:lottie_autoPlay="true"
+                app:lottie_loop="true"
+                app:lottie_rawRes="@raw/skeleton_loader"
+                android:scaleType="fitXY" />
+
+        </androidx.cardview.widget.CardView>
+
+        <TextView
+            android:id="@+id/price_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/user_name_card_view"
+            android:layout_alignStart="@+id/user_name_card_view"
+            android:textColor="@color/jetBlack"
+            android:ellipsize="end"
+            android:textSize="12sp"
+            android:lines="1" />
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/price_text_view"
+            android:layout_alignStart="@id/price_text_view"
+            android:layout_alignParentEnd="true">
+
+            <com.google.android.material.chip.ChipGroup
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:singleLine="true">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/apartment_chip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Apartment"
+                    android:textSize="12sp"
+                    android:padding="10dp"
+                    app:chipMinHeight="20dp"
+                    android:backgroundTint="@color/white"
+                    app:chipStrokeColor="@color/LogoYellow"
+                    app:chipStrokeWidth="1dp"
+                    android:visibility="gone"
+                    android:clickable="false"
+
+                    />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/condo_chip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Condominium"
+                    android:textSize="12sp"
+                    android:padding="10dp"
+                    app:chipMinHeight="20dp"
+                    android:backgroundTint="@color/white"
+                    app:chipStrokeColor="@color/LogoYellow"
+                    app:chipStrokeWidth="1dp"
+                    android:scrollbars="none"
+                    android:visibility="gone"
+                    android:clickable="false"
+
+                    />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/flat_chip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Flat"
+                    android:textSize="12sp"
+                    android:padding="10dp"
+                    app:chipMinHeight="20dp"
+                    android:backgroundTint="@color/white"
+                    app:chipStrokeColor="@color/LogoYellow"
+                    app:chipStrokeWidth="1dp"
+                    android:visibility="gone"
+                    android:clickable="false" />
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/house_chip"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Town house"
+                    android:textSize="12sp"
+                    android:padding="10dp"
+                    app:chipMinHeight="20dp"
+                    android:backgroundTint="@color/white"
+                    app:chipStrokeColor="@color/LogoYellow"
+                    app:chipStrokeWidth="1dp"
+                    android:visibility="gone"
+                    android:clickable="false" />
+            </com.google.android.material.chip.ChipGroup>
+
+
+        </HorizontalScrollView>
+
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/favourite_card_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:layout_alignParentEnd="true"
+            android:layout_margin="5dp"
+            android:backgroundTint="@android:color/transparent"
+            android:background="@android:color/transparent"
+            app:cardCornerRadius="50dp"
+            app:cardElevation="0dp"
+            android:clickable="true">
+
+            <ImageButton
+                android:id="@+id/favorite_check_box_apartment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:src="@drawable/start_check_button"
+                android:background="@android:color/transparent"
+                android:backgroundTint="@color/veryLightGrey"
+                android:clickable="true"
+                android:padding="5dp"
+                android:ellipsize="end"
+                android:foreground="?selectableItemBackground" />
+        </androidx.cardview.widget.CardView>
+
+
+    </RelativeLayout>
+
+
+</RelativeLayout>
