@@ -4,74 +4,61 @@
     xmlns:android="http://schemas.android.com/apk/res/android">
 
 
-    <PreferenceCategory android:title="View type">
-
-        <SwitchPreferenceCompat
-            app:key="grid_view_preference"
-            app:title="Grid view"
-            app:summary="Display apartment posts in grid format"
-            android:icon="@drawable/ic_grid_view_icon"
-           />
-
-    </PreferenceCategory>
-
-
-    <PreferenceCategory app:title="location filters"
-        >
+    <PreferenceCategory
+        app:title="Explore Location"
+        app:allowDividerBelow="true"
+        app:allowDividerAbove="true"
+        app:iconSpaceReserved="false">
 
         <ListPreference
             android:key="state_preference"
             app:title="State"
-            android:entries="@array/empty_array"
-            android:entryValues="@array/empty_array"
-            app:allowDividerBelow="true"
-            android:defaultValue="true"
-            android:summary="%s"
-
-            />
-
-
-        <DropDownPreference
-            app:key="city_preference"
-            app:title="City"
-            android:entries="@array/empty_array"
-            android:entryValues="@array/empty_array"
-            android:summary="%s"
-            />
-
-
-
+            android:entries="@array/malaysian_states"
+            android:entryValues="@array/malaysian_states"
+            app:defaultValue="None"
+            app:iconSpaceReserved="false"
+            app:summary="Limit your search to look for places in some states." />
 
     </PreferenceCategory>
 
 
-
-    <PreferenceCategory app:title="Post filters"
-        app:summary="filter each retrieved post according to selected preferences"
+    <PreferenceCategory
+        app:title="Explore filters"
         app:allowDividerBelow="true"
-        >
-
-
-
+        app:allowDividerAbove="true"
+        app:iconSpaceReserved="false">
+        <SwitchPreferenceCompat
+            android:key="filter_preferences"
+            app:title="Set preferences"
+            app:summary="Show posts that match your selected preferences"
+            app:iconSpaceReserved="false"
+            android:defaultValue="false" />
         <MultiSelectListPreference
             android:key="properties"
             app:isPreferenceVisible="true"
-            app:title="Post properties"
+            app:title="Preferences "
             android:entries="@array/post_properties"
             android:entryValues="@array/post_properties"
             android:defaultValue="@array/empty_array"
-            ></MultiSelectListPreference>
+            app:iconSpaceReserved="false"
+            android:enabled="false"></MultiSelectListPreference>
+        <SwitchPreferenceCompat
+            android:key="filter_price"
+            app:title="Filter posts according to price"
+            app:iconSpaceReserved="false"
+            android:defaultValue="true"
+            app:singleLineTitle="false" />
 
         <com.nfx.android.rangebarpreference.RangeBarPreferenceCompat
             android:key="range_preference"
-            android:title="Price"
-            app:summary="set the price for apartment rents or the budget for personal posts"
+            android:title="Set price"
             app:showSeekBarValue="true"
-            app:rbp_tickStart="100"
+            app:rbp_tickStart="0"
             app:rbp_tickEnd="10000"
             app:rbp_tickInterval="100"
-            app:rbp_view_defaultLowValue="100"
+            app:rbp_view_defaultLowValue="0"
             app:rbp_view_defaultHighValue="10000"
+            android:enabled="false"
             />
 
     </PreferenceCategory>

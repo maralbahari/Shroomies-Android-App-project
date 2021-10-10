@@ -2,17 +2,14 @@ package com.example.shroomies;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.location.Geocoder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,96 +19,142 @@ import androidx.viewpager.widget.ViewPager;
 import com.bumptech.glide.load.MultiTransformation;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.firebase.firestore.FirebaseFirestore;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.make.dots.dotsindicator.DotsIndicator;
 
-
-import java.io.IOException;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleViewAdapterApartments.ViewHolder> {
-    private static final String APARTMENT_FAVOURITES = "APARTMENT_FAVOURITES";
     private final List<Apartment> apartmentList;
     private final Context context;
-    boolean isFromAptFav;
-    Set<String> favoriteSet;
-    private final String userId;
+    private final Set<String> favoriteSet;
     private final boolean isFromUserProfile;
+    private final boolean isFromFavourites;
+    private NotifyEmptyApartmentAdapter mNotifyEmptyAdapter;
+    private final UserFavourites userFavourites;
 
-
-    public RecycleViewAdapterApartments(List<Apartment> apartmentList, Context context, String userId , boolean isFromAptFav, boolean isFromUserProfile){
-        this.isFromAptFav = isFromAptFav;
+    public RecycleViewAdapterApartments(List<Apartment> apartmentList, Context context, boolean isFromFavourites, boolean isFromUserProfile) {
         this.apartmentList = apartmentList;
         this.context = context;
-        this.userId = userId;
-        this.isFromUserProfile=isFromUserProfile;
+        this.isFromUserProfile = isFromUserProfile;
+        this.isFromFavourites = isFromFavourites;
         // retrieve the users favorite post ids from shared prefs
-        favoriteSet = context.getSharedPreferences(userId , Context.MODE_PRIVATE).getStringSet(APARTMENT_FAVOURITES, null);
-        if(favoriteSet==null){
-            favoriteSet = new HashSet<>();
-        }
+        FirebaseAuth mAuth = FirebaseAuth.getInstance();
+        userFavourites = UserFavourites.getInstance(context, mAuth.getCurrentUser().getUid());
+        favoriteSet = userFavourites.getApartmentPostFavourites();
+
         setHasStableIds(true);
     }
+
+    public RecycleViewAdapterApartments(List<Apartment> apartmentList, Context context, boolean isFromFavourites, boolean isFromUserProfile, NotifyEmptyApartmentAdapter mNotifyEmptyAdapter) {
+        //call the first constructor
+        this(apartmentList, context, isFromFavourites, isFromUserProfile);
+        this.mNotifyEmptyAdapter = mNotifyEmptyAdapter;
+
+    }
+
 
     @NonNull
     @Override
     public RecycleViewAdapterApartments.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(context);
-        View view  = layoutInflater.inflate(R.layout.apartment_card,parent,false);
+        View view = layoutInflater.inflate(R.layout.apartment_card, parent, false);
         return new ViewHolder(view);
     }
 
 
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position) {
-        //initialize geocoeder to get the location from the latlng
-        Geocoder geocoder = new Geocoder(context);
 
+        String buildingType = apartmentList.get(position).getBuildingType();
+        switch (buildingType) {
+            case Config.TYPE_APARTMENT:
+                holder.buildingTypeTextView.setText("Apartment");
+                break;
+            case Config.TYPE_HOUSE:
+                holder.buildingTypeTextView.setText("Town house");
+                break;
+            case Config.TYPE_FLAT:
+                holder.buildingTypeTextView.setText("Flat");
+                break;
+            case Config.TYPE_CONDO:
+                holder.buildingTypeTextView.setText("Condominium");
+                break;
+        }
+        if (buildingType.equals(Config.TYPE_HOUSE)) {
+            String locality = apartmentList.get(position).getLocality();
+            String subLocality = apartmentList.get(position).getSubLocality();
+            if (locality != null && subLocality != null) {
+                holder.addressTV.setText(subLocality + ", " + locality);
+            }
+        } else {
+            String buildingName = apartmentList.get(position).getBuildingName();
+            if (buildingName != null) {
+                holder.addressTV.setText(buildingName);
+            }
+        }
         //set the description
         holder.descriptionTV.setText(apartmentList.get(position).getDescription());
         // set the price of the apartment
-        holder.priceTV.setText(apartmentList.get(position).getPrice()+" ");
-        //set the number of roommates
-        holder.numRoomMateTV.setText(" • "+apartmentList.get(position).getNumberOfRoommates() + " roommates");
-        LatLng latLng = new LatLng(apartmentList.get(position).getLatitude(), apartmentList.get(position).getLongitude());
-        // get the location from the latlng]
-        try {
-            holder.addressTV.setText(geocoder.getFromLocation(latLng.latitude,latLng.longitude,1).get(0).getLocality());
-        } catch (IOException e) {
-            e.printStackTrace();
+        int price = apartmentList.get(position).getPrice();
+        int numRoomMates = apartmentList.get(position).getNumberOfRoommates();
+        if (price > 0) {
+            holder.priceTV.setText(price + " RM");
+            holder.numRoomMateTV.setText(" • " + numRoomMates + " roommates");
+        } else {
+            holder.numRoomMateTV.setText(numRoomMates + " roommates");
         }
-        ViewPagerPostAdapter viewPagerAdapter = new ViewPagerPostAdapter(context , apartmentList.get(position).getImage_url());
+//        holder.priceTV.setText(apartmentList.get(position).getPrice());
+        //set the number of roommates
+
+        ViewPagerPostAdapter viewPagerAdapter = new ViewPagerPostAdapter(context, apartmentList.get(position).getImageUrl());
         holder.apartmentViewPager.setAdapter(viewPagerAdapter);
         holder.dotsIndicator.setViewPager(holder.apartmentViewPager);
         viewPagerAdapter.registerDataSetObserver(holder.dotsIndicator.getDataSetObserver());
 
-        List<String> preferences = apartmentList.get(position).getPreferences();
+        int prefCounter = 0;
 
-        for (String preference
-                :preferences) {
-            switch (preference) {
-                case "male":
-                    holder.maleButton.setVisibility(View.VISIBLE);
-                    break;
-                case "female":
-                    holder.femaleButton.setVisibility(View.VISIBLE);
-                    break;
-                case "pet":
-                    holder.petsAllowedButton.setVisibility(View.VISIBLE);
-                    break;
-                case "non_smoking":
-                    holder.smokeFreeButton.setVisibility(View.VISIBLE);
-            }
+        String prefs = apartmentList.get(position).getPreferences();
+        if (prefs.charAt(0) == '1') {
+            holder.maleButton.setVisibility(View.VISIBLE);
+            prefCounter++;
+        } else {
+            holder.maleButton.setVisibility(View.GONE);
         }
-        if(favoriteSet!=null){
-        if(favoriteSet.contains(apartmentList.get(position).getApartmentID())) {
-            holder.favoriteCheckBox.setChecked(true);
+        if (prefs.charAt(1) == '1') {
+            holder.femaleButton.setVisibility(View.VISIBLE);
+            prefCounter++;
+        } else {
+            holder.femaleButton.setVisibility(View.GONE);
+
         }
+        if (prefs.charAt(2) == '1') {
+            holder.petsAllowedButton.setVisibility(View.VISIBLE);
+            prefCounter++;
+        } else {
+            holder.petsAllowedButton.setVisibility(View.GONE);
+        }
+        if (prefs.charAt(3) == '1') {
+            holder.smokeFreeButton.setVisibility(View.VISIBLE);
+            prefCounter++;
+        } else {
+            holder.smokeFreeButton.setVisibility(View.GONE);
+        }
+        if (prefs.charAt(4) == '1') {
+            holder.alcoholButton.setVisibility(View.VISIBLE);
+            prefCounter++;
+        } else {
+            holder.smokeFreeButton.setVisibility(View.GONE);
+        }
+        if (prefCounter == 0) {
+            holder.prefereanceLinearLayout.setVisibility(View.GONE);
+        }
+        if (favoriteSet != null) {
+            holder.favoriteButton.setSelected(favoriteSet.contains(apartmentList.get(position).getApartmentID()));
         }
 
     }
@@ -131,17 +174,18 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView priceTV, numRoomMateTV, addressTV, descriptionTV;
-        ImageView maleButton, femaleButton, petsAllowedButton, smokeFreeButton;
+        TextView priceTV, numRoomMateTV, addressTV, descriptionTV, buildingTypeTextView;
+        ImageView maleButton, femaleButton, petsAllowedButton, smokeFreeButton, alcoholButton;
         ViewPager apartmentViewPager;
-        ImageButton sendMessageButton, deletePostButton;
-        CheckBox favoriteCheckBox;
+        ImageButton deletePostButton, favoriteButton;
         DotsIndicator dotsIndicator;
         RelativeLayout apartmentCardRelativeLayout;
+        LinearLayout prefereanceLinearLayout;
 
         public ViewHolder(@NonNull final View itemView) {
             super(itemView);
             priceTV = itemView.findViewById(R.id.price_text_view_apartment_card);
+            buildingTypeTextView = itemView.findViewById(R.id.building_type);
             numRoomMateTV = itemView.findViewById(R.id.Room_mate_num);
             addressTV = itemView.findViewById(R.id.address_text_view);
             apartmentViewPager = itemView.findViewById(R.id.apartment_card_view_pager);
@@ -149,85 +193,67 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
             femaleButton = itemView.findViewById(R.id.female_image_apartment_card);
             petsAllowedButton = itemView.findViewById(R.id.pets_allowed_image_apartment_card);
             smokeFreeButton = itemView.findViewById(R.id.non_smoking_image_apartment_card);
-            sendMessageButton = itemView.findViewById(R.id.start_chat_button_apartment_card);
+            alcoholButton = itemView.findViewById(R.id.alcohol_image_apartment_card);
             dotsIndicator = itemView.findViewById(R.id.dotsIndicator_apartment_card);
-            favoriteCheckBox = itemView.findViewById(R.id.favorite_check_box_apartment);
-            descriptionTV = itemView.findViewById(R.id.apartment_description);
+            favoriteButton = itemView.findViewById(R.id.favorite_check_box_apartment);
+            descriptionTV = itemView.findViewById(R.id.apartment_price);
             apartmentCardRelativeLayout = itemView.findViewById(R.id.apartment_card_layout);
             deletePostButton = itemView.findViewById(R.id.apartment_post_delete_button);
+            prefereanceLinearLayout = itemView.findViewById(R.id.preference_linear_layout);
+
             if (isFromUserProfile) {
                 deletePostButton.setVisibility(View.VISIBLE);
-                sendMessageButton.setVisibility(View.GONE);
             }
-            sendMessageButton.setOnClickListener(v -> {
-                        Intent intent = new Intent(context, ChattingActivity.class);
-                        intent.putExtra("USERID", apartmentList.get(getAdapterPosition()).getId());
-                        context.startActivity(intent);
-            });
-
-            deletePostButton.setOnClickListener(v -> deletePost());
-
 
             // on click go to the apartment view
             apartmentCardRelativeLayout.setOnClickListener(v -> goToApartmentViewPage(getAdapterPosition()));
             // on check add to shared preferences
 
-            favoriteCheckBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                SharedPreferences prefs = context.getSharedPreferences(userId, Context.MODE_PRIVATE);
-                SharedPreferences.Editor edit = prefs.edit();
-                if (isChecked) {
-                    favoriteSet.add(apartmentList.get(getAdapterPosition()).getApartmentID());
-                    edit.putStringSet(APARTMENT_FAVOURITES, favoriteSet);
-                    edit.apply();
+            favoriteButton.setOnClickListener(v -> {
+                if (!favoriteButton.isSelected()) {
+                    addToFavourites(favoriteButton, getAdapterPosition());
                 } else {
-                    favoriteSet.remove(apartmentList.get(getAdapterPosition()).getApartmentID());
-                    edit.putStringSet(APARTMENT_FAVOURITES, favoriteSet);
-                    edit.commit();
-                    if (isFromAptFav) {
-                        apartmentList.remove(getAdapterPosition());
-                        notifyItemRemoved(getAdapterPosition());
-                    }
+                    removeFromFavourites(favoriteButton, getAdapterPosition());
                 }
-
             });
-
-
         }
 
-        private void deletePost() {
-            FirebaseStorage storage=FirebaseStorage.getInstance();
-            FirebaseFirestore
-                    .getInstance()
-                    .collection("postApartment")
-                    .document(apartmentList.get(getAdapterPosition()).getApartmentID()).
-                    delete()
-                    .addOnSuccessListener(aVoid -> {
-                        storage.getReferenceFromUrl(apartmentList.get(getAdapterPosition()).getImage_url().get(0)).getParent().delete().addOnCompleteListener(task -> {
-                            apartmentList.remove(getAdapterPosition());
-                            notifyItemRemoved(getAdapterPosition());
-                        }).addOnFailureListener(e -> Toast.makeText(context,"Something went wrong!",Toast.LENGTH_SHORT).show());
-//                            for (String url:apartmentList.get(getAdapterPosition()).getImage_url()){
-//                                storage.getReferenceFromUrl(url).getParent().delete().addOnCompleteListener(new OnCompleteListener<Void>() {
-//                                    @Override
-//                                    public void onComplete(@NonNull @NotNull Task<Void> task) {
-//
-//                                    }
-//                                });
-//                            }
-                    }).addOnFailureListener(e -> {
-                        //TODO disaplay a dialog
-                    });
-
-        }
     }
-        private void goToApartmentViewPage(int position) {
-            Intent intent = new Intent(context, ApartmentViewPage.class);
-            // add the parcelable apartment object to the intent and use it's values to
-            //update the apartment view class
-            intent.putExtra("apartment",apartmentList.get(position));
-            context.startActivity(intent);
+
+    private void addToFavourites(final ImageButton favoriteButton, int position) {
+        if (position != -1) {
+            favoriteButton.setSelected(true);
+            userFavourites.addApartmentPostToFavourites(apartmentList
+                    .get(position)
+                    .getApartmentID());
         }
 
+    }
+
+    void removeFromFavourites(final ImageButton favoriteButton, int position) {
+        if (position != -1) {
+            favoriteButton.setSelected(false);
+            userFavourites.removeApartmentPostFavourites(apartmentList
+                    .get(position)
+                    .getApartmentID());
+            if (isFromFavourites) {
+                apartmentList.remove(position);
+                notifyItemRemoved(position);
+                if (apartmentList.isEmpty()) {
+                    mNotifyEmptyAdapter.onEmptyApartmentAdapter();
+                }
+            }
+        }
+
+    }
+
+    private void goToApartmentViewPage(int position) {
+        Intent intent = new Intent(context, ApartmentViewPage.class);
+        // add the parcelable apartment object to the intent and use it's values to
+        //update the apartment view class
+        intent.putExtra("apartment", apartmentList.get(position));
+        context.startActivity(intent);
+    }
 }
 
     class ViewPagerPostAdapter extends PagerAdapter {
@@ -259,29 +285,30 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
                 ImageView imageView = new ImageView(context);
                 imageView.setPadding(5,5,5,5);
                 imageView.setElevation(3);
-                MultiTransformation multiLeft = new MultiTransformation(new CenterCrop(), new RoundedCorners(25));
                 StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(apartmentImages.get(position));
                 // Load the image using Glide
-                GlideApp.with(this.context)
+            GlideApp.with(this.context)
                     .load(storageReference)
-                    .transform(multiLeft)
+                    .transform(new MultiTransformation<>(new CenterCrop(), new RoundedCorners(25)))
+                    .transition(DrawableTransitionOptions.withCrossFade())
                     .into(imageView);
                 container.addView(imageView);
-                return imageView;
+            return imageView;
 
         }
 
 
         @Override
         public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
-                container.removeView((View)object);
-
+            container.removeView((View) object);
         }
 
+    }
 
-
-
+interface NotifyEmptyApartmentAdapter {
+    void onEmptyApartmentAdapter();
 }
+
 
 
 

@@ -7,9 +7,9 @@
         motion:constraintSetEnd="@+id/end"
         motion:constraintSetStart="@id/start"
         motion:duration="1000">
-       <KeyFrameSet>
-       </KeyFrameSet>
-        <OnSwipe motion:touchAnchorId="@+id/apartment_recycler_view" />
+        <KeyFrameSet></KeyFrameSet>
+        <OnSwipe motion:touchAnchorId="@+id/frame_layout_search" />
+
     </Transition>
 
     <ConstraintSet android:id="@+id/start">
