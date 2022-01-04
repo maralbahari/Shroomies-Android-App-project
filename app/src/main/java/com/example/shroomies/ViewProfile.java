@@ -201,7 +201,7 @@ public class ViewProfile extends Fragment {
 
     private void getApartmentPosts() {
         apartmentPostList = new ArrayList<>();
-        apartmentAdapter = new RecycleViewAdapterApartments(apartmentPostList , getActivity(), profileID, false,false);
+        apartmentAdapter = new RecycleViewAdapterApartments(apartmentPostList, getActivity(), false, false);
         recyclerView.setAdapter(apartmentAdapter);
         Query query = mDocRef.collection("postApartment").orderBy("time_stamp", Query.Direction.DESCENDING).whereEqualTo("userID", profileID).limit(APARTMENT_PER_PAGINATION);
         query.get().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
@@ -224,7 +224,7 @@ public class ViewProfile extends Fragment {
 
     private void getPersonalPosts(){
         personalPostList = new ArrayList<>();
-        personalPostRecyclerAdapter = new PersonalPostRecyclerAdapter(personalPostList, getActivity(), profileID, false,false);
+        personalPostRecyclerAdapter = new PersonalPostRecyclerAdapter(personalPostList, getActivity(), false, false);
         recyclerView.setAdapter(personalPostRecyclerAdapter);
 
         Query query = mDocRef.collection("postPersonal").orderBy("time_stamp", Query.Direction.DESCENDING).whereEqualTo("userID", profileID).limit(APARTMENT_PER_PAGINATION);

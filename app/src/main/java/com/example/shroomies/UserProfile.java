@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -26,6 +27,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -138,7 +140,7 @@ public class UserProfile extends Fragment {
 
     private void getApartmentPosts(String userUid) {
         apartmentPostList = new ArrayList<>();
-        apartmentAdapter = new RecycleViewAdapterApartments(apartmentPostList , getContext(), userUid,false,true);
+        apartmentAdapter = new RecycleViewAdapterApartments(apartmentPostList, getContext(), false, true);
         recyclerView.setAdapter(apartmentAdapter);
         Query query = mDocRef.collection("postApartment").orderBy("time_stamp", Query.Direction.DESCENDING).whereEqualTo("userID", userUid).limit(APARTMENT_PER_PAGINATION);
         query.get().addOnCompleteListener(task -> {
@@ -156,7 +158,7 @@ public class UserProfile extends Fragment {
     private void getPersonalPosts(String userUid) {
 
         personalPostList = new ArrayList<>();
-        personalPostRecyclerAdapter = new PersonalPostRecyclerAdapter(personalPostList, getActivity(), userUid, false,true);
+        personalPostRecyclerAdapter = new PersonalPostRecyclerAdapter(personalPostList, getActivity(), false, true);
         recyclerView.setAdapter(personalPostRecyclerAdapter);
         Query query = mDocRef.collection("postPersonal").orderBy("time_stamp", Query.Direction.DESCENDING).whereEqualTo("userID", userUid).limit(APARTMENT_PER_PAGINATION);
         query.get().addOnCompleteListener(task -> {

@@ -7,15 +7,68 @@
     android:background="@color/white"
     tools:context=".PersonalPostFragment">
 
-<com.factor.bouncy.BouncyRecyclerView
-    android:id="@+id/personalRecView"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    app:recyclerview_fling_animation_size=".5"
-    app:recyclerview_overscroll_animation_size=".5"
-    app:recyclerview_damping_ratio="DAMPING_RATIO_LOW_BOUNCY"
-    app:recyclerview_stiffness="STIFFNESS_HIGH"
-    app:allow_drag_reorder="true"
-    app:allow_item_swipe="false"
-/>
+    <RelativeLayout
+        android:id="@+id/empty_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constraintTop_toBottomOf="@+id/tabLayout"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:visibility="gone"
+        android:background="@color/cream"
+
+        >
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/empty_animation"
+            android:layout_width="wrap_content"
+            android:layout_height="150dp"
+            app:lottie_rawRes="@raw/empty_animation"
+            app:lottie_loop="true"
+            android:layout_centerInParent="true"
+            android:layout_margin="20dp"
+            android:scaleType="fitXY" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Couldn't find any places. Try changing the filters to get more results"
+            android:layout_below="@id/empty_animation"
+            android:textColor="@color/lightGrey"
+            android:layout_marginEnd="20dp"
+            android:layout_marginStart="20dp"
+            android:textSize="12sp"
+            android:layout_marginTop="10dp"
+            android:gravity="center" />
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:id="@+id/over_scroll_loading"
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            app:lottie_autoPlay="true"
+            app:lottie_loop="true"
+            app:lottie_rawRes="@raw/loading_yellow"
+            android:scaleType="fitCenter"
+            android:adjustViewBounds="true" />
+
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/personal_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:overScrollMode="never"
+            android:background="@color/white" />
+
+
+    </RelativeLayout>
+
 </FrameLayout>

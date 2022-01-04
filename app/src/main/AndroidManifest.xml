@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     package="com.example.shroomies">
 
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -30,8 +29,6 @@
         <activity
             android:name=".PasswordSignUp"
             android:parentActivityName=".SignUpActivity"></activity>
-        <activity android:name=".PublishPostImage"
-            tools:ignore="Instantiatable" />
         <activity
             android:name=".GroupChatting"
             android:parentActivityName=".MyShroomiesActivity"></activity>
@@ -47,9 +44,16 @@
         </provider>
 
         <activity
-            android:name=".PublishPostPreferances"
+            android:name=".SearchSettingActivity"
             android:screenOrientation="portrait"
-            tools:ignore="Instantiatable" />
+            android:parentActivityName=".MainActivity" />
+        <activity
+            android:name=".FavouritesActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".PublishPostActivity"
+            android:screenOrientation="portrait"
+            android:parentActivityName=".MainActivity" />
         <activity
             android:name=".MyShroomiesActivity"
             android:screenOrientation="portrait" />

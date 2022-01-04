@@ -14,14 +14,15 @@ public class CustomToast {
     private final String message;
     private int drawableIcon;
 
-    public CustomToast(AppCompatActivity activity, String message , int drawableIcon) {
+
+    public CustomToast(AppCompatActivity activity, String message) {
         this.activity = activity;
         this.message = message;
-        this.drawableIcon  = drawableIcon;
     }
-    public CustomToast(AppCompatActivity activity, String message ) {
-        this.activity = activity;
-        this.message = message;
+
+    public CustomToast(AppCompatActivity activity, String message, int drawableIcon) {
+        this(activity, message);
+        this.drawableIcon = drawableIcon;
     }
 
 
@@ -32,7 +33,7 @@ public class CustomToast {
             // Inflate the Layout
             View layout = inflater.inflate(R.layout.custom_toast, activity.findViewById(R.id.toast_layout));
 
-            TextView text =layout.findViewById(R.id.toast_text);
+            TextView text = layout.findViewById(R.id.toast_text);
 
             // Set the Text to show in TextView
             text.setText(message);

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@android:color/transparent">
+
+    <LinearLayout
+        android:id="@+id/collapse_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:padding="10dp"
+        android:gravity="center">
+
+        <androidx.cardview.widget.CardView
+            android:id="@+id/collapse_card_button"
+            android:layout_width="55dp"
+            android:layout_height="5dp"
+            android:layout_centerHorizontal="true"
+            android:backgroundTint="@color/lightGrey"
+            app:cardElevation="0dp"
+            android:background="?selectableItemBackground"
+            android:clickable="true"
+            app:contentPadding="10dp"
+            android:padding="10dp" />
+    </LinearLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/map_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/collapse_layout"
+        android:overScrollMode="never" />
+</RelativeLayout>

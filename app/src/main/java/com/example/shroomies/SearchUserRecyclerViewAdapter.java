@@ -15,15 +15,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.CircleCrop;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.List;
 
-public class SearchUserRecyclerViewAdapter extends RecyclerView.Adapter<SearchUserRecyclerViewAdapter.ViewHolder>{
-    private Context context;
-    private List<User> userList;
-    private DatabaseReference rootRef;
+public class SearchUserRecyclerViewAdapter extends RecyclerView.Adapter<SearchUserRecyclerViewAdapter.ViewHolder> {
+    private final Context context;
+    private final List<User> userList;
 
 
     public SearchUserRecyclerViewAdapter(Context context, List<User> userList) {
@@ -36,7 +33,6 @@ public class SearchUserRecyclerViewAdapter extends RecyclerView.Adapter<SearchUs
     public SearchUserRecyclerViewAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(context);
         View view  = layoutInflater.inflate(R.layout.search_user_adapter_card,parent,false);
-        rootRef= FirebaseDatabase.getInstance().getReference();
         return new SearchUserRecyclerViewAdapter.ViewHolder(view);
     }
 

@@ -5,8 +5,6 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
@@ -27,7 +25,6 @@ import androidx.fragment.app.FragmentTransaction;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.badge.BadgeUtils;
-import com.google.android.material.bottomappbar.BottomAppBar;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 import com.google.firebase.auth.FirebaseAuth;
@@ -139,9 +136,10 @@ public class MainActivity extends AppCompatActivity {
         bottomNavigationview.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull @NotNull MenuItem item) {
-                if(item.getItemId()==R.id.find_roomie_menu){
-                    getFragment(new FindRoommate());
-                }if(item.getItemId()==R.id.user_profile_menu){
+                if (item.getItemId() == R.id.find_roomie_menu) {
+                    getFragment(new FindRoomFragment());
+                }
+                if (item.getItemId() == R.id.user_profile_menu) {
                     getFragment(new UserProfile());
                 }
                 return true;
@@ -149,9 +147,10 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-        myShroomies.setOnClickListener(v -> startActivity(new Intent( getApplicationContext(), MyShroomiesActivity.class)));
+        myShroomies.setOnClickListener(v -> startActivity(new Intent(getApplicationContext(), MyShroomiesActivity.class)));
 
-        inboxButton.setOnClickListener(v -> startActivity(new Intent(getApplicationContext() , MessageInbox.class)));
+        inboxButton.setOnClickListener(v -> startActivity(new Intent(getApplicationContext(), MessageInbox.class)));
+        getFragment(new FindRoomFragment());
 
     }
 

@@ -6,24 +6,35 @@
     </string-array>
 
     <string-array name="post_properties">
-        <item>male</item>
-        <item>female</item>
-        <item>pet</item>
-        <item>non_smoking</item>
+
+        <item>Male</item>
+        <item>Female</item>
+        <item>Pet friendly</item>
+        <item>Non smoking</item>
+        <item>Alcohol friendly</item>
     </string-array>
 
-
-    <string-array name="Terengganu">
-        <item>Kuala Terengganu</item>
-        <item>Chukai</item>
-        <item>Dungun</item>
-        <item>Kerteh</item>
-        <item>Kuala Berang</item>
-        <item>Marang</item>
-        <item>Paka</item>
-        <item>Jerteh</item>
-    </string-array>
     <string-array name="empty_array" />
+    <string-array name="malaysian_states">
+        <item>None</item>
+        <item>Johor</item>
+        <item>Kedah</item>
+        <item>Kelantan</item>
+        <item>Malacca</item>
+        <item>Negeri Sembilan</item>
+        <item>Pahang</item>
+        <item>Penang</item>
+        <item>Perak</item>
+        <item>Perlis</item>
+        <item>Sabah</item>
+        <item>Sarawak</item>
+        <item>Selangor</item>
+        <item>Terengganu</item>
+        <item>Kuala Lumpur</item>
+        <item>Labuan</item>
+        <item>Putrajaya</item>
+
+    </string-array>
 
 
 </resources>

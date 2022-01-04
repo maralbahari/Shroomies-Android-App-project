@@ -12,12 +12,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/LogoYellow"
-        app:title="Add a post"
+        app:subtitle="Add a post"
+        app:subtitleCentered="true"
         app:navigationIcon="@drawable/ic_back_button"
         app:contentInsetStartWithNavigation="0dp"
         app:contentInsetStart="0dp"
-        android:elevation="3dp"
-        />
+        android:elevation="3dp" />
 
     <FrameLayout
         android:id="@+id/publish_post_container"
