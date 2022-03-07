@@ -181,7 +181,7 @@ import com.google.firebase.database.FirebaseDatabase;
             else{
             // adapter for single cards
             recyclerView.setLayoutManager(layoutManager);
-               recycleViewAdapterApartments = new RecycleViewAdapterApartments(apartmentList, getActivity(), mAuth.getCurrentUser().getUid() , false,false);
+               recycleViewAdapterApartments = new RecycleViewAdapterApartments(apartmentList, getActivity(), false,false);
                recyclerView.setAdapter(recycleViewAdapterApartments);
         }
         customLoadingProgressBar.show();
@@ -210,7 +210,7 @@ import com.google.firebase.database.FirebaseDatabase;
                     lastCardKey = null;
                     apartmentList = new ArrayList<>();
                     recyclerView.setLayoutManager(layoutManager);
-                    recycleViewAdapterApartments = new RecycleViewAdapterApartments(apartmentList,getActivity()  , mAuth.getCurrentUser().getUid() , false,false);
+                    recycleViewAdapterApartments = new RecycleViewAdapterApartments(apartmentList,getActivity(), false,false);
                     recyclerView.setAdapter(recycleViewAdapterApartments);
 
                     searchView.clearFocus();
@@ -258,7 +258,7 @@ import com.google.firebase.database.FirebaseDatabase;
 
                     if(!gridViewOn ){
                         recyclerView.setLayoutManager(layoutManager);
-                        recycleViewAdapterApartments = new RecycleViewAdapterApartments( apartmentList , getActivity(),mAuth.getCurrentUser().getUid() , false,false);
+                        recycleViewAdapterApartments = new RecycleViewAdapterApartments( apartmentList , getActivity(), false,false);
                         recyclerView.setAdapter(recycleViewAdapterApartments);
 
                     }else{

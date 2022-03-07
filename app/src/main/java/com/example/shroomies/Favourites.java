@@ -74,11 +74,11 @@ public class Favourites extends AppCompatActivity {
         favAptRecyclerView.setLayoutManager(linearLayoutManager);
 
         apartmentList = new ArrayList<>();
-        favAptRecyclerAdapter = new RecycleViewAdapterApartments(apartmentList, getApplicationContext(), mAuth.getCurrentUser().getUid(), true, false);
+        favAptRecyclerAdapter = new RecycleViewAdapterApartments(apartmentList, getApplicationContext(), true, false);
         //favAptRecyclerView.setAdapter(favAptRecyclerAdapter);
 
         personalPostList = new ArrayList<>();
-        personalPostRecyclerAdapter = new PersonalPostRecyclerAdapter(personalPostList, getApplicationContext(), mAuth.getCurrentUser().getUid(), true, false);
+        personalPostRecyclerAdapter = new PersonalPostRecyclerAdapter(personalPostList, getApplicationContext(), true, false);
 
         apartmentFavouriteSet = getApplicationContext().getSharedPreferences(mAuth.getCurrentUser().getUid(), Context.MODE_PRIVATE).getStringSet(APARTMENT_FAVOURITES, null);
         personalFavouritesSet = getApplicationContext().getSharedPreferences(mAuth.getCurrentUser().getUid(), Context.MODE_PRIVATE).getStringSet(PERSONAL_FAVOURITES, null);

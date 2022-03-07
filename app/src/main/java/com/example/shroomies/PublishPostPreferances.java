@@ -148,7 +148,6 @@ public class PublishPostPreferances extends Fragment {
                 bundleToPublishPostImage.putString(Config.DESCRIPTION , description);
                 bundleToPublishPostImage.putInt(Config.BUDGET , budget);
                 bundleToPublishPostImage.putInt(Config.NUMBER_OF_ROOMMATES  , numberOfRoommates);
-                bundleToPublishPostImage.putStringArrayList(Config.PREFERENCES ,preferences);
                 Fragment publishPostImage =  new PublishPostImage();
                 publishPostImage.setArguments(bundle);
                 getFragment(publishPostImage);
