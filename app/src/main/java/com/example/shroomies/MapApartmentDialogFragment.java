@@ -67,16 +67,16 @@ public class MapApartmentDialogFragment extends DialogFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        descriptionTextView = v.findViewById(R.id.description_text_view_map_view);
-        priceTextView = v.findViewById(R.id.price_text_view_map_view);
-        apartmentImage = v.findViewById(R.id.apartment_image_map_view);
+//        descriptionTextView = v.findViewById(R.id.description_text_view_map_view);
+//        priceTextView = v.findViewById(R.id.price_text_view_map_view);
+//        apartmentImage = v.findViewById(R.id.apartment_image_map_view);
         apartmentMapLayout = v.findViewById(R.id.apartment_layout_map);
         if(apartment!=null){
             if(apartment.getDescription()!=null){
                 descriptionTextView.setText(apartment.getDescription());
             }
             //load the first image
-            StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(apartment.getImage_url().get(0));
+            StorageReference storageReference = FirebaseStorage.getInstance().getReference().child(apartment.getImageUrl().get(0));
             GlideApp.with(getActivity())
                     .load(storageReference)
                     .centerInside()

@@ -1,0 +1,793 @@
+Index: app/src/main/res/layout/group_chat_convo_cards.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\n<RelativeLayout xmlns:android=\"http://schemas.android.com/apk/res/android\"\n    android:layout_width=\"match_parent\"\n    android:layout_height=\"wrap_content\"\n    xmlns:tools=\"http://schemas.android.com/tools\"\n    xmlns:app=\"http://schemas.android.com/apk/res-auto\">\n    <LinearLayout\n        android:id=\"@+id/group_chat_receiver_box_card_layout\"\n        android:layout_width=\"wrap_content\"\n        android:layout_height=\"wrap_content\"\n        android:layout_marginLeft=\"20dp\"\n        android:layout_marginTop=\"5dp\"\n        android:layout_marginRight=\"20dp\"\n        android:layout_marginBottom=\"5dp\"\n        android:background=\"@drawable/receiver_message_background\"\n        android:elevation=\"3dp\"\n        android:orientation=\"vertical\"\n        android:padding=\"10dp\"\n        android:visibility=\"visible\">\n\n        <TextView\n            android:id=\"@+id/group_chat_receiver_name_text_view\"\n            android:layout_width=\"wrap_content\"\n            android:layout_height=\"wrap_content\"\n            android:layout_marginBottom=\"3dp\"\n            android:text=\"Name\"\n            android:layout_marginTop=\"1dp\"\n            android:textColor=\"@color/LogoYellow\"\n            android:textSize=\"14sp\"\n            android:textStyle=\"bold\" />\n\n        <TextView\n            android:id=\"@+id/group_chat_receiver_box_card_text\"\n            android:layout_width=\"wrap_content\"\n            android:layout_height=\"wrap_content\"\n            android:text=\"receiver message\"\n            android:textColor=\"@color/jetBlack\"\n            android:textSize=\"14sp\"\n            android:textStyle=\"bold\" />\n\n        <TextView\n            android:id=\"@+id/group_chat_reciever_box_card_date\"\n            android:layout_width=\"wrap_content\"\n            android:layout_height=\"wrap_content\"\n            android:layout_gravity=\"right\"\n            android:layout_marginTop=\"3dp\"\n            android:text=\"14-20\"\n            android:textColor=\"@color/lightGrey\"\n            android:textSize=\"10sp\"\n            android:textStyle=\"normal\" />\n    </LinearLayout>\n    <androidx.cardview.widget.CardView\n        android:id=\"@+id/reply_message_to_cards_receiver\"\n        android:layout_width=\"wrap_content\"\n        android:layout_height=\"wrap_content\"\n        android:background=\"@color/white\"\n        android:elevation=\"3dp\"\n        app:cardCornerRadius=\"10dp\"\n        android:layout_marginLeft=\"20dp\"\n        android:layout_marginTop=\"5dp\"\n        android:layout_marginRight=\"20dp\"\n        android:layout_marginBottom=\"5dp\"\n        android:visibility=\"invisible\"\n        >\n        <RelativeLayout\n                android:layout_width=\"wrap_content\"\n                android:layout_height=\"wrap_content\">\n            <TextView\n                android:id=\"@+id/reply_message_receiver_name\"\n                android:layout_width=\"wrap_content\"\n                android:layout_height=\"wrap_content\"\n                android:text=\"Name\"\n                android:textColor=\"@color/LogoYellow\"\n                android:textStyle=\"bold\"\n                android:padding=\"5dp\"\n                android:layout_margin=\"5dp\"\n                />\n            <RelativeLayout\n                android:id=\"@+id/reply_card_info_layout_receiver\"\n                android:layout_width=\"wrap_content\"\n                android:layout_height=\"wrap_content\"\n                android:layout_margin=\"5dp\"\n                android:layout_below=\"@id/reply_message_receiver_name\"\n                android:background=\"@drawable/create_group_fragment_background\">\n            <View\n                android:id=\"@+id/reply_message_importance_card_receiver\"\n                android:layout_width=\"3dp\"\n                android:layout_height=\"101dp\"\n                android:background=\"@color/okGreen\"\n                />\n            <TextView\n                android:id=\"@+id/reply_message_title_receiver\"\n                android:layout_width=\"wrap_content\"\n                android:layout_height=\"wrap_content\"\n                android:text=\"Card Title:\"\n                android:padding=\"5dp\"\n                android:layout_toEndOf=\"@+id/reply_message_importance_card_receiver\"\n                android:layout_marginStart=\"5dp\"\n                android:textColor=\"@color/LogoYellow\"/>\n            <TextView\n                android:id=\"@+id/reply_message_type_receiver\"\n                android:layout_width=\"wrap_content\"\n                android:layout_height=\"wrap_content\"\n                android:text=\"card type\"\n                android:padding=\"5dp\"\n                android:layout_below=\"@+id/reply_message_title_receiver\"\n                android:layout_toEndOf=\"@+id/reply_message_importance_card_receiver\"\n                android:textColor=\"@color/lightGrey\"\n                android:layout_marginStart=\"5dp\"\n                />\n            <View\n                android:id=\"@+id/break_line_after_card_info\"\n                android:layout_width=\"wrap_content\"\n                android:layout_height=\"0dp\"\n                android:layout_margin=\"1dp\"\n                android:layout_below=\"@+id/reply_message_importance_card_receiver\"\n                android:background=\"@color/lightGrey\"/>\n            </RelativeLayout>\n            <TextView\n                android:id=\"@+id/reply_message_body_receiver\"\n                android:layout_below=\"@+id/reply_card_info_layout_receiver\"\n                android:layout_width=\"wrap_content\"\n                android:layout_height=\"wrap_content\"\n                android:layout_marginStart=\"10dp\"\n                android:padding=\"5dp\"\n                android:layout_margin=\"5dp\"\n                android:text=\"this is text message replying\"\n                />\n            <TextView\n                android:id=\"@+id/repl_message_date_receiver\"\n                android:layout_width=\"wrap_content\"\n                android:layout_height=\"wrap_content\"\n                android:layout_below=\"@+id/reply_message_body_receiver\"\n                android:layout_margin=\"5dp\"\n                android:padding=\"5dp\"\n                android:text=\"12:12\"\n                android:layout_alignParentRight=\"true\"/>\n        </RelativeLayout>\n    </androidx.cardview.widget.CardView>\n    <androidx.cardview.widget.CardView\n        android:id=\"@+id/reply_message_to_cards_sender\"\n        android:layout_width=\"wrap_content\"\n        android:layout_height=\"wrap_content\"\n        android:background=\"@color/Alabaster\"\n        android:elevation=\"3dp\"\n        app:cardCornerRadius=\"10dp\"\n        android:layout_marginLeft=\"20dp\"\n        android:layout_marginTop=\"5dp\"\n        android:layout_marginRight=\"20dp\"\n        android:layout_marginBottom=\"5dp\"\n        android:visibility=\"invisible\"\n        >\n        <RelativeLayout\n            android:layout_width=\"wrap_content\"\n            android:layout_height=\"wrap_content\"\n            android:background=\"@color/Alabaster\">\n            <RelativeLayout\n                android:id=\"@+id/reply_card_info_layout_sender\"\n                android:layout_width=\"wrap_content\"\n                android:layout_height=\"wrap_content\"\n                android:layout_margin=\"5dp\"\n                android:background=\"@drawable/create_group_fragment_background\">\n                <View\n                    android:id=\"@+id/reply_message_importance_card_sender\"\n                    android:layout_width=\"3dp\"\n                    android:layout_height=\"101dp\"\n                    android:background=\"@color/okGreen\"\n                    />\n                <TextView\n                    android:id=\"@+id/reply_message_title_sender\"\n                    android:layout_width=\"wrap_content\"\n                    android:layout_height=\"wrap_content\"\n                    android:text=\"Card Title:\"\n                    android:padding=\"5dp\"\n                    android:layout_toEndOf=\"@+id/reply_message_importance_card_sender\"\n                    android:layout_marginStart=\"5dp\"\n                    android:textColor=\"@color/LogoYellow\"/>\n                <TextView\n                    android:id=\"@+id/reply_message_type_sender\"\n                    android:layout_width=\"wrap_content\"\n                    android:layout_height=\"wrap_content\"\n                    android:text=\"card type\"\n                    android:padding=\"5dp\"\n                    android:layout_below=\"@+id/reply_message_title_sender\"\n                    android:layout_toEndOf=\"@+id/reply_message_importance_card_sender\"\n                    android:textColor=\"@color/lightGrey\"\n                    android:layout_marginStart=\"5dp\"\n                    />\n                <View\n                    android:id=\"@+id/break_line_after_card_info_sender\"\n                    android:layout_width=\"wrap_content\"\n                    android:layout_height=\"0dp\"\n                    android:layout_margin=\"1dp\"\n                    android:layout_below=\"@+id/reply_message_importance_card_sender\"\n                    android:background=\"@color/lightGrey\"/>\n            </RelativeLayout>\n            <TextView\n                android:id=\"@+id/reply_message_body_sender\"\n                android:layout_below=\"@+id/reply_card_info_layout_sender\"\n                android:layout_width=\"wrap_content\"\n                android:layout_height=\"wrap_content\"\n                android:layout_marginStart=\"10dp\"\n                android:padding=\"5dp\"\n                android:layout_margin=\"5dp\"\n                android:text=\"this is text message replying\"\n                />\n            <TextView\n                android:id=\"@+id/reply_message_date_sender\"\n                android:layout_width=\"wrap_content\"\n                android:layout_height=\"wrap_content\"\n                android:layout_below=\"@+id/reply_message_body_sender\"\n                android:layout_margin=\"5dp\"\n                android:padding=\"5dp\"\n                android:text=\"12:12\"\n                android:layout_alignParentRight=\"true\"/>\n        </RelativeLayout>\n    </androidx.cardview.widget.CardView>\n\n<LinearLayout\n        android:id=\"@+id/group_chat_sender_box_card_layout\"\n        android:layout_width=\"wrap_content\"\n        android:layout_height=\"wrap_content\"\n        android:layout_alignParentRight=\"true\"\n        android:layout_marginLeft=\"20dp\"\n        android:layout_marginTop=\"5dp\"\n        android:layout_marginRight=\"20dp\"\n        android:layout_marginBottom=\"5dp\"\n        android:background=\"@drawable/sender_background_message\"\n        android:elevation=\"3dp\"\n        android:orientation=\"vertical\"\n        android:padding=\"10dp\"\n        android:visibility=\"visible\">\n        <TextView\n            android:id=\"@+id/group_chat_sender_box_card_text\"\n            android:layout_width=\"wrap_content\"\n            android:layout_height=\"wrap_content\"\n            android:layout_alignParentEnd=\"true\"\n            android:text=\"sender message\"\n            android:textColor=\"@color/jetBlack\"\n            android:textSize=\"14sp\"\n            android:textStyle=\"bold\" />\n        <TextView\n            android:id=\"@+id/group_chat_sender_box_card_date\"\n            android:layout_width=\"wrap_content\"\n            android:layout_height=\"wrap_content\"\n            android:layout_gravity=\"left\"\n            android:layout_marginTop=\"3dp\"\n            android:text=\"14-20\"\n            android:textColor=\"@color/lightGrey\"\n            android:textSize=\"10sp\"\n            android:textStyle=\"normal\" />\n    </LinearLayout>\n    <LinearLayout\n        android:layout_width=\"wrap_content\"\n        android:layout_height=\"wrap_content\"\n        android:orientation=\"vertical\"\n        android:id=\"@+id/group_chat_sender_image_view_linear_layout\"\n        android:layout_marginLeft=\"20dp\"\n        android:layout_marginTop=\"5dp\"\n        android:layout_marginRight=\"20dp\"\n        android:layout_marginBottom=\"5dp\"\n        android:background=\"@drawable/sender_background_message\"\n        android:layout_alignParentEnd=\"true\"\n        android:elevation=\"3dp\"\n        android:padding=\"5dp\"\n        android:visibility=\"invisible\">\n        <ImageView\n            android:id=\"@+id/group_chat_sender_image_view\"\n            android:layout_width=\"200dp\"\n            android:layout_height=\"wrap_content\"\n            android:adjustViewBounds=\"true\"\n            android:scaleType=\"fitCenter\"\n            android:visibility=\"visible\"\n            tools:srcCompat=\"@drawable/ic_icon_awesome_image\" />\n        <TextView\n            android:id=\"@+id/sender_box_card_image_date\"\n            android:layout_width=\"wrap_content\"\n            android:layout_height=\"wrap_content\"\n            android:layout_gravity=\"left\"\n            android:layout_marginTop=\"3dp\"\n            android:text=\"14-20\"\n            android:textColor=\"@color/lightGrey\"\n            android:textSize=\"10sp\"\n            android:textStyle=\"normal\" />\n    </LinearLayout>\n    <LinearLayout\n        android:id=\"@+id/group_chat_receiver_image_view_linear_layout\"\n        android:layout_width=\"wrap_content\"\n        android:layout_height=\"wrap_content\"\n        android:background=\"@drawable/receiver_message_background\"\n        android:orientation=\"vertical\"\n        android:layout_marginLeft=\"20dp\"\n        android:layout_marginTop=\"5dp\"\n        android:layout_marginRight=\"20dp\"\n        android:layout_marginBottom=\"5dp\"\n        android:elevation=\"3dp\"\n        android:layout_alignParentStart=\"true\"\n        android:padding=\"5dp\"\n        android:visibility=\"invisible\">\n        <TextView\n            android:id=\"@+id/group_chat_image_receiver_name\"\n            android:layout_width=\"wrap_content\"\n            android:layout_height=\"wrap_content\"\n            android:text=\"Name\"\n            android:textColor=\"@color/LogoYellow\"\n            android:textStyle=\"bold\"/>\n        <ImageView\n            android:id=\"@+id/group_chat_receiver_image_view\"\n            android:layout_width=\"200dp\"\n            android:layout_height=\"wrap_content\"\n            android:adjustViewBounds=\"true\"\n            android:scaleType=\"fitCenter\"\n            tools:srcCompat=\"@drawable/ic_icon_awesome_image\" />\n        <TextView\n            android:id=\"@+id/group_chat_reciever_box_card_image_date\"\n            android:layout_width=\"wrap_content\"\n            android:layout_height=\"wrap_content\"\n            android:layout_gravity=\"right\"\n            android:layout_marginTop=\"3dp\"\n            android:text=\"14-20\"\n            android:textColor=\"@color/lightGrey\"\n            android:textSize=\"10sp\"\n            android:textStyle=\"normal\" />\n    </LinearLayout>\n\n</RelativeLayout>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/layout/group_chat_convo_cards.xml	(revision a66203a2c08ebaa571a681d7be73771cc94bbb26)
++++ app/src/main/res/layout/group_chat_convo_cards.xml	(date 1634992224000)
+@@ -4,252 +4,400 @@
+     android:layout_height="wrap_content"
+     xmlns:tools="http://schemas.android.com/tools"
+     xmlns:app="http://schemas.android.com/apk/res-auto">
+-    <LinearLayout
+-        android:id="@+id/group_chat_receiver_box_card_layout"
+-        android:layout_width="wrap_content"
+-        android:layout_height="wrap_content"
+-        android:layout_marginLeft="20dp"
+-        android:layout_marginTop="5dp"
+-        android:layout_marginRight="20dp"
+-        android:layout_marginBottom="5dp"
+-        android:background="@drawable/receiver_message_background"
+-        android:elevation="3dp"
+-        android:orientation="vertical"
+-        android:padding="10dp"
+-        android:visibility="visible">
+-
+-        <TextView
+-            android:id="@+id/group_chat_receiver_name_text_view"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:layout_marginBottom="3dp"
+-            android:text="Name"
+-            android:layout_marginTop="1dp"
+-            android:textColor="@color/LogoYellow"
+-            android:textSize="14sp"
+-            android:textStyle="bold" />
++
++    <RelativeLayout
++        android:id="@+id/group_chat_receiver_box_card_layout"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:visibility="visible">
++
++        <ImageView
++            android:id="@+id/reciever_message_tail"
++            android:layout_width="wrap_content"
++            android:layout_height="wrap_content"
++            android:src="@drawable/ic_message_tail"
++            android:layout_alignBottom="@+id/group_chat_receiver_linear_layout_layout"
++            android:layout_marginBottom="10dp"
++            android:layout_marginStart="5dp"
++            />
++        <LinearLayout
++            android:id="@+id/group_chat_receiver_linear_layout_layout"
++            android:layout_width="wrap_content"
++            android:layout_height="wrap_content"
++            android:layout_marginTop="5dp"
++            android:layout_marginBottom="5dp"
++            android:layout_marginEnd="50dp"
++            android:layout_toEndOf="@+id/reciever_message_tail"
++            android:background="@drawable/receiver_message_background"
++            android:orientation="vertical"
++            android:paddingTop="5dp"
++            android:paddingBottom="5dp"
++            android:minWidth="200dp"
++            android:visibility="visible">
++            <TextView
++                android:id="@+id/group_chat_receiver_name_text_view"
++                android:layout_width="wrap_content"
++                android:layout_height="wrap_content"
++                android:text="\@Maral"
++                android:textColor="@color/orange"
++                android:textSize="14sp"
++                android:layout_marginStart="5dp"
++                android:layout_marginEnd="5dp"
++                android:textStyle="bold" />
+ 
+-        <TextView
+-            android:id="@+id/group_chat_receiver_box_card_text"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:text="receiver message"
+-            android:textColor="@color/jetBlack"
+-            android:textSize="14sp"
+-            android:textStyle="bold" />
+-
+-        <TextView
+-            android:id="@+id/group_chat_reciever_box_card_date"
+-            android:layout_width="wrap_content"
+-            android:layout_height="wrap_content"
+-            android:layout_gravity="right"
+-            android:layout_marginTop="3dp"
+-            android:text="14-20"
+-            android:textColor="@color/lightGrey"
+-            android:textSize="10sp"
+-            android:textStyle="normal" />
+-    </LinearLayout>
+-    <androidx.cardview.widget.CardView
+-        android:id="@+id/reply_message_to_cards_receiver"
+-        android:layout_width="wrap_content"
+-        android:layout_height="wrap_content"
+-        android:background="@color/white"
+-        android:elevation="3dp"
+-        app:cardCornerRadius="10dp"
+-        android:layout_marginLeft="20dp"
+-        android:layout_marginTop="5dp"
+-        android:layout_marginRight="20dp"
+-        android:layout_marginBottom="5dp"
+-        android:visibility="invisible"
+-        >
+-        <RelativeLayout
+-                android:layout_width="wrap_content"
+-                android:layout_height="wrap_content">
+-            <TextView
+-                android:id="@+id/reply_message_receiver_name"
+-                android:layout_width="wrap_content"
++            <androidx.cardview.widget.CardView
++                android:id="@+id/reply_message_to_cards_receiver"
++                android:layout_width="match_parent"
+                 android:layout_height="wrap_content"
+-                android:text="Name"
+-                android:textColor="@color/LogoYellow"
+-                android:textStyle="bold"
+-                android:padding="5dp"
++                app:cardCornerRadius="5dp"
++                app:cardElevation="10dp"
+                 android:layout_margin="5dp"
+-                />
+-            <RelativeLayout
+-                android:id="@+id/reply_card_info_layout_receiver"
+-                android:layout_width="wrap_content"
+-                android:layout_height="wrap_content"
+-                android:layout_margin="5dp"
+-                android:layout_below="@id/reply_message_receiver_name"
+-                android:background="@drawable/create_group_fragment_background">
+-            <View
+-                android:id="@+id/reply_message_importance_card_receiver"
+-                android:layout_width="3dp"
+-                android:layout_height="101dp"
+-                android:background="@color/okGreen"
+-                />
+-            <TextView
+-                android:id="@+id/reply_message_title_receiver"
+-                android:layout_width="wrap_content"
+-                android:layout_height="wrap_content"
+-                android:text="Card Title:"
+-                android:padding="5dp"
+-                android:layout_toEndOf="@+id/reply_message_importance_card_receiver"
+-                android:layout_marginStart="5dp"
+-                android:textColor="@color/LogoYellow"/>
+-            <TextView
+-                android:id="@+id/reply_message_type_receiver"
+-                android:layout_width="wrap_content"
+-                android:layout_height="wrap_content"
+-                android:text="card type"
+-                android:padding="5dp"
+-                android:layout_below="@+id/reply_message_title_receiver"
+-                android:layout_toEndOf="@+id/reply_message_importance_card_receiver"
+-                android:textColor="@color/lightGrey"
+-                android:layout_marginStart="5dp"
+-                />
+-            <View
+-                android:id="@+id/break_line_after_card_info"
+-                android:layout_width="wrap_content"
+-                android:layout_height="0dp"
+-                android:layout_margin="1dp"
+-                android:layout_below="@+id/reply_message_importance_card_receiver"
+-                android:background="@color/lightGrey"/>
+-            </RelativeLayout>
++                android:visibility="gone"
++                android:clickable="true"
++                android:foreground="?selectableItemBackground"
++                >
++                <RelativeLayout
++                    android:layout_width="match_parent"
++                    android:layout_height="wrap_content">
++                <View
++                    android:id="@+id/reply_message_importance_card_receiver"
++                    android:layout_width="3dp"
++                    android:layout_height="wrap_content"
++                    android:background="@color/okGreen"
++                    android:layout_alignBottom="@+id/reply_message_type_receiver"
++                    />
++                <TextView
++                    android:id="@+id/reply_message_title_receiver"
++                    android:layout_width="wrap_content"
++                    android:layout_height="wrap_content"
++                    android:text="Card Title"
++                    android:layout_toEndOf="@+id/reply_message_importance_card_receiver"
++                    android:layout_marginStart="5dp"
++                    android:layout_marginEnd="5dp"
++                    android:paddingTop="5dp"
++                    android:textSize="12sp"
++                    android:textStyle="bold"
++                    android:textColor="@color/LogoYellow"/>
++                <TextView
++                    android:id="@+id/reply_message_type_receiver"
++                    android:layout_width="wrap_content"
++                    android:layout_height="wrap_content"
++                    android:text="card type"
++                    android:textSize="12sp"
++                    android:layout_below="@+id/reply_message_title_receiver"
++                    android:layout_toEndOf="@+id/reply_message_importance_card_receiver"
++                    android:textColor="@color/lightGrey"
++                    android:layout_marginStart="5dp"
++                    android:paddingBottom="5dp"
++                    />
++
++                </RelativeLayout>
++            </androidx.cardview.widget.CardView>
++
++
+             <TextView
+-                android:id="@+id/reply_message_body_receiver"
+-                android:layout_below="@+id/reply_card_info_layout_receiver"
++                android:id="@+id/group_chat_receiver_box_card_text"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+-                android:layout_marginStart="10dp"
+-                android:padding="5dp"
+-                android:layout_margin="5dp"
+-                android:text="this is text message replying"
++                android:text="receiver"
++                android:textColor="@color/jetBlack"
++                android:textSize="12sp"
++                android:layout_marginStart="5dp"
++                android:layout_marginEnd="5dp"
+                 />
++
+             <TextView
+-                android:id="@+id/repl_message_date_receiver"
++                android:id="@+id/group_chat_reciever_box_card_date"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content"
+-                android:layout_below="@+id/reply_message_body_receiver"
+-                android:layout_margin="5dp"
+-                android:padding="5dp"
+-                android:text="12:12"
+-                android:layout_alignParentRight="true"/>
+-        </RelativeLayout>
+-    </androidx.cardview.widget.CardView>
+-    <androidx.cardview.widget.CardView
+-        android:id="@+id/reply_message_to_cards_sender"
++                android:layout_gravity="right"
++                android:layout_marginTop="3dp"
++                android:text="14-20"
++                android:textColor="@color/lightGrey"
++                android:textSize="12sp"
++                android:layout_marginStart="5dp"
++                android:layout_marginEnd="5dp"
++                android:textStyle="normal" />
++        </LinearLayout>
++    </RelativeLayout>
++
++
++<!--    <androidx.cardview.widget.CardView-->
++<!--        android:id="@+id/reply_message_to_cards_receiver"-->
++<!--        android:layout_width="wrap_content"-->
++<!--        android:layout_height="wrap_content"-->
++<!--        android:background="@color/white"-->
++<!--        android:elevation="3dp"-->
++<!--        app:cardCornerRadius="10dp"-->
++<!--        android:layout_marginEnd="10dp"-->
++<!--        android:layout_marginTop="5dp"-->
++<!--        android:layout_marginStart="10dp"-->
++<!--        android:layout_marginBottom="5dp"-->
++<!--        android:visibility="gone"-->
++<!--        >-->
++<!--        <RelativeLayout-->
++<!--                android:layout_width="wrap_content"-->
++<!--                android:layout_height="wrap_content">-->
++<!--            <TextView-->
++<!--                android:id="@+id/reply_message_receiver_name"-->
++<!--                android:layout_width="wrap_content"-->
++<!--                android:layout_height="wrap_content"-->
++<!--                android:text="Name"-->
++<!--                android:textColor="@color/LogoYellow"-->
++<!--                android:textStyle="bold"-->
++<!--                android:padding="5dp"-->
++<!--                android:layout_margin="5dp"-->
++<!--                />-->
++<!--            <RelativeLayout-->
++<!--                android:id="@+id/reply_card_info_layout_receiver"-->
++<!--                android:layout_width="wrap_content"-->
++<!--                android:layout_height="wrap_content"-->
++<!--                android:layout_margin="5dp"-->
++<!--                android:layout_below="@id/reply_message_receiver_name"-->
++<!--                android:background="@drawable/create_group_fragment_background">-->
++<!--            <View-->
++<!--                android:id="@+id/reply_message_importance_card_receiver"-->
++<!--                android:layout_width="3dp"-->
++<!--                android:layout_height="101dp"-->
++<!--                android:background="@color/okGreen"-->
++<!--                />-->
++<!--            <TextView-->
++<!--                android:id="@+id/reply_message_title_receiver"-->
++<!--                android:layout_width="wrap_content"-->
++<!--                android:layout_height="wrap_content"-->
++<!--                android:text="Card Title:"-->
++<!--                android:padding="5dp"-->
++<!--                android:layout_toEndOf="@+id/reply_message_importance_card_receiver"-->
++<!--                android:layout_marginStart="5dp"-->
++<!--                android:textColor="@color/LogoYellow"/>-->
++<!--            <TextView-->
++<!--                android:id="@+id/reply_message_type_receiver"-->
++<!--                android:layout_width="wrap_content"-->
++<!--                android:layout_height="wrap_content"-->
++<!--                android:text="card type"-->
++<!--                android:padding="5dp"-->
++<!--                android:layout_below="@+id/reply_message_title_receiver"-->
++<!--                android:layout_toEndOf="@+id/reply_message_importance_card_receiver"-->
++<!--                android:textColor="@color/lightGrey"-->
++<!--                android:layout_marginStart="5dp"-->
++<!--                />-->
++<!--            <View-->
++<!--                android:id="@+id/break_line_after_card_info"-->
++<!--                android:layout_width="wrap_content"-->
++<!--                android:layout_height="0dp"-->
++<!--                android:layout_margin="1dp"-->
++<!--                android:layout_below="@+id/reply_message_importance_card_receiver"-->
++<!--                android:background="@color/lightGrey"/>-->
++<!--            </RelativeLayout>-->
++<!--            <TextView-->
++<!--                android:id="@+id/reply_message_body_receiver"-->
++<!--                android:layout_below="@+id/reply_card_info_layout_receiver"-->
++<!--                android:layout_width="wrap_content"-->
++<!--                android:layout_height="wrap_content"-->
++<!--                android:layout_marginStart="10dp"-->
++<!--                android:padding="5dp"-->
++<!--                android:layout_margin="5dp"-->
++<!--                android:text="this is text message replying"-->
++<!--                />-->
++<!--            <TextView-->
++<!--                android:id="@+id/repl_message_date_receiver"-->
++<!--                android:layout_width="wrap_content"-->
++<!--                android:layout_height="wrap_content"-->
++<!--                android:layout_below="@+id/reply_message_body_receiver"-->
++<!--                android:layout_margin="5dp"-->
++<!--                android:padding="5dp"-->
++<!--                android:text="12:12"-->
++<!--                android:layout_alignParentRight="true"/>-->
++<!--        </RelativeLayout>-->
++<!--    </androidx.cardview.widget.CardView>-->
++<!--    <androidx.cardview.widget.CardView-->
++<!--        android:id="@+id/reply_message_to_cards_sender"-->
++<!--        android:layout_width="wrap_content"-->
++<!--        android:layout_height="wrap_content"-->
++<!--        android:background="@color/Alabaster"-->
++<!--        android:elevation="3dp"-->
++<!--        app:cardCornerRadius="10dp"-->
++<!--        android:layout_marginStart="10dp"-->
++<!--        android:layout_marginTop="5dp"-->
++<!--        android:layout_marginEnd="10dp"-->
++<!--        android:layout_marginBottom="5dp"-->
++<!--        android:visibility="gone"-->
++<!--        >-->
++<!--        <RelativeLayout-->
++<!--            android:layout_width="wrap_content"-->
++<!--            android:layout_height="wrap_content"-->
++<!--            android:background="@color/Alabaster">-->
++<!--            <RelativeLayout-->
++<!--                android:id="@+id/reply_card_info_layout_sender"-->
++<!--                android:layout_width="wrap_content"-->
++<!--                android:layout_height="wrap_content"-->
++<!--                android:layout_margin="5dp"-->
++<!--                android:background="@drawable/create_group_fragment_background">-->
++<!--                <View-->
++<!--                    android:id="@+id/reply_message_importance_card_sender"-->
++<!--                    android:layout_width="3dp"-->
++<!--                    android:layout_height="101dp"-->
++<!--                    android:background="@color/okGreen"-->
++<!--                    />-->
++<!--                <TextView-->
++<!--                    android:id="@+id/reply_message_title_sender"-->
++<!--                    android:layout_width="wrap_content"-->
++<!--                    android:layout_height="wrap_content"-->
++<!--                    android:text="Card Title:"-->
++<!--                    android:padding="5dp"-->
++<!--                    android:layout_toEndOf="@+id/reply_message_importance_card_sender"-->
++<!--                    android:layout_marginStart="5dp"-->
++<!--                    android:textColor="@color/LogoYellow"/>-->
++<!--                <TextView-->
++<!--                    android:id="@+id/reply_message_type_sender"-->
++<!--                    android:layout_width="wrap_content"-->
++<!--                    android:layout_height="wrap_content"-->
++<!--                    android:text="card type"-->
++<!--                    android:padding="5dp"-->
++<!--                    android:layout_below="@+id/reply_message_title_sender"-->
++<!--                    android:layout_toEndOf="@+id/reply_message_importance_card_sender"-->
++<!--                    android:textColor="@color/lightGrey"-->
++<!--                    android:layout_marginStart="5dp"-->
++<!--                    />-->
++<!--                <View-->
++<!--                    android:id="@+id/break_line_after_card_info_sender"-->
++<!--                    android:layout_width="wrap_content"-->
++<!--                    android:layout_height="0dp"-->
++<!--                    android:layout_margin="1dp"-->
++<!--                    android:layout_below="@+id/reply_message_importance_card_sender"-->
++<!--                    android:background="@color/lightGrey"/>-->
++<!--            </RelativeLayout>-->
++<!--            <TextView-->
++<!--                android:id="@+id/reply_message_body_sender"-->
++<!--                android:layout_below="@+id/reply_card_info_layout_sender"-->
++<!--                android:layout_width="wrap_content"-->
++<!--                android:layout_height="wrap_content"-->
++<!--                android:layout_marginStart="10dp"-->
++<!--                android:padding="5dp"-->
++<!--                android:layout_margin="5dp"-->
++<!--                android:text="this is text message replying"-->
++<!--                />-->
++<!--            <TextView-->
++<!--                android:id="@+id/reply_message_date_sender"-->
++<!--                android:layout_width="wrap_content"-->
++<!--                android:layout_height="wrap_content"-->
++<!--                android:layout_below="@+id/reply_message_body_sender"-->
++<!--                android:layout_margin="5dp"-->
++<!--                android:padding="5dp"-->
++<!--                android:text="12:12"-->
++<!--                android:layout_alignParentRight="true"/>-->
++<!--        </RelativeLayout>-->
++<!--    </androidx.cardview.widget.CardView>-->
++
++
++
++<RelativeLayout
++    android:id="@+id/group_chat_sender_box_card_layout"
++    android:layout_width="wrap_content"
++    android:layout_height="wrap_content"
++    android:visibility="visible">
++
++    <ImageView
++        android:id="@+id/sender_message_tail"
++        android:layout_width="wrap_content"
++        android:layout_height="wrap_content"
++        android:src="@drawable/ic_message_tail_sender"
++        android:layout_alignBottom="@+id/group_chat_sender_layout"
++        android:layout_alignParentEnd="true"
++        android:layout_marginBottom="10dp"
++        android:layout_marginEnd="5dp"
++        />
++<LinearLayout
++    android:id="@+id/group_chat_sender_layout"
++
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+-        android:background="@color/Alabaster"
+-        android:elevation="3dp"
+-        app:cardCornerRadius="10dp"
+-        android:layout_marginLeft="20dp"
+         android:layout_marginTop="5dp"
+-        android:layout_marginRight="20dp"
+         android:layout_marginBottom="5dp"
+-        android:visibility="invisible"
+-        >
+-        <RelativeLayout
+-            android:layout_width="wrap_content"
++        android:layout_marginStart="50dp"
++        android:layout_toStartOf="@+id/sender_message_tail"
++        android:background="@drawable/sender_background_message"
++        android:orientation="vertical"
++        android:paddingBottom="5dp"
++        android:minWidth="200dp"
++        android:visibility="visible">
++
++    <androidx.cardview.widget.CardView
++            android:id="@+id/reply_message_to_cards_sender"
++            android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+-            android:background="@color/Alabaster">
+-            <RelativeLayout
+-                android:id="@+id/reply_card_info_layout_sender"
+-                android:layout_width="wrap_content"
+-                android:layout_height="wrap_content"
+-                android:layout_margin="5dp"
+-                android:background="@drawable/create_group_fragment_background">
+-                <View
+-                    android:id="@+id/reply_message_importance_card_sender"
+-                    android:layout_width="3dp"
+-                    android:layout_height="101dp"
+-                    android:background="@color/okGreen"
+-                    />
+-                <TextView
+-                    android:id="@+id/reply_message_title_sender"
+-                    android:layout_width="wrap_content"
+-                    android:layout_height="wrap_content"
+-                    android:text="Card Title:"
+-                    android:padding="5dp"
+-                    android:layout_toEndOf="@+id/reply_message_importance_card_sender"
+-                    android:layout_marginStart="5dp"
+-                    android:textColor="@color/LogoYellow"/>
+-                <TextView
+-                    android:id="@+id/reply_message_type_sender"
+-                    android:layout_width="wrap_content"
+-                    android:layout_height="wrap_content"
+-                    android:text="card type"
+-                    android:padding="5dp"
+-                    android:layout_below="@+id/reply_message_title_sender"
+-                    android:layout_toEndOf="@+id/reply_message_importance_card_sender"
+-                    android:textColor="@color/lightGrey"
+-                    android:layout_marginStart="5dp"
+-                    />
+-                <View
+-                    android:id="@+id/break_line_after_card_info_sender"
+-                    android:layout_width="wrap_content"
+-                    android:layout_height="0dp"
+-                    android:layout_margin="1dp"
+-                    android:layout_below="@+id/reply_message_importance_card_sender"
+-                    android:background="@color/lightGrey"/>
+-            </RelativeLayout>
+-            <TextView
+-                android:id="@+id/reply_message_body_sender"
+-                android:layout_below="@+id/reply_card_info_layout_sender"
+-                android:layout_width="wrap_content"
+-                android:layout_height="wrap_content"
+-                android:layout_marginStart="10dp"
+-                android:padding="5dp"
+-                android:layout_margin="5dp"
+-                android:text="this is text message replying"
+-                />
+-            <TextView
+-                android:id="@+id/reply_message_date_sender"
+-                android:layout_width="wrap_content"
+-                android:layout_height="wrap_content"
+-                android:layout_below="@+id/reply_message_body_sender"
+-                android:layout_margin="5dp"
+-                android:padding="5dp"
+-                android:text="12:12"
+-                android:layout_alignParentRight="true"/>
+-        </RelativeLayout>
+-    </androidx.cardview.widget.CardView>
++            app:cardCornerRadius="5dp"
++            app:cardElevation="5dp"
++            android:layout_marginStart="5dp"
++            android:layout_marginTop="5dp"
++            android:layout_marginEnd="5dp"
++            android:clickable="true"
++            android:foreground="?selectableItemBackground"
++            android:visibility="gone"
++            >
++                <RelativeLayout
++                    android:id="@+id/reply_card_info_layout_sender"
++                    android:layout_width="match_parent"
++                    android:layout_height="match_parent"
++                    android:background="@drawable/create_group_fragment_background">
++                    <View
++                        android:id="@+id/reply_message_importance_card_sender"
++                        android:layout_width="3dp"
++                        android:layout_height="wrap_content"
++                        android:layout_alignBottom="@+id/reply_message_type_sender"
++                        android:background="@color/okGreen"
++                        />
++                    <TextView
++                        android:id="@+id/reply_message_title_sender"
++                        android:layout_width="wrap_content"
++                        android:layout_height="wrap_content"
++                        android:text="Card Title:"
++                        android:layout_toEndOf="@+id/reply_message_importance_card_sender"
++                        android:layout_marginStart="5dp"
++                        android:paddingTop="5dp"
++                        android:layout_marginEnd="5dp"
++                        android:textSize="12sp"
++                        android:textStyle="bold"
++                        android:textColor="@color/LogoYellow"/>
++                    <TextView
++                        android:id="@+id/reply_message_type_sender"
++                        android:layout_width="wrap_content"
++                        android:layout_height="wrap_content"
++                        android:text="card type"
++                        android:layout_below="@+id/reply_message_title_sender"
++                        android:layout_toEndOf="@+id/reply_message_importance_card_sender"
++                        android:textColor="@color/lightGrey"
++                        android:layout_marginStart="5dp"
++                        android:paddingBottom="5dp"
++                        android:layout_marginEnd="5dp"
++                        android:textSize="12sp"
++                        />
++                </RelativeLayout>
++        </androidx.cardview.widget.CardView>
+ 
+-<LinearLayout
+-        android:id="@+id/group_chat_sender_box_card_layout"
+-        android:layout_width="wrap_content"
+-        android:layout_height="wrap_content"
+-        android:layout_alignParentRight="true"
+-        android:layout_marginLeft="20dp"
+-        android:layout_marginTop="5dp"
+-        android:layout_marginRight="20dp"
+-        android:layout_marginBottom="5dp"
+-        android:background="@drawable/sender_background_message"
+-        android:elevation="3dp"
+-        android:orientation="vertical"
+-        android:padding="10dp"
+-        android:visibility="visible">
+         <TextView
+             android:id="@+id/group_chat_sender_box_card_text"
+-            android:layout_width="wrap_content"
++            android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+-            android:layout_alignParentEnd="true"
+             android:text="sender message"
+             android:textColor="@color/jetBlack"
+-            android:textSize="14sp"
+-            android:textStyle="bold" />
++            android:textSize="12sp"
++
++            android:layout_margin="5dp"
++             />
+         <TextView
+             android:id="@+id/group_chat_sender_box_card_date"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+-            android:layout_gravity="left"
+-            android:layout_marginTop="3dp"
++            android:layout_gravity="end"
++            android:layout_marginStart="5dp"
++            android:layout_marginEnd="5dp"
+             android:text="14-20"
+             android:textColor="@color/lightGrey"
+-            android:textSize="10sp"
++            android:textSize="12sp"
+             android:textStyle="normal" />
+     </LinearLayout>
++</RelativeLayout>
+     <LinearLayout
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+Index: app/src/main/res/drawable/receiver_message_background.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\n<shape xmlns:android=\"http://schemas.android.com/apk/res/android\">\n    <solid android:color=\"@android:color/white\"/>\n    <corners android:radius=\"15dp\"/>\n\n</shape>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/drawable/receiver_message_background.xml	(revision a66203a2c08ebaa571a681d7be73771cc94bbb26)
++++ app/src/main/res/drawable/receiver_message_background.xml	(date 1634980609000)
+@@ -1,6 +1,6 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <shape xmlns:android="http://schemas.android.com/apk/res/android">
+-    <solid android:color="@android:color/white"/>
+-    <corners android:radius="15dp"/>
++    <solid android:color="@color/light_orange"/>
++    <corners android:radius="5dp"/>
+ 
+ </shape>
+\ No newline at end of file
+Index: app/src/main/res/values/colors.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\n<resources>\n    <color name=\"LogoYellow\">#F5CB5C</color>\n    <color name=\"colorPrimaryDark\">#3700B3</color>\n    <color name=\"colorAccent\">#03DAC5</color>\n    <color name=\"white\">#FFFFFF</color>\n    <color name=\"Alabaster\">#E8EDDF</color>\n    <color name=\"Timeberwolf\">#CFDBD5</color>\n    <color name=\"lowerGradientColorForLoginBackground\">#FFF5E58A</color>\n    <color name=\"okGreen\">#5ABE07</color>\n    <color name=\"purple\">#794C74</color>\n    <color name=\"darkBlue\">#3A0CA3</color>\n    <color name=\"mentionBlue\">#0091EA</color>\n    <color name=\"Black\">#000000</color>\n    <color name=\"pink\">#F72585</color>\n    <color name=\"jetBlack\">#333533</color>\n    <color name=\"veryLightGrey\">#E3E3E3</color>\n    <color name=\"dim_background\">#8000</color>\n    <color name=\"lightGrey\">#A4A6A4</color>\n    <color name=\"canceRed\">#F25454</color>\n    <color name=\"orange\">#FF7915</color>\n    <color name=\"y\">#FEFCF8</color>\n    <color name=\"red\">#F13030</color>\n    <color name=\"brownishlight\">#ddcdc0</color>\n    <color name=\"grayishTimberWolf\">#AFB3A8</color>\n    <color name=\"place_autocomplete_search_text\">@android:color/primary_text_dark</color>\n    <color name=\"place_autocomplete_search_hint\">@android:color/secondary_text_dark</color>\n    <color name=\"place_autocomplete_search_\">@android:color/primary_text_dark</color>\n    <color name=\"cream\">#F7F4ED</color>\n\n    <color name=\"greyTabLayout\"> #CCD0C5</color>\n\n\n\n\n</resources>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/values/colors.xml	(revision a66203a2c08ebaa571a681d7be73771cc94bbb26)
++++ app/src/main/res/values/colors.xml	(date 1634981588000)
+@@ -29,6 +29,10 @@
+     <color name="cream">#F7F4ED</color>
+ 
+     <color name="greyTabLayout"> #CCD0C5</color>
++    <color name="light_cream">#FDF7E7</color>
++    <color name="light_orange">#FEE0C6</color>
++    <color name="light_yellow">#FFEDBE</color>
++
+ 
+ 
+ 
+Index: app/src/main/res/drawable/sender_background_message.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\n<shape xmlns:android=\"http://schemas.android.com/apk/res/android\" android:shape=\"rectangle\">\n<solid android:color=\"@color/Alabaster\"/>\n    <corners android:radius=\"15dp\"/>\n</shape>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/drawable/sender_background_message.xml	(revision a66203a2c08ebaa571a681d7be73771cc94bbb26)
++++ app/src/main/res/drawable/sender_background_message.xml	(date 1634981558000)
+@@ -1,5 +1,5 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+-<solid android:color="@color/Alabaster"/>
+-    <corners android:radius="15dp"/>
++<solid android:color="@color/light_yellow"/>
++    <corners android:radius="5dp"/>
+ </shape>
+\ No newline at end of file
+Index: app/src/main/res/drawable/ic_send_message_button.xml
+===================================================================
+--- app/src/main/res/drawable/ic_send_message_button.xml	(date 1634977777000)
++++ app/src/main/res/drawable/ic_send_message_button.xml	(date 1634977777000)
+@@ -0,0 +1,4 @@
++<vector android:height="30dp" android:viewportHeight="28"
++    android:viewportWidth="28" android:width="30dp" xmlns:android="http://schemas.android.com/apk/res/android">
++    <path android:fillColor="#f5cb5c" android:pathData="M14,0A14,14 0,1 0,28 14,14 14,0 0,0 14,0ZM20.392,11.992a1.117,1.117 0,0 1,-1.584 0L15.12,8.3L15.12,22.4a1.12,1.12 0,1 1,-2.24 0L12.88,8.3l-3.688,3.688a1.12,1.12 0,1 1,-1.584 -1.584l5.6,-5.6a1.119,1.119 0,0 1,1.584 0l5.6,5.6a1.119,1.119 0,0 1,0 1.584Z"/>
++</vector>
+Index: .idea/compiler.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"CompilerConfiguration\">\n    <bytecodeTargetLevel target=\"11\" />\n  </component>\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .idea/compiler.xml	(revision a66203a2c08ebaa571a681d7be73771cc94bbb26)
++++ .idea/compiler.xml	(date 1635865071000)
+@@ -1,6 +1,6 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
+   <component name="CompilerConfiguration">
+-    <bytecodeTargetLevel target="11" />
++    <bytecodeTargetLevel target="1.8" />
+   </component>
+ </project>
+\ No newline at end of file
+Index: app/src/main/res/drawable/ic_message_tail_sender.xml
+===================================================================
+--- app/src/main/res/drawable/ic_message_tail_sender.xml	(date 1634981718000)
++++ app/src/main/res/drawable/ic_message_tail_sender.xml	(date 1634981718000)
+@@ -0,0 +1,4 @@
++<vector android:height="10dp" android:viewportHeight="5.551"
++    android:viewportWidth="10.033" android:width="18.07422dp" xmlns:android="http://schemas.android.com/apk/res/android">
++    <path android:fillColor="#ffedbe" android:pathData="M10.033,0.825c0,-0.292 -0.151,-0.346 -0.423,-0.262a8.35,8.35 0,0 0,-1.145 0.564,13.058 13.058,0 0,1 -1.682,0.783 5.949,5.949 0,0 1,-2.035 0.4A5.56,5.56 0,0 1,2.8 1.946a6.81,6.81 0,0 1,-1.5 -0.793A7.577,7.577 0,0 1,0.339 0.36,4.93 4.93,0 0,1 0,0V5.546s0.3,0.009 0.8,0 1.177,-0.035 1.938,-0.107a18.407,18.407 0,0 0,2.409 -0.374,8.354 8.354,0 0,0 2.207,-0.8 11.163,11.163 0,0 0,1.478 -0.975,3.851 3.851,0 0,0 0.8,-0.841 2.2,2.2 0,0 0,0.334 -0.792A4.03,4.03 0,0 0,10.033 0.825Z"/>
++</vector>
+Index: .idea/runConfigurations.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"RunConfigurationProducerService\">\n    <option name=\"ignoredProducers\">\n      <set>\n        <option value=\"com.android.tools.idea.compose.preview.runconfiguration.ComposePreviewRunConfigurationProducer\" />\n        <option value=\"org.jetbrains.plugins.gradle.execution.test.runner.AllInPackageGradleConfigurationProducer\" />\n        <option value=\"org.jetbrains.plugins.gradle.execution.test.runner.TestClassGradleConfigurationProducer\" />\n        <option value=\"org.jetbrains.plugins.gradle.execution.test.runner.TestMethodGradleConfigurationProducer\" />\n      </set>\n    </option>\n  </component>\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .idea/runConfigurations.xml	(revision a66203a2c08ebaa571a681d7be73771cc94bbb26)
++++ .idea/runConfigurations.xml	(date 1634977134000)
+@@ -3,7 +3,6 @@
+   <component name="RunConfigurationProducerService">
+     <option name="ignoredProducers">
+       <set>
+-        <option value="com.android.tools.idea.compose.preview.runconfiguration.ComposePreviewRunConfigurationProducer" />
+         <option value="org.jetbrains.plugins.gradle.execution.test.runner.AllInPackageGradleConfigurationProducer" />
+         <option value="org.jetbrains.plugins.gradle.execution.test.runner.TestClassGradleConfigurationProducer" />
+         <option value="org.jetbrains.plugins.gradle.execution.test.runner.TestMethodGradleConfigurationProducer" />
+Index: app/src/main/res/drawable/ic_gallery_button.xml
+===================================================================
+--- app/src/main/res/drawable/ic_gallery_button.xml	(date 1634977415000)
++++ app/src/main/res/drawable/ic_gallery_button.xml	(date 1634977415000)
+@@ -0,0 +1,4 @@
++<vector android:height="30dp" android:viewportHeight="29.357"
++    android:viewportWidth="29.357" android:width="30dp" xmlns:android="http://schemas.android.com/apk/res/android">
++    <path android:fillColor="#f5cb5c" android:pathData="M14.678,0A14.678,14.678 0,1 0,29.357 14.678,14.695 14.695,0 0,0 14.678,0ZM14.678,2.841A11.848,11.848 0,0 1,26.464 13.656L23.628,10.54a1.418,1.418 0,0 0,-2.017 -0.085l-4.953,4.565L10.995,8.779a1.465,1.465 0,0 0,-0.985 -0.464,1.484 1.484,0 0,0 -1.032,0.379L2.858,14.342A11.843,11.843 0,0 1,14.678 2.841ZM14.678,26.516a11.849,11.849 0,0 1,-11.4 -8.7c1.292,-1.191 5.928,-5.466 6.582,-6.063l7.633,8.409 0.379,0.417a1.423,1.423 0,0 0,2.008 0.095,1.433 1.433,0 0,0 0.095,-2.008l-1.4,-1.544c1.515,-1.4 2.964,-2.737 3.9,-3.589l0.019,-0.019 0.009,0.009 3.651,4.017A11.848,11.848 0,0 1,14.678 26.516Z"/>
++</vector>
+Index: .idea/misc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<project version=\"4\">\n  <component name=\"ProjectRootManager\" version=\"2\" languageLevel=\"JDK_11\" default=\"false\" project-jdk-name=\"1.8\" project-jdk-type=\"JavaSDK\">\n    <output url=\"file://$PROJECT_DIR$/build/classes\" />\n  </component>\n  <component name=\"ProjectType\">\n    <option name=\"id\" value=\"Android\" />\n  </component>\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .idea/misc.xml	(revision a66203a2c08ebaa571a681d7be73771cc94bbb26)
++++ .idea/misc.xml	(date 1635865071000)
+@@ -1,6 +1,6 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
+-  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="false" project-jdk-name="1.8" project-jdk-type="JavaSDK">
++  <component name="ProjectRootManager" version="2" languageLevel="JDK_1_8" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+     <output url="file://$PROJECT_DIR$/build/classes" />
+   </component>
+   <component name="ProjectType">
+Index: app/src/main/res/drawable/background_text_white.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"utf-8\"?>\n<shape xmlns:android=\"http://schemas.android.com/apk/res/android\" android:shape=\"rectangle\">\n<solid android:color=\"#FFFFFF\"/>\n    <size android:width=\"330dp\" android:height=\"95dp\"/>\n    <corners android:radius=\"15dp\"/>\n</shape>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/src/main/res/drawable/background_text_white.xml	(revision a66203a2c08ebaa571a681d7be73771cc94bbb26)
++++ app/src/main/res/drawable/background_text_white.xml	(date 1634977522000)
+@@ -1,6 +1,5 @@
+ <?xml version="1.0" encoding="utf-8"?>
+ <shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+-<solid android:color="#FFFFFF"/>
+-    <size android:width="330dp" android:height="95dp"/>
+-    <corners android:radius="15dp"/>
++<solid android:color="@color/light_cream"/>
++    <corners android:radius="50dp"/>
+ </shape>
+\ No newline at end of file
+Index: app/src/main/res/drawable/ic_message_tail.xml
+===================================================================
+--- app/src/main/res/drawable/ic_message_tail.xml	(date 1634980972000)
++++ app/src/main/res/drawable/ic_message_tail.xml	(date 1634980972000)
+@@ -0,0 +1,6 @@
++<vector android:height="10dp" android:viewportHeight="7.472"
++    android:viewportWidth="11.033" android:width="14.765792dp" xmlns:android="http://schemas.android.com/apk/res/android">
++    <path android:fillColor="#fee0c6"
++        android:pathData="M0.5,2.2378c0,-1.169 2.419,1.482 5.284,1.482a6.725,6.725 0,0 0,4.749 -2.313v5.553s-4.84,0.145 -7.35,-1.284S0.5,3.408 0.5,2.2378Z"
++        android:strokeColor="#fee0c6" android:strokeWidth="1"/>
++</vector>

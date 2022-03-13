@@ -123,7 +123,7 @@ public class GroupChatting extends AppCompatActivity {
         TextView cardTypeView = findViewById(R.id.reply_message_type);
         ImageButton dismissReply = findViewById(R.id.dismiss_reply);
         noMessageLayout=findViewById(R.id.no_message_layout);
-        noMessageMushroom=findViewById(R.id.no_message_anim);
+//        noMessageMushroom=findViewById(R.id.no_message_anim);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this);
         linearLayoutManager.setStackFromEnd(true);
         groupChattingRecycler.setLayoutManager(linearLayoutManager);

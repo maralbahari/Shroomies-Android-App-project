@@ -142,6 +142,9 @@ public class MainActivity extends AppCompatActivity {
                 if (item.getItemId() == R.id.user_profile_menu) {
                     getFragment(new UserProfile());
                 }
+                if (item.getItemId() == R.id.publish_post_menu) {
+                    startActivity(new Intent(MainActivity.this,PublishPostActivity.class));
+                }
                 return true;
             }
         });

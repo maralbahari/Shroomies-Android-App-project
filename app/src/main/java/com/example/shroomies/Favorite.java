@@ -79,12 +79,12 @@ public class Favorite extends Fragment {
         favAptRecyclerView.setLayoutManager(linearLayoutManager);
 
         apartmentList = new ArrayList<>();
-        favAptRecyclerAdapter = new RecycleViewAdapterApartments(apartmentList , getActivity() , mAuth.getCurrentUser().getUid() , true,false);
+        favAptRecyclerAdapter = new RecycleViewAdapterApartments(apartmentList , getActivity() , true,false);
         favAptRecyclerView.setAdapter(favAptRecyclerAdapter);
 
 
         personalPostModelList = new ArrayList<>();
-        personalPostRecyclerAdapter = new PersonalPostRecyclerAdapter(personalPostModelList , getActivity(),mAuth.getCurrentUser().getUid(),  true,false);
+        personalPostRecyclerAdapter = new PersonalPostRecyclerAdapter(personalPostModelList , getActivity(), true,false);
 
         apartmentFavouriteSet = getActivity().getSharedPreferences(mAuth.getCurrentUser().getUid(), Context.MODE_PRIVATE).getStringSet(APARTMENT_FAVOURITES, null);
         personalFavouritesSet  = getActivity().getSharedPreferences(mAuth.getCurrentUser().getUid(), Context.MODE_PRIVATE).getStringSet(PERSONAL_FAVOURITES, null);

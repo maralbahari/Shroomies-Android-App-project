@@ -18,28 +18,28 @@
         android:visibility="gone"
         android:layout_alignParentTop="true"
         android:layout_above="@+id/group_chat_bottom_layout_view">
-        <com.airbnb.lottie.LottieAnimationView
-            android:id="@+id/no_message_anim"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:scaleType="fitXY"
-            android:adjustViewBounds="true"
-            android:layout_centerHorizontal="true"
-            app:lottie_autoPlay="false"
-            app:lottie_loop="true"
-            app:lottie_rawRes="@raw/mushroom_no_message"
-            />
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:layout_below="@+id/no_message_anim"
-            android:text="Say Hi to your Shroomies"
-            android:textColor="@color/lightGrey"
-            android:textStyle="bold"
-            android:layout_margin="20dp"
-            android:textSize="20sp"
-            />
+<!--        <com.airbnb.lottie.LottieAnimationView-->
+<!--            android:id="@+id/no_message_anim"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:scaleType="fitXY"-->
+<!--            android:adjustViewBounds="true"-->
+<!--            android:layout_centerHorizontal="true"-->
+<!--            app:lottie_autoPlay="false"-->
+<!--            app:lottie_loop="true"-->
+<!--            app:lottie_rawRes="@raw/mushroom_no_message"-->
+<!--            />-->
+<!--        <TextView-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:gravity="center"-->
+<!--            android:layout_below="@+id/no_message_anim"-->
+<!--            android:text="Say Hi to your Shroomies"-->
+<!--            android:textColor="@color/lightGrey"-->
+<!--            android:textStyle="bold"-->
+<!--            android:layout_margin="20dp"-->
+<!--            android:textSize="20sp"-->
+<!--            />-->
     </RelativeLayout>
 
     <RelativeLayout
