@@ -166,9 +166,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:scrollbarStyle="insideInset"
-        android:scrollbarFadeDuration="@integer/config_navAnimTime"
         android:scrollIndicators="top"
+        android:scrollbars="vertical"
         android:scrollbarAlwaysDrawVerticalTrack="true"
+        android:scrollbarSize="5dp"
+        android:isScrollContainer="true"
+        android:scrollbarThumbVertical="@color/lowerGradientColorForLoginBackground"
         android:layout_below="@+id/group_chatting_activity_toolbar"
         android:scrollbarTrackVertical="@color/lowerGradientColorForLoginBackground"
         android:layout_above="@id/group_chat_bottom_layout_view">
