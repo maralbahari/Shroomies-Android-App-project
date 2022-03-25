@@ -171,7 +171,7 @@ public class GroupChatting extends AppCompatActivity {
             }
             if(membersHashmap.size()==1){
                 // NOT ALLOW SENDING MESSAGE WHEN USER IS ALONE
-                new CustomToast(this,"There is no member to chat with");
+                new CustomToast(this,"There is no member to chat with").showCustomToast();
             }else{
                 // NEED APARTMENT ID TO SEND THE MESSAGE TO THE MEMBER OF APARTMENT ONLY
                 getApartmentID();
@@ -369,7 +369,7 @@ public class GroupChatting extends AppCompatActivity {
                 if(snapshot.exists()){
                     groupChattingRecycler.setVisibility(View.VISIBLE);
                     noMessageLayout.setVisibility(View.GONE);
-                    noMessageMushroom.pauseAnimation();
+//                    noMessageMushroom.pauseAnimation();
                         GroupMessage groupMessage=snapshot.getValue(GroupMessage.class);
                         if(groupMessage!=null){
                             messagePos++;
@@ -434,11 +434,11 @@ public class GroupChatting extends AppCompatActivity {
                 if(!snapshot.exists()){
                     groupChattingRecycler.setVisibility(View.GONE);
                     noMessageLayout.setVisibility(View.VISIBLE);
-                    noMessageMushroom.playAnimation();
+//                    noMessageMushroom.playAnimation();
                 }else{
                     groupChattingRecycler.setVisibility(View.VISIBLE);
-                    noMessageLayout.setVisibility(View.GONE);
-                    noMessageMushroom.pauseAnimation();
+//                    noMessageLayout.setVisibility(View.GONE);
+//                    noMessageMushroom.pauseAnimation();
                 }
             }
 
