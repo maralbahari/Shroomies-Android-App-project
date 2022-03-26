@@ -1,6 +1,5 @@
 package com.example.shroomies;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -122,13 +121,12 @@ public class UserProfile extends Fragment {
     }
 
 
-    @SuppressLint("SetTextI18n")
     private void getNumPosts(String userUid) {
-        Query query = mDocRef.collection("postApartment").whereEqualTo("userID", userUid);
+        Query query = mDocRef.collection(Config.APARTMENT_POST).whereEqualTo(Config.userID, userUid);
         query.addSnapshotListener((value, error) -> {
             if (value!=null) {
                 final long numberOfPosts = value.size();
-                Query query1 = mDocRef.collection("postPersonal").whereEqualTo("userID", userUid);
+                Query query1 = mDocRef.collection(Config.PERSONAL_POST).whereEqualTo(Config.userID, userUid);
                 query1.addSnapshotListener((value1, error1) -> {
                     if (value1 != null) {
                         numberPosts.setText(Long.toString(numberOfPosts + value1.size()));
@@ -142,7 +140,7 @@ public class UserProfile extends Fragment {
         apartmentPostList = new ArrayList<>();
         apartmentAdapter = new RecycleViewAdapterApartments(apartmentPostList, getContext(), false, true);
         recyclerView.setAdapter(apartmentAdapter);
-        Query query = mDocRef.collection("postApartment").orderBy("time_stamp", Query.Direction.DESCENDING).whereEqualTo("userID", userUid).limit(APARTMENT_PER_PAGINATION);
+        Query query = mDocRef.collection(Config.APARTMENT_POST).orderBy(Config.TIME_STAMP, Query.Direction.DESCENDING).whereEqualTo(Config.userID, userUid).limit(APARTMENT_PER_PAGINATION);
         query.get().addOnCompleteListener(task -> {
             for (QueryDocumentSnapshot document : task.getResult()) {
                 Apartment apartmentPosts = document.toObject(Apartment.class);
@@ -160,7 +158,7 @@ public class UserProfile extends Fragment {
         personalPostList = new ArrayList<>();
         personalPostRecyclerAdapter = new PersonalPostRecyclerAdapter(personalPostList, getActivity(), false, true);
         recyclerView.setAdapter(personalPostRecyclerAdapter);
-        Query query = mDocRef.collection("postPersonal").orderBy("time_stamp", Query.Direction.DESCENDING).whereEqualTo("userID", userUid).limit(APARTMENT_PER_PAGINATION);
+        Query query = mDocRef.collection(Config.PERSONAL_POST).orderBy(Config.TIME_STAMP, Query.Direction.DESCENDING).whereEqualTo(Config.userID, userUid).limit(APARTMENT_PER_PAGINATION);
         query.get().addOnCompleteListener(task -> {
             for (QueryDocumentSnapshot document : task.getResult()) {
                 PersonalPostModel personalPosts = document.toObject(PersonalPostModel.class);

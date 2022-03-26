@@ -90,7 +90,7 @@ public class PersonalPostModel implements ClusterItem, Parcelable {
     }
 
     public String getPostID() {
-        return postID;
+        return id;
     }
 
     public void setPostID(String postID) {
