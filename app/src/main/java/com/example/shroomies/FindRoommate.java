@@ -2,20 +2,19 @@
 
  import android.content.SharedPreferences;
  import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+ import android.view.LayoutInflater;
+ import android.view.View;
+ import android.view.ViewGroup;
  import android.widget.ImageView;
  import android.widget.SearchView;
 
- import  androidx.appcompat.widget.Toolbar;
-
  import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+ import androidx.annotation.Nullable;
+ import androidx.appcompat.widget.Toolbar;
  import androidx.constraintlayout.motion.widget.MotionLayout;
  import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
+ import androidx.fragment.app.FragmentManager;
+ import androidx.fragment.app.FragmentTransaction;
  import androidx.preference.PreferenceManager;
  import androidx.recyclerview.widget.LinearLayoutManager;
  import androidx.recyclerview.widget.StaggeredGridLayoutManager;
@@ -29,14 +28,13 @@ import androidx.fragment.app.FragmentTransaction;
  import com.google.firebase.auth.FirebaseAuth;
  import com.google.firebase.database.ChildEventListener;
  import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
- import com.google.firebase.firestore.FieldPath;
- import com.google.firebase.firestore.Query;
-
+ import com.google.firebase.database.DatabaseError;
+ import com.google.firebase.database.DatabaseReference;
+ import com.google.firebase.database.FirebaseDatabase;
  import com.google.firebase.firestore.CollectionReference;
+ import com.google.firebase.firestore.FieldPath;
  import com.google.firebase.firestore.FirebaseFirestore;
+ import com.google.firebase.firestore.Query;
  import com.google.firebase.firestore.QueryDocumentSnapshot;
  import com.google.firebase.firestore.QuerySnapshot;
  import com.nfx.android.rangebarpreference.RangeBarHelper;
@@ -248,7 +246,7 @@ import com.google.firebase.database.FirebaseDatabase;
                     searchView.setQuery("", false);
                     searchView.clearFocus();
                     searchView.setIconifiedByDefault(false);
-                    searchState= false;
+                    searchState = false;
                     apartmentList = new ArrayList<>();
                     recycleViewAdapterApartments.notifyDataSetChanged();
                     recyclerView.setOnOverPullListener(onOverPullListener);
@@ -256,17 +254,13 @@ import com.google.firebase.database.FirebaseDatabase;
                     // apply the adapter accordingly
                     // if nothing is selected go to explore adapter
 
-                    if(!gridViewOn ){
-                        recyclerView.setLayoutManager(layoutManager);
-                        recycleViewAdapterApartments = new RecycleViewAdapterApartments( apartmentList , getActivity(), false,false);
-                        recyclerView.setAdapter(recycleViewAdapterApartments);
 
-                    }else{
-                        recyclerView.setLayoutManager(staggeredGridLayoutManager);
-                        exploreApartmentsAdapter =new ExploreApartmentsAdapter(getActivity() , apartmentList , mAuth.getCurrentUser().getUid());
-                        recyclerView.setAdapter(exploreApartmentsAdapter);
-                    }
-                    lastCardKey =null;
+                    recyclerView.setLayoutManager(layoutManager);
+                    recycleViewAdapterApartments = new RecycleViewAdapterApartments(apartmentList, getActivity(), false, false);
+                    recyclerView.setAdapter(recycleViewAdapterApartments);
+
+
+                    lastCardKey = null;
                     getApartments();
                 }
             }

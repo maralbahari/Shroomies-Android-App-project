@@ -13,6 +13,7 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
@@ -34,21 +35,17 @@ import com.android.volley.ServerError;
 import com.android.volley.TimeoutError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-
+import com.google.android.material.badge.BadgeDrawable;
 import com.google.android.material.badge.BadgeUtils;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.tabs.TabLayout;
-import com.google.android.material.badge.BadgeDrawable;
 import com.google.common.net.HttpHeaders;
 import com.google.firebase.auth.FirebaseAuth;
-
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -66,7 +63,6 @@ import org.json.JSONObject;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TimeZone;
@@ -123,17 +119,15 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
             if(tasksCardsList!=null && tasksCardAdapter!=null){
                 tasksCardsList.add(tasksCard);
                 tasksCardAdapter.notifyDataSetChanged();
-                if(noCardsLayout.getVisibility()==View.VISIBLE){
                     removeNoCardsLayout();
-                }
+
             }
         }else if(expensesCard!=null){
             if(expensesCardsList!=null && expensesCardAdapter!=null){
                 expensesCardsList.add(expensesCard);
                 expensesCardAdapter.notifyDataSetChanged();
-                if(noCardsLayout.getVisibility()==View.VISIBLE){
                     removeNoCardsLayout();
-                }
+
             }
         }
 
