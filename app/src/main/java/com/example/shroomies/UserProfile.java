@@ -162,7 +162,7 @@ public class UserProfile extends Fragment {
         query.get().addOnCompleteListener(task -> {
             for (QueryDocumentSnapshot document : task.getResult()) {
                 PersonalPostModel personalPosts = document.toObject(PersonalPostModel.class);
-                personalPosts.setId(document.getId());
+                personalPosts.setPostID(document.getId());
                 personalPostList.add(personalPosts);
             }
             personalPostRecyclerAdapter.notifyDataSetChanged();
