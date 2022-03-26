@@ -202,7 +202,7 @@ public class RecycleViewAdapterApartments extends RecyclerView.Adapter<RecycleVi
             prefereanceLinearLayout = itemView.findViewById(R.id.preference_linear_layout);
 
             if (isFromUserProfile) {
-                deletePostButton.setVisibility(View.VISIBLE);
+//                deletePostButton.setVisibility(View.VISIBLE);
             }
 
             // on click go to the apartment view
