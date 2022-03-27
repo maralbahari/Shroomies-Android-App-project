@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -44,7 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private FlowingMenuLayout navigationView;
     private ImageButton myShroomies, inboxButton;
     private TextView usernameDrawer;
-    private Button logoutButton , requestsButton;
+    private Button logoutButton , requestsButton, favoriteButton;
     private ImageView profilePic;
     private BottomNavigationView bottomNavigationview;
     private FrameLayout requestButtonFrame;
@@ -66,8 +67,6 @@ public class MainActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         rootRef = FirebaseDatabase.getInstance().getReference();
         FirebaseUser fUser=mAuth.getCurrentUser();
-
-
         logoutButton = findViewById(R.id.logout);
         rootLayout  = findViewById(R.id.root_layout);
         requestsButton = findViewById(R.id.my_requests_menu);
@@ -80,6 +79,7 @@ public class MainActivity extends AppCompatActivity {
         profilePic = findViewById(R.id.drawer_nav_profile_pic);
         bottomNavigationview = findViewById(R.id.bottomNavigationView);
         requestButtonFrame=findViewById(R.id.drawer_nav_request_button_frame_layout);
+        favoriteButton = findViewById(R.id.my_favorite_menu);
         drawerLayout.setTouchMode(ElasticDrawer.TOUCH_MODE_BEZEL);
         drawerLayout.setOnDrawerStateChangeListener(new ElasticDrawer.OnDrawerStateChangeListener() {
             @Override
@@ -108,6 +108,13 @@ public class MainActivity extends AppCompatActivity {
             drawerLayout.closeMenu(true);
 
         });
+        favoriteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivity(new Intent(getApplicationContext(), Favourites.class));
+                drawerLayout.closeMenu(true);
+            }
+        });
 
         logoutButton.setOnClickListener(view -> {
             if (fUser!=null) {
@@ -128,11 +135,6 @@ public class MainActivity extends AppCompatActivity {
            DatabaseReference ref= database.getReference("tokens");
            ref.child(userID).setValue(task.getResult());
        });
-
-//        bottomAppBar.setOnItemSelectedListener(item -> {
-//
-//        });
-
         bottomNavigationview.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull @NotNull MenuItem item) {
@@ -247,54 +249,53 @@ public class MainActivity extends AppCompatActivity {
 //    }
 
     private void loadUserDetails(){
-        rootRef.child(Config.users).child(mAuth.getCurrentUser().getUid()).get().addOnCompleteListener(task -> {
-            if(task.isSuccessful()){
-                user = task.getResult().getValue(User.class);
-                if(user.getUsername()==null){
-                    finish();
-                    startActivity(new Intent(getApplicationContext() , AddUsername.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP));
+        if (mAuth.getCurrentUser()!=null) {
+            rootRef.child(Config.users).child(mAuth.getCurrentUser().getUid()).get().addOnCompleteListener(task -> {
+                if(task.isSuccessful()){
+                    user = task.getResult().getValue(User.class);
+                  if (user!=null) {
+                      if(user.getUsername()==null){
+                          finish();
+                          startActivity(new Intent(getApplicationContext() , AddUsername.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP));
 
-                }else{
-                    usernameDrawer.setText("@"+user.getUsername());
-                    int requestNo=user.getRequestCount();
-                    requestsButton.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                        @SuppressLint("UnsafeExperimentalUsageError")
-                        @Override
-                        public void onGlobalLayout() {
-                            BadgeDrawable badgeDrawable=BadgeDrawable.create(MainActivity.this);
-                            badgeDrawable.setBackgroundColor(getColor(R.color.lightGrey));
-                            badgeDrawable.setBadgeTextColor(Color.WHITE);
-                            BadgeUtils.attachBadgeDrawable(badgeDrawable, requestsButton, requestButtonFrame);
-                            badgeDrawable.setHorizontalOffset(100);
-                            badgeDrawable.setVerticalOffset(70);
-                            badgeDrawable.setHotspotBounds(100,100,100,100);
-                            badgeDrawable.setBadgeGravity(BadgeDrawable.BOTTOM_END);
-                            requestButtonFrame.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                            if (requestNo==0){
-                                badgeDrawable.setVisible(false);
-                            }else{
-                                badgeDrawable.setVisible(true);
-                                badgeDrawable.setNumber(requestNo);
-                            }
-                        }
-                    });
-                    if(user.getImage()!=null){
-                        if(!user.getImage().isEmpty()){
-                            GlideApp.with(getApplicationContext())
-                                    .load(user.getImage())
-                                    .fitCenter()
-                                    .circleCrop()
-                                    .transition(DrawableTransitionOptions.withCrossFade())
-                                    .into(profilePic);
-                        }
+                      }else{
+                          usernameDrawer.setText("@"+user.getUsername());
+                          int requestNo=user.getRequestCount();
+                          requestsButton.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                              @SuppressLint("UnsafeExperimentalUsageError")
+                              @Override
+                              public void onGlobalLayout() {
+                                  BadgeDrawable badgeDrawable=BadgeDrawable.create(MainActivity.this);
+                                  badgeDrawable.setBackgroundColor(getColor(R.color.lightGrey));
+                                  badgeDrawable.setBadgeTextColor(Color.WHITE);
+                                  BadgeUtils.attachBadgeDrawable(badgeDrawable, requestsButton, requestButtonFrame);
+                                  badgeDrawable.setHorizontalOffset(100);
+                                  badgeDrawable.setVerticalOffset(70);
+                                  badgeDrawable.setHotspotBounds(100,100,100,100);
+                                  badgeDrawable.setBadgeGravity(BadgeDrawable.BOTTOM_END);
+                                  requestButtonFrame.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                                  if (requestNo==0){
+                                      badgeDrawable.setVisible(false);
+                                  }else{
+                                      badgeDrawable.setVisible(true);
+                                      badgeDrawable.setNumber(requestNo);
+                                  }
+                              }
+                          });
+                          if(user.getImage()!=null){
+                              if(!user.getImage().isEmpty()){
+                                  GlideApp.with(getApplicationContext())
+                                          .load(user.getImage())
+                                          .fitCenter()
+                                          .circleCrop()
+                                          .transition(DrawableTransitionOptions.withCrossFade())
+                                          .into(profilePic);
+                              }
+                          }
+                      }
+                  }
                 }
-                }
-            }
-        });
+            });
+        }
     }
-
-
-
-
-
 }

@@ -514,7 +514,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
         firebaseUser.getIdToken(true).addOnCompleteListener(task -> {
             if(task.isSuccessful()) {
                 String token = task.getResult().getToken();
-                Toast.makeText(getActivity() , token , Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getActivity() , token , Toast.LENGTH_SHORT).show();
                 JSONObject jsonObject = new JSONObject();
                 JSONObject data = new JSONObject();
                 JSONObject cardDetails = new JSONObject();
