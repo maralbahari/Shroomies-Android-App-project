@@ -32,8 +32,7 @@
         <activity
             android:name=".GroupChatting"
             android:parentActivityName=".MyShroomiesActivity"></activity>
-        <activity android:name=".Favourites" android:parentActivityName=".MainActivity">
-        </activity>
+
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.provider"

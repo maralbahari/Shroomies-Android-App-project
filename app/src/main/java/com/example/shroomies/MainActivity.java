@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
         favoriteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(new Intent(getApplicationContext(), Favourites.class));
+                startActivity(new Intent(getApplicationContext(), FavouritesActivity.class));
                 drawerLayout.closeMenu(true);
             }
         });

@@ -9,6 +9,7 @@
     android:elevation="3dp"
     android:foreground="?selectableItemBackground"
     xmlns:app="http://schemas.android.com/apk/res-auto">
+
     <com.make.dots.dotsindicator.DotsIndicator
         android:id="@+id/dotsIndicator_apartment_card"
         android:layout_width="wrap_content"
