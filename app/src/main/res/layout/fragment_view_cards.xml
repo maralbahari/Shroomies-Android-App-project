@@ -157,7 +157,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/view_card_mention_tv"
-            android:text="No mentions added"
             android:gravity="center"
             android:textColor="@color/lightGrey"
             android:visibility="visible"

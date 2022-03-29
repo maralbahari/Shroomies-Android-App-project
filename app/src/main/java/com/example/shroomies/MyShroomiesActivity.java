@@ -1,9 +1,7 @@
 package com.example.shroomies;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -12,18 +10,13 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.google.android.material.snackbar.BaseTransientBottomBar;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
-import java.util.EventListener;
 
 public class MyShroomiesActivity extends AppCompatActivity {
 
@@ -78,7 +71,7 @@ public class MyShroomiesActivity extends AppCompatActivity {
                                 if(apartmentID!=null){
                                     if(!apartmentID.equals(snapshot.getValue())){
                                         finish();
-                                        Toast.makeText(getApplicationContext() , "You have been removed from this room" , Toast.LENGTH_LONG).show();
+//                                        Toast.makeText(getApplicationContext() , "You have been removed from this room" , Toast.LENGTH_LONG).show();
                                     }
                                 }else{
                                     apartmentID = snapshot.getValue().toString();

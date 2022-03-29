@@ -12,7 +12,6 @@ import android.view.ViewTreeObserver;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -302,7 +301,6 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
                 case 0:
                     sortAccordingtoImportance(selectedTab);
                     slidingLayout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-                    Toast.makeText(getActivity(),"wowow" , Toast.LENGTH_SHORT).show();
                     break;
                 case 1:
                     sortAccordingToLatest(selectedTab);
@@ -343,7 +341,7 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
                 add.setArguments(bundle1);
                 add.show(getParentFragmentManager(),"add member to apartment");
             }else{
-                Toast.makeText(getActivity() , "apartment null", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getActivity() , "apartment null", Toast.LENGTH_SHORT).show();
             }
 
         });
