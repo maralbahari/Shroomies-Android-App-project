@@ -2,7 +2,6 @@ package com.example.shroomies;
 
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,17 +10,14 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.google.android.material.button.MaterialButton;
-import com.virgilsecurity.common.callback.OnResultListener;
-import com.virgilsecurity.sdk.cards.Card;
-
-import org.jetbrains.annotations.NotNull;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.time.DayOfWeek;
 import java.time.Instant;
@@ -38,7 +34,8 @@ import java.util.Locale;
 public class PrivateInboxRecycleViewAdapter extends RecyclerView.Adapter<PrivateInboxRecycleViewAdapter.UsersListViewHolder> {
     private final List<RecieverInbox> recieverInboxList;
     private final Context context , applicationContext;
-    private HashMap<String , User> userHashMap;
+    private HashMap<String, User> userHashMap;
+    private FirebaseUser mUser;
 
 
     public PrivateInboxRecycleViewAdapter(List<RecieverInbox> receiverUsersList , HashMap<String , User > userHashMap, Context context, Context applicationContext) {
@@ -46,6 +43,7 @@ public class PrivateInboxRecycleViewAdapter extends RecyclerView.Adapter<Private
         this.context=context;
         this.userHashMap = userHashMap;
         this.applicationContext = applicationContext;
+        mUser = FirebaseAuth.getInstance().getCurrentUser();
 
     }
     public void updateInbox(List<RecieverInbox> newList) {
@@ -118,9 +116,15 @@ public class PrivateInboxRecycleViewAdapter extends RecyclerView.Adapter<Private
 
 
                 // set the last message
-                if(recieverInboxList.get(position).getLastMessage()!=null && recieverInboxList.get(position).getFrom()!=null){
+                if(recieverInboxList.get(position).getLastMessage()!=null && recieverInboxList.get(position).getFrom()!=null) {
+                    String lastMessage = "";
+                    if (recieverInboxList.get(position).getLastMessage().get("from").equals(mUser.getUid())) {
+                        lastMessage += "You: " + recieverInboxList.get(position).getLastMessage().get(Config.message);
 
-                    holder.lastMessage.setText(recieverInboxList.get(position).getLastMessage());
+                    } else {
+                        lastMessage += recieverInboxList.get(position).getLastMessage().get(Config.message);
+                    }
+                    holder.lastMessage.setText(lastMessage);
                     holder.skeletonLoaderLastMessage.clearAnimation();
                     holder.skeletonFrameLastMessage.setVisibility(View.GONE);
                 }

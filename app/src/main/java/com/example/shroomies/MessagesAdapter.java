@@ -5,10 +5,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.os.Environment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -24,31 +22,21 @@ import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.request.target.CustomTarget;
 import com.bumptech.glide.request.transition.Transition;
 import com.example.shroomies.localDatabase.ImagesPaths;
 import com.example.shroomies.localDatabase.ImagesPathsDatabase;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.virgilsecurity.android.ethree.interaction.EThree;
-import com.virgilsecurity.common.model.Data;
-import com.virgilsecurity.sdk.cards.Card;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Base64;
 import java.util.List;
 
 public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.MessageViewHolder> {
@@ -206,7 +194,6 @@ public class MessagesAdapter extends RecyclerView.Adapter<MessagesAdapter.Messag
                 fOut.close();
                 ImagesPaths imagesPaths = new ImagesPaths(messages.getMessageId(),imageFile.getAbsolutePath());
                 ImagesPathsDatabase.getInstance(context).imagePathsDao().insertImagePath(imagesPaths);
-                Toast.makeText(context, "Image saved!", Toast.LENGTH_SHORT).show();
             } catch (IOException e) {
                 e.printStackTrace();
             }

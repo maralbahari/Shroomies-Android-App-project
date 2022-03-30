@@ -45,6 +45,7 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -81,7 +82,7 @@ public class ChattingActivity extends AppCompatActivity {
     private String[] cameraPermissions, storagePermissions;
     private String imageUrl, senderID, saveCurrentDate, saveCurrentTime, receiverID;
     private int messageStartPosition = 0, messageEndPosition = 0;
-    private final int MESSAGE_PAGINATION_AMOUNT = 5;
+    private final int MESSAGE_PAGINATION_AMOUNT = 30;
     private String firstMessageID;
     private boolean firstMessageFromChildListener = true;
     private boolean loading = true, scrollFromTop;
@@ -156,7 +157,6 @@ public class ChattingActivity extends AppCompatActivity {
     }
 
     private void getMoreMessages() {
-        Toast.makeText(getApplication() , firstMessageID, Toast.LENGTH_SHORT).show();
         ArrayList<Messages> paginatedMessages  = new ArrayList<>();
         rootRef.child(Config.messages)
                 .child(senderID)
@@ -422,7 +422,6 @@ public class ChattingActivity extends AppCompatActivity {
                         requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, STORAGE_REQUEST_CODE);
                         Toast.makeText(this, " storage permission is neccessary....", Toast.LENGTH_SHORT).show();
                         pickFromGallery();
-
                     }
                 }
             }
@@ -485,7 +484,6 @@ public class ChattingActivity extends AppCompatActivity {
 
 
         filePathName.putBytes(byteArray).addOnCompleteListener(task -> {
-            Toast.makeText(getApplication() , "done uploading stream key" , Toast.LENGTH_SHORT).show();
             chosenImage=null;
             if (task.isSuccessful()) {
                 progressDialog.dismiss();
