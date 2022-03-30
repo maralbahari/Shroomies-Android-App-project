@@ -120,38 +120,10 @@ public class PrivateInboxRecycleViewAdapter extends RecyclerView.Adapter<Private
                 // set the last message
                 if(recieverInboxList.get(position).getLastMessage()!=null && recieverInboxList.get(position).getFrom()!=null){
 
-                    decryptMessage(recieverInboxList.get(position).getFrom() ,recieverInboxList.get(position).getLastMessage() , holder);
+                    holder.lastMessage.setText(recieverInboxList.get(position).getLastMessage());
+                    holder.skeletonLoaderLastMessage.clearAnimation();
+                    holder.skeletonFrameLastMessage.setVisibility(View.GONE);
                 }
-    }
-    private void decryptMessage(String userID , String encryptedMessage ,UsersListViewHolder usersListViewHolder) {
-        // get the user's card
-        OnResultListener<Card> findUsersListener =
-                new OnResultListener<Card>() {
-                    @Override
-                    public void onSuccess(Card card) {
-//                            com.virgilsecurity.common.model.Data data = new com.virgilsecurity.common.model.Data(messageText.getBytes());
-//                            // Encrypt data using user public keys
-//                            com.virgilsecurity.common.model.Data encryptedData = eThree.authEncrypt(data, findUsersResult);
-////                             Encrypt message using user public key
-                        String decryptMessage= EthreeSingleton
-                                .getInstance(null,null,null)
-                                .getEthreeInstance()
-                                .authDecrypt(encryptedMessage , card);
-
-                        ((AppCompatActivity) context).runOnUiThread(() -> {
-                            usersListViewHolder.lastMessage.setText(decryptMessage);
-                            usersListViewHolder.skeletonLoaderLastMessage.clearAnimation();
-                            usersListViewHolder.skeletonFrameLastMessage.setVisibility(View.GONE);
-                        });
-                    }
-
-                    @Override
-                    public void onError(@NotNull Throwable throwable) {
-                        Log.d("recepientVirgilCard", throwable.getMessage());
-                    }
-                };
-        EthreeSingleton.getInstance(context,null,null).getEthreeInstance().findUser(userID, true).addCallback(findUsersListener);
-
     }
 
     @Override
