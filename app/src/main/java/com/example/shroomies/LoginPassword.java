@@ -40,8 +40,6 @@ public class LoginPassword extends AppCompatActivity {
     private String bundledEmail;
     private TextInputLayout passwordEditText;
     private FirebaseAuth mAuth;
-    public EThree eThree;
-    private RequestQueue requestQueue;
     private LottieAnimationView loadingAnimationView;
     private RelativeLayout rootLayout;
     private TextInputLayout emailEditText;
@@ -52,7 +50,6 @@ public class LoginPassword extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login_password);
         mAuth=FirebaseAuth.getInstance();
-        requestQueue = Volley.newRequestQueue(getApplicationContext());
 
         emailEditText = findViewById(R.id.user_email_text_view);
         passwordEditText=findViewById(R.id.password_login);
@@ -94,7 +91,6 @@ public class LoginPassword extends AppCompatActivity {
 //                    if(firebaseUser.isEmailVerified()){
                         Intent intent = new Intent(LoginPassword.this, MainActivity.class);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        getE3Token();
                         startActivity(intent);
                         finish();
 //                    }else{
@@ -129,62 +125,6 @@ public class LoginPassword extends AppCompatActivity {
                 }
             }
         });
-}
-
-    private void getE3Token() {
-        JSONObject data = new JSONObject();
-        try {
-            data.put(Config.data , "");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-        if (firebaseUser!=null) {
-            firebaseUser.getIdToken(true).addOnCompleteListener(task -> {
-                if(task.isSuccessful()){
-                    String token = task.getResult().getToken();
-                    JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(Request.Method.POST, Config.URL_GET_VIRGIL_JWT, data, response -> {
-                        try {
-                            JSONObject result = response.getJSONObject(Config.result);
-                            if(!result.isNull(Config.token)){
-                                Log.d("ethree register ", response.toString());
-                                String ethreeToken  = result.getString(Config.token);
-                                eThree = EthreeSingleton.getInstance(getApplicationContext(),firebaseUser.getUid() , ethreeToken).getEthreeInstance();
-                                eThree.register().addCallback(new com.virgilsecurity.common.callback.OnCompleteListener() {
-                                    @Override
-                                    public void onSuccess() {
-                                        Toast.makeText(getApplicationContext() , "yayyyy" , Toast.LENGTH_LONG).show();
-                                    }
-
-                                    @Override
-                                    public void onError(@NotNull Throwable throwable) {
-                                        Log.d( "boooo" , throwable.getMessage());
-                                    }
-                                });
-
-                            }else{
-                                //todo handle error
-                                Log.d("ethree register ", "error");
-
-                            }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                            //todo handle error
-                        }
-                    }, error -> Log.d("ethree register  server error ", error.toString()))
-                    {
-                        @Override
-                        public Map<String, String> getHeaders() {
-                            Map<String, String> params = new HashMap<>();
-                            params.put(HttpHeaders.CONTENT_TYPE, "application/json; charset=UTF-8");
-                            params.put(HttpHeaders.AUTHORIZATION,"Bearer "+ token);
-                            return params;
-                        }
-                    };
-                    requestQueue.add(jsonObjectRequest);
-                }
-            });
-        }
     }
     public void closeKeyboard(){
         InputMethodManager inputMethodManager = (InputMethodManager) getApplicationContext().getSystemService(getApplicationContext().INPUT_METHOD_SERVICE);

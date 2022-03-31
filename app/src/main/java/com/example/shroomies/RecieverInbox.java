@@ -1,12 +1,17 @@
 package com.example.shroomies;
 
+import java.util.HashMap;
+
 public class RecieverInbox {
 
-    private String receiverID, lastMessage, lastMessageTime,  from;
+    private String receiverID, lastMessageTime, from;
+    private HashMap<String, Object> lastMessage;
     int unSeenMessageCount;
-    RecieverInbox(){
+
+    RecieverInbox() {
 
     }
+
     public String getFrom() {
         return from;
     }
@@ -23,11 +28,11 @@ public class RecieverInbox {
         this.receiverID = receiverID;
     }
 
-    public String getLastMessage() {
+    public HashMap<String, Object> getLastMessage() {
         return lastMessage;
     }
 
-    public void setLastMessage(String lastMessage) {
+    public void setLastMessage(HashMap<String, Object> lastMessage) {
         this.lastMessage = lastMessage;
     }
 

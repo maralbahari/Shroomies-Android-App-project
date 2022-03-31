@@ -169,7 +169,7 @@ public class LogFragment extends Fragment {
                                 }
                                 Collections.reverse(apartmentLogs);
                                 if (getContext() != null) {
-                                    logAdapter = new LogAdapter(getActivity(), apartmentLogs, usersMap, getParentFragmentManager(), getTargetFragment());
+                                    logAdapter = new LogAdapter(getActivity(), apartmentLogs, usersMap, getParentFragmentManager(), getTargetFragment(), this);
                                     logAdapter.notifyDataSetChanged();
                                     logRecycler.setAdapter(logAdapter);
                                 }
@@ -249,7 +249,7 @@ public class LogFragment extends Fragment {
 
                                                 }
                                                 Collections.reverse(apartmentLogs);
-                                                logAdapter = new LogAdapter(getContext(), apartmentLogs, usersMap, getParentFragmentManager(), getTargetFragment());
+                                                logAdapter = new LogAdapter(getContext(), apartmentLogs, usersMap, getParentFragmentManager(), getTargetFragment(), this);
                                                 logRecycler.setAdapter(logAdapter);
                                                 logAdapter.notifyDataSetChanged();
                                             }

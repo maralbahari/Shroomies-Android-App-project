@@ -26,33 +26,31 @@ public class MyShroomiesActivity extends AppCompatActivity {
     DatabaseReference rootRef;
     String apartmentID;
     ValueEventListener apartmentListener;
+    Fragment myshroomiesFragment;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_shroomies);
         //load myshroomies fragment
-        Bundle bundle=getIntent().getExtras();
-        if(bundle!=null){
-            String cardID=bundle.getString("CARDID");
-            String cardType=bundle.getString("CARDTYPE");
-            Bundle newBundle=new Bundle();
-            newBundle.putString("CARDID",cardID);
-            newBundle.putString("CARDTYPE",cardType);
-            Fragment myshroomiesFragment = new MyShroomiesFragment();
-            myshroomiesFragment.setArguments(bundle);
-            fm = getSupportFragmentManager();
-            ft = fm.beginTransaction();
-            ft.add(R.id.my_shroomies_container, myshroomiesFragment);
-            ft.commit();
+        Bundle bundle = getIntent().getExtras();
+        myshroomiesFragment = new MyShroomiesFragment();
 
-        }else {
-            Fragment myshroomiesFragment = new MyShroomiesFragment();
+        if (bundle != null) {
+            String cardID = bundle.getString("CARDID");
+            String cardType = bundle.getString("CARDTYPE");
+            Bundle newBundle = new Bundle();
+            newBundle.putString("CARDID", cardID);
+            newBundle.putString("CARDTYPE", cardType);
+            myshroomiesFragment.setArguments(bundle);
+        }
+        if (!myshroomiesFragment.isAdded()) {
             fm = getSupportFragmentManager();
             ft = fm.beginTransaction();
             ft.add(R.id.my_shroomies_container, myshroomiesFragment);
             ft.commit();
         }
+
 
         mAuth = FirebaseAuth.getInstance();
         rootRef = FirebaseDatabase.getInstance().getReference();

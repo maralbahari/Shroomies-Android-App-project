@@ -15,7 +15,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
-
 import com.android.volley.AuthFailureError;
 import com.android.volley.NetworkError;
 import com.android.volley.NoConnectionError;
@@ -28,12 +27,10 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
-
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.common.net.HttpHeaders;
 import com.google.firebase.auth.FirebaseAuth;
-
 import com.google.firebase.auth.FirebaseUser;
 
 import org.json.JSONException;
@@ -157,7 +154,7 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
             removeMember = itemView.findViewById(R.id.remove_member);
             msgMember.setOnClickListener(view -> {
                 Intent intent = new Intent(context, ChattingActivity.class);
-                intent.putExtra("USERID",userList.get(getAdapterPosition()).getUserID());
+                intent.putExtra("USER", userList.get(getAdapterPosition()));
                 context.startActivity(intent);
             });
 

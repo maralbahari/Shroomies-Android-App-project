@@ -45,19 +45,11 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-import com.virgilsecurity.android.common.model.FindUsersResult;
-import com.virgilsecurity.android.ethree.interaction.EThree;
-import com.virgilsecurity.common.callback.OnResultListener;
-import com.virgilsecurity.sdk.cards.Card;
 
-import org.jetbrains.annotations.NotNull;
-
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -90,16 +82,11 @@ public class ChattingActivity extends AppCompatActivity {
     private String[] cameraPermissions, storagePermissions;
     private String imageUrl, senderID, saveCurrentDate, saveCurrentTime, receiverID;
     private int messageStartPosition = 0, messageEndPosition = 0;
-    private final int MESSAGE_PAGINATION_AMOUNT = 5;
+    private final int MESSAGE_PAGINATION_AMOUNT = 30;
     private String firstMessageID;
     private boolean firstMessageFromChildListener = true;
     private boolean loading = true, scrollFromTop;
     private Uri chosenImage;
-
-    //ethree
-    private EThree eThree;
-    private Card recepientVirgilCard, senderVirgilCard;
-    private FindUsersResult findUsersResult;
 
 //    @Override
 //    protected void onStop() {
@@ -139,7 +126,6 @@ public class ChattingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chatting);
         initializeViews();
-        eThree = EthreeSingleton.getInstance(getApplicationContext(), null, null).getEthreeInstance();
         mAuth = FirebaseAuth.getInstance();
         senderID = mAuth.getCurrentUser().getUid();
         rootRef = FirebaseDatabase.getInstance().getReference();
@@ -147,11 +133,8 @@ public class ChattingActivity extends AppCompatActivity {
         if (!(extras == null)) {
             User reciever =extras.getParcelable("USER");
             receiverID = reciever.getUserID();
-            getSenderReceiverCards(senderID , receiverID);
-            getRecepientCard(receiverID);
-            getSenderCard();
             setUserDetails(reciever);
-
+            retrieveMessages();
         } else {
             //todo handle error
         }
@@ -174,7 +157,6 @@ public class ChattingActivity extends AppCompatActivity {
     }
 
     private void getMoreMessages() {
-        Toast.makeText(getApplication() , firstMessageID, Toast.LENGTH_SHORT).show();
         ArrayList<Messages> paginatedMessages  = new ArrayList<>();
         rootRef.child(Config.messages)
                 .child(senderID)
@@ -192,11 +174,7 @@ public class ChattingActivity extends AppCompatActivity {
                     }
                     Messages message = dataSnapshot.getValue(Messages.class);
                     if (message.getType().equals("text")) {
-                        if (message.getFrom().equals(mAuth.getCurrentUser().getUid())) {
-                            message.setText(eThree.authDecrypt(message.getText(), senderVirgilCard));
-                        } else {
-                            message.setText(eThree.authDecrypt(message.getText(), recepientVirgilCard));
-                        }
+                        message.setText(message.getText());
                     }
                     paginatedMessages.add(message);
                     count++;
@@ -249,10 +227,7 @@ public class ChattingActivity extends AppCompatActivity {
             // text is empty and only show when text is entered
             Toast.makeText(getApplicationContext(), "please enter a message", Toast.LENGTH_LONG).show();
         } else {
-            encryptedMessage = eThree.authEncrypt(messageText, findUsersResult);
             messageBody.setText("");
-            // encrypt the message using the static
-            // ethree instance from the login activity
 
             // referencing to database which user is send message to whom
             String messageSenderRef = Config.messages + "/" + senderID + "/" + receiverID;
@@ -272,14 +247,14 @@ public class ChattingActivity extends AppCompatActivity {
             //isSeen value will bre true
 
             Map recieverMessageTextBody = new HashMap();
-            recieverMessageTextBody.put("message", encryptedMessage);
+            recieverMessageTextBody.put("message", messageText);
             recieverMessageTextBody.put("time", saveCurrentTime);
             recieverMessageTextBody.put("date", saveCurrentDate);
             recieverMessageTextBody.put("type", "text");
             recieverMessageTextBody.put("from", senderID);
             recieverMessageTextBody.put("isSeen", false);
             Map senderMessageTextBody = new HashMap();
-            senderMessageTextBody.put("message", encryptedMessage);
+            senderMessageTextBody.put("message", messageText);
             senderMessageTextBody.put("time", saveCurrentTime);
             senderMessageTextBody.put("date", saveCurrentDate);
             senderMessageTextBody.put("type", "text");
@@ -308,7 +283,7 @@ public class ChattingActivity extends AppCompatActivity {
 
     private void retrieveMessages() {
         messagesArrayList = new ArrayList<>();
-        messagesAdapter = new MessagesAdapter(messagesArrayList, getApplication(), recepientVirgilCard, senderVirgilCard);
+        messagesAdapter = new MessagesAdapter(messagesArrayList, getApplication());
         chattingRecycler.setAdapter(messagesAdapter);
         //listener will retrieve only the last messages
         //
@@ -332,15 +307,8 @@ public class ChattingActivity extends AppCompatActivity {
                                 firstMessageID = dataSnapshot.getKey();
                             }
                             Messages message = dataSnapshot.getValue(Messages.class);
-                            // decrypt the message and store in place of the encrypted message
-//                        Toast.makeText(getApplicationContext() , eThree.authDecrypt(message.getText() , senderVirgilCard ) , Toast.LENGTH_SHORT).show();
                             if (message.getType().equals("text")) {
-                                if (message.getFrom().equals(mAuth.getCurrentUser().getUid())) {
-                                    message.setText(eThree.authDecrypt(message.getText(), senderVirgilCard));
-
-                                } else {
-                                    message.setText(eThree.authDecrypt(message.getText(), recepientVirgilCard));;
-                                }
+                                message.setText(message.getText());
                             }
                             messagesArrayList.add(message);
                             count++;
@@ -373,11 +341,7 @@ public class ChattingActivity extends AppCompatActivity {
                             Log.d("snapshot child event listener" , snapshot.toString());
                             Messages message = snapshot.getValue(Messages.class);
                             if (message.getType().equals("text")) {
-                                if (message.getFrom().equals(mAuth.getCurrentUser().getUid())) {
-                                    message.setText(eThree.authDecrypt(message.getText(), senderVirgilCard));
-                                } else {
-                                    message.setText(eThree.authDecrypt(message.getText(), recepientVirgilCard));
-                                }
+                                message.setText(message.getText());
                             }else{
                                 //todo add implementation for  images
                             }
@@ -458,7 +422,6 @@ public class ChattingActivity extends AppCompatActivity {
                         requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, STORAGE_REQUEST_CODE);
                         Toast.makeText(this, " storage permission is neccessary....", Toast.LENGTH_SHORT).show();
                         pickFromGallery();
-
                     }
                 }
             }
@@ -516,25 +479,22 @@ public class ChattingActivity extends AppCompatActivity {
 
         StorageReference filePathName = storageReference.child(Config.privateChatImages).child(image.getLastPathSegment()
                 + System.currentTimeMillis());
-
-        List<byte[]> encryptedResult = encryptImageMessage(byteArray);
         // put the encrypted image to firebase storage
         // the key must be stored in the real time database
 
 
-        filePathName.putBytes(encryptedResult.get(1)).addOnCompleteListener(task -> {
-            Toast.makeText(getApplication() , "done uploading stream key" , Toast.LENGTH_SHORT).show();
+        filePathName.putBytes(byteArray).addOnCompleteListener(task -> {
             chosenImage=null;
             if (task.isSuccessful()) {
                 progressDialog.dismiss();
                 imageUrl = task.getResult().getMetadata().getReference().getPath();
-                addToRealTimeDataBase(imageUrl, encryptedResult.get(0));
+                addToRealTimeDataBase(imageUrl);
             }
         });
 
     }
 
-    private void addToRealTimeDataBase(String url, byte[] streamKeyData) {
+    private void addToRealTimeDataBase(String url) {
         String messageSenderRef = Config.messages + "/" + senderID + "/" + receiverID;
         String messageReceiverRef = Config.messages + "/" + receiverID + "/" + senderID;
         //create the database ref
@@ -549,7 +509,6 @@ public class ChattingActivity extends AppCompatActivity {
         saveCurrentTime = currentTime.format(calendarTime.getTime());
         Map messageTextBody = new HashMap();
         messageTextBody.put("messageId", messagePushId);
-        messageTextBody.put("streamKeyData", Base64.getEncoder().encodeToString(streamKeyData));
         messageTextBody.put("message", url);
         messageTextBody.put("time", saveCurrentTime);
         messageTextBody.put("date", saveCurrentDate);
@@ -616,103 +575,4 @@ public class ChattingActivity extends AppCompatActivity {
 
 
     }
-
-    private void getRecepientCard(String receiverID) {
-        // get the reciver public key
-        OnResultListener<Card> findUsersListener =
-                new OnResultListener<Card>() {
-                    @Override
-                    public void onSuccess(Card card) {
-//                            com.virgilsecurity.common.model.Data data = new com.virgilsecurity.common.model.Data(messageText.getBytes());
-//                            // Encrypt data using user public keys
-//                            com.virgilsecurity.common.model.Data encryptedData = eThree.authEncrypt(data, findUsersResult);
-////                             Encrypt message using user public key
-                        runOnUiThread(() -> {
-                            recepientVirgilCard = card;
-                            if(senderVirgilCard!=null){
-                                retrieveMessages();
-                            }
-                        });
-
-                        //TODO disable send button until cards are recived
-
-                    }
-
-                    @Override
-                    public void onError(@NotNull Throwable throwable) {
-                        Log.d("recepientVirgilCard", throwable.getMessage());
-
-                    }
-                };
-        eThree.findUser(receiverID, true).addCallback(findUsersListener);
-
-    }
-
-    private void getSenderCard() {
-        OnResultListener<Card> findUsersListener =
-                new OnResultListener<Card>() {
-                    @Override
-                    public void onSuccess(Card senderCard) {
-                        runOnUiThread(() -> {
-                            senderVirgilCard = senderCard;
-                            if(recepientVirgilCard!=null){
-                                retrieveMessages();
-                            }
-                        });
-                    }
-
-                    @Override
-                    public void onError(@NotNull Throwable throwable) {
-                        // Error handling
-                        Log.d("senderVirgilCard", throwable.getMessage());
-                    }
-                };
-
-        // Lookup destination user public keys
-        eThree.findUser(mAuth.getCurrentUser().getUid(), true).addCallback(findUsersListener);
-
-    }
-    void getSenderReceiverCards(String senderID , String receiverID){
-        List <String> users =new ArrayList<>();
-        users.add(senderID);
-        users.add(receiverID);
-        OnResultListener<FindUsersResult> findUsersListener =
-                new OnResultListener<FindUsersResult>() {
-                    @Override public void onSuccess(FindUsersResult findUsersResult) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                ChattingActivity.this.findUsersResult = findUsersResult;
-                                Log.d("findUserResult","got  sender recivcer");
-                            }
-                        });
-
-                    }
-
-                    @Override public void onError(@NotNull Throwable throwable) {
-
-                    }
-                };
-
-        eThree.findUsers(users , true).addCallback(findUsersListener);
-
-    }
-
-
-    private List<byte[]> encryptImageMessage(byte[] imageByteArray) {
-        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(imageByteArray);
-        int streamSize = imageByteArray.length;
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        byte[] streamDataKey = eThree.encryptShared(byteArrayInputStream, streamSize, byteArrayOutputStream);
-        byte[] encryptedStreamDataKey = eThree.authEncrypt(new com.virgilsecurity.common.model.Data(streamDataKey), findUsersResult).getValue();
-        List<byte[]> resultList = new ArrayList<>();
-        resultList.add(encryptedStreamDataKey);
-        resultList.add(byteArrayOutputStream.toByteArray());
-        Toast.makeText(getApplicationContext(), " " + byteArrayOutputStream.toByteArray().length, Toast.LENGTH_SHORT).show();
-
-        return resultList;
-    }
-
-
-
 }

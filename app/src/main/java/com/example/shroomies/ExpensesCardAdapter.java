@@ -5,10 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -341,16 +339,16 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                  boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
                  if(success){
                      String done = context.getString(R.string.done);
-                     if(!checked){
+                     if (!checked) {
                          done = context.getString(R.string.mark_card_as_done);
                      }
-                     Snackbar.make(parentView,context.getString(R.string.card_marked_as_done)+done, BaseTransientBottomBar.LENGTH_SHORT)
-                             .show();
+
+                     displaySnackBar(context.getString(R.string.card_marked_as_done) + done);
                      expensesViewHolder.done.setText(done);
-                 }else{
+                 }else {
                      expensesViewHolder.done.setChecked(!checked);
-                     Snackbar.make(parentView, context.getString(R.string.marking_error),  BaseTransientBottomBar.LENGTH_SHORT)
-                             .show();
+
+                     displaySnackBar(context.getString(R.string.marking_error));
                  }
              } catch (JSONException e) {
                  e.printStackTrace();
@@ -390,11 +388,9 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
             try {
                 boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
                 if(success){
-                    Snackbar.make(parentView,context.getString(R.string.card_archived), BaseTransientBottomBar.LENGTH_SHORT)
-                            .show();
+                    displaySnackBar(context.getString(R.string.card_archived));
                 }else{
-                    Snackbar.make(parentView,context.getString(R.string.archving_error), BaseTransientBottomBar.LENGTH_SHORT)
-                            .show();
+                    displaySnackBar(context.getString(R.string.archving_error));
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -436,7 +432,7 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
                         archive(position , expensesCard , token);
                 }
             }else{
-                Snackbar.make(parentView,context.getString(R.string.authentication_error), BaseTransientBottomBar.LENGTH_LONG);
+                displaySnackBar(context.getString(R.string.authentication_error));
             }
         });
 
@@ -465,11 +461,10 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
             try {
                 boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
                 if(success){
-                    Snackbar.make(parentView, context.getString(R.string.card_deleted), BaseTransientBottomBar.LENGTH_SHORT).show();
+                    displaySnackBar(context.getString(R.string.card_deleted));
 
                 }else{
-                    Snackbar snack = Snackbar.make(parentView, context.getString(R.string.delete_card_error), BaseTransientBottomBar.LENGTH_SHORT);
-                    snack.show();
+                    displaySnackBar(context.getString(R.string.delete_card_error));
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -494,13 +489,20 @@ public class ExpensesCardAdapter extends RecyclerView.Adapter<ExpensesCardAdapte
             message = context.getString(R.string.no_internet);
         } else if (error instanceof ServerError) {
             message = context.getString(R.string.server_error);
-        }  else if (error instanceof ParseError) {
+        } else if (error instanceof ParseError) {
             message = context.getString(R.string.parsing_error);
-        }else{
+        } else {
             message = context.getString(R.string.unexpected_error);
         }
-        Snackbar.make(parentView,message, BaseTransientBottomBar.LENGTH_SHORT)
-                .show();
+
+        displaySnackBar(message);
+    }
+
+    void displaySnackBar(String message) {
+        if (parentView.isShown()) {
+            Snackbar.make(parentView, message, BaseTransientBottomBar.LENGTH_SHORT)
+                    .show();
+        }
     }
 
 }
