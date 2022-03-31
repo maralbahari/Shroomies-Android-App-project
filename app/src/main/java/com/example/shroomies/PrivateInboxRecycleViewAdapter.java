@@ -90,13 +90,7 @@ public class PrivateInboxRecycleViewAdapter extends RecyclerView.Adapter<Private
                     }
                 }
                 int unSeenMessages = recieverInboxList.get(position).getUnSeenMessageCount();
-                if(unSeenMessages>0){
-                    holder.newMessages.setVisibility(View.VISIBLE);
-                    holder.newMessages.setText(Integer.toString(unSeenMessages));
-                }else{
-                    holder.newMessages.setVisibility(View.GONE);
 
-                }
                 if(recieverInboxList.get(position).getLastMessageTime()!=null){
 
                     Instant instant = DateTimeFormatter.ISO_OFFSET_DATE_TIME.parse(recieverInboxList.get(position).getLastMessageTime(), Instant::from);
@@ -123,6 +117,14 @@ public class PrivateInboxRecycleViewAdapter extends RecyclerView.Adapter<Private
 
                     } else {
                         lastMessage += recieverInboxList.get(position).getLastMessage().get(Config.message);
+
+                        if (unSeenMessages > 0) {
+                            holder.newMessages.setVisibility(View.VISIBLE);
+                            holder.newMessages.setText(Integer.toString(unSeenMessages));
+                        } else {
+                            holder.newMessages.setVisibility(View.GONE);
+
+                        }
                     }
                     holder.lastMessage.setText(lastMessage);
                     holder.skeletonLoaderLastMessage.clearAnimation();

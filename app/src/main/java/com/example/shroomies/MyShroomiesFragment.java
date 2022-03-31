@@ -397,7 +397,7 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
                 logFragment.setTargetFragment(MyShroomiesFragment.this, RESULT_CODE);
                 fm = getParentFragmentManager();
                 ft = fm.beginTransaction();
-                ft.addToBackStack("null");
+                ft.addToBackStack(null);
                 ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
                 ft.replace(R.id.my_shroomies_container, logFragment);
                 ft.commit();
@@ -750,7 +750,8 @@ public class MyShroomiesFragment extends Fragment  implements LogAdapterToMyshro
 
     }
 
-   public void sendInput(String cardID, String cardType) {
+    @Override
+    public void sendInput(String cardID, String cardType) {
         this.selectedCardID = cardID;
         this.selectedCardType=cardType;
         if(selectedCardType.equals(Config.task)){

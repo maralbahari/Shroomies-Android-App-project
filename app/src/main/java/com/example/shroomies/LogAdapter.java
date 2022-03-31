@@ -2,7 +2,6 @@ package com.example.shroomies;
 
 import android.content.Context;
 import android.graphics.Typeface;
-
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextPaint;
@@ -25,7 +24,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 
-
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -43,15 +41,16 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
     private final Fragment targetedFragment;
     private FragmentTransaction ft;
     private final FragmentManager fm;
+    private Fragment callerFragment;
 
 
-
-    public LogAdapter(Context context, ArrayList<ApartmentLogs> apartmentLogsList , HashMap<String , User> usersMap, FragmentManager fm, Fragment targetedFragment) {
+    public LogAdapter(Context context, ArrayList<ApartmentLogs> apartmentLogsList, HashMap<String, User> usersMap, FragmentManager fm, Fragment targetedFragment, Fragment callerFragment) {
         this.context = context;
         this.apartmentLogsList = apartmentLogsList;
         this.targetedFragment = targetedFragment;
         this.usersMap = usersMap;
         this.fm = fm;
+        this.callerFragment = callerFragment;
 
     }
 
@@ -132,10 +131,12 @@ public class LogAdapter extends RecyclerView.Adapter<LogAdapter.LogViewHolder> {
             @Override
             public void onClick(View textView) {
 
-                logAdapterToMyshroomies.sendInput(cardID,cardType);
+                logAdapterToMyshroomies.sendInput(cardID, cardType);
                 ft = fm.beginTransaction();
-                ft.replace(R.id.my_shroomies_container, targetedFragment);
+                ft.remove(callerFragment);
                 ft.commit();
+                fm.popBackStackImmediate();
+
 
             }
             @Override
