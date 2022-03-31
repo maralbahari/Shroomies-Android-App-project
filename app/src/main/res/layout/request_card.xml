@@ -12,31 +12,32 @@
                 android:layout_margin="10dp"
                android:src="@drawable/ic_user_profile_svgrepo_com"
                 />
-           <TextView
-               android:id="@+id/user_name"
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               android:textSize="15sp"
-               android:textColor="@color/Black"
-               android:textStyle="bold"
-               android:layout_marginTop="10dp"
-               android:lines="1"
-               android:maxLength="30"
-               android:minWidth="200dp"
-               android:text="Name"
-               android:layout_toRightOf="@+id/request_user_photo"
-               />
-           <TextView
-               android:id="@+id/requested_tv"
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               android:layout_marginTop="5dp"
-               android:layout_toRightOf="@+id/request_user_photo"
-               android:text="text"
-               android:minWidth="150dp"
-               android:layout_below="@+id/user_name"
-               android:lines="1"
-               />
+
+    <TextView
+        android:id="@+id/user_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_toStartOf="@+id/cancel_request"
+        android:layout_toEndOf="@+id/request_user_photo"
+        android:lines="1"
+        android:text="Name"
+        android:ellipsize="end"
+        android:textColor="@color/Black"
+        android:textSize="15sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/requested_tv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/user_name"
+        android:layout_marginTop="5dp"
+        android:layout_toEndOf="@+id/request_user_photo"
+        android:layout_toStartOf="@+id/cancel_request"
+        android:ellipsize="end"
+        android:lines="1"
+        android:text="text" />
 
            <ImageButton
                android:id="@+id/accept_button"
@@ -60,20 +61,22 @@
                android:layout_toLeftOf="@+id/accept_button"
                android:layout_marginLeft="5dp"
                />
-           <Button
-               android:id="@+id/cancel_request"
-               android:layout_width="wrap_content"
-               android:layout_height="wrap_content"
-               android:text="Cancel"
-               android:textColor="@color/white"
-               android:textAllCaps="false"
-               android:layout_alignParentEnd="true"
-               android:layout_centerVertical="true"
-               android:layout_margin="10dp"
-               android:layout_toEndOf="@+id/user_name"
-               android:visibility="visible"
-               android:backgroundTint="@color/lightGrey"
-               />
+
+    <Button
+        android:id="@+id/cancel_request"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        android:backgroundTint="@color/lightGrey"
+        android:text="Cancel"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:visibility="visible" />
 
     </RelativeLayout>
 

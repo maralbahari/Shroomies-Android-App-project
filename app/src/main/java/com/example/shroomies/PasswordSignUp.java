@@ -17,14 +17,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.functions.FirebaseFunctions;
-import com.virgilsecurity.android.common.callback.OnGetTokenCallback;
-import com.virgilsecurity.android.ethree.interaction.EThree;
-
-import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 public class PasswordSignUp extends AppCompatActivity {
@@ -34,9 +28,6 @@ public class PasswordSignUp extends AppCompatActivity {
     private CheckBox termsCond;
     private MaterialButton register;
     private LottieAnimationView loadingAnimation;
-    //variables
-    public static EThree eThree;
-    private  String token ="";
     //firebase
     private FirebaseAuth mAuth;
     @Override
@@ -130,7 +121,6 @@ public class PasswordSignUp extends AppCompatActivity {
             user.sendEmailVerification().addOnCompleteListener(this, task -> {
                 if(task.isSuccessful()){
                     Toast.makeText(getApplicationContext(), "Registered Successfully. kindly Verification email sent to " + user.getEmail(), Toast.LENGTH_SHORT).show();
-                    getE3Token(user);
                     Intent intent = new Intent(PasswordSignUp.this, LoginActivity.class);
                     startActivity(intent);
                     Toast.makeText(PasswordSignUp.this, user.getDisplayName()+", you are a Shroomie now", Toast.LENGTH_SHORT).show();
@@ -142,35 +132,5 @@ public class PasswordSignUp extends AppCompatActivity {
                 }
             });
         }
-    }
-    private void getE3Token(FirebaseUser user) {
-        com.virgilsecurity.common.callback.OnCompleteListener registerListener = new com.virgilsecurity.common.callback.OnCompleteListener() {
-            @Override
-            public void onSuccess() {
-                Log.d("ethree register ", "success");
-
-            }
-            @Override
-            public void onError(@NotNull Throwable throwable) {
-                Log.d("ethree register ", throwable.toString());
-            }
-        };
-        /*Map<String, String> data*/
-        FirebaseFunctions.getInstance()
-                .getHttpsCallable("getVirgilJwt")
-                .call()
-                .continueWith(task -> {
-                    token = ((Map<String, String>) task.getResult().getData()).get("token");
-                    eThree = new EThree(user.getUid()
-                            , (OnGetTokenCallback) this::getToken
-                            , getApplicationContext());
-                    eThree.register().addCallback(registerListener);
-                    return null;
-
-                });
-    }
-
-    public String getToken(){
-        return token;
     }
 }

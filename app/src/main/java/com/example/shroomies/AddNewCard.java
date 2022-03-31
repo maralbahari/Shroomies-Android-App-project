@@ -13,14 +13,12 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Settings;
-
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -51,33 +49,25 @@ import com.android.volley.toolbox.Volley;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.bitmap.CenterCrop;
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import com.google.android.material.chip.Chip;
 import com.google.android.material.snackbar.BaseTransientBottomBar;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.common.net.HttpHeaders;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
-
 import com.hendraanggrian.appcompat.socialview.Mention;
 import com.hendraanggrian.appcompat.widget.MentionArrayAdapter;
 import com.hendraanggrian.appcompat.widget.SocialAutoCompleteTextView;
-
-
 import com.karumi.dexter.Dexter;
 import com.karumi.dexter.MultiplePermissionsReport;
 import com.karumi.dexter.PermissionToken;
 import com.karumi.dexter.listener.PermissionRequest;
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener;
-
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -85,7 +75,6 @@ import org.json.JSONObject;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
-
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -389,21 +378,23 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
                             JSONArray users = response.getJSONObject(Config.result).getJSONArray(Config.members);
                             if(users!=null) {
                                 if (users.length()!=0) {
-                                    ArrayAdapter<Mention> mentionAdapter = new MentionArrayAdapter<>(getActivity() , R.drawable.ic_user_profile_svgrepo_com);
-                                    for (int i = 0 ; i<jsonArray.length();i++) {
-                                        User user = null;
-                                        try {
-                                            user = mapper.readValue(users.get(i).toString(), User.class);
-                                        } catch (JSONException | JsonProcessingException e) {
-                                            e.printStackTrace();
-                                        }
-                                        if(user!=null) {
-                                            apartmentMembersArrayList.add(user);
-                                            nameAndIdHashMap.put(user.getUsername() , user.getUserID());
-                                            mentionAdapter.add(new Mention(user.getUsername()));
-                                            mentionAutoCompleteTextView.setMentionAdapter(mentionAdapter);
-                                        }
+                                    if (getActivity() != null) {
+                                        ArrayAdapter<Mention> mentionAdapter = new MentionArrayAdapter<>(getActivity(), R.drawable.ic_user_profile_svgrepo_com);
+                                        for (int i = 0; i < jsonArray.length(); i++) {
+                                            User user = null;
+                                            try {
+                                                user = mapper.readValue(users.get(i).toString(), User.class);
+                                            } catch (JSONException | JsonProcessingException e) {
+                                                e.printStackTrace();
+                                            }
+                                            if (user != null) {
+                                                apartmentMembersArrayList.add(user);
+                                                nameAndIdHashMap.put(user.getUsername(), user.getUserID());
+                                                mentionAdapter.add(new Mention(user.getUsername()));
+                                                mentionAutoCompleteTextView.setMentionAdapter(mentionAdapter);
+                                            }
 
+                                        }
                                     }
                                 }
                             }
@@ -523,7 +514,7 @@ public class AddNewCard extends DialogFragment implements SplitExpenses.membersS
         firebaseUser.getIdToken(true).addOnCompleteListener(task -> {
             if(task.isSuccessful()) {
                 String token = task.getResult().getToken();
-                Toast.makeText(getActivity() , token , Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getActivity() , token , Toast.LENGTH_SHORT).show();
                 JSONObject jsonObject = new JSONObject();
                 JSONObject data = new JSONObject();
                 JSONObject cardDetails = new JSONObject();

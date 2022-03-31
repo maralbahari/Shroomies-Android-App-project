@@ -14,7 +14,7 @@ import java.util.ArrayList;
 
 public class PersonalPostModel implements ClusterItem, Parcelable {
 
-    private String date, description, userID, id, geoHash, locality, subLocality;
+    private String date, description, userID, geoHash, locality, subLocality;
     private ArrayList<String> buildingTypes;
     private int price;
     private double latitude, longitude;
@@ -28,7 +28,7 @@ public class PersonalPostModel implements ClusterItem, Parcelable {
         date = in.readString();
         description = in.readString();
         userID = in.readString();
-        id = in.readString();
+        postID = in.readString();
         geoHash = in.readString();
         locality = in.readString();
         subLocality = in.readString();
@@ -66,7 +66,7 @@ public class PersonalPostModel implements ClusterItem, Parcelable {
         this.date = date;
         this.description = description;
         this.userID = userID;
-        this.id = id;
+        this.postID = id;
         this.price = price;
         this.latitude = latitude;
         this.longitude = longitude;
@@ -122,11 +122,11 @@ public class PersonalPostModel implements ClusterItem, Parcelable {
     }
 
     public String getId() {
-        return id;
+        return postID;
     }
 
     public void setId(String id) {
-        this.id = id;
+        this.postID = id;
     }
 
     public int getPrice() {
@@ -194,7 +194,7 @@ public class PersonalPostModel implements ClusterItem, Parcelable {
         dest.writeString(date);
         dest.writeString(description);
         dest.writeString(userID);
-        dest.writeString(id);
+        dest.writeString(postID);
         dest.writeString(geoHash);
         dest.writeString(locality);
         dest.writeString(subLocality);

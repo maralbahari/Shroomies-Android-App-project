@@ -253,7 +253,7 @@ public class MapSearchFragment extends Fragment {
                                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12));
                             }
                         } else {
-                            new CustomToast((PublishPostActivity) getContext(), "Couldn't find posts at this location").showCustomToast();
+                            new CustomToast((MainActivity) getContext(), "Couldn't find posts at this location").showCustomToast();
                         }
 
 
@@ -302,10 +302,6 @@ public class MapSearchFragment extends Fragment {
         LocationCallback mLocationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(@NotNull LocationResult locationResult) {
-                if (locationResult == null) {
-                    new CustomToast((PublishPostActivity) getContext(), "Couldn't find your current location", R.drawable.ic_error_icon).showCustomToast();
-                    return;
-                }
                 for (Location location : locationResult.getLocations()) {
                     if (location != null) {
                         double latitude = location.getLatitude();
@@ -365,22 +361,19 @@ public class MapSearchFragment extends Fragment {
                     if (place.getLatLng() != null) {
                         getApartments(mMap, place.getLatLng(), true);
                     } else {
-                        new CustomToast((PublishPostActivity) getContext(), "Couldn't find this location", R.drawable.ic_error_icon).showCustomToast();
+                        new CustomToast((MainActivity) getContext(), "Couldn't find this location", R.drawable.ic_error_icon).showCustomToast();
                     }
                 } else {
-                    new CustomToast((PublishPostActivity) getContext(), "We encountered an error", R.drawable.ic_error_icon).showCustomToast();
-
+                    new CustomToast((MainActivity) getContext(), "We encountered an error", R.drawable.ic_error_icon).showCustomToast();
                 }
 
 
             } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
                 if (data != null) {
                     Status status = Autocomplete.getStatusFromIntent(data);
-                    if (status != null) {
-                        Log.d("map error", status.getStatusMessage());
-                    }
+                    Log.d("map error", status.getStatusMessage());
                 }
-                new CustomToast((PublishPostActivity) getContext(), "We encountered an error", R.drawable.ic_error_icon).showCustomToast();
+                new CustomToast((MainActivity) getContext(), "We encountered an error", R.drawable.ic_error_icon).showCustomToast();
 
 
             }

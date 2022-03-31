@@ -15,7 +15,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.AuthFailureError;
@@ -302,7 +301,8 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
                         archive(position , tasksCard , token);
                 }
             }else{
-                Snackbar.make(parentView,context.getString(R.string.authentication_error), BaseTransientBottomBar.LENGTH_LONG);
+                displaySnackBar(context.getString(R.string.authentication_error));
+
             }
         });
     }
@@ -327,12 +327,14 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
 
             try {
                 boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
-                if(success){
-                    Snackbar.make(parentView, context.getString(R.string.card_archived), BaseTransientBottomBar.LENGTH_SHORT)
-                            .show();
-                }else{
-                    Snackbar.make(parentView, context.getString(R.string.archving_error), BaseTransientBottomBar.LENGTH_SHORT)
-                            .show();
+                if(success) {
+                    displaySnackBar(context.getString(R.string.card_archived));
+
+
+                }else {
+
+                    displaySnackBar(context.getString(R.string.archving_error));
+
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -373,13 +375,11 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
 
                 try {
                     boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
-                    Snackbar snack;
                     if(success) {
-                        snack = Snackbar.make(parentView, context.getString(R.string.card_deleted), BaseTransientBottomBar.LENGTH_SHORT);
+                        displaySnackBar(context.getString(R.string.card_deleted));
                     }else{
-                        snack = Snackbar.make(parentView, context.getString(R.string.delete_card_error), BaseTransientBottomBar.LENGTH_SHORT);
+                        displaySnackBar(context.getString(R.string.delete_card_error));
                     }
-                    snack.show();
 
                 } catch (JSONException e) {
                 e.printStackTrace();
@@ -422,21 +422,20 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
             try {
                 boolean success = response.getJSONObject(Config.result).getBoolean(Config.success);
                 if(success){
-                    if(checked){
-                        Snackbar.make(parentView,context.getString(R.string.card_marked_as_done), BaseTransientBottomBar.LENGTH_SHORT)
-                                .show();
+                    if(checked) {
+
+                        displaySnackBar(context.getString(R.string.card_marked_as_done));
                         tasksCardViewHolder.done.setText(R.string.done);
                     }else{
-                        Snackbar.make(parentView,context.getString(R.string.card_marked_as_not_done), BaseTransientBottomBar.LENGTH_SHORT)
-                                .show();
+                        displaySnackBar(context.getString(R.string.card_marked_as_not_done));
                         tasksCardViewHolder.done.setText(R.string.mark_card_as_done);
                     }
 
 
-                }else{
+                }else {
                     tasksCardViewHolder.done.setChecked(!checked);
-                    Snackbar.make(parentView,context.getString(R.string.marking_error),  BaseTransientBottomBar.LENGTH_SHORT)
-                            .show();
+
+                    displaySnackBar(context.getString(R.string.marking_error));
                 }
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -464,13 +463,22 @@ public class TasksCardAdapter extends RecyclerView.Adapter<TasksCardAdapter.Task
             message = context.getString(R.string.no_internet);
         } else if (error instanceof ServerError) {
             message = context.getString(R.string.server_error);
-        }  else if (error instanceof ParseError) {
+        } else if (error instanceof ParseError) {
             message = context.getString(R.string.parsing_error);
-        }else{
+        } else {
             message = context.getString(R.string.unexpected_error);
         }
-        Snackbar.make(parentView,message, BaseTransientBottomBar.LENGTH_SHORT)
-                .show();
+
+
+        displaySnackBar(message);
+    }
+
+
+    void displaySnackBar(String message) {
+        if (parentView.isShown()) {
+            Snackbar.make(parentView, message, BaseTransientBottomBar.LENGTH_SHORT)
+                    .show();
+        }
     }
 
 

@@ -67,7 +67,12 @@ public class GroupChatMessageAdapter extends RecyclerView.Adapter<GroupChatMessa
             holder.senderImageLinearLayout.setVisibility(View.GONE);
             holder.senderCardView.setVisibility(View.GONE);
             holder.receiverCardView.setVisibility(View.GONE);
-            String receiverName= Objects.requireNonNull(memberHashmap.get(senderID)).getUsername();
+            String receiverName = "";
+            if (memberHashmap.get(senderID) == null) {
+                receiverName = null;
+            } else {
+                receiverName= memberHashmap.get(senderID).getUsername();
+            }
             String messageDateFormatted  =  DateTimeFormatter.ofPattern("HH:mm")
                     .withZone(TimeZone.getDefault().toZoneId()).format(dateformat.parse(groupMessageList.get(position).getDate()));
             if (messageType.equals("text")){

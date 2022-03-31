@@ -1,9 +1,7 @@
 package com.example.shroomies;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -12,18 +10,13 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.google.android.material.snackbar.BaseTransientBottomBar;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.ChildEventListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
-import java.util.EventListener;
 
 public class MyShroomiesActivity extends AppCompatActivity {
 
@@ -33,33 +26,31 @@ public class MyShroomiesActivity extends AppCompatActivity {
     DatabaseReference rootRef;
     String apartmentID;
     ValueEventListener apartmentListener;
+    Fragment myshroomiesFragment;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_shroomies);
         //load myshroomies fragment
-        Bundle bundle=getIntent().getExtras();
-        if(bundle!=null){
-            String cardID=bundle.getString("CARDID");
-            String cardType=bundle.getString("CARDTYPE");
-            Bundle newBundle=new Bundle();
-            newBundle.putString("CARDID",cardID);
-            newBundle.putString("CARDTYPE",cardType);
-            Fragment myshroomiesFragment = new MyShroomiesFragment();
-            myshroomiesFragment.setArguments(bundle);
-            fm = getSupportFragmentManager();
-            ft = fm.beginTransaction();
-            ft.add(R.id.my_shroomies_container, myshroomiesFragment);
-            ft.commit();
+        Bundle bundle = getIntent().getExtras();
+        myshroomiesFragment = new MyShroomiesFragment();
 
-        }else {
-            Fragment myshroomiesFragment = new MyShroomiesFragment();
+        if (bundle != null) {
+            String cardID = bundle.getString("CARDID");
+            String cardType = bundle.getString("CARDTYPE");
+            Bundle newBundle = new Bundle();
+            newBundle.putString("CARDID", cardID);
+            newBundle.putString("CARDTYPE", cardType);
+            myshroomiesFragment.setArguments(bundle);
+        }
+        if (!myshroomiesFragment.isAdded()) {
             fm = getSupportFragmentManager();
             ft = fm.beginTransaction();
             ft.add(R.id.my_shroomies_container, myshroomiesFragment);
             ft.commit();
         }
+
 
         mAuth = FirebaseAuth.getInstance();
         rootRef = FirebaseDatabase.getInstance().getReference();
@@ -78,7 +69,7 @@ public class MyShroomiesActivity extends AppCompatActivity {
                                 if(apartmentID!=null){
                                     if(!apartmentID.equals(snapshot.getValue())){
                                         finish();
-                                        Toast.makeText(getApplicationContext() , "You have been removed from this room" , Toast.LENGTH_LONG).show();
+//                                        Toast.makeText(getApplicationContext() , "You have been removed from this room" , Toast.LENGTH_LONG).show();
                                     }
                                 }else{
                                     apartmentID = snapshot.getValue().toString();

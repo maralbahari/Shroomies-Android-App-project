@@ -249,6 +249,8 @@
             app:iconTint="@color/jetBlack"
             android:insetBottom="0dp"
             android:insetTop="0dp"
+            android:stateListAnimator="@null"
+
             />
 
             <com.google.android.material.button.MaterialButton
@@ -266,6 +268,8 @@
                 app:iconTint="@color/jetBlack"
                 android:insetBottom="0dp"
                 android:insetTop="0dp"
+                android:stateListAnimator="@null"
+
                 />
 
             <com.google.android.material.button.MaterialButton
@@ -286,6 +290,8 @@
                 android:insetBottom="0dp"
                 android:insetTop="0dp"
                 app:elevation="0dp"
+                android:stateListAnimator="@null"
+
                 />
             <FrameLayout
                 android:id="@+id/frame_layout_message_button"

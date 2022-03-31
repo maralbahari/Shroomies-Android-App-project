@@ -205,6 +205,7 @@ public class ViewCards extends DialogFragment {
 
         if(mentions!=null){
             if(!mentions.isEmpty()){
+                noMentionsAdded.setVisibility(View.INVISIBLE);
                 addMentionChips(mentions);
             }else{
                 noMentionsAdded.setVisibility(View.VISIBLE);

@@ -20,22 +20,6 @@ public class ExpensesCard implements Parcelable {
     String fileType;
     String actor;
 
-    public String getFileName() {
-        return fileName;
-    }
-
-    public void setFileName(String fileName) {
-        this.fileName = fileName;
-    }
-
-    String fileName;
-    boolean done;
-    HashMap<String, String> mention;
-
-    HashMap<String, Integer> membersShares=new HashMap<>();
-    String date;
-
-
     protected ExpensesCard(Parcel in) {
         attachedFile = in.readString();
         description = in.readString();
@@ -43,12 +27,12 @@ public class ExpensesCard implements Parcelable {
         dueDate = in.readString();
         importance = in.readString();
         cardID = in.readString();
-        done = in.readBoolean();
         fileType = in.readString();
         actor = in.readString();
+        fileName = in.readString();
+        done = in.readByte() != 0;
         date = in.readString();
     }
-
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
@@ -60,6 +44,7 @@ public class ExpensesCard implements Parcelable {
         dest.writeString(cardID);
         dest.writeString(fileType);
         dest.writeString(actor);
+        dest.writeString(fileName);
         dest.writeByte((byte) (done ? 1 : 0));
         dest.writeString(date);
     }
@@ -80,6 +65,27 @@ public class ExpensesCard implements Parcelable {
             return new ExpensesCard[size];
         }
     };
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName;
+    }
+
+    String fileName;
+    boolean done;
+    HashMap<String, String> mention;
+
+    HashMap<String, Integer> membersShares=new HashMap<>();
+    String date;
+
+
+
+
+
+
 
     public String getActor() {
         return actor;

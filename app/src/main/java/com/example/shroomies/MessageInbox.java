@@ -2,7 +2,6 @@ package com.example.shroomies;
 
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
@@ -33,15 +32,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import me.everything.android.ui.overscroll.OverScrollDecoratorHelper;
 
@@ -107,24 +102,30 @@ public class MessageInbox extends AppCompatActivity {
                     inboxUserIDs = new HashSet();
                     recieverInboxArrayList = new ArrayList<>();
                     for (DataSnapshot ds : snapshot.getChildren()) {
-                        RecieverInbox recieverInbox = ds.getValue(RecieverInbox.class);
-                        recieverInboxArrayList.add(recieverInbox);
+                        if (ds.exists()) {
+                            RecieverInbox recieverInbox = ds.getValue(RecieverInbox.class);
+                            recieverInboxArrayList.add(recieverInbox);
+                            if (!userHashMap.containsKey(recieverInbox.getReceiverID())) {
+                                inboxUserIDs.add(recieverInbox.getReceiverID());
+                            }
 
-                        if(!userHashMap.containsKey(recieverInbox.getReceiverID())) {
-                            inboxUserIDs.add(recieverInbox.getReceiverID());
                         }
+                        Log.d("--------ds", ds.toString());
+
                     }
+
+
                     sortAcoordingToDate(recieverInboxArrayList);
-                    if(messageInboxRecycleViewAdapter!=null){
+                    if (messageInboxRecycleViewAdapter != null) {
                         messageInboxRecycleViewAdapter.updateInbox(recieverInboxArrayList);
-                    }else{
-                        messageInboxRecycleViewAdapter=new PrivateInboxRecycleViewAdapter(recieverInboxArrayList,null,MessageInbox.this , getApplicationContext());
+                    } else {
+                        messageInboxRecycleViewAdapter = new PrivateInboxRecycleViewAdapter(recieverInboxArrayList, null, MessageInbox.this, getApplicationContext());
                         messageInboxRecycleViewAdapter.setHasStableIds(true);
                         inboxListRecyclerView.setAdapter(messageInboxRecycleViewAdapter);
                     }
 
 
-                    getMemberData(inboxUserIDs , recieverInboxArrayList);
+                    getMemberData(inboxUserIDs, recieverInboxArrayList);
 
                 }
             }

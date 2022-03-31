@@ -1,7 +1,6 @@
 package com.example.shroomies;
 
 import android.os.Bundle;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,23 +26,17 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.common.net.HttpHeaders;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.auth.GetTokenResult;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -170,15 +163,17 @@ public class LogFragment extends Fragment {
                                 apartmentLogs = new ArrayList<>();
 
                                 JSONArray logsJsonArray = result.getJSONArray(Config.logs);
-                                for(int i =0 ; i<logsJsonArray.length();i++){
+                                for (int i = 0; i < logsJsonArray.length(); i++) {
                                     ApartmentLogs updatedLog = mapper.readValue(((JSONObject) logsJsonArray.get(i)).toString(), ApartmentLogs.class);
                                     apartmentLogs.add(updatedLog);
                                 }
                                 Collections.reverse(apartmentLogs);
-                                logAdapter = new LogAdapter(getActivity() , apartmentLogs ,usersMap ,getParentFragmentManager() , getTargetFragment());
+                                if (getContext() != null) {
+                                    logAdapter = new LogAdapter(getActivity(), apartmentLogs, usersMap, getParentFragmentManager(), getTargetFragment(), this);
+                                    logAdapter.notifyDataSetChanged();
+                                    logRecycler.setAdapter(logAdapter);
+                                }
 
-                                logAdapter.notifyDataSetChanged();
-                                logRecycler.setAdapter(logAdapter);
                             }else{
                                 //todo display error
 
@@ -254,7 +249,7 @@ public class LogFragment extends Fragment {
 
                                                 }
                                                 Collections.reverse(apartmentLogs);
-                                                logAdapter = new LogAdapter(getContext(), apartmentLogs, usersMap, getParentFragmentManager(), getTargetFragment());
+                                                logAdapter = new LogAdapter(getContext(), apartmentLogs, usersMap, getParentFragmentManager(), getTargetFragment(), this);
                                                 logRecycler.setAdapter(logAdapter);
                                                 logAdapter.notifyDataSetChanged();
                                             }
