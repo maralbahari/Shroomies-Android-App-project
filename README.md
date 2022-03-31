@@ -2,10 +2,10 @@
 
 ## To build and Run the App
 ### Method 1
-1. clone the repository from master branch
-2. download an emulator with **API level 29 only**.
-3. build the project from android studio
-4. run the app on emulator
+1. Clone the repository from master branch.
+2. Download an emulator with **API level 29 only**.
+3. Build the project from android studio.
+4. Run the app on emulator.
 ### Method 2
 1. Download APK file from [APK_Download_URL](https://drive.google.com/drive/folders/1AT89PwVvNeeFPhvR33vBE9lNWjqK_h_6?usp=sharing,"APK_Download_URL")
 2. Install the APK file on an android mobile phone.
