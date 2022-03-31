@@ -132,9 +132,17 @@ public class ChattingActivity extends AppCompatActivity {
         Bundle extras = getIntent().getExtras();
         if (!(extras == null)) {
             User reciever =extras.getParcelable("USER");
-            receiverID = reciever.getUserID();
-            setUserDetails(reciever);
-            retrieveMessages();
+            String recieverIDFromNoti = extras.getString("USERID");
+            if (recieverIDFromNoti!=null) {
+                receiverID = recieverIDFromNoti;
+                retrieveMessages();
+            }
+            if (reciever!=null) {
+                receiverID = reciever.getUserID();
+                setUserDetails(reciever);
+                retrieveMessages();
+            }
+
         } else {
             //todo handle error
         }
@@ -283,7 +291,7 @@ public class ChattingActivity extends AppCompatActivity {
 
     private void retrieveMessages() {
         messagesArrayList = new ArrayList<>();
-        messagesAdapter = new MessagesAdapter(messagesArrayList, getApplication());
+        messagesAdapter = new MessagesAdapter(messagesArrayList, this);
         chattingRecycler.setAdapter(messagesAdapter);
         //listener will retrieve only the last messages
         //

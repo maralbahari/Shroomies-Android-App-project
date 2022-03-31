@@ -209,7 +209,7 @@ public class ApartmentViewPage extends AppCompatActivity implements OnMapReadyCa
                 int prefCounter = 0;
                 int genderPrefsCounter = 0;
 
-                Toast.makeText(getApplication(), apartment.getPreferences(), Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getApplication(), apartment.getPreferences(), Toast.LENGTH_SHORT).show();
 
                 String prefs = apartment.getPreferences();
                 if (prefs.charAt(0) == '1') {
